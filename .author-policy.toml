@@ -2,6 +2,7 @@
 # Add or replace entries when repository ownership changes.
 allowed_authors = [
   { name = "Joshua Lutkemuller, CFA", email = "110635594+joshualutkemuller@users.noreply.github.com" },
+  { name = "quantguy", email = "110635594+thatquantguy44@users.noreply.github.com" },
 ]
 
 # Case-insensitive regular expressions evaluated against "Name <email>".
