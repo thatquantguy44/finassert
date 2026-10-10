@@ -1,13 +1,20 @@
 from decimal import Decimal
 
+import pytest
+
 import finassert as fa
-from finassert.adapters import ColumnMapping, GroupKey
+from finassert.adapters import ColumnMapping, FieldAggregation, GroupKey
 from finassert.core.models import Outcome
 from finassert.numerical import Tolerance
 from finassert.rules._cash_reconciliation import _GroupedCashReconciliationRule
 
 
-def cash_mapping(*, row_key: str | None = None) -> ColumnMapping:
+def cash_mapping(
+    *,
+    row_key: str | None = None,
+    opening: FieldAggregation = FieldAggregation.FIRST,
+    closing: FieldAggregation = FieldAggregation.LAST,
+) -> ColumnMapping:
     return ColumnMapping(
         {
             "opening_cash": "open",
@@ -18,6 +25,13 @@ def cash_mapping(*, row_key: str | None = None) -> ColumnMapping:
         },
         group_keys=(GroupKey("portfolio", "portfolio_id"), GroupKey("currency", "ccy")),
         row_key=row_key,
+        aggregations={
+            "opening_cash": opening,
+            "inflows": FieldAggregation.SUM,
+            "outflows": FieldAggregation.SUM,
+            "cash_pnl": FieldAggregation.SUM,
+            "closing_cash": closing,
+        },
     )
 
 
@@ -25,11 +39,11 @@ def test_grouped_cash_reconciliation_aggregates_additive_slices() -> None:
     data = {
         "portfolio_id": ["A", "A", "B"],
         "ccy": ["USD", "USD", "EUR"],
-        "open": [100, 50, 100],
+        "open": [100, 100, 100],
         "in": [10, 0, 5],
         "out": [5, 1, 3],
         "pnl": [1, 0, -2],
-        "close": [106, 49, 99],
+        "close": [106, 105, 99],
     }
 
     result = fa.check(data, [_GroupedCashReconciliationRule(cash_mapping())]).results[0]
@@ -40,6 +54,7 @@ def test_grouped_cash_reconciliation_aggregates_additive_slices() -> None:
     assert result.metadata["failed_groups"] == [
         {
             "group": {"portfolio": "B", "currency": "EUR"},
+            "reason": "reconciliation_mismatch",
             "observed": 99,
             "expected": 100,
             "difference": -1,
@@ -66,6 +81,21 @@ def test_grouped_cash_reconciliation_preserves_decimal_tolerance() -> None:
     assert fa.check(data, [rule]).passed
 
 
+def test_grouped_cash_reconciliation_requires_explicit_aggregations() -> None:
+    mapping = ColumnMapping(
+        {
+            "opening_cash": "open",
+            "inflows": "in",
+            "outflows": "out",
+            "cash_pnl": "pnl",
+            "closing_cash": "close",
+        }
+    )
+
+    with pytest.raises(KeyError, match=r"aggregation.*opening_cash"):
+        _GroupedCashReconciliationRule(mapping)
+
+
 def test_grouped_cash_reconciliation_uses_configured_row_key() -> None:
     data = {
         "record_id": ["cash-001"],
@@ -85,6 +115,39 @@ def test_grouped_cash_reconciliation_uses_configured_row_key() -> None:
 
     assert result.outcome is Outcome.FAILED
     assert result.metadata["invalid_rows"] == [{"row": "cash-001", "fields": ["inflows"]}]
+
+
+def test_grouped_cash_reconciliation_reports_non_unique_balance() -> None:
+    data = {
+        "portfolio_id": ["A", "A"],
+        "ccy": ["USD", "USD"],
+        "open": [100, 101],
+        "in": [0, 0],
+        "out": [0, 0],
+        "pnl": [0, 0],
+        "close": [100, 100],
+    }
+    rule = _GroupedCashReconciliationRule(
+        cash_mapping(opening=FieldAggregation.REQUIRE_UNIQUE),
+    )
+
+    result = fa.check(data, [rule]).results[0]
+
+    assert result.outcome is Outcome.FAILED
+    assert result.metadata["failed_groups"] == [
+        {
+            "group": {"portfolio": "A", "currency": "USD"},
+            "reason": "aggregation_failed",
+            "aggregation_errors": [
+                {
+                    "field": "opening_cash",
+                    "aggregation": "require_unique",
+                    "message": "group field contains more than one distinct value",
+                }
+            ],
+            "row_count": 2,
+        }
+    ]
 
 
 def test_grouped_cash_reconciliation_errors_on_missing_group_key() -> None:

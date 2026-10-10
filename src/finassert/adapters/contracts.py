@@ -3,8 +3,18 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import StrEnum
 from types import MappingProxyType
+
+
+class FieldAggregation(StrEnum):
+    """How a semantic numeric field reduces within an ordered group."""
+
+    SUM = "sum"
+    FIRST = "first"
+    LAST = "last"
+    REQUIRE_UNIQUE = "require_unique"
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,11 +51,15 @@ class ColumnMapping:
         row_key: Optional physical column used as diagnostic row identity. When
             omitted, adapters retain their native labels (for example a pandas
             index) or positional labels.
+        aggregations: Reduction policy keyed by semantic field name. Ungrouped
+            rules may omit it. Grouped rules must explicitly require policies
+            for every semantic field they aggregate.
     """
 
     columns: Mapping[str, str]
     group_keys: tuple[GroupKey, ...] = ()
     row_key: str | None = None
+    aggregations: Mapping[str, FieldAggregation] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not isinstance(self.columns, Mapping):
@@ -76,8 +90,21 @@ class ColumnMapping:
             if not self.row_key.strip():
                 raise ValueError("row_key must be a non-empty column name when provided")
 
+        if not isinstance(self.aggregations, Mapping):
+            raise TypeError("aggregations must be a mapping")
+        normalized_aggregations: dict[str, FieldAggregation] = {}
+        for semantic_name, aggregation in self.aggregations.items():
+            if semantic_name not in normalized:
+                raise ValueError(
+                    f"aggregation configured for unknown semantic column {semantic_name!r}"
+                )
+            if not isinstance(aggregation, FieldAggregation):
+                raise TypeError("aggregation values must be FieldAggregation members")
+            normalized_aggregations[semantic_name] = aggregation
+
         object.__setattr__(self, "columns", MappingProxyType(normalized))
         object.__setattr__(self, "group_keys", tuple(self.group_keys))
+        object.__setattr__(self, "aggregations", MappingProxyType(normalized_aggregations))
 
     def resolve(self, semantic_name: str) -> str:
         """Return the physical column for a required semantic field."""
@@ -89,6 +116,20 @@ class ColumnMapping:
     def required_columns(self, *semantic_names: str) -> tuple[str, ...]:
         """Resolve required semantics in caller-provided order."""
         return tuple(self.resolve(name) for name in semantic_names)
+
+    def aggregation_for(self, semantic_name: str) -> FieldAggregation:
+        """Return the explicit aggregation for a semantic field."""
+        self.resolve(semantic_name)
+        try:
+            return self.aggregations[semantic_name]
+        except KeyError as exc:
+            raise KeyError(
+                f"aggregation for semantic column {semantic_name!r} is not configured"
+            ) from exc
+
+    def required_aggregations(self, *semantic_names: str) -> tuple[FieldAggregation, ...]:
+        """Resolve required aggregations in caller-provided order."""
+        return tuple(self.aggregation_for(name) for name in semantic_names)
 
     @property
     def grouping_columns(self) -> tuple[str, ...]:

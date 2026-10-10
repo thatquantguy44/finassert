@@ -12,20 +12,22 @@ from typing import Any, ClassVar
 
 from finassert.adapters._column import extract_columns, is_missing
 from finassert.adapters.contracts import ColumnMapping
-from finassert.core.exceptions import InvalidDataError
+from finassert.core.exceptions import GroupAggregationError, InvalidDataError
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, is_finite
 from finassert.rules._helpers import precise_sum
+from finassert.rules.grouped import aggregate_values
 
 
 @dataclass(frozen=True, slots=True)
 class _GroupedCashReconciliationRule:
-    """Prototype additive cash reconciliation over ordered groups.
+    """Prototype cash reconciliation with explicit field aggregation.
 
-    Each row is an additive reconciliation slice using the convention
+    Each group uses the convention
     ``opening_cash + inflows - outflows + cash_pnl = closing_cash``.
     Currency conversion is never attempted; callers must include currency as a
-    group key whenever a dataset can contain more than one currency.
+    group key whenever a dataset can contain more than one currency. Every
+    semantic field must declare an aggregation in ``mapping``.
     """
 
     mapping: ColumnMapping
@@ -35,7 +37,7 @@ class _GroupedCashReconciliationRule:
     rule_id: str = "_prototype.accounting.grouped_cash_reconciliation"
     name: str = "Grouped cash reconciliation prototype"
 
-    _SEMANTICS: ClassVar[tuple[str, ...]] = (
+    required_semantics: ClassVar[tuple[str, ...]] = (
         "opening_cash",
         "inflows",
         "outflows",
@@ -46,14 +48,22 @@ class _GroupedCashReconciliationRule:
     def __post_init__(self) -> None:
         if self.max_groups < 0:
             raise ValueError("max_groups must be non-negative")
-        self.mapping.required_columns(*self._SEMANTICS)
+        self.mapping.required_columns(*self.required_semantics)
+        self.mapping.required_aggregations(*self.required_semantics)
 
     def evaluate(self, data: Any) -> ValidationResult:
         """Aggregate additive slices and compare expected closing cash by group."""
         semantic_columns = dict(
             zip(
-                self._SEMANTICS,
-                self.mapping.required_columns(*self._SEMANTICS),
+                self.required_semantics,
+                self.mapping.required_columns(*self.required_semantics),
+                strict=True,
+            )
+        )
+        semantic_aggregations = dict(
+            zip(
+                self.required_semantics,
+                self.mapping.required_aggregations(*self.required_semantics),
                 strict=True,
             )
         )
@@ -89,7 +99,10 @@ class _GroupedCashReconciliationRule:
                 invalid_rows.append({"row": row_label, "fields": invalid_fields})
                 continue
 
-            bucket = grouped.setdefault(group, {semantic: [] for semantic in self._SEMANTICS})
+            bucket = grouped.setdefault(
+                group,
+                {semantic: [] for semantic in self.required_semantics},
+            )
             for semantic, value in row_values.items():
                 bucket[semantic].append(value)
 
@@ -106,7 +119,34 @@ class _GroupedCashReconciliationRule:
 
         failed_groups: list[dict[str, Any]] = []
         for group, values in grouped.items():
-            totals = {semantic: precise_sum(items) for semantic, items in values.items()}
+            group_identity = {
+                key.name: value for key, value in zip(self.mapping.group_keys, group, strict=True)
+            }
+            totals: dict[str, Numeric] = {}
+            aggregation_errors: list[dict[str, str]] = []
+            for semantic, items in values.items():
+                aggregation = semantic_aggregations[semantic]
+                try:
+                    totals[semantic] = aggregate_values(items, aggregation)
+                except GroupAggregationError as exc:
+                    aggregation_errors.append(
+                        {
+                            "field": semantic,
+                            "aggregation": aggregation.value,
+                            "message": str(exc),
+                        }
+                    )
+            if aggregation_errors:
+                failed_groups.append(
+                    {
+                        "group": group_identity,
+                        "reason": "aggregation_failed",
+                        "aggregation_errors": aggregation_errors,
+                        "row_count": len(values["closing_cash"]),
+                    }
+                )
+                continue
+
             expected = precise_sum(
                 [
                     totals["opening_cash"],
@@ -119,10 +159,8 @@ class _GroupedCashReconciliationRule:
             if not self.tolerance.is_close(observed, expected):
                 failed_groups.append(
                     {
-                        "group": {
-                            key.name: value
-                            for key, value in zip(self.mapping.group_keys, group, strict=True)
-                        },
+                        "group": group_identity,
+                        "reason": "reconciliation_mismatch",
                         "observed": observed,
                         "expected": expected,
                         "difference": precise_sum([observed, -expected]),
