@@ -1,0 +1,26 @@
+site_name: finassert
+site_description: Financial invariants, tested like code.
+repo_url: https://github.com/finassert/finassert
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Architecture: architecture.md
+  - Rule development: rule-development.md
+  - Integrations: integrations.md
+  - Examples:
+      - Portfolio validation: examples/portfolio-validation.md
+      - NAV reconciliation: examples/nav-reconciliation.md
+      - Pipeline validation: examples/pipeline-validation.md
+  - API reference: reference/index.md
+  - Roadmap: roadmap.md
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+strict: true

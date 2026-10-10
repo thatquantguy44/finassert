@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a rule, integration, or framework capability
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and use case
+    validations:
+      required: true
+  - type: textarea
+    id: semantics
+    attributes:
+      label: Financial semantics
+      description: State the invariant, units, signs, null behavior, tolerances, and cases where it should not apply.
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
