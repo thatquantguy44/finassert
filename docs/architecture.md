@@ -27,5 +27,10 @@ optional physical `row_key` replaces native labels for row diagnostics. Mapping
 configuration is immutable after construction, while input datasets remain
 untouched.
 
+Grouped mappings assign an explicit `FieldAggregation` to every semantic field:
+`SUM`, `FIRST`, `LAST`, or `REQUIRE_UNIQUE`. First and last refer to unchanged
+physical input order. `GroupedRule` is a structural extension of `Rule`; the core
+engine still executes it through the ordinary `evaluate` method.
+
 Grouped validation design and the private cash-reconciliation exploration are
 documented in [Grouped validation](design/grouped-validation.md).

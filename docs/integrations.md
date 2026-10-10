@@ -6,7 +6,8 @@ available through the `pandas` extra and accepts a DataFrame directly or through
 
 Rules that consume multiple fields can use `ColumnMapping` to separate semantic
 names from physical schemas. `GroupKey` declarations retain order in diagnostics,
-and an optional `row_key` column provides portable row identity. See
+an optional `row_key` column provides portable row identity, and
+`FieldAggregation` makes every grouped reduction explicit. See
 [Grouped validation](design/grouped-validation.md) for the contract and example.
 
 Polars is deferred until expression, null, and row-identity behavior is stable.

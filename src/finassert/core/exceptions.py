@@ -15,3 +15,7 @@ class InvalidDataError(FinassertError, ValueError):
 
 class RuleEvaluationError(FinassertError):
     """Raised in strict mode when a rule cannot be evaluated."""
+
+
+class GroupAggregationError(FinassertError, ValueError):
+    """Raised when values cannot satisfy a configured group aggregation."""
