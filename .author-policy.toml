@@ -1,0 +1,21 @@
+# Shared by the local pre-commit hook and the CI authorship job.
+# Add or replace entries when repository ownership changes.
+allowed_authors = [
+  { name = "Joshua Lutkemuller, CFA", email = "110635594+joshualutkemuller@users.noreply.github.com" },
+]
+
+# Case-insensitive regular expressions evaluated against "Name <email>".
+blocked_identity_patterns = [
+  "\\bai[ _-]?agent\\b",
+  "\\baider\\b",
+  "\\banthropic\\b",
+  "\\bchatgpt\\b",
+  "\\bclaude\\b",
+  "\\bcodex\\b",
+  "\\bcopilot\\b",
+  "\\bcursor\\b",
+  "\\bdevin\\b",
+  "\\bgemini\\b",
+  "\\bopenai\\b",
+  "\\bwindsurf\\b",
+]
