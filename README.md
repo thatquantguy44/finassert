@@ -91,6 +91,7 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Weight-sum and nonnegative-value rules | NAV, cash, returns, collateral, exposure rules |
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
+| Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
 | Text and JSON-compatible results | CLI, YAML policies, HTML reports |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
 

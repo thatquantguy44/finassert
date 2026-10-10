@@ -10,11 +10,16 @@
 
 ## Adapter contracts
 
-- `ColumnMapping(columns, group_keys=(), row_key=None)` creates an immutable
-  semantic-to-physical field map.
+- `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={})` creates
+  an immutable semantic-to-physical field and aggregation map.
+- `FieldAggregation` provides `SUM`, `FIRST`, `LAST`, and `REQUIRE_UNIQUE`.
 - `GroupKey(name, column)` declares one ordered grouping dimension.
 - `PandasDataFrameAdapter(frame)` exposes pandas values and index labels through
   the dependency-free column-source protocol.
+- `GroupedRule` is the structural protocol for ordinary rules that declare a
+  mapping and required semantic fields.
+- `finassert.rules.aggregate_values(values, aggregation)` applies one configured
+  numeric reduction without dataframe coercion.
 
 The grouped cash-reconciliation module is private exploratory code and is not part
 of the supported API.

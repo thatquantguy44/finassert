@@ -1,6 +1,6 @@
 # 0004 — DataFrame adapters
 
-**Status:** pandas and mapping contracts implemented; grouped execution explored;
+**Status:** pandas, mapping, and grouped aggregation contracts implemented;
 Polars proposed
 
 ## Problem statement
@@ -27,15 +27,21 @@ execution, and zero-copy guarantees are excluded.
 
 The core `ColumnSource` returns values and labels. Built-ins also accept column
 mappings and row mappings. `ColumnMapping` maps semantic fields to physical
-columns, while ordered `GroupKey` values define partitions. pandas is detected
-without importing it and preserves the index. A future Polars adapter will assign
-or require explicit row keys; it must decide eager versus lazy collection before
-release.
+columns and explicit aggregation policies, while ordered `GroupKey` values define
+partitions. `GroupedRule` extends the structural rule contract without changing
+engine execution. pandas is detected without importing it and preserves the
+index. A future Polars adapter will assign or require explicit row keys; it must
+decide eager versus lazy collection before release.
 
 ## Public API design
 
 ```python
-from finassert.adapters import ColumnMapping, GroupKey, PandasDataFrameAdapter
+from finassert.adapters import (
+    ColumnMapping,
+    FieldAggregation,
+    GroupKey,
+    PandasDataFrameAdapter,
+)
 
 fa.check(frame, rules)
 PandasDataFrameAdapter(frame)
@@ -43,13 +49,18 @@ mapping = ColumnMapping(
     columns={"opening_cash": "cash_open", "closing_cash": "cash_close"},
     group_keys=(GroupKey("portfolio", "portfolio_id"),),
     row_key="record_id",
+    aggregations={
+        "opening_cash": FieldAggregation.FIRST,
+        "closing_cash": FieldAggregation.LAST,
+    },
 )
 # Proposed: PolarsDataFrameAdapter(frame, row_key="position_id")
 ```
 
-`ColumnMapping` and `GroupKey` are public adapter contracts. Grouped rule factories
-remain rule-specific; the cash prototype is private until balance-versus-flow
-grain and currency preconditions are resolved.
+`ColumnMapping`, `GroupKey`, and `FieldAggregation` are public adapter contracts.
+`GroupedRule` is the public structural grouped-rule contract. Grouped rule
+factories remain rule-specific; the cash prototype is private until ordering and
+currency preconditions are resolved.
 
 ## Data contracts
 
@@ -58,6 +69,12 @@ alignment. Duplicate labels are permitted but metadata must not claim uniqueness
 Group keys serialize in declared order. `row_key`, when configured, supplies
 diagnostic labels from a physical column. Adapters do not change dtypes, fill
 nulls, reorder rows, or mutate data.
+
+Grouped fields have no default aggregation. Rules require configured policies for
+every semantic they aggregate. `SUM` preserves Decimal arithmetic; `FIRST` and
+`LAST` use physical input order; `REQUIRE_UNIQUE` requires exact equality among
+repeated values. Aggregation-policy failure is a group validation failure rather
+than an evaluation error.
 
 ## Financial and numerical edge cases
 
@@ -74,15 +91,17 @@ evaluation errors, never passes.
 
 1. Mapping/record extraction and pandas index preservation (complete). 2. Formal
 column-mapping and group contracts (complete). 3. pandas nullable, Decimal,
-duplicate-index, empty, and non-mutation tests (complete). 4. Resolve grouped
-balance-versus-flow grain. 5. Polars eager prototype, then lazy behavior only with
-explicit collection limits.
+duplicate-index, empty, and non-mutation tests (complete). 4. Typed group
+aggregation and grouped-rule contracts (complete). 5. Decide whether first/last
+policies require an explicit ordering column. 6. Polars eager prototype, then lazy
+behavior only with explicit collection limits.
 
 ## Acceptance criteria
 
 Core imports without pandas/Polars; adapters preserve row identity; inputs remain
 unmodified; missing columns are errors; semantic mappings are immutable; group
-ordering is deterministic; optional extras isolate dependencies.
+ordering is deterministic; grouped aggregation is explicit; optional extras
+isolate dependencies.
 
 ## Testing requirements
 

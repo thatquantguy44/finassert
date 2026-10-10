@@ -20,3 +20,16 @@ rule = fa.custom_rule(
 Return a full `ValidationResult` when observed, expected, tolerance, or metadata
 must be reported. Exceptions represent evaluation errors, not failed financial
 assertions. Limit row diagnostics and record whether they were truncated.
+
+## Grouped rules
+
+A grouped rule remains a normal `Rule`, but also satisfies `GroupedRule` by
+exposing a `ColumnMapping` and `required_semantics`. Require an explicit
+`FieldAggregation` for every required semantic at construction time. Do not infer
+summation from numeric dtype: balances, prices, rates, and flows have different
+aggregation behavior.
+
+Use `aggregate_values` for the four supported numeric policies. Treat a
+`REQUIRE_UNIQUE` conflict as a validation failure for the affected group. Reserve
+evaluation errors for missing columns, invalid grouping keys, or inability to
+construct the groups.
