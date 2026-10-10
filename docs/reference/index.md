@@ -8,6 +8,17 @@
 - `custom_rule(rule_id, name, evaluator, ...)`
 - `Tolerance(absolute=0, relative=0)`
 
+## Adapter contracts
+
+- `ColumnMapping(columns, group_keys=(), row_key=None)` creates an immutable
+  semantic-to-physical field map.
+- `GroupKey(name, column)` declares one ordered grouping dimension.
+- `PandasDataFrameAdapter(frame)` exposes pandas values and index labels through
+  the dependency-free column-source protocol.
+
+The grouped cash-reconciliation module is private exploratory code and is not part
+of the supported API.
+
 ## Results
 
 `ValidationResult` contains `rule_id`, `rule_name`, `outcome`, `severity`,

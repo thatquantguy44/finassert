@@ -1,6 +1,6 @@
 site_name: finassert
 site_description: Financial invariants, tested like code.
-repo_url: https://github.com/finassert/finassert
+repo_url: https://github.com/thatquantguy44/finassert
 theme:
   name: material
   features:
@@ -12,6 +12,8 @@ nav:
   - Architecture: architecture.md
   - Rule development: rule-development.md
   - Integrations: integrations.md
+  - Design notes:
+      - Grouped validation: design/grouped-validation.md
   - Examples:
       - Portfolio validation: examples/portfolio-validation.md
       - NAV reconciliation: examples/nav-reconciliation.md
