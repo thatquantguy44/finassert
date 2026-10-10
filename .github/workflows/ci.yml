@@ -16,7 +16,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate commit authors
-        run: python3 scripts/check_author.py --history HEAD
+        env:
+          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/check_author.py --history "$REVISION"
   test:
     runs-on: ubuntu-latest
     strategy:

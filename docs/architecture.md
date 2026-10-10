@@ -18,3 +18,14 @@ JSON key ordering are deterministic for identical inputs and configuration.
 An empty rule set passes vacuously. Skipped rules do not fail a report. Failed
 and errored rules do, regardless of severity; severity classifies impact rather
 than changing truth.
+
+## Column and grouping contracts
+
+`finassert.adapters.ColumnMapping` maps stable rule semantics to physical column
+names. Ordered `GroupKey` values define partitions and diagnostic key order. An
+optional physical `row_key` replaces native labels for row diagnostics. Mapping
+configuration is immutable after construction, while input datasets remain
+untouched.
+
+Grouped validation design and the private cash-reconciliation exploration are
+documented in [Grouped validation](design/grouped-validation.md).

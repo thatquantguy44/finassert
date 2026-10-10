@@ -40,8 +40,8 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/finassert/finassert"
-Issues = "https://github.com/finassert/finassert/issues"
+Repository = "https://github.com/thatquantguy44/finassert"
+Issues = "https://github.com/thatquantguy44/finassert/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/finassert"]

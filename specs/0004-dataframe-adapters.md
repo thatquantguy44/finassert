@@ -1,6 +1,7 @@
 # 0004 — DataFrame adapters
 
-**Status:** pandas initial; Polars proposed
+**Status:** pandas and mapping contracts implemented; grouped execution explored;
+Polars proposed
 
 ## Problem statement
 
@@ -25,25 +26,38 @@ execution, and zero-copy guarantees are excluded.
 ## Proposed architecture
 
 The core `ColumnSource` returns values and labels. Built-ins also accept column
-mappings and row mappings. pandas is detected without importing it and preserves
-the index. A future Polars adapter will assign or require explicit row keys; it
-must decide eager versus lazy collection before release.
+mappings and row mappings. `ColumnMapping` maps semantic fields to physical
+columns, while ordered `GroupKey` values define partitions. pandas is detected
+without importing it and preserves the index. A future Polars adapter will assign
+or require explicit row keys; it must decide eager versus lazy collection before
+release.
 
 ## Public API design
 
 ```python
+from finassert.adapters import ColumnMapping, GroupKey, PandasDataFrameAdapter
+
 fa.check(frame, rules)
 PandasDataFrameAdapter(frame)
+mapping = ColumnMapping(
+    columns={"opening_cash": "cash_open", "closing_cash": "cash_close"},
+    group_keys=(GroupKey("portfolio", "portfolio_id"),),
+    row_key="record_id",
+)
 # Proposed: PolarsDataFrameAdapter(frame, row_key="position_id")
 ```
 
-Future `ColumnMap` maps semantic inputs to physical columns and group keys.
+`ColumnMapping` and `GroupKey` are public adapter contracts. Grouped rule factories
+remain rule-specific; the cash prototype is private until balance-versus-flow
+grain and currency preconditions are resolved.
 
 ## Data contracts
 
-Columns yield equal-length values and labels. Duplicate labels are permitted but
-metadata must not claim uniqueness. Group keys serialize as ordered tuples.
-Adapters do not change dtypes or fill nulls.
+Columns yield equal-length values and labels. Multi-column reads validate label
+alignment. Duplicate labels are permitted but metadata must not claim uniqueness.
+Group keys serialize in declared order. `row_key`, when configured, supplies
+diagnostic labels from a physical column. Adapters do not change dtypes, fill
+nulls, reorder rows, or mutate data.
 
 ## Financial and numerical edge cases
 
@@ -58,19 +72,23 @@ evaluation errors, never passes.
 
 ## Implementation milestones
 
-1. Mapping/record extraction and pandas index preservation. 2. Formal column-map
-and group contracts. 3. pandas nullable tests. 4. Polars eager prototype, then
-lazy behavior only with explicit collection limits.
+1. Mapping/record extraction and pandas index preservation (complete). 2. Formal
+column-mapping and group contracts (complete). 3. pandas nullable, Decimal,
+duplicate-index, empty, and non-mutation tests (complete). 4. Resolve grouped
+balance-versus-flow grain. 5. Polars eager prototype, then lazy behavior only with
+explicit collection limits.
 
 ## Acceptance criteria
 
 Core imports without pandas/Polars; adapters preserve row identity; inputs remain
-unmodified; missing columns are errors; optional extras isolate dependencies.
+unmodified; missing columns are errors; semantic mappings are immutable; group
+ordering is deterministic; optional extras isolate dependencies.
 
 ## Testing requirements
 
 Contract-test every adapter using the same synthetic cases: pass/fail, empty,
-null, duplicate label, Decimal, missing column, group failure, and non-mutation.
+null, duplicate label, Decimal, missing column, explicit row key, group failure,
+alignment, and non-mutation.
 
 ## Dependencies on other specifications
 
