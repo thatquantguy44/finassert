@@ -25,6 +25,11 @@ def test_built_page_has_no_placeholders_and_a_matching_script_hash() -> None:
     page = builder.build()
 
     assert "{{" not in page
+    assert (
+        f'src="{builder.PYODIDE_URL}pyodide.js" integrity="{builder.PYODIDE_INTEGRITY}" '
+        'crossorigin="anonymous"'
+    ) in page
+    assert builder.PYODIDE_INTEGRITY.startswith("sha384-")
     csp = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', page)
     assert csp is not None
     policy = csp.group(1)

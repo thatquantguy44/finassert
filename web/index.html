@@ -86,7 +86,7 @@
   <footer>finassert {{VERSION}} · running on Pyodide {{PYODIDE_VERSION}}</footer>
 </main>
 <script type="application/octet-stream" id="finassert-wheel" data-name="{{WHEEL_NAME}}">{{WHEEL_B64}}</script>
-<script src="{{PYODIDE_URL}}pyodide.js"></script>
+<script src="{{PYODIDE_URL}}pyodide.js" integrity="{{PYODIDE_INTEGRITY}}" crossorigin="anonymous"></script>
 <script>{{APP_JS}}</script>
 </body>
 </html>

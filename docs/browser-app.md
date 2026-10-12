@@ -12,6 +12,8 @@ browser tab:
 
 - Python and the YAML reader are downloaded once, at start-up, from the pinned
   Pyodide release on the jsDelivr CDN. finassert itself is embedded in the file.
+- `pyodide.js` is pinned with a Subresource Integrity hash: if the CDN ever
+  serves a different file, the browser refuses to run it.
 - After start-up the page makes no network requests.
 - A Content-Security-Policy allows network connections only to that Pyodide
   release and allows no scripts except the embedded one, so the page cannot
@@ -52,7 +54,9 @@ python scripts/build_web.py            # writes dist/web/finassert.html
 The output is about 90 KiB and needs no server: double-click it, email it, or
 put it on any static host. To host Pyodide yourself, for example on a network
 without CDN access, pass `--pyodide-url https://intranet.example/pyodide/v0.27.7/full/`
-pointing at a copy of the Pyodide distribution that includes `pyyaml`.
+pointing at a copy of the Pyodide distribution that includes `pyyaml`. The copy
+must be the same release, since the integrity hash in `build_web.py` is tied to
+it; update `PYODIDE_VERSION` and `PYODIDE_INTEGRITY` together.
 
 `scripts/smoke_web.py` drives the built page in headless Chromium: it loads the
 examples, runs the checks, verifies the exported policy reproduces the results,

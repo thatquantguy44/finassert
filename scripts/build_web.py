@@ -27,6 +27,10 @@ PACKAGE = ROOT / "src" / "finassert"
 WEB = ROOT / "web"
 PYODIDE_VERSION = "0.27.7"
 PYODIDE_URL = f"https://cdn.jsdelivr.net/pyodide/v{PYODIDE_VERSION}/full/"
+# Subresource Integrity hash of pyodide.js for PYODIDE_VERSION. The browser
+# refuses to run the loader if the file served differs; update it with the
+# version (openssl dgst -sha384 -binary pyodide.js | openssl base64 -A).
+PYODIDE_INTEGRITY = "sha384-90so5tCKvl0xs9agU29IMKlAVzhfzFX7QO//YxQkRhJG58bBZrFN+2ZTRB026X5X"
 _FIXED_TIME = (1980, 1, 1, 0, 0, 0)
 
 
@@ -80,6 +84,7 @@ def build(pyodide_url: str = PYODIDE_URL) -> str:
         "{{STYLE}}": (WEB / "app.css").read_text(encoding="utf-8"),
         "{{PYODIDE_URL}}": pyodide_url,
         "{{PYODIDE_VERSION}}": PYODIDE_VERSION,
+        "{{PYODIDE_INTEGRITY}}": PYODIDE_INTEGRITY,
         "{{VERSION}}": version,
         "{{WHEEL_NAME}}": f"finassert-{version}.zip",
         "{{WHEEL_B64}}": wheel,
