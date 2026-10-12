@@ -229,7 +229,9 @@ def test_empty_yaml_file_is_rejected() -> None:
 
 
 def test_json_syntax_errors_name_the_line() -> None:
-    found = issues_of('{\n"version": 1,\n}', format="json")
+    # A missing colon is located the same way on every supported Python; the
+    # position reported for trailing commas changed in Python 3.13.
+    found = issues_of('{\n"version": 1,\n"rules" []\n}', format="json")
     assert found[0].startswith("line 3, policy: The file is not valid JSON")
 
 
