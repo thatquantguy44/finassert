@@ -129,3 +129,16 @@ def test_load_input_rejects_non_utf8(tmp_path: Path) -> None:
 def test_mapping_column_errors_also_list_alternatives() -> None:
     report = fa.check({"weights": [1]}, [fa.weights_sum_to_one()])
     assert "did you mean 'weights'?" in report.results[0].message
+
+
+def test_row_labels_count_blank_lines_and_multiline_cells_like_a_spreadsheet() -> None:
+    blank = parse_csv("weight\n0.5\n\n0.5\n-1\n")
+    assert blank.column("weight")[1] == [2, 4, 5]
+    multiline = parse_csv('note,v\n"two\nlines",1\nok,2\n')
+    assert multiline.column("v") == ([1, 2], [2, 3])
+
+
+def test_very_long_integers_stay_exact_instead_of_crashing() -> None:
+    digits = "9" * 5000
+    assert parse_csv(f"a\n{digits}\n").column("a")[0] == [Decimal(digits)]
+    assert parse_json(f'{{"a": [{digits}]}}') == {"a": [Decimal(digits)]}

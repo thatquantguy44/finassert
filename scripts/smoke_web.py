@@ -5,7 +5,8 @@ The script opens the single-file app, loads ``examples/positions.csv``, opens
 
 * the engine starts under the page's Content-Security-Policy;
 * the report shows the expected outcome counts;
-* the downloaded policy, run through the Python API, gives identical results;
+* the downloaded policy, run through the Python API, gives identical results,
+  and the browser ran the opened policy unchanged (same fingerprint as the CLI);
 * no network request is made after start-up, and no CSP violation occurs.
 
 Requires Playwright (``uv run --with playwright python scripts/smoke_web.py``).
@@ -123,6 +124,8 @@ def main(argv: list[str] | None = None) -> int:
             failures.append("exported policy gives different results from the browser run")
         if exported.digest != artifact["policy"]["digest"]:
             failures.append("exported policy digest differs from the browser run")
+        if load_policy(EXAMPLES / "policy.yml").digest != artifact["policy"]["digest"]:
+            failures.append("the browser ran a different policy from the file it opened")
 
     late = [url for url in requests[startup_requests:] if not _is_local(url)]
     if late:

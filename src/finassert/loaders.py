@@ -66,13 +66,21 @@ class TableSource:
         ]
 
 
+def _integer(text: str) -> int | Decimal:
+    # Python refuses int() on very long digit strings; Decimal keeps them exact.
+    try:
+        return int(text)
+    except ValueError:
+        return Decimal(text)
+
+
 def parse_cell(text: str) -> Any:
     """Convert one CSV cell to ``None``, ``int``, ``Decimal``, or unchanged text."""
     stripped = text.strip()
     if not stripped:
         return None
     if _INTEGER.match(stripped):
-        return int(stripped)
+        return _integer(stripped)
     if _DECIMAL.match(stripped):
         return Decimal(stripped)
     return text
@@ -98,10 +106,11 @@ def parse_csv(text: str) -> TableSource:
     columns: dict[str, list[Any]] = {name: [] for name in header}
     labels: list[int] = []
     try:
-        for row in reader:
+        # Spreadsheets give every record a row, blank ones included, and keep a
+        # quoted multi-line cell in one row; the header is row 1.
+        for spreadsheet_row, row in enumerate(reader, start=2):
             if not row:
                 continue
-            spreadsheet_row = len(labels) + 2
             if len(row) != len(header):
                 raise InvalidDataError(
                     f"CSV row {spreadsheet_row} has {len(row)} cell(s) but the header "
@@ -118,7 +127,7 @@ def parse_csv(text: str) -> TableSource:
 def parse_json(text: str) -> Any:
     """Parse a JSON column mapping or list of row objects, keeping decimals exact."""
     try:
-        data = json.loads(text, parse_float=Decimal)
+        data = json.loads(text, parse_float=Decimal, parse_int=_integer)
     except json.JSONDecodeError as exc:
         raise InvalidDataError(f"the JSON input is not valid JSON: {exc}") from exc
     if isinstance(data, dict):

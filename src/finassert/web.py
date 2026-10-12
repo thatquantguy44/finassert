@@ -12,11 +12,19 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 from finassert.core.exceptions import InvalidDataError, PolicyError
-from finassert.loaders import TableSource, parse_csv, parse_json
-from finassert.policy import default_catalog, dump_policy, parse_policy, parse_policy_text
+from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json
+from finassert.policy import (
+    ParameterKind,
+    default_catalog,
+    dump_policy,
+    parse_policy,
+    parse_policy_text,
+)
+from finassert.policy.io import policy_format_for
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
 _PREVIEW_ROWS = 5
@@ -41,7 +49,11 @@ def inspect_input(text: str, name: str) -> str:
         columns = [str(key) for key in data]
         rows = max((len(value) for value in data.values() if isinstance(value, list)), default=0)
         preview = [
-            {key: value[index] for key, value in data.items() if isinstance(value, list)}
+            {
+                key: value[index] if index < len(value) else None
+                for key, value in data.items()
+                if isinstance(value, list)
+            }
             for index in range(min(rows, _PREVIEW_ROWS))
         ]
     else:
@@ -60,9 +72,8 @@ def inspect_input(text: str, name: str) -> str:
 
 def read_policy(text: str, name: str) -> str:
     """Parse a policy file into the editable form used by the application."""
-    policy_format = "json" if name.lower().endswith(".json") else "yaml"
     try:
-        policy = parse_policy_text(text, format=policy_format)
+        policy = parse_policy_text(text, format=policy_format_for(Path(name)))
     except PolicyError as exc:
         return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
     return json.dumps({"ok": True, "policy": _editable(policy.to_document())})
@@ -75,7 +86,7 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
     exported as YAML. The exported policy is the exact policy that was run.
     """
     try:
-        policy = parse_policy(json.loads(policy_json))
+        policy = parse_policy(json.loads(policy_json, object_hook=_restore_number))
     except PolicyError as exc:
         return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
     try:
@@ -87,7 +98,7 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
         report,
         policy=policy,
         input_locator=input_name,
-        input_format=_input_format(input_name),
+        input_format=input_format_for(Path(input_name)),
     )
     return json.dumps(
         {
@@ -102,28 +113,56 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
 
 
 def _parse_input(text: str, name: str) -> Any:
-    if _input_format(name) == "json":
+    # Same format rules as the command line, so files the app accepts also run there.
+    if input_format_for(Path(name)) == "json":
         return parse_json(text)
     return parse_csv(text)
 
 
-def _input_format(name: str) -> str:
-    return "json" if name.lower().endswith(".json") else "csv"
-
-
 def _editable(document: dict[str, Any]) -> dict[str, Any]:
-    # Numbers become text so the browser never rounds them; integers stay numbers.
-    def convert(value: Any) -> Any:
-        if isinstance(value, Mapping):
-            return {key: convert(item) for key, item in value.items()}
-        if isinstance(value, list):
-            return [convert(item) for item in value]
-        if isinstance(value, Decimal | float):
-            return str(value)
-        return value
+    """Return a policy document the browser can edit without changing it.
 
-    result: dict[str, Any] = convert(document)
+    Exact decimals become their text, which reads back as the same ``Decimal``.
+    Binary floats and integers inside tolerances are tagged so an unedited value
+    returns with its original type, keeping the policy fingerprint unchanged.
+    """
+    catalog = default_catalog()
+    result = dict(document)
+    rules = []
+    for entry in document["rules"]:
+        spec = catalog.resolve(entry["rule"])
+        converted: dict[str, Any] = {}
+        for key, value in entry.items():
+            is_tolerance = key != "rule" and spec.parameter(key).kind is ParameterKind.TOLERANCE
+            converted[key] = _tag_number(value) if is_tolerance else value
+        rules.append(converted)
+    result["rules"] = rules
     return result
+
+
+def _tag_number(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _tag_number(item) for key, item in value.items()}
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, float):
+        return {"$float": repr(value)}
+    if isinstance(value, int) and not isinstance(value, bool):
+        return {"$int": str(value)}
+    return value
+
+
+def _restore_number(value: dict[str, Any]) -> Any:
+    if len(value) == 1 and isinstance(next(iter(value.values())), str):
+        tag, text = next(iter(value.items()))
+        try:
+            if tag == "$float":
+                return float(text)
+            if tag == "$int":
+                return int(text)
+        except ValueError:
+            return value
+    return value
 
 
 def _display(value: Any) -> Any:

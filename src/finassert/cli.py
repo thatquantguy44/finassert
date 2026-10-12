@@ -204,6 +204,9 @@ def _write_atomic(path: Path, text: str) -> None:
             handle.write(text)
             handle.flush()
             os.fsync(handle.fileno())
+            # Temporary files are owner-only; give the report the mode a plain
+            # write would have, keeping an existing report's mode if there is one.
+            os.chmod(handle.name, _report_mode(path))
         except BaseException:
             handle.close()
             temporary.unlink(missing_ok=True)
@@ -213,6 +216,15 @@ def _write_atomic(path: Path, text: str) -> None:
     except BaseException:
         temporary.unlink(missing_ok=True)
         raise
+
+
+def _report_mode(path: Path) -> int:
+    try:
+        return path.stat().st_mode & 0o777
+    except OSError:
+        umask = os.umask(0)
+        os.umask(umask)
+        return 0o666 & ~umask
 
 
 def _reason(exc: OSError) -> str:

@@ -244,3 +244,23 @@ def test_interrupt_writes_nothing(
     assert cli.main(check_args("--output", "report.json")) == 130
     assert not (workspace / "report.json").exists()
     assert "interrupted" in capsys.readouterr().err
+
+
+def test_reports_get_normal_file_permissions(workspace: Path) -> None:
+    previous = os.umask(0o022)
+    try:
+        run(*check_args("--output", "report.json", "--html", "report.html"), cwd=workspace)
+    finally:
+        os.umask(previous)
+    for name in ("report.json", "report.html"):
+        assert (workspace / name).stat().st_mode & 0o777 == 0o644
+    (workspace / "report.json").chmod(0o600)
+    run(*check_args("--output", "report.json"), cwd=workspace)
+    assert (workspace / "report.json").stat().st_mode & 0o777 == 0o600
+
+
+def test_non_utf8_policy_exits_three(workspace: Path) -> None:
+    (workspace / "policy file.yml").write_bytes(b"version: 1\nname: caf\xe9\nrules: []\n")
+    result = run(*check_args(), cwd=workspace)
+    assert result.returncode == cli.EXIT_USAGE
+    assert "not UTF-8" in result.stderr

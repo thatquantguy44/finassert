@@ -371,3 +371,32 @@ def test_describe_includes_plain_language_rule_titles() -> None:
 def test_policy_outcomes_are_unchanged_by_loading() -> None:
     report = parse_policy_text(VALID, format="yaml").check({"weight": [1], "market_value": [-1]})
     assert [result.outcome for result in report.results] == [Outcome.PASSED, Outcome.FAILED]
+
+
+def test_non_utf8_policy_is_a_policy_error(tmp_path: Path) -> None:
+    path = tmp_path / "policy.yml"
+    path.write_bytes("version: 1\nname: caf\xe9\nrules: []\n".encode("latin-1"))
+    with pytest.raises(PolicyError, match="not UTF-8"):
+        load_policy(path)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "&a [*a]\n",
+        "version: 1\nrules: &r []\nname: *r\n",
+        "version: 1\nbase: &t {rule: non_negative, column: x}\nrules:\n  - *t\n",
+    ],
+)
+def test_yaml_anchors_and_aliases_are_rejected(text: str) -> None:
+    found = issues_of(text)
+    assert "anchors and aliases" in found[0]
+
+
+def test_dump_policy_round_trips_an_empty_tolerance_mapping() -> None:
+    policy = parse_policy(
+        {"version": 1, "rules": [{"rule": "weights_sum_to_one", "tolerance": {}}]}
+    )
+    text = dump_policy(policy)
+    assert "tolerance: {}" in text
+    assert parse_policy_text(text, format="yaml").to_document() == policy.to_document()

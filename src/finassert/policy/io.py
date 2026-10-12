@@ -44,7 +44,12 @@ def load_policy(
     """
     location = Path(path)
     resolved_format = format or policy_format_for(location)
-    text = location.read_text(encoding="utf-8-sig")
+    try:
+        text = location.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise PolicyError(
+            (PolicyIssue((), f"{location.name!r} is not UTF-8 text; re-save it as UTF-8."),)
+        ) from exc
     return parse_policy_text(text, format=resolved_format, catalog=catalog)
 
 
@@ -107,7 +112,9 @@ def dump_policy(policy: Policy) -> str:
             for key, value in entry.items():
                 if key == "rule":
                     continue
-                if isinstance(value, Mapping):
+                if isinstance(value, Mapping) and not value:
+                    lines.append(f"    {key}: {{}}")
+                elif isinstance(value, Mapping):
                     lines.append(f"    {key}:")
                     lines.extend(f"      {inner}: {_scalar(item)}" for inner, item in value.items())
                 else:
@@ -186,7 +193,7 @@ def _read_yaml(text: str) -> tuple[Any, dict[PolicyPath, int]]:
             raise PolicyError((PolicyIssue((), "The policy file is empty."),))
         lines: dict[PolicyPath, int] = {}
         duplicates: list[PolicyIssue] = []
-        _index_nodes(node, (), lines, duplicates)
+        _index_nodes(node, (), lines, duplicates, set())
         if duplicates:
             raise PolicyError(tuple(duplicates))
         document = loader.construct_document(node)
@@ -212,24 +219,38 @@ def _index_nodes(
     path: PolicyPath,
     lines: dict[PolicyPath, int],
     duplicates: list[PolicyIssue],
+    seen: set[int],
 ) -> None:
     import yaml
 
+    # An alias reuses an already-composed node. Policies never need anchors, and
+    # rejecting them rules out cyclic documents and exponential alias expansion.
+    if id(node) in seen:
+        raise PolicyError(
+            (
+                PolicyIssue(
+                    path,
+                    "YAML anchors and aliases (& and *) are not supported in policies.",
+                    line=node.start_mark.line + 1,
+                ),
+            )
+        )
+    seen.add(id(node))
     if isinstance(node, yaml.MappingNode):
-        seen: set[str] = set()
+        keys: set[str] = set()
         for key_node, value_node in node.value:
             key = key_node.value if isinstance(key_node, yaml.ScalarNode) else str(key_node)
             line = key_node.start_mark.line + 1
             child: PolicyPath = (*path, key)
-            if key in seen:
+            if key in keys:
                 duplicates.append(
                     PolicyIssue(child, f"Setting {key!r} appears more than once.", line=line)
                 )
-            seen.add(key)
+            keys.add(key)
             lines[child] = line
-            _index_nodes(value_node, child, lines, duplicates)
+            _index_nodes(value_node, child, lines, duplicates, seen)
     elif isinstance(node, yaml.SequenceNode):
         for index, item in enumerate(node.value):
             child = (*path, index)
             lines[child] = item.start_mark.line + 1
-            _index_nodes(item, child, lines, duplicates)
+            _index_nodes(item, child, lines, duplicates, seen)

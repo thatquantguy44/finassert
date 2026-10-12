@@ -118,20 +118,65 @@
         initial[parameter.name] = parameter.default == null ? "" : String(parameter.default);
       }
     }
+    // Numbers loaded from a policy keep their original type unless edited, so an
+    // unchanged policy runs and exports exactly as it was written.
+    const tagged = {};
+    const mappings = {};
+    const remember = (path, raw) => {
+      const loaded = loadedNumber(raw);
+      if (loaded.tag) tagged[path] = loaded;
+      return loaded.text;
+    };
     for (const [key, value] of Object.entries(values || {})) {
       const parameter = spec.parameters.find((p) => p.name === key);
       if (parameter && parameter.kind === "tolerance") {
-        initial[key] =
-          typeof value === "object" && value !== null
-            ? { absolute: value.absolute || "", relative: value.relative || "" }
-            : { absolute: String(value), relative: "" };
+        if (isToleranceMapping(value)) {
+          mappings[key] = Object.keys(value);
+          initial[key] = {
+            absolute: "absolute" in value ? remember(`${key}.absolute`, value.absolute) : "",
+            relative: "relative" in value ? remember(`${key}.relative`, value.relative) : "",
+          };
+        } else {
+          initial[key] = { absolute: remember(`${key}.absolute`, value), relative: "" };
+        }
       } else {
         initial[key] = String(value);
       }
     }
-    state.checks.push({ id: state.nextId++, spec, values: initial });
+    const explicit = new Set(Object.keys(values || {}));
+    state.checks.push({ id: state.nextId++, spec, values: initial, tagged, mappings, explicit });
     renderChecks();
     refresh();
+  }
+
+  function loadedNumber(raw) {
+    if (raw !== null && typeof raw === "object") {
+      if (typeof raw.$float === "string") return { text: raw.$float, tag: "$float" };
+      if (typeof raw.$int === "string") return { text: raw.$int, tag: "$int" };
+    }
+    return { text: raw == null ? "" : String(raw), tag: null };
+  }
+
+  function isToleranceMapping(value) {
+    return (
+      value !== null &&
+      typeof value === "object" &&
+      typeof value.$float !== "string" &&
+      typeof value.$int !== "string"
+    );
+  }
+
+  function isDefault(parameter, value) {
+    const fallback = parameter.default == null ? "" : String(parameter.default);
+    if (parameter.kind === "tolerance") {
+      return value.absolute.trim() === fallback && !value.relative.trim();
+    }
+    return String(value).trim() === fallback || String(value).trim() === "";
+  }
+
+  function numberValue(check, path, text) {
+    const loaded = check.tagged[path];
+    return loaded && loaded.text === text ? { [loaded.tag]: text } : text;
   }
 
   function renderChecks() {
@@ -228,11 +273,24 @@
       const entry = { rule: check.spec.name };
       for (const parameter of check.spec.parameters) {
         const value = check.values[parameter.name];
+        // Leave out settings still at their default unless the opened policy
+        // spelled them out, so the policy that runs is the one that was written.
+        if (!check.explicit.has(parameter.name) && isDefault(parameter, value)) continue;
         if (parameter.kind === "tolerance") {
+          const name = parameter.name;
           const absolute = value.absolute.trim();
           const relative = value.relative.trim();
-          if (relative) entry[parameter.name] = { absolute: absolute || "0", relative };
-          else if (absolute) entry[parameter.name] = absolute;
+          const keys = check.mappings[name];
+          if (keys || relative) {
+            const mapping = {};
+            if (absolute || (keys && keys.includes("absolute")) || !keys) {
+              mapping.absolute = numberValue(check, `${name}.absolute`, absolute || "0");
+            }
+            if (relative) mapping.relative = numberValue(check, `${name}.relative`, relative);
+            entry[name] = mapping;
+          } else if (absolute) {
+            entry[name] = numberValue(check, `${name}.absolute`, absolute);
+          }
         } else if (parameter.kind === "integer") {
           const text = String(value).trim();
           if (text) entry[parameter.name] = /^\d+$/.test(text) ? Number(text) : text;
@@ -283,6 +341,16 @@
   }
 
   /* ---------- run ---------- */
+
+  function guarded(action) {
+    return async (...args) => {
+      try {
+        await action(...args);
+      } catch (error) {
+        setStatus("Something went wrong: " + (error && error.message ? error.message : error), true);
+      }
+    };
+  }
 
   function run() {
     if (!state.data) return;
@@ -341,13 +409,13 @@
     });
   }
 
-  wireDrop($("data-drop"), $("data-file"), openData);
-  $("policy-file").addEventListener("change", async () => {
+  wireDrop($("data-drop"), $("data-file"), guarded(openData));
+  $("policy-file").addEventListener("change", guarded(async () => {
     await openPolicy($("policy-file").files[0]);
     $("policy-file").value = "";
-  });
+  }));
   $("add-check-button").addEventListener("click", () => addCheck($("add-check").value));
-  $("run").addEventListener("click", run);
+  $("run").addEventListener("click", guarded(run));
   $("download-html").addEventListener("click", () =>
     download(state.result.html, `${baseName()}-report.html`, "text/html"));
   $("download-json").addEventListener("click", () =>

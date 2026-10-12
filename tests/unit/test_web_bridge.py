@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from finassert import web
 from finassert.policy import parse_policy_text
 
@@ -46,7 +48,7 @@ def test_read_policy_returns_editable_text_values() -> None:
             "version": 1,
             "name": "P",
             "rules": [
-                {"rule": "weights_sum_to_one", "tolerance": "0.001"},
+                {"rule": "weights_sum_to_one", "tolerance": {"$float": "0.001"}},
                 {"rule": "non_negative", "column": "mv", "max_violations": 3},
             ],
         },
@@ -88,3 +90,41 @@ def test_run_reports_policy_and_input_problems() -> None:
     bad_input = json.loads(web.run("a,a\n", "p.csv", good))
     assert bad_input["ok"] is False
     assert bad_input["error"].startswith("The data file could not be read")
+
+
+def test_inspect_handles_columns_of_different_lengths() -> None:
+    info = json.loads(web.inspect_input('{"a": [1, 2, 3], "b": [1]}', "data.json"))
+    assert info["ok"] is True
+    assert info["preview"][2] == {"a": 3, "b": None}
+
+
+def test_unknown_extensions_are_rejected_like_the_cli() -> None:
+    assert json.loads(web.inspect_input("weight\n1\n", "data.txt"))["ok"] is False
+    policy = json.loads(web.read_policy("version: 1\nrules: []\n", "policy.txt"))
+    assert policy["ok"] is False
+    assert "Cannot tell the policy format" in policy["issues"][0]["text"]
+
+
+@pytest.mark.parametrize(
+    "tolerance",
+    ["0.0001", '"0.0001"', "1", "{absolute: 1, relative: 0.5}", "{}", "{relative: '0.1'}"],
+)
+def test_unedited_policy_runs_with_the_cli_fingerprint(tolerance: str) -> None:
+    text = f"version: 1\nrules:\n  - rule: weights_sum_to_one\n    tolerance: {tolerance}\n"
+    cli_policy = parse_policy_text(text, format="yaml")
+    editable = json.loads(web.read_policy(text, "policy.yml"))["policy"]
+    # The app sends back exactly what it loaded when nothing is edited.
+    result = json.loads(web.run("weight\n1\n", "d.csv", json.dumps(editable)))
+    artifact = json.loads(result["artifact_json"])
+    assert artifact["policy"]["digest"] == cli_policy.digest
+    exported = parse_policy_text(result["policy_yaml"], format="yaml")
+    assert exported.to_document() == cli_policy.to_document()
+
+
+def test_malformed_number_tags_are_reported_not_crashed() -> None:
+    document = {
+        "version": 1,
+        "rules": [{"rule": "weights_sum_to_one", "tolerance": {"$float": "abc"}}],
+    }
+    result = json.loads(web.run("weight\n1\n", "d.csv", json.dumps(document)))
+    assert result["ok"] is False and result["issues"]
