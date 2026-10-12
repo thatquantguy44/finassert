@@ -11,6 +11,8 @@ nav:
   - Getting started: getting-started.md
   - Architecture: architecture.md
   - Rule development: rule-development.md
+  - Policies and command line: command-line.md
+  - Browser app: browser-app.md
   - Integrations: integrations.md
   - Design notes:
       - Grouped validation: design/grouped-validation.md

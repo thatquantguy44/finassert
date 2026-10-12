@@ -1,0 +1,359 @@
+/* finassert browser application. All validation runs in Python (finassert.web). */
+"use strict";
+
+(function () {
+  const PYODIDE_URL = "{{PYODIDE_URL}}";
+  const state = {
+    web: null,
+    pyodide: null,
+    catalog: [],
+    data: null, // {name, text, columns}
+    checks: [], // [{id, spec, values}]
+    result: null,
+    nextId: 1,
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function setStatus(text, isError) {
+    const node = $("status");
+    node.textContent = text;
+    node.classList.toggle("error", Boolean(isError));
+  }
+
+  function call(name, ...args) {
+    return JSON.parse(state.web[name](...args));
+  }
+
+  async function boot() {
+    try {
+      const pyodide = await loadPyodide({ indexURL: PYODIDE_URL });
+      // Fetch everything up front so no request is made once files are opened.
+      await pyodide.loadPackage("pyyaml");
+      const wheel = $("finassert-wheel");
+      const bytes = Uint8Array.from(atob(wheel.textContent.trim()), (c) => c.charCodeAt(0));
+      const sitePackages = pyodide.runPython("import site; site.getsitepackages()[0]");
+      pyodide.unpackArchive(bytes, "zip", { extractDir: sitePackages });
+      state.pyodide = pyodide;
+      state.web = pyodide.pyimport("finassert.web");
+      state.catalog = call("catalog").rules;
+      renderCatalogPicker();
+      setStatus("Ready. Nothing you open here is uploaded.");
+      refresh();
+    } catch (error) {
+      setStatus("The checking engine could not load: " + error.message, true);
+    }
+  }
+
+  function renderCatalogPicker() {
+    const select = $("add-check");
+    select.replaceChildren(
+      ...state.catalog.map((spec) => option(spec.name, spec.title))
+    );
+  }
+
+  function option(value, text, selected) {
+    const node = document.createElement("option");
+    node.value = value;
+    node.textContent = text;
+    if (selected) node.selected = true;
+    return node;
+  }
+
+  function element(tag, attributes, children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attributes || {})) {
+      if (key === "text") node.textContent = value;
+      else if (key === "className") node.className = value;
+      else node.setAttribute(key, value);
+    }
+    for (const child of children || []) node.append(child);
+    return node;
+  }
+
+  /* ---------- data ---------- */
+
+  async function openData(file) {
+    if (!file || !state.web) return;
+    const text = await file.text();
+    const info = call("inspect_input", text, file.name);
+    const errorBox = $("data-error");
+    if (!info.ok) {
+      state.data = null;
+      $("data-summary").hidden = true;
+      errorBox.textContent = "This file could not be read: " + info.error;
+      errorBox.hidden = false;
+      refresh();
+      return;
+    }
+    errorBox.hidden = true;
+    state.data = { name: file.name, text, columns: info.columns };
+    $("data-name").textContent =
+      `${file.name}: ${info.row_count} row(s), ${info.columns.length} column(s).` +
+      (info.row_count > info.preview.length ? ` First ${info.preview.length} rows:` : "");
+    const head = element("tr", {}, info.columns.map((c) => element("th", { scope: "col", text: c })));
+    const rows = info.preview.map((row) =>
+      element("tr", {}, info.columns.map((c) => element("td", { text: row[c] == null ? "" : String(row[c]) })))
+    );
+    $("data-preview").replaceChildren(element("thead", {}, [head]), element("tbody", {}, rows));
+    $("data-summary").hidden = false;
+    renderChecks();
+    refresh();
+  }
+
+  /* ---------- checks ---------- */
+
+  function addCheck(name, values) {
+    const spec = state.catalog.find((item) => item.name === name);
+    if (!spec) return;
+    const initial = {};
+    for (const parameter of spec.parameters) {
+      if (parameter.kind === "column") {
+        const columns = state.data ? state.data.columns : [];
+        initial[parameter.name] =
+          parameter.default && columns.includes(parameter.default) ? parameter.default : "";
+      } else if (parameter.kind === "tolerance") {
+        initial[parameter.name] = { absolute: parameter.default || "", relative: "" };
+      } else {
+        initial[parameter.name] = parameter.default == null ? "" : String(parameter.default);
+      }
+    }
+    for (const [key, value] of Object.entries(values || {})) {
+      const parameter = spec.parameters.find((p) => p.name === key);
+      if (parameter && parameter.kind === "tolerance") {
+        initial[key] =
+          typeof value === "object" && value !== null
+            ? { absolute: value.absolute || "", relative: value.relative || "" }
+            : { absolute: String(value), relative: "" };
+      } else {
+        initial[key] = String(value);
+      }
+    }
+    state.checks.push({ id: state.nextId++, spec, values: initial });
+    renderChecks();
+    refresh();
+  }
+
+  function renderChecks() {
+    const container = $("checks");
+    container.replaceChildren(...state.checks.map(renderCheck));
+    $("no-checks").hidden = state.checks.length > 0;
+  }
+
+  function renderCheck(check, index) {
+    const { spec, values } = check;
+    const remove = element("button", { type: "button", className: "link", "aria-label": `Remove check ${index + 1}` }, ["Remove"]);
+    remove.addEventListener("click", () => {
+      state.checks = state.checks.filter((item) => item.id !== check.id);
+      renderChecks();
+      refresh();
+    });
+    const fields = spec.parameters.map((parameter) => renderField(check, parameter));
+    return element("article", { className: "check", "aria-label": spec.title }, [
+      element("header", {}, [
+        element("div", {}, [
+          element("h3", { text: `${index + 1}. ${spec.title}` }),
+          element("p", { className: "hint", text: spec.summary }),
+        ]),
+        remove,
+      ]),
+      element("p", { className: "caution" }, [
+        element("strong", { text: "Don't use when: " }),
+        spec.inappropriate_when,
+      ]),
+      element("div", { className: "grid" }, fields),
+    ]);
+  }
+
+  function renderField(check, parameter) {
+    const id = `check-${check.id}-${parameter.name}`;
+    const value = check.values[parameter.name];
+    const set = (next) => {
+      check.values[parameter.name] = next;
+      refresh();
+    };
+    let control;
+    if (parameter.kind === "column") {
+      const columns = state.data ? state.data.columns : [];
+      const choices = columns.includes(value) || !value ? columns : [value, ...columns];
+      control = element("select", { id }, [
+        option("", parameter.required ? "Choose a column…" : `Default (${parameter.default})`, !value),
+        ...choices.map((c) => option(c, c, c === value)),
+      ]);
+      control.addEventListener("change", () => set(control.value));
+    } else if (parameter.kind === "choice") {
+      control = element("select", { id }, parameter.choices.map((c) => option(c, c, c === value)));
+      control.addEventListener("change", () => set(control.value));
+    } else if (parameter.kind === "integer") {
+      control = element("input", { id, type: "number", min: String(parameter.minimum ?? 0), step: "1", value });
+      control.addEventListener("input", () => set(control.value));
+    } else {
+      const absolute = element("input", { id, type: "text", inputmode: "decimal", value: value.absolute });
+      absolute.addEventListener("input", () => set({ ...check.values[parameter.name], absolute: absolute.value }));
+      const children = [
+        element("label", { for: id, text: parameter.label }),
+        absolute,
+        element("p", { className: "hint", text: parameter.description }),
+      ];
+      if (parameter.allow_relative) {
+        const relativeId = `${id}-relative`;
+        const relative = element("input", { id: relativeId, type: "text", inputmode: "decimal", value: value.relative, placeholder: "0" });
+        relative.addEventListener("input", () => set({ ...check.values[parameter.name], relative: relative.value }));
+        children.push(
+          element("details", {}, [
+            element("summary", { text: "Relative allowance" }),
+            element("label", { for: relativeId, text: "Relative allowance (fraction of the larger value)" }),
+            relative,
+          ])
+        );
+      }
+      return element("div", { className: "field" }, children);
+    }
+    return element("div", { className: "field" }, [
+      element("label", { for: id, text: parameter.label + (parameter.required ? " (required)" : "") }),
+      control,
+      element("p", { className: "hint", text: parameter.description }),
+    ]);
+  }
+
+  function policyDocument() {
+    const document_ = { version: 1 };
+    const name = $("policy-name").value.trim();
+    const description = $("policy-description").value.trim();
+    const assumptions = $("policy-assumptions").value.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (name) document_.name = name;
+    if (description) document_.description = description;
+    if (assumptions.length) document_.assumptions = assumptions;
+    document_.rules = state.checks.map((check) => {
+      const entry = { rule: check.spec.name };
+      for (const parameter of check.spec.parameters) {
+        const value = check.values[parameter.name];
+        if (parameter.kind === "tolerance") {
+          const absolute = value.absolute.trim();
+          const relative = value.relative.trim();
+          if (relative) entry[parameter.name] = { absolute: absolute || "0", relative };
+          else if (absolute) entry[parameter.name] = absolute;
+        } else if (parameter.kind === "integer") {
+          const text = String(value).trim();
+          if (text) entry[parameter.name] = /^\d+$/.test(text) ? Number(text) : text;
+        } else if (value !== "") {
+          entry[parameter.name] = value;
+        }
+      }
+      return entry;
+    });
+    return document_;
+  }
+
+  async function openPolicy(file) {
+    if (!file || !state.web) return;
+    const text = await file.text();
+    const parsed = call("read_policy", text, file.name);
+    if (!parsed.ok) {
+      showIssues(parsed.issues, `${file.name} has problems:`);
+      setStatus("The policy file was not opened.", true);
+      return;
+    }
+    const policy = parsed.policy;
+    $("policy-name").value = policy.name || "";
+    $("policy-description").value = policy.description || "";
+    $("policy-assumptions").value = (policy.assumptions || []).join("\n");
+    state.checks = [];
+    for (const entry of policy.rules) {
+      const { rule, ...values } = entry;
+      const spec = state.catalog.find((item) => item.name === rule || item.rule_id === rule);
+      addCheck(spec.name, values);
+    }
+    showIssues([]);
+    renderChecks();
+    setStatus(`Opened ${file.name} with ${policy.rules.length} check(s).`);
+  }
+
+  function showIssues(issues, heading) {
+    const box = $("policy-issues");
+    if (!issues.length) {
+      box.hidden = true;
+      return;
+    }
+    box.replaceChildren(
+      element("strong", { text: heading || "Please fix these before running:" }),
+      element("ul", {}, issues.map((issue) => element("li", { text: issue.text })))
+    );
+    box.hidden = false;
+  }
+
+  /* ---------- run ---------- */
+
+  function run() {
+    if (!state.data) return;
+    const outcome = call("run", state.data.text, state.data.name, JSON.stringify(policyDocument()));
+    if (!outcome.ok) {
+      $("results").hidden = true;
+      if (outcome.issues) showIssues(outcome.issues);
+      setStatus(outcome.error || "The checks could not run.", true);
+      return;
+    }
+    showIssues([]);
+    state.result = outcome;
+    const counts = outcome.counts;
+    const banner = $("result-banner");
+    banner.className = "result-banner " + (outcome.passed ? "passed" : "failed");
+    banner.textContent = outcome.passed
+      ? `✓ Passed: ${counts.passed} passed, ${counts.skipped} skipped.`
+      : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
+    $("report-frame").srcdoc = outcome.html;
+    $("cli-command").textContent =
+      `finassert check --config policy.yml --input "${state.data.name}" --html report.html`;
+    $("results").hidden = false;
+    setStatus("Checks finished. The full report is below.");
+  }
+
+  function download(text, name, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const link = element("a", { href: url, download: name });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  function baseName() {
+    const name = (state.data && state.data.name) || "data";
+    return name.replace(/\.[^.]+$/, "");
+  }
+
+  function refresh() {
+    const ready = Boolean(state.web && state.data && state.checks.length);
+    $("run").disabled = !ready;
+  }
+
+  function wireDrop(zone, input, handler) {
+    input.addEventListener("change", () => handler(input.files[0]));
+    zone.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      zone.classList.add("dragging");
+    });
+    zone.addEventListener("dragleave", () => zone.classList.remove("dragging"));
+    zone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      zone.classList.remove("dragging");
+      handler(event.dataTransfer.files[0]);
+    });
+  }
+
+  wireDrop($("data-drop"), $("data-file"), openData);
+  $("policy-file").addEventListener("change", async () => {
+    await openPolicy($("policy-file").files[0]);
+    $("policy-file").value = "";
+  });
+  $("add-check-button").addEventListener("click", () => addCheck($("add-check").value));
+  $("run").addEventListener("click", run);
+  $("download-html").addEventListener("click", () =>
+    download(state.result.html, `${baseName()}-report.html`, "text/html"));
+  $("download-json").addEventListener("click", () =>
+    download(state.result.artifact_json, `${baseName()}-report.json`, "application/json"));
+  $("download-policy").addEventListener("click", () =>
+    download(state.result.policy_yaml, "policy.yml", "application/yaml"));
+
+  boot();
+})();

@@ -1,6 +1,9 @@
 # 0011 — Non-technical interfaces
 
-**Status:** Proposed
+**Status:** Milestones 1–4 implemented (initial): catalog metadata, policy
+diagnostics, the HTML renderer and `--html` flag, and the Pyodide browser
+application. Templates, the assistant tool server, and spreadsheet input remain
+proposed.
 
 ## Problem statement
 
@@ -44,13 +47,16 @@ through a path other than `check`.
 ## Public API design
 
 ```python
-catalog = fa.rule_catalog()             # sorted, immutable entries
-entry = catalog["portfolio.weights_sum_to_one"]
+from finassert.policy import default_catalog, load_policy, PolicyError
+from finassert.reporting import to_html
+
+catalog = default_catalog()  # caller-owned allowlist
+entry = catalog.resolve("portfolio.weights_sum_to_one")  # name or rule ID
 entry.summary, entry.rationale, entry.inappropriate_when, entry.parameters
 
-policy = fa.load_policy("policy.yml")    # 0007; raises PolicyError
-policy.diagnostics                       # line, key, message, suggestion
-to_html(report, policy=policy)           # pure view over report.to_dict()
+policy = load_policy("policy.yml")  # 0007
+# PolicyError.issues -> PolicyIssue(location, line, message, suggestion)
+to_html(report, policy=policy)  # pure view over the 0005 artifact
 ```
 
 ```text
@@ -91,7 +97,7 @@ report. Reports omit full records beyond capped diagnostics.
 
 ## Implementation milestones
 
-1. Catalog metadata for existing rules and `rule_catalog()`. 2. Human policy
+1. Catalog metadata for existing rules and `default_catalog()`. 2. Human policy
 diagnostics in the 0007 loader. 3. Self-contained HTML renderer and CLI flag.
 4. Pyodide browser application with policy export. 5. Starter policy templates.
 6. Assistant tool server. 7. Spreadsheet integration after PyPI publication.
