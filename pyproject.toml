@@ -26,6 +26,10 @@ dependencies = []
 [project.optional-dependencies]
 pandas = ["pandas>=2.1"]
 yaml = ["PyYAML>=6.0"]
+cli = ["PyYAML>=6.0"]
+
+[project.scripts]
+finassert = "finassert.cli:main"
 
 [dependency-groups]
 dev = [
@@ -37,6 +41,7 @@ dev = [
   "pre-commit>=3.7",
   "pytest>=8.2",
   "ruff>=0.8",
+  "types-pyyaml>=6.0.12.20260906",
 ]
 
 [project.urls]

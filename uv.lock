@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
@@ -323,6 +323,9 @@ version = "0.1.0"
 source = { editable = "." }
 
 [package.optional-dependencies]
+cli = [
+    { name = "pyyaml" },
+]
 pandas = [
     { name = "pandas" },
 ]
@@ -340,14 +343,16 @@ dev = [
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "types-pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "pandas", marker = "extra == 'pandas'", specifier = ">=2.1" },
+    { name = "pyyaml", marker = "extra == 'cli'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'yaml'", specifier = ">=6.0" },
 ]
-provides-extras = ["pandas", "yaml"]
+provides-extras = ["pandas", "yaml", "cli"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -359,6 +364,7 @@ dev = [
     { name = "pre-commit", specifier = ">=3.7" },
     { name = "pytest", specifier = ">=8.2" },
     { name = "ruff", specifier = ">=0.8" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20260906" },
 ]
 
 [[package]]
@@ -1403,6 +1409,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+]
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.20260906"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/90/6e/abec85b9013db5b934b0280a6dd104904d84f7bcbaab2e2f3def87ac7463/types_pyyaml-6.0.12.20260906.tar.gz", hash = "sha256:f59c1cc05010b833d2d72287bbaa72610106b28d42d89a907313117faba85212", size = 18649, upload-time = "2026-09-06T06:35:35.362Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/c0/fc0644b7ddcfb969e95845837143cb5173ddd6e06ee4ba5fc493cd9329b7/types_pyyaml-6.0.12.20260906-py3-none-any.whl", hash = "sha256:bca893ff0d51df5c9053137d5d0e6ccd36e939a196356f1d5c16372422f5137b", size = 21282, upload-time = "2026-09-06T06:35:34.372Z" },
 ]
 
 [[package]]
