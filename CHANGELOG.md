@@ -25,7 +25,8 @@ and intends to use Semantic Versioning after the public API stabilizes.
 - Report artifacts with schema version, tool version, policy digest, and input
   context, plus self-contained, accessible HTML reports.
 - Single-file browser application (`scripts/build_web.py`) that runs checks
-  locally with Pyodide and exports the policy it ran.
+  locally with Pyodide and exports the policy it ran, a headless-browser smoke
+  test run in CI against the Pyodide CDN, and sample data and policy files.
 
 ### Changed
 

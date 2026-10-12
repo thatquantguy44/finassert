@@ -98,7 +98,8 @@ rules:
     column: market_value
 ```
 
-Then run them against a CSV export and get a report anyone can read:
+Then run them against a CSV export and get a report anyone can read (try it with
+`examples/policy.yml` and `examples/positions.csv`):
 
 ```bash
 finassert check --config policy.yml --input positions.csv --html report.html

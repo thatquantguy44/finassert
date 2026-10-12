@@ -36,6 +36,13 @@ The downloaded policy is exactly the policy that ran. Running it with
 analyst can design checks in the browser and hand the file to an engineer for
 an automated pipeline.
 
+## Trying it
+
+Every CI run attaches the built app as the `finassert-web` artifact on the
+workflow's summary page; download it and open `finassert.html`. Load
+`examples/positions.csv` and open `examples/policy.yml` to see a passing and a
+failing check.
+
 ## Building
 
 ```bash
@@ -46,6 +53,11 @@ The output is about 90 KiB and needs no server: double-click it, email it, or
 put it on any static host. To host Pyodide yourself, for example on a network
 without CDN access, pass `--pyodide-url https://intranet.example/pyodide/v0.27.7/full/`
 pointing at a copy of the Pyodide distribution that includes `pyyaml`.
+
+`scripts/smoke_web.py` drives the built page in headless Chromium: it loads the
+examples, runs the checks, verifies the exported policy reproduces the results,
+and fails on any network request after start-up or any CSP violation. CI runs it
+against the real Pyodide CDN.
 
 The page's logic lives in `finassert.web`, a JSON-in, JSON-out module that is
 unit-tested under CPython; `web/app.js` only renders forms and moves text

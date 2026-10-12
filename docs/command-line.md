@@ -63,7 +63,15 @@ tolerances are exact decimals, and JSON numbers are floats.
 
 ## Running checks
 
-Install the command line with `finassert[cli]`, which adds the YAML reader:
+Install the command line with `finassert[cli]`, which adds the YAML reader.
+To try it, run the sample policy against the sample data in `examples/`; one
+check passes and one fails on a negative market value:
+
+```bash
+finassert check --config examples/policy.yml --input examples/positions.csv --html report.html
+```
+
+For your own files:
 
 ```bash
 finassert check --config policy.yml --input positions.csv \
