@@ -1,5 +1,6 @@
 """The sample files in examples/ must keep showing exactly the break they describe."""
 
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -59,3 +60,41 @@ def test_holdings_example_catches_a_pasted_row_and_a_blank_ticker(edit: str, rul
 
     report = get_template("multi-portfolio-holdings").policy().check(parse_csv(text))
     assert outcomes(report)[rule_id] == "failed"
+
+
+def test_valuation_example_breaks_only_the_stale_tsla_price() -> None:
+    policy = get_template("position-valuation").policy()
+    report = policy.check(load_input(EXAMPLES / "valuation.csv"))
+    assert outcomes(report) == {
+        "data.required_fields": "passed",
+        "accounting.market_value_reconciles": "failed",
+    }
+    (failure,) = report.results[1].metadata["failed_rows"]
+    assert failure["row"] == 5
+    assert failure["observed"] == 72000 and failure["expected"] == 72030
+
+
+def test_returns_example_breaks_only_betas_return() -> None:
+    report = (
+        get_template("return-reconciliation").policy().check(load_input(EXAMPLES / "returns.csv"))
+    )
+    (result,) = report.results
+    assert result.outcome.value == "failed"
+    (failure,) = result.metadata["failed_rows"]
+    assert failure["row"] == 3
+    assert failure["observed"] == Decimal("0.035")
+    assert failure["expected"] == Decimal("0.03")
+
+
+def test_limits_example_breaks_only_betas_jnj_position() -> None:
+    report = load_policy(EXAMPLES / "limits-policy.yml").check(
+        load_input(EXAMPLES / "holdings.csv")
+    )
+    assert outcomes(report) == {
+        "exposure.gross_within_limit": "passed",
+        "exposure.net_within_limit": "passed",
+        "exposure.position_within_limit": "failed",
+    }
+    (failure,) = report.results[2].metadata["failed_groups"]
+    assert failure["group"] == {"portfolio": "Beta"}
+    assert [item["row"] for item in failure["breaches"]] == ["JNJ"]

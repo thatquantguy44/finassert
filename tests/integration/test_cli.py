@@ -232,10 +232,15 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
     catalog = json.loads(capsys.readouterr().out)
     assert [rule["name"] for rule in catalog["rules"]] == [
         "cash_reconciles",
+        "gross_within_limit",
+        "market_value_reconciles",
         "nav_reconciles",
+        "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_within_limit",
         "required_fields",
+        "simple_return_reconciles",
         "weights_sum_to_one",
     ]
 

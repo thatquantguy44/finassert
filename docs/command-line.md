@@ -20,11 +20,14 @@ finassert init --template long-only-holdings --output policy.yml
 | `multi-portfolio-holdings` | One file of positions for many portfolios, with weights, market values, and NAV. |
 | `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
 | `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
+| `position-valuation` | One row per position with quantity, price, and market value. |
+| `return-reconciliation` | One row per portfolio and period with beginning and ending values and a return. |
 
 Each template lists the assumptions under which its checks are meaningful,
 and the file opens with comments on what to change, usually the column names
 and the rounding tolerance. Templates check only what holds by definition for
-that kind of file; they never encode regulatory or house limits. `init` will
+that kind of file; they never encode regulatory or house limits, so write exposure
+and position limits yourself (see [exposure limits](examples/exposure-limits.md)). `init` will
 not replace an existing file unless you pass `--force`.
 
 ## Writing a policy
@@ -79,7 +82,9 @@ mapping with `absolute` and `relative` parts:
 ```
 
 `non_negative` accepts only an absolute tolerance, because a relative bound has
-no meaning against zero.
+no meaning against zero. Limits such as `maximum: "1.3"` in exposure checks are
+plain numbers and follow the same rule: quote them to keep them exact. Net
+exposure limits may be negative; the others may not.
 
 Policies may also be written as JSON with the same structure. JSON strings in
 tolerances are exact decimals, and JSON numbers are floats.

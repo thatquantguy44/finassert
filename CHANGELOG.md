@@ -55,6 +55,15 @@ and intends to use Semantic Versioning after the public API stabilizes.
   reconciliation, NAV reconciliation, and multi-portfolio holdings; a test keeps
   each sample showing exactly its documented break.
 
+- Valuation, return, and exposure rules: `market_value_reconciles` (quantity
+  times price times an optional multiplier), `simple_return_reconciles` (with a
+  required return unit), `gross_within_limit` and `net_within_limit` (per
+  portfolio, optionally as a fraction of a base such as the NAV), and
+  `position_within_limit` (largest single position). They are in the catalog,
+  CLI, browser app, and assistant server, with `position-valuation` and
+  `return-reconciliation` templates and sample files; policy files accept
+  plain-number settings such as limits.
+
 ### Changed
 
 - The private grouped cash-reconciliation prototype is replaced by the public

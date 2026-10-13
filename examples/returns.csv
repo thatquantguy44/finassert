@@ -1,0 +1,4 @@
+fund,period,beginning_value,ending_value,return
+Alpha,2026-01,1000000.00,1050000.00,0.05
+Beta,2026-01,2000000.00,2060000.00,0.035
+Gamma,2026-01,500000.00,495000.00,-0.01

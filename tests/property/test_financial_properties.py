@@ -112,3 +112,61 @@ def test_nav_equal_to_the_sum_of_market_values_reconciles(
     }
     rule = fa.nav_reconciles(market_value="mv", nav="nav", group_by=["fund"])
     assert fa.check(data, [rule]).passed
+
+
+_quantities = st.decimals(min_value=-1_000_000, max_value=1_000_000, places=4)
+_prices = st.decimals(min_value=0, max_value=100_000, places=6)
+
+
+@given(st.lists(st.tuples(_quantities, _prices, st.integers(1, 100)), min_size=1, max_size=20))
+def test_exact_products_always_reconcile_with_no_tolerance(
+    rows: list[tuple[Decimal, Decimal, int]],
+) -> None:
+    data = {
+        "qty": [qty for qty, _, _ in rows],
+        "price": [price for _, price, _ in rows],
+        "mult": [mult for _, _, mult in rows],
+        "mv": [qty * price * mult for qty, price, mult in rows],
+    }
+
+    report = fa.check(
+        data,
+        [
+            fa.market_value_reconciles(
+                quantity="qty", price="price", market_value="mv", multiplier="mult"
+            )
+        ],
+    )
+
+    assert report.passed
+
+
+@given(st.lists(st.decimals(min_value=-5, max_value=5, places=4), min_size=1, max_size=20))
+def test_gross_exposure_is_never_below_absolute_net_exposure(values: list[Decimal]) -> None:
+    gross = sum(abs(v) for v in values)
+    net = sum(values)
+    data = {"w": values}
+
+    gross_at_own_level = fa.check(data, [fa.gross_within_limit(value="w", maximum=gross)])
+    just_below = fa.check(
+        data, [fa.gross_within_limit(value="w", maximum=gross - Decimal("0.0001"))]
+    )
+    net_inside = fa.check(data, [fa.net_within_limit(value="w", minimum=net, maximum=net)])
+
+    assert gross_at_own_level.passed  # limits are inclusive
+    assert not just_below.passed
+    assert net_inside.passed
+    assert gross >= abs(net)
+
+
+@given(st.lists(st.decimals(min_value=-5, max_value=5, places=4), min_size=1, max_size=20))
+def test_position_limit_at_the_largest_position_passes_and_below_fails(
+    values: list[Decimal],
+) -> None:
+    largest = max(abs(v) for v in values)
+    data = {"w": values}
+
+    assert fa.check(data, [fa.position_within_limit(value="w", maximum=largest)]).passed
+    if largest > 0:
+        below = fa.position_within_limit(value="w", maximum=largest - Decimal("0.0001"))
+        assert not fa.check(data, [below]).passed

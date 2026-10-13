@@ -303,10 +303,15 @@ def test_every_built_in_rule_is_fully_documented() -> None:
     catalog = default_catalog()
     assert catalog.names() == (
         "cash_reconciles",
+        "gross_within_limit",
+        "market_value_reconciles",
         "nav_reconciles",
+        "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_within_limit",
         "required_fields",
+        "simple_return_reconciles",
         "weights_sum_to_one",
     )
     for spec in catalog.specs():
@@ -314,10 +319,14 @@ def test_every_built_in_rule_is_fully_documented() -> None:
             assert text.strip()
         for parameter in spec.parameters:
             assert parameter.label.strip() and parameter.description.strip()
-            # Only column settings may be optional with no default: leaving them
-            # empty means "not used", which each description must say.
-            optional_column = parameter.kind in {ParameterKind.COLUMN, ParameterKind.COLUMNS}
-            assert parameter.required or parameter.default is not None or optional_column
+            # Only column and limit settings may be optional with no default: leaving
+            # them empty means "not used", which each description must say.
+            optional_unused = parameter.kind in {
+                ParameterKind.COLUMN,
+                ParameterKind.COLUMNS,
+                ParameterKind.NUMBER,
+            }
+            assert parameter.required or parameter.default is not None or optional_unused
     described = catalog.to_dict()["rules"]
     assert [item["name"] for item in described] == list(catalog.names())
 
@@ -410,3 +419,93 @@ def test_dump_policy_round_trips_an_empty_tolerance_mapping() -> None:
     text = dump_policy(policy)
     assert "tolerance: {}" in text
     assert parse_policy_text(text, format="yaml").to_document() == policy.to_document()
+
+
+EXPOSURE = """\
+version: 1
+rules:
+  - rule: gross_within_limit
+    value: market_value
+    base: nav
+    maximum: "1.30"
+    group_by: [portfolio]
+  - rule: net_within_limit
+    value: weight
+    minimum: "-0.10"
+    maximum: 0.5
+  - rule: position_within_limit
+    value: weight
+    maximum: "0.10"
+"""
+
+
+def test_limits_are_exact_decimals_or_keep_their_type() -> None:
+    policy = parse_policy_text(EXPOSURE, format="yaml")
+
+    gross, net, position = policy.rules
+    assert gross.maximum == Decimal("1.30")  # type: ignore[attr-defined]
+    assert net.minimum == Decimal("-0.10")  # type: ignore[attr-defined]
+    assert net.maximum == 0.5 and isinstance(net.maximum, float)  # type: ignore[attr-defined]
+    assert position.maximum == Decimal("0.10")  # type: ignore[attr-defined]
+
+
+def test_limits_round_trip_through_dump_with_the_same_digest() -> None:
+    policy = parse_policy_text(EXPOSURE, format="yaml")
+
+    again = parse_policy_text(dump_policy(policy), format="yaml")
+
+    assert again.digest == policy.digest
+    assert again.to_document() == policy.to_document()
+
+
+@pytest.mark.parametrize(
+    ("entry", "expected"),
+    [
+        ({"rule": "gross_within_limit", "value": "w", "maximum": "-1"}, "cannot be negative"),
+        ({"rule": "gross_within_limit", "value": "w", "maximum": "130%"}, "not a plain number"),
+        ({"rule": "gross_within_limit", "value": "w", "maximum": True}, "must be a number"),
+        ({"rule": "gross_within_limit", "value": "w"}, "set a minimum, a maximum, or both"),
+        (
+            {"rule": "gross_within_limit", "value": "w", "minimum": 2, "maximum": 1},
+            "minimum must not exceed maximum",
+        ),
+        ({"rule": "position_within_limit", "value": "w"}, "needs 'maximum'"),
+        ({"rule": "position_within_limit", "value": "w", "maximum": "-0.1"}, "cannot be negative"),
+        (
+            {
+                "rule": "simple_return_reconciles",
+                "beginning_value": "a",
+                "ending_value": "b",
+                "reported_return": "c",
+            },
+            "needs 'return_unit'",
+        ),
+    ],
+)
+def test_exposure_and_return_parameter_problems(entry: dict[str, object], expected: str) -> None:
+    text = "\n".join(issues_of_entry(entry))
+    assert expected in text
+
+
+def issues_of_entry(entry: dict[str, object]) -> list[str]:
+    with pytest.raises(PolicyError) as caught:
+        parse_policy({"version": 1, "rules": [entry]})
+    return [str(issue) for issue in caught.value.issues]
+
+
+def test_exposure_policy_runs_end_to_end() -> None:
+    policy = parse_policy_text(EXPOSURE, format="yaml")
+    data = {
+        "portfolio": ["A", "A", "B"],
+        "market_value": [900, 500, 400],
+        "nav": [1000, 1000, 1000],
+        "weight": [0.09, 0.2, -0.1],
+    }
+
+    report = policy.check(data)
+
+    assert [result.outcome for result in report.results] == [
+        Outcome.FAILED,  # portfolio A is at 140% gross
+        Outcome.PASSED,
+        Outcome.FAILED,  # 0.2 is above 10%
+    ]

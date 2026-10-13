@@ -6,8 +6,14 @@ rules, and grouped cash (`accounting.cash_reconciles`) and NAV
 `outflow_sign`; NAV sums signed lines, so assets minus liabilities is
 `sum(market_value)` with liabilities negative. Currencies are never converted;
 a currency column becomes a group key. `weights_sum_to_one` can check each
-portfolio with `group_by`. Returns, exposure, collateral, and financing rules
-remain proposed.
+portfolio with `group_by`. Milestone 3 is implemented (initial):
+`accounting.market_value_reconciles` (quantity × price × optional multiplier),
+`returns.simple_return_reconciles` (explicit `fraction` or `percent`; flows at
+the end of the period), and `exposure.gross_within_limit`,
+`exposure.net_within_limit`, and `exposure.position_within_limit`, which
+measure per group against an optional base column such as the NAV. Limits are
+inclusive and supplied by the user: no template encodes one. Collateral and
+financing rules remain proposed.
 
 ## Problem statement
 

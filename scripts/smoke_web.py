@@ -124,6 +124,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _check_cash_reconciliation(page, Path(scratch), failures)
         _check_multi_portfolio(page, failures)
+        _check_limits_policy(page, failures)
 
         page.wait_for_timeout(500)
         browser.close()
@@ -225,6 +226,38 @@ def _check_multi_portfolio(page: Any, failures: list[str]) -> None:
         failures.append(f"unexpected multi-portfolio result {banner!r}")
     report = page.frame_locator("#report-frame")
     expect(report.locator(".card.failed")).to_contain_text("Beta")
+
+
+def _check_limits_policy(page: Any, failures: list[str]) -> None:
+    """Open the exposure-limits policy and run it on the holdings file: one breach."""
+    from playwright.sync_api import expect
+
+    page.set_input_files("#policy-file", str(EXAMPLES / "limits-policy.yml"))
+    expect(page.locator(".check")).to_have_count(3)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"limits result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed.":
+        failures.append(f"unexpected limits result {banner!r}")
+    report = page.frame_locator("#report-frame")
+    expect(report.locator(".card.failed")).to_contain_text("JNJ")
+
+    # Build the same position limit by hand: a typed limit is a plain-number field.
+    while page.locator(".check").count():
+        page.locator(".check button.link").first.click()
+    page.select_option("#add-check", "position_within_limit")
+    page.click("#add-check-button")
+    check = page.locator(".check")
+    expect(check).to_have_count(1)
+    check.get_by_label("Value column (required)").select_option("market_value")
+    check.get_by_label("Base column (for example NAV)").select_option("nav")
+    check.get_by_label("Largest allowed position (required)").fill("0.6")
+    check.locator("fieldset.columns").first.get_by_label("portfolio").check()
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"hand-built limit result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 0 passed.":
+        failures.append(f"unexpected hand-built limit result {banner!r}")
 
 
 def _cell(value: str) -> Any:

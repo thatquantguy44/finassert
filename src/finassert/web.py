@@ -179,11 +179,14 @@ def _as_text(content: Any) -> str:
         raise InvalidDataError("the file is not UTF-8 text; re-save it as 'CSV UTF-8'") from exc
 
 
+_NUMERIC_KINDS = (ParameterKind.TOLERANCE, ParameterKind.NUMBER)
+
+
 def _editable(document: dict[str, Any]) -> dict[str, Any]:
     """Return a policy document the browser can edit without changing it.
 
     Exact decimals become their text, which reads back as the same ``Decimal``.
-    Binary floats and integers inside tolerances are tagged so an unedited value
+    Binary floats and integers inside tolerances and numbers are tagged so an unedited value
     returns with its original type, keeping the policy fingerprint unchanged.
     """
     catalog = default_catalog()
@@ -193,8 +196,8 @@ def _editable(document: dict[str, Any]) -> dict[str, Any]:
         spec = catalog.resolve(entry["rule"])
         converted: dict[str, Any] = {}
         for key, value in entry.items():
-            is_tolerance = key != "rule" and spec.parameter(key).kind is ParameterKind.TOLERANCE
-            converted[key] = _tag_number(value) if is_tolerance else value
+            numeric = key != "rule" and spec.parameter(key).kind in _NUMERIC_KINDS
+            converted[key] = _tag_number(value) if numeric else value
         rules.append(converted)
     result["rules"] = rules
     return result

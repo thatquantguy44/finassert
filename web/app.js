@@ -163,6 +163,8 @@
         }
       } else if (parameter && parameter.kind === "columns") {
         initial[key] = Array.isArray(value) ? value.map(String) : [String(value)];
+      } else if (parameter && parameter.kind === "number") {
+        initial[key] = remember(key, value);
       } else {
         initial[key] = String(value);
       }
@@ -289,6 +291,9 @@
     } else if (parameter.kind === "integer") {
       control = element("input", { id, type: "number", min: String(parameter.minimum ?? 0), step: "1", value });
       control.addEventListener("input", () => set(control.value));
+    } else if (parameter.kind === "number") {
+      control = element("input", { id, type: "text", inputmode: "decimal", value });
+      control.addEventListener("input", () => set(control.value));
     } else {
       const absolute = element("input", { id, type: "text", inputmode: "decimal", value: value.absolute });
       absolute.addEventListener("input", () => set({ ...check.values[parameter.name], absolute: absolute.value }));
@@ -359,6 +364,9 @@
           }
         } else if (parameter.kind === "columns") {
           entry[parameter.name] = [...value];
+        } else if (parameter.kind === "number") {
+          const text = String(value).trim();
+          if (text) entry[parameter.name] = numberValue(check, parameter.name, text);
         } else if (parameter.kind === "integer") {
           const text = String(value).trim();
           if (text) entry[parameter.name] = /^\d+$/.test(text) ? Number(text) : text;
