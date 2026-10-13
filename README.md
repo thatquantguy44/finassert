@@ -16,6 +16,8 @@ can inspect.
 - Decimal-aware, inclusive absolute and relative tolerances.
 - No pandas, NumPy, database, or configuration dependency in the core package.
 - Rules are composable Python objects; datasets are never normalized or mutated.
+- Checks can also be written as YAML policies and run from a command line or a
+  browser app, so people who do not write Python can use them.
 
 > **Project status:** usable foundation under active development. The API may
 > change before 1.0; no PyPI release or hosted documentation is claimed.
@@ -35,7 +37,8 @@ For an application that only needs mapping and row-record inputs:
 uv add finassert
 ```
 
-Install `finassert[pandas]` when pandas DataFrames are required. Until a release
+Install `finassert[pandas]` when pandas DataFrames are required, and
+`finassert[cli]` for the command line with YAML policies. Until a release
 is published, install from a checkout or a pinned source revision.
 
 ## Quick start
@@ -80,6 +83,42 @@ finassert FAIL: 0 passed, 1 failed, 0 errors, 0 skipped
 - [error] portfolio.weights_sum_to_one: Weight total 0.9 is not within tolerance of 1.
 ```
 
+## Without writing Python
+
+Describe the checks in a policy file:
+
+```yaml
+version: 1
+name: Daily positions
+rules:
+  - rule: weights_sum_to_one
+    column: weight
+    tolerance: "0.0001"
+  - rule: non_negative
+    column: market_value
+```
+
+Then run them against a CSV export and get a report anyone can read (try it with
+`examples/policy.yml` and `examples/positions.csv`):
+
+```bash
+finassert check --config policy.yml --input positions.csv --html report.html
+```
+
+Exit codes separate passes (`0`), failed checks (`1`), checks that could not
+run (`2`), invalid policies (`3`), and unreadable files (`4`), so the same
+command gates CI jobs and ETL steps. `finassert rules` describes every check in
+plain language.
+
+For people who prefer not to use a terminal, `python scripts/build_web.py`
+produces a single HTML file that runs the same checks entirely inside the
+browser: choose a file, pick checks from a list, and download the report and the
+policy. The data never leaves the computer. See
+[policies and the command line](docs/command-line.md) and the
+[browser app](docs/browser-app.md).
+
+## Errors and failures
+
 Evaluation errors (for example, a missing configured column) are a separate
 outcome and never count as passes. Set `raise_on_error=True` to fail immediately
 with `RuleEvaluationError`; otherwise the engine records the error and continues.
@@ -92,7 +131,8 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text and JSON-compatible results | CLI, YAML policies, HTML reports |
+| Text, JSON, and self-contained HTML reports | Excel workbook and Parquet input |
+| YAML/JSON policies, CLI, and in-browser app | Policy templates and assistant tools |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
 
 Negative weights are not rejected: short positions may be legitimate. Apply
@@ -118,6 +158,7 @@ uv run ruff format --check .
 uv run mypy src/finassert
 uv run mkdocs build --strict
 uv build
+uv run python scripts/build_web.py
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Security
@@ -125,9 +166,11 @@ issues follow the private process in [SECURITY.md](SECURITY.md).
 
 ## Roadmap
 
-The next milestone is the adapter and diagnostic contract described in
-[specification 0004](specs/0004-dataframe-adapters.md), followed by catalog rules
-whose financial semantics can be stated without institutional assumptions. The
+The next milestones are the adapter and diagnostic contract described in
+[specification 0004](specs/0004-dataframe-adapters.md), catalog rules whose
+financial semantics can be stated without institutional assumptions, and the
+remaining [non-technical interface](specs/0011-non-technical-interfaces.md)
+work: starter policy templates and spreadsheet input. The
 full sequence appears in the [roadmap](docs/roadmap.md).
 
 ## License

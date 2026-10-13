@@ -16,6 +16,10 @@ assert report.passed, report.summary()
 Inputs may be column mappings, sequences of row mappings, pandas DataFrames, or
 objects implementing `ColumnSource`. The core package has no runtime dependency.
 
+The same checks can be written in a policy file and run with
+`finassert check`, or from the browser app without installing anything; see
+[Policies and the command line](command-line.md).
+
 ## Nulls and errors
 
 Built-in rules default to `null_policy="fail"`. Use `"ignore"` only when the

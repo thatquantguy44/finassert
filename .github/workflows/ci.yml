@@ -46,3 +46,24 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src/finassert
       - run: uv build
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --all-extras --dev
+      - name: Build browser app
+        run: uv run python scripts/build_web.py --output dist/web/finassert.html
+      - name: Publish browser app for reviewers
+        uses: actions/upload-artifact@v4
+        with:
+          name: finassert-web
+          path: dist/web/finassert.html
+          if-no-files-found: error
+      - name: Install Chromium
+        run: uv run --with playwright==1.55.0 playwright install --with-deps chromium
+      - name: Smoke-test browser app against the Pyodide CDN
+        run: uv run --with playwright==1.55.0 python scripts/smoke_web.py dist/web/finassert.html

@@ -41,6 +41,7 @@ class WeightsSumToOneRule:
                 metadata={"missing_rows": [labels[index] for index in missing]},
             )
         usable = [value for index, value in enumerate(values) if index not in missing]
+        usable_labels = [label for index, label in enumerate(labels) if index not in missing]
         if not usable:
             return self._result(Outcome.FAILED, "No weights were available to sum.", observed=None)
         numeric, invalid = finite_numeric_values(usable)
@@ -48,7 +49,10 @@ class WeightsSumToOneRule:
             return self._result(
                 Outcome.FAILED,
                 f"Weight column contains {len(invalid)} non-numeric or non-finite value(s).",
-                metadata={"invalid_positions": invalid},
+                metadata={
+                    "invalid_positions": invalid,
+                    "invalid_rows": [usable_labels[position] for position in invalid],
+                },
             )
         total = precise_sum(numeric)
         expected: Numeric = Decimal(1) if isinstance(total, Decimal) else 1

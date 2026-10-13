@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+<meta name="referrer" content="no-referrer">
+<title>finassert — check a data file</title>
+<style>{{STYLE}}</style>
+</head>
+<body>
+<main>
+  <h1>Check a financial data file</h1>
+  <p class="lede">Pick a file, choose the checks it must pass, and get a report you can share.</p>
+  <div class="privacy">
+    <span aria-hidden="true">🔒</span>
+    <p><strong>Your files never leave this computer.</strong> Everything runs inside this
+    browser tab. Once the checking engine has loaded, the page makes no network requests,
+    and its security policy blocks it from contacting any site other than the one that
+    supplies the engine.</p>
+  </div>
+  <p id="status" class="status" role="status" aria-live="polite">Loading the checking engine…</p>
+
+  <section class="step" aria-labelledby="step-data">
+    <div class="step-head"><span class="step-number" aria-hidden="true">1</span>
+      <div><h2 id="step-data">Choose your data</h2>
+      <p class="hint">A CSV file whose first row holds the column names. From Excel, use
+      <em>File › Save As › CSV UTF-8</em>. JSON files also work.</p></div></div>
+    <div id="data-drop" class="drop">
+      <input id="data-file" type="file" accept=".csv,.json,text/csv,application/json">
+      <label for="data-file" class="button">Choose a data file</label>
+      <p class="hint">or drag it here</p>
+    </div>
+    <div id="data-summary" hidden>
+      <p id="data-name"></p>
+      <div class="table-wrap"><table id="data-preview"></table></div>
+    </div>
+    <div id="data-error" class="issues" role="alert" hidden></div>
+  </section>
+
+  <section class="step" aria-labelledby="step-checks">
+    <div class="step-head"><span class="step-number" aria-hidden="true">2</span>
+      <div><h2 id="step-checks">Choose the checks</h2>
+      <p class="hint">Add checks one by one, or open a policy file someone has shared with you.</p></div></div>
+    <div class="grid">
+      <div class="field"><label for="policy-name">Policy name</label>
+        <input id="policy-name" type="text" placeholder="e.g. Daily positions"></div>
+      <div class="field"><label for="policy-description">Description <span class="hint">(optional)</span></label>
+        <input id="policy-description" type="text"></div>
+    </div>
+    <div class="field"><label for="policy-assumptions">Assumptions <span class="hint">(optional, one per line)</span></label>
+      <textarea id="policy-assumptions" placeholder="e.g. Each file holds one portfolio"></textarea></div>
+    <div id="checks"></div>
+    <p id="no-checks" class="hint">No checks yet.</p>
+    <div class="toolbar">
+      <label for="add-check" class="hint inline-label">Add a check</label>
+      <select id="add-check" class="compact"></select>
+      <button id="add-check-button" type="button">Add</button>
+      <span class="hint">or</span>
+      <input id="policy-file" type="file" accept=".yml,.yaml,.json">
+      <label for="policy-file" class="button inline-label">Open a policy file</label>
+    </div>
+    <div id="policy-issues" class="issues" role="alert" hidden></div>
+  </section>
+
+  <section class="step" aria-labelledby="step-run">
+    <div class="step-head"><span class="step-number" aria-hidden="true">3</span>
+      <div><h2 id="step-run">Run the checks</h2>
+      <p class="hint">Download the report to share it, and the policy file to run the same
+      checks again later or in an automated pipeline.</p></div></div>
+    <div class="toolbar"><button id="run" class="primary" type="button" disabled>Run checks</button></div>
+    <div id="results" hidden>
+      <p id="result-banner" class="result-banner"></p>
+      <div class="toolbar">
+        <button id="download-html" type="button">Download report (HTML)</button>
+        <button id="download-json" type="button">Download report (JSON)</button>
+        <button id="download-policy" type="button">Download policy (YAML)</button>
+      </div>
+      <details><summary>Run these exact checks from the command line</summary>
+        <p>Save the policy file, then run:</p>
+        <p><code id="cli-command"></code></p>
+      </details>
+      <iframe id="report-frame" title="Validation report" sandbox></iframe>
+    </div>
+  </section>
+  <footer>finassert {{VERSION}} · running on Pyodide {{PYODIDE_VERSION}}</footer>
+</main>
+<script type="application/octet-stream" id="finassert-wheel" data-name="{{WHEEL_NAME}}">{{WHEEL_B64}}</script>
+<script src="{{PYODIDE_URL}}pyodide.js" integrity="{{PYODIDE_INTEGRITY}}" crossorigin="anonymous"></script>
+<script>{{APP_JS}}</script>
+</body>
+</html>

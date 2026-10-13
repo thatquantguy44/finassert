@@ -1,5 +1,6 @@
 """Financial invariants, tested like code."""
 
+from finassert._version import __version__
 from finassert.core import (
     GroupAggregationError,
     GroupedRule,
@@ -23,10 +24,9 @@ __all__ = [
     "Tolerance",
     "ValidationReport",
     "ValidationResult",
+    "__version__",
     "check",
     "custom_rule",
     "non_negative",
     "weights_sum_to_one",
 ]
-
-__version__ = "0.1.0"

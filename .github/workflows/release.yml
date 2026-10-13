@@ -20,6 +20,7 @@ jobs:
       - run: uv sync --all-extras --dev
       - run: uv run pytest
       - run: uv build
+      - run: uv run python scripts/build_web.py --output dist/finassert-web.html
       - uses: actions/upload-artifact@v4
         with:
           name: distributions
