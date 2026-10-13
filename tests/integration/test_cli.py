@@ -124,7 +124,8 @@ def test_missing_policy_file_exits_three(workspace: Path) -> None:
     [
         ("missing.csv", None, "cannot read input 'missing.csv'"),
         ("bad.csv", "a,a\n1,2\n", "appears more than once"),
-        ("data.xlsx", "", "cannot tell the format"),
+        ("data.ods", "", "cannot tell the format"),
+        ("data.xls", "", "re-save it as .xlsx"),
     ],
 )
 def test_input_problems_exit_four(
@@ -264,3 +265,61 @@ def test_non_utf8_policy_exits_three(workspace: Path) -> None:
     result = run(*check_args(), cwd=workspace)
     assert result.returncode == cli.EXIT_USAGE
     assert "not UTF-8" in result.stderr
+
+
+def test_excel_input_with_sheet_choice(workspace: Path) -> None:
+    import io
+
+    from openpyxl import Workbook
+
+    book = Workbook()
+    book.active.title = "Notes"
+    book.active.append(["text"])
+    positions = book.create_sheet("Positions")
+    for row in [["weight", "market_value"], [0.4, 100], [0.6, -1]]:
+        positions.append(row)
+    buffer = io.BytesIO()
+    book.save(buffer)
+    (workspace / "book.xlsx").write_bytes(buffer.getvalue())
+
+    ambiguous = run("check", "--config", "policy file.yml", "--input", "book.xlsx", cwd=workspace)
+    assert ambiguous.returncode == cli.EXIT_IO
+    assert "has 2 sheets ('Notes', 'Positions'); choose one" in ambiguous.stderr
+
+    result = run(
+        "check",
+        "--config",
+        "policy file.yml",
+        "--input",
+        "book.xlsx",
+        "--sheet",
+        "Positions",
+        "--output",
+        "report.json",
+        cwd=workspace,
+    )
+    assert result.returncode == cli.EXIT_FAILED, result.stderr
+    artifact = json.loads((workspace / "report.json").read_text(encoding="utf-8"))
+    assert artifact["input"] == {"locator": "book.xlsx", "format": "xlsx", "sheet": "Positions"}
+    violations = artifact["report"]["results"][1]["metadata"]["violations"]
+    assert violations == [{"row": 3, "value": -1}]
+
+
+def test_sheet_option_needs_an_excel_input(workspace: Path) -> None:
+    result = run(*check_args("--sheet", "Data"), cwd=workspace)
+    assert result.returncode == cli.EXIT_USAGE
+    assert "--sheet can only be used with an Excel" in result.stderr
+
+
+def test_parquet_input(workspace: Path) -> None:
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    pq.write_table(
+        pa.table({"weight": [0.5, 0.5], "market_value": [1.0, 2.0]}),
+        workspace / "positions.parquet",
+    )
+    result = run(
+        "check", "--config", "policy file.yml", "--input", "positions.parquet", cwd=workspace
+    )
+    assert result.returncode == cli.EXIT_PASSED, result.stderr

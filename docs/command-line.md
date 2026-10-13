@@ -81,7 +81,8 @@ finassert check --config policy.yml --input positions.csv \
 | Option | Meaning |
 |---|---|
 | `--config` | Policy file (`.yml`, `.yaml`, or `.json`). |
-| `--input` | Data file (`.csv` or `.json`). |
+| `--input` | Data file: `.csv`, `.json`, `.xlsx`/`.xlsm`, or `.parquet`/`.pq`. |
+| `--sheet` | Worksheet to check in an Excel workbook; required if it has several. |
 | `--format`, `--policy-format` | Override the format inferred from the extension. |
 | `--output` | Write the JSON report artifact. |
 | `--html` | Write a self-contained HTML report for people. |
@@ -116,6 +117,30 @@ so a failing "row 3" is row 3 in Excel.
 
 JSON input may be an object of columns (`{"weight": [0.4, 0.6]}`) or a list of
 row objects. JSON numbers are read as exact decimals.
+
+Excel workbooks (`.xlsx`, `.xlsm`) are read directly, with no extra
+dependency. The first non-empty row holds the headers, and rows are labelled
+with the sheet's own row numbers. Cells are read as Excel stored them, not as
+they are displayed:
+
+- numbers keep their exact stored value, so a cell showing `0.3` because of its
+  format is still checked at full precision, and an Excel table checks the same
+  way as the CSV export of it;
+- percentage cells keep their stored fraction: a cell showing `40%` is `0.4`;
+- date cells become dates and are reported as non-numeric, never read as the
+  day counts Excel stores them as;
+- formulas are checked by their saved result. A formula with no saved result,
+  as some export tools write, is an error: open the file in Excel and save it;
+- rows with no values are skipped; a value in a column with no header is an
+  error.
+
+A workbook with several sheets needs `--sheet`, so the wrong tab is never
+checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
+
+Parquet files need `finassert[parquet]` (pyarrow). Values keep their stored
+types: decimal columns become exact decimals, floating-point columns stay
+binary floats, and nulls and NaN are missing values. Rows are labelled from 0,
+as in a default pandas index.
 
 ## Report artifacts
 

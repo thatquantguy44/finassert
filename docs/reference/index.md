@@ -41,7 +41,10 @@ of the supported API.
 
 ## Loaders
 
-- `finassert.loaders.load_input(path, *, format=None)` reads CSV or JSON.
+- `finassert.loaders.load_input(path, *, format=None, sheet=None)` reads CSV,
+  JSON, Excel `.xlsx`, or Parquet; `sheet` chooses an Excel worksheet.
+- `parse_xlsx(data, *, sheet=None) -> TableSource` reads workbook bytes with no
+  dependency; `read_parquet(path)` needs pyarrow.
 - `parse_csv(text) -> TableSource` and `parse_json(text)` parse text directly.
 - `TableSource` implements `ColumnSource` with spreadsheet row numbers as
   labels and exposes `column_names`, `row_count`, and `preview()`.

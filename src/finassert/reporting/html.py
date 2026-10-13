@@ -126,6 +126,7 @@ def to_html(
     policy: Policy | None = None,
     input_locator: str | None = None,
     input_format: str | None = None,
+    input_sheet: str | None = None,
     generated_at: datetime | None = None,
     title: str | None = None,
 ) -> str:
@@ -136,6 +137,7 @@ def to_html(
         policy: Policy whose rule descriptions and assumptions are shown.
         input_locator: Input description exactly as the user supplied it.
         input_format: Loader format used for the input.
+        input_sheet: Worksheet read from a workbook input, if any.
         generated_at: Timestamp to record; defaults to the current UTC time.
         title: Page heading; defaults to the policy name.
     """
@@ -144,6 +146,7 @@ def to_html(
         policy=policy,
         input_locator=input_locator,
         input_format=input_format,
+        input_sheet=input_sheet,
         generated_at=generated_at,
     )
     return render_artifact_html(artifact, title=title)
@@ -242,6 +245,8 @@ def _context(artifact: Mapping[str, Any]) -> str:
         rows.append(("Input", source["locator"]))
     if source.get("format"):
         rows.append(("Input format", source["format"]))
+    if source.get("sheet"):
+        rows.append(("Sheet", source["sheet"]))
     policy = artifact.get("policy") or {}
     if policy.get("description"):
         rows.append(("Policy description", policy["description"]))

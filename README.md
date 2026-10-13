@@ -131,8 +131,9 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text, JSON, and self-contained HTML reports | Excel workbook and Parquet input |
-| YAML/JSON policies, CLI, and in-browser app | Policy templates and assistant tools |
+| Text, JSON, and self-contained HTML reports | Policy templates and assistant tools |
+| YAML/JSON policies, CLI, and in-browser app | Polars and SQL inputs |
+| CSV, JSON, Excel (.xlsx), and Parquet input files | |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
 
 Negative weights are not rejected: short positions may be legitimate. Apply
@@ -170,7 +171,7 @@ The next milestones are the adapter and diagnostic contract described in
 [specification 0004](specs/0004-dataframe-adapters.md), catalog rules whose
 financial semantics can be stated without institutional assumptions, and the
 remaining [non-technical interface](specs/0011-non-technical-interfaces.md)
-work: starter policy templates and spreadsheet input. The
+work: starter policy templates and an assistant tool server. The
 full sequence appears in the [roadmap](docs/roadmap.md).
 
 ## License

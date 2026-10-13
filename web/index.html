@@ -24,12 +24,16 @@
   <section class="step" aria-labelledby="step-data">
     <div class="step-head"><span class="step-number" aria-hidden="true">1</span>
       <div><h2 id="step-data">Choose your data</h2>
-      <p class="hint">A CSV file whose first row holds the column names. From Excel, use
-      <em>File › Save As › CSV UTF-8</em>. JSON files also work.</p></div></div>
+      <p class="hint">An Excel workbook (.xlsx) or a CSV file whose first row holds the
+      column names. JSON files also work.</p></div></div>
     <div id="data-drop" class="drop">
-      <input id="data-file" type="file" accept=".csv,.json,text/csv,application/json">
+      <input id="data-file" type="file" accept=".xlsx,.xlsm,.csv,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
       <label for="data-file" class="button">Choose a data file</label>
       <p class="hint">or drag it here</p>
+    </div>
+    <div id="sheet-picker" class="field" hidden>
+      <label for="sheet-select">Which sheet holds the data?</label>
+      <select id="sheet-select" class="compact"></select>
     </div>
     <div id="data-summary" hidden>
       <p id="data-name"></p>

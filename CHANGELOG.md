@@ -28,6 +28,10 @@ and intends to use Semantic Versioning after the public API stabilizes.
   locally with Pyodide and exports the policy it ran, a headless-browser smoke
   test run in CI against the Pyodide CDN, and sample data and policy files.
 
+- Excel `.xlsx` input with no dependency, in the CLI (`--sheet`) and the
+  browser app, reading stored values exactly and refusing uncached formulas and
+  ambiguous sheets; Parquet input through the `parquet` extra.
+
 ### Changed
 
 - Missing-column errors list the available columns and suggest the closest one.

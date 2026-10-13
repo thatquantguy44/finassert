@@ -114,9 +114,13 @@ def test_load_input_infers_format(tmp_path: Path) -> None:
     assert load_input(json_path) == {"weight": [1]}
     assert isinstance(load_input(json_path, format="json"), dict)
     with pytest.raises(InvalidDataError, match="cannot tell the format"):
-        load_input(tmp_path / "positions.xlsx")
+        load_input(tmp_path / "positions.ods")
+    with pytest.raises(InvalidDataError, match=r"re-save it as \.xlsx"):
+        load_input(tmp_path / "positions.xls")
     with pytest.raises(InvalidDataError, match="unknown input format"):
-        load_input(csv_path, format="xlsx")
+        load_input(csv_path, format="xls")
+    with pytest.raises(InvalidDataError, match="only be chosen for Excel"):
+        load_input(csv_path, sheet="Sheet1")
 
 
 def test_load_input_rejects_non_utf8(tmp_path: Path) -> None:

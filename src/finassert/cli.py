@@ -24,7 +24,7 @@ from typing import NoReturn, TextIO
 from finassert._version import __version__
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.core.models import ValidationReport
-from finassert.loaders import INPUT_FORMATS, load_input
+from finassert.loaders import INPUT_FORMATS, input_format_for, load_input
 from finassert.policy import POLICY_FORMATS, default_catalog, load_policy
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
@@ -90,6 +90,11 @@ def _parser() -> argparse.ArgumentParser:
         choices=POLICY_FORMATS,
         help="policy format; inferred from the file extension when omitted",
     )
+    check.add_argument(
+        "--sheet",
+        metavar="NAME",
+        help="worksheet to check in an Excel workbook; required if it has several sheets",
+    )
     check.add_argument("--output", metavar="FILE", help="write the JSON report here")
     check.add_argument("--html", metavar="FILE", help="write a readable HTML report here")
     check.add_argument("--quiet", action="store_true", help="do not print the summary")
@@ -118,20 +123,28 @@ def _check(arguments: argparse.Namespace) -> int:
     except OSError as exc:
         return _fail(EXIT_USAGE, f"cannot read policy {arguments.config!r}: {_reason(exc)}")
 
+    if arguments.sheet is not None:
+        try:
+            chosen = arguments.format or input_format_for(Path(arguments.input))
+        except InvalidDataError:
+            chosen = None
+        if chosen != "xlsx":
+            return _fail(EXIT_USAGE, "--sheet can only be used with an Excel (.xlsx) input.")
     try:
-        data = load_input(arguments.input, format=arguments.format)
+        data = load_input(arguments.input, format=arguments.format, sheet=arguments.sheet)
     except InvalidDataError as exc:
         return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {exc}")
     except OSError as exc:
         return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {_reason(exc)}")
 
     report = policy.check(data)
-    input_format = arguments.format or Path(arguments.input).suffix.lower().lstrip(".")
+    input_format = arguments.format or input_format_for(Path(arguments.input))
     artifact = build_artifact(
         report,
         policy=policy,
         input_locator=arguments.input,
         input_format=input_format,
+        input_sheet=arguments.sheet,
         generated_at=_generated_at(),
     )
 

@@ -4,7 +4,8 @@ The script opens the single-file app, loads ``examples/positions.csv``, opens
 ``examples/policy.yml``, runs the checks, and verifies that:
 
 * the engine starts under the page's Content-Security-Policy;
-* the report shows the expected outcome counts;
+* the report shows the expected outcome counts, also for a two-sheet Excel
+  workbook once its sheet is chosen;
 * the downloaded policy, run through the Python API, gives identical results,
   and the browser ran the opened policy unchanged (same fingerprint as the CLI);
 * no network request is made after start-up, and no CSP violation occurs.
@@ -21,6 +22,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import mimetypes
 import re
@@ -114,6 +116,8 @@ def main(argv: list[str] | None = None) -> int:
             page.click("#download-json")
         download.value.save_as(artifact_path)
 
+        _check_workbook(page, Path(scratch), failures)
+
         page.wait_for_timeout(500)
         browser.close()
 
@@ -141,6 +145,39 @@ def main(argv: list[str] | None = None) -> int:
     if not failures:
         print("PASS: browser app smoke test")
     return 1 if failures else 0
+
+
+def _check_workbook(page: Any, scratch: Path, failures: list[str]) -> None:
+    """Open a two-sheet Excel workbook, pick the sheet, and run the checks."""
+    from openpyxl import Workbook
+    from playwright.sync_api import expect
+
+    book = Workbook()
+    book.active.title = "Notes"
+    book.active.append(["Prepared by the operations team"])
+    sheet = book.create_sheet("Positions")
+    for row in (EXAMPLES / "positions.csv").read_text(encoding="utf-8").splitlines():
+        cells = next(csv.reader([row]))
+        sheet.append([_cell(value) for value in cells])
+    path = scratch / "positions.xlsx"
+    book.save(path)
+
+    page.set_input_files("#data-file", str(path))
+    expect(page.locator("#sheet-picker")).to_be_visible()
+    page.select_option("#sheet-select", "Positions")
+    expect(page.locator("#data-name")).to_contain_text('sheet "Positions": 5 row(s)')
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"workbook result: {banner}")
+    if banner != EXPECTED_BANNER:
+        failures.append(f"unexpected workbook result {banner!r}")
+
+
+def _cell(value: str) -> Any:
+    try:
+        return float(value) if "." in value else int(value)
+    except ValueError:
+        return value
 
 
 def _serve_locally(page: Any, base_url: str, directory: Path) -> None:
