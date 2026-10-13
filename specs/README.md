@@ -12,11 +12,11 @@ contract described; **Proposed** means no public capability should be inferred.
 | [0004 DataFrame adapters](0004-dataframe-adapters.md) | pandas initial; Polars proposed |
 | [0005 Reporting and diagnostics](0005-reporting-and-diagnostics.md) | Text/JSON/HTML initial |
 | [0006 Rule registry and custom rules](0006-rule-registry-and-custom-rules.md) | Implemented (initial) |
-| [0007 CLI and pipeline integration](0007-cli-and-pipeline-integration.md) | Implemented (initial); Parquet deferred |
+| [0007 CLI and pipeline integration](0007-cli-and-pipeline-integration.md) | Implemented (initial) |
 | [0008 Financial units and currencies](0008-financial-units-and-currencies.md) | Proposed |
 | [0009 Property-based testing](0009-property-based-testing.md) | Implemented (initial) |
 | [0010 Performance and batch validation](0010-performance-and-batch-validation.md) | Proposed |
-| [0011 Non-technical interfaces](0011-non-technical-interfaces.md) | Milestones 1–4 implemented (initial) |
+| [0011 Non-technical interfaces](0011-non-technical-interfaces.md) | Milestones 1–6 implemented (initial); Excel files supported |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

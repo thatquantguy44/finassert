@@ -1,9 +1,12 @@
 # 0011 — Non-technical interfaces
 
-**Status:** Milestones 1–4 implemented (initial): catalog metadata, policy
-diagnostics, the HTML renderer and `--html` flag, and the Pyodide browser
-application. Templates, the assistant tool server, and spreadsheet input remain
-proposed.
+**Status:** Milestones 1–6 implemented (initial): catalog metadata, policy
+diagnostics, the HTML renderer and `--html` flag, the Pyodide browser
+application, starter policy templates, and the assistant tool server
+(`finassert-assistant`, shipped as the `assistant` extra rather than a separate
+distribution). Spreadsheet *files* are also supported: Excel `.xlsx` is read
+without a dependency in both the CLI and the browser. Integration inside Excel
+itself (milestone 7) remains proposed.
 
 ## Problem statement
 

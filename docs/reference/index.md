@@ -39,9 +39,16 @@ of the supported API.
 - `RuleCatalog`, `RuleFactorySpec`, `ParameterSpec`, and `default_catalog()`
   define which factories a policy may name and describe them in plain language.
 
+- `policy_templates()` and `get_template(name)` return `PolicyTemplate` starter
+  policies with `policy()`, `to_yaml()`, `assumptions` in the document, and
+  `adapt` notes.
+
 ## Loaders
 
-- `finassert.loaders.load_input(path, *, format=None)` reads CSV or JSON.
+- `finassert.loaders.load_input(path, *, format=None, sheet=None)` reads CSV,
+  JSON, Excel `.xlsx`, or Parquet; `sheet` chooses an Excel worksheet.
+- `parse_xlsx(data, *, sheet=None) -> TableSource` reads workbook bytes with no
+  dependency; `read_parquet(path)` needs pyarrow.
 - `parse_csv(text) -> TableSource` and `parse_json(text)` parse text directly.
 - `TableSource` implements `ColumnSource` with spreadsheet row numbers as
   labels and exposes `column_names`, `row_count`, and `preview()`.
@@ -54,6 +61,14 @@ of the supported API.
   digest, and input context; `artifact_to_json()` serializes it.
 - `to_html(report, ...)` and `render_artifact_html(artifact)` produce a
   self-contained HTML page that embeds the artifact.
+
+## Assistant tool server
+
+`finassert-assistant --root FOLDER` serves the tools `rules`, `templates`,
+`check_policy`, `inspect`, and `run_checks` over MCP; see
+[Assistant tool server](../assistant.md). The same functions are available as
+`finassert.assistant.list_rules`, `list_templates`, `validate_policy`,
+`inspect_data`, and `check_data`, with `Workspace` restricting file access.
 
 ## Command line
 

@@ -11,6 +11,7 @@ from finassert.policy.catalog import (
 from finassert.policy.io import POLICY_FORMATS, dump_policy, load_policy, parse_policy_text
 from finassert.policy.issues import PolicyIssue
 from finassert.policy.schema import SUPPORTED_VERSIONS, Policy, PolicyRule, parse_policy
+from finassert.policy.templates import PolicyTemplate, get_template, policy_templates
 
 __all__ = [
     "POLICY_FORMATS",
@@ -21,11 +22,14 @@ __all__ = [
     "PolicyError",
     "PolicyIssue",
     "PolicyRule",
+    "PolicyTemplate",
     "RuleCatalog",
     "RuleFactorySpec",
     "default_catalog",
     "dump_policy",
+    "get_template",
     "load_policy",
     "parse_policy",
     "parse_policy_text",
+    "policy_templates",
 ]

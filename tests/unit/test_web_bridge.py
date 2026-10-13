@@ -128,3 +128,68 @@ def test_malformed_number_tags_are_reported_not_crashed() -> None:
     }
     result = json.loads(web.run("weight\n1\n", "d.csv", json.dumps(document)))
     assert result["ok"] is False and result["issues"]
+
+
+def _workbook(*sheets: tuple[str, list[list[object]]]) -> bytes:
+    import io
+
+    from openpyxl import Workbook
+
+    book = Workbook()
+    book.remove(book.active)
+    for title, rows in sheets:
+        sheet = book.create_sheet(title)
+        for row in rows:
+            sheet.append(row)
+    buffer = io.BytesIO()
+    book.save(buffer)
+    return buffer.getvalue()
+
+
+class _JsBytes:
+    """Stand-in for the proxy Pyodide passes for a JavaScript Uint8Array."""
+
+    def __init__(self, data: bytes) -> None:
+        self._data = data
+
+    def to_py(self) -> memoryview:
+        return memoryview(self._data)
+
+
+def test_workbook_with_several_sheets_asks_for_a_sheet() -> None:
+    data = _JsBytes(_workbook(("Notes", [["x"]]), ("Positions", [["weight"], [0.5], [0.5]])))
+    ask = json.loads(web.inspect_input(data, "book.xlsx"))
+    assert ask["ok"] is False and ask["sheets"] == ["Notes", "Positions"]
+
+    info = json.loads(web.inspect_input(data, "book.xlsx", "Positions"))
+    assert info["ok"] is True
+    assert info["columns"] == ["weight"] and info["row_count"] == 2
+
+    document = json.dumps({"version": 1, "rules": [{"rule": "weights_sum_to_one"}]})
+    result = json.loads(web.run(data, "book.xlsx", document, "Positions"))
+    assert result["passed"] is True
+    assert json.loads(result["artifact_json"])["input"]["sheet"] == "Positions"
+
+
+def test_single_sheet_workbook_opens_directly() -> None:
+    data = _workbook(("Only", [["weight"], [1]]))
+    info = json.loads(web.inspect_input(data, "book.xlsx"))
+    assert info["ok"] is True and info["preview"] == [{"weight": 1}]
+
+
+def test_browser_rejects_formats_it_cannot_open() -> None:
+    result = json.loads(web.inspect_input(b"PAR1", "data.parquet"))
+    assert result["ok"] is False
+    assert "cannot be opened in the browser" in result["error"]
+    assert json.loads(web.inspect_input("a\n1\n", "data.csv", "Sheet"))["ok"] is False
+
+
+def test_templates_are_offered_in_editable_form() -> None:
+    offered = json.loads(web.templates())["templates"]
+    assert [item["name"] for item in offered] == ["long-only-holdings", "target-allocation"]
+    holdings = offered[0]
+    assert holdings["policy"]["assumptions"]
+    result = json.loads(
+        web.run("weight,market_value\n0.5,1\n0.5,1\n", "d.csv", json.dumps(holdings["policy"]))
+    )
+    assert result["passed"] is True

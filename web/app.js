@@ -37,7 +37,9 @@
       state.pyodide = pyodide;
       state.web = pyodide.pyimport("finassert.web");
       state.catalog = call("catalog").rules;
+      state.templates = call("templates").templates;
       renderCatalogPicker();
+      renderTemplates();
       setStatus("Ready. Nothing you open here is uploaded.");
       refresh();
     } catch (error) {
@@ -75,21 +77,39 @@
 
   async function openData(file) {
     if (!file || !state.web) return;
-    const text = await file.text();
-    const info = call("inspect_input", text, file.name);
+    const workbook = /\.xls[xm]$/i.test(file.name);
+    const content = workbook ? new Uint8Array(await file.arrayBuffer()) : await file.text();
+    state.pending = { name: file.name, content };
+    $("sheet-picker").hidden = true;
+    showData(null);
+  }
+
+  function showData(sheet) {
+    const { name, content } = state.pending;
+    const info = call("inspect_input", content, name, sheet);
     const errorBox = $("data-error");
     if (!info.ok) {
       state.data = null;
       $("data-summary").hidden = true;
-      errorBox.textContent = "This file could not be read: " + info.error;
-      errorBox.hidden = false;
+      if (info.sheets) {
+        $("sheet-select").replaceChildren(
+          option("", "Choose a sheet…", true),
+          ...info.sheets.map((item) => option(item, item))
+        );
+        $("sheet-picker").hidden = false;
+        errorBox.hidden = true;
+      } else {
+        errorBox.textContent = "This file could not be read: " + info.error;
+        errorBox.hidden = false;
+      }
       refresh();
       return;
     }
     errorBox.hidden = true;
-    state.data = { name: file.name, text, columns: info.columns };
+    state.data = { name, content, sheet, columns: info.columns };
+    const where = sheet ? `${name}, sheet "${sheet}"` : name;
     $("data-name").textContent =
-      `${file.name}: ${info.row_count} row(s), ${info.columns.length} column(s).` +
+      `${where}: ${info.row_count} row(s), ${info.columns.length} column(s).` +
       (info.row_count > info.preview.length ? ` First ${info.preview.length} rows:` : "");
     const head = element("tr", {}, info.columns.map((c) => element("th", { scope: "col", text: c })));
     const rows = info.preview.map((row) =>
@@ -312,10 +332,15 @@
       setStatus("The policy file was not opened.", true);
       return;
     }
-    const policy = parsed.policy;
+    applyPolicy(parsed.policy);
+    setStatus(`Opened ${file.name} with ${parsed.policy.rules.length} check(s).`);
+  }
+
+  function applyPolicy(policy) {
     $("policy-name").value = policy.name || "";
     $("policy-description").value = policy.description || "";
     $("policy-assumptions").value = (policy.assumptions || []).join("\n");
+    $("policy-assumptions").rows = Math.max(3, (policy.assumptions || []).length + 1);
     state.checks = [];
     for (const entry of policy.rules) {
       const { rule, ...values } = entry;
@@ -324,7 +349,30 @@
     }
     showIssues([]);
     renderChecks();
-    setStatus(`Opened ${file.name} with ${policy.rules.length} check(s).`);
+    refresh();
+  }
+
+  function renderTemplates() {
+    $("template").replaceChildren(
+      option("", "Choose a template…", true),
+      ...state.templates.map((item) => option(item.name, item.title))
+    );
+  }
+
+  function useTemplate(name) {
+    const template = state.templates.find((item) => item.name === name);
+    const notes = $("template-notes");
+    if (!template) {
+      notes.hidden = true;
+      return;
+    }
+    applyPolicy(template.policy);
+    notes.replaceChildren(
+      element("strong", { text: "Before relying on this template: " }),
+      [...template.adapt, "Check the assumptions below hold for your file."].join(" ")
+    );
+    notes.hidden = false;
+    setStatus(`Started from the "${template.title}" template.`);
   }
 
   function showIssues(issues, heading) {
@@ -354,7 +402,13 @@
 
   function run() {
     if (!state.data) return;
-    const outcome = call("run", state.data.text, state.data.name, JSON.stringify(policyDocument()));
+    const outcome = call(
+      "run",
+      state.data.content,
+      state.data.name,
+      JSON.stringify(policyDocument()),
+      state.data.sheet
+    );
     if (!outcome.ok) {
       $("results").hidden = true;
       if (outcome.issues) showIssues(outcome.issues);
@@ -371,7 +425,9 @@
       : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
     $("report-frame").srcdoc = outcome.html;
     $("cli-command").textContent =
-      `finassert check --config policy.yml --input "${state.data.name}" --html report.html`;
+      `finassert check --config policy.yml --input "${state.data.name}"` +
+      (state.data.sheet ? ` --sheet "${state.data.sheet}"` : "") +
+      " --html report.html";
     $("results").hidden = false;
     setStatus("Checks finished. The full report is below.");
   }
@@ -410,10 +466,14 @@
   }
 
   wireDrop($("data-drop"), $("data-file"), guarded(openData));
+  $("sheet-select").addEventListener("change", guarded(async () => {
+    if ($("sheet-select").value) showData($("sheet-select").value);
+  }));
   $("policy-file").addEventListener("change", guarded(async () => {
     await openPolicy($("policy-file").files[0]);
     $("policy-file").value = "";
   }));
+  $("template").addEventListener("change", guarded(async () => useTemplate($("template").value)));
   $("add-check-button").addEventListener("click", () => addCheck($("add-check").value));
   $("run").addEventListener("click", guarded(run));
   $("download-html").addEventListener("click", () =>

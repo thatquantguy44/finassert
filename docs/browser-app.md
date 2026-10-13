@@ -1,7 +1,7 @@
 # Browser app
 
 The browser app lets anyone check a data file without installing Python. It is
-a single HTML file: open it, choose a CSV file, pick checks from a list (or
+a single HTML file: open it, choose an Excel workbook or CSV file, pick checks from a list (or
 open a policy file), and download a report.
 
 ## Privacy
@@ -22,10 +22,12 @@ browser tab:
 
 ## What it does
 
-1. **Choose your data**: a CSV (or JSON) file, read with the same loader as the
-   command line. The first rows are previewed so the user can confirm the
+1. **Choose your data**: an Excel workbook, CSV, or JSON file, read with the
+   same loader as the command line. For a workbook with several sheets, the app
+   asks which sheet to check. The first rows are previewed so the user can confirm the
    columns.
-2. **Choose the checks**: each check shows a plain-language summary, a "don't
+2. **Choose the checks**: start from a template, or add checks one by one;
+   each check shows a plain-language summary, a "don't
    use when" caution, and form fields for its settings. Column settings are
    picked from the file's headers. Settings typed into the form are kept as
    text and read as exact decimals. A shared policy file can be opened instead,
@@ -69,6 +71,6 @@ between the page and Python.
 
 ## Limitations
 
-- Excel workbooks must be saved as CSV first.
+- Parquet files need the command line; the browser reads Excel, CSV, and JSON.
 - Only built-in checks are listed; custom rules need the Python API or CLI.
 - The first load downloads roughly 10 MB of Python runtime, which browsers cache.

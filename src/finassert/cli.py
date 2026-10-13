@@ -24,8 +24,15 @@ from typing import NoReturn, TextIO
 from finassert._version import __version__
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.core.models import ValidationReport
-from finassert.loaders import INPUT_FORMATS, load_input
-from finassert.policy import POLICY_FORMATS, default_catalog, load_policy
+from finassert.loaders import INPUT_FORMATS, input_format_for, load_input
+from finassert.policy import (
+    POLICY_FORMATS,
+    default_catalog,
+    get_template,
+    load_policy,
+    policy_templates,
+)
+from finassert.policy.issues import closest
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
 EXIT_PASSED = 0
@@ -55,6 +62,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if arguments.command == "rules":
             return _rules(json_output=arguments.json, stream=sys.stdout)
+        if arguments.command == "templates":
+            return _templates(stream=sys.stdout)
+        if arguments.command == "init":
+            return _init(arguments)
         return _check(arguments)
     except KeyboardInterrupt:
         print("finassert: interrupted; no report was written.", file=sys.stderr)
@@ -90,6 +101,11 @@ def _parser() -> argparse.ArgumentParser:
         choices=POLICY_FORMATS,
         help="policy format; inferred from the file extension when omitted",
     )
+    check.add_argument(
+        "--sheet",
+        metavar="NAME",
+        help="worksheet to check in an Excel workbook; required if it has several sheets",
+    )
     check.add_argument("--output", metavar="FILE", help="write the JSON report here")
     check.add_argument("--html", metavar="FILE", help="write a readable HTML report here")
     check.add_argument("--quiet", action="store_true", help="do not print the summary")
@@ -100,6 +116,23 @@ def _parser() -> argparse.ArgumentParser:
         description="Describe every rule a policy may name, in plain language.",
     )
     rules.add_argument("--json", action="store_true", help="print the catalog as JSON")
+
+    commands.add_parser(
+        "templates",
+        help="list starter policies",
+        description="List the starter policies 'finassert init' can write.",
+    )
+
+    init = commands.add_parser(
+        "init",
+        help="write a starter policy from a template",
+        description="Write a starter policy, with its assumptions, for you to adapt.",
+    )
+    init.add_argument("--template", required=True, metavar="NAME", help="template to start from")
+    init.add_argument(
+        "--output", default="policy.yml", metavar="FILE", help="where to write it (policy.yml)"
+    )
+    init.add_argument("--force", action="store_true", help="replace an existing file")
     return parser
 
 
@@ -118,20 +151,28 @@ def _check(arguments: argparse.Namespace) -> int:
     except OSError as exc:
         return _fail(EXIT_USAGE, f"cannot read policy {arguments.config!r}: {_reason(exc)}")
 
+    if arguments.sheet is not None:
+        try:
+            chosen = arguments.format or input_format_for(Path(arguments.input))
+        except InvalidDataError:
+            chosen = None
+        if chosen != "xlsx":
+            return _fail(EXIT_USAGE, "--sheet can only be used with an Excel (.xlsx) input.")
     try:
-        data = load_input(arguments.input, format=arguments.format)
+        data = load_input(arguments.input, format=arguments.format, sheet=arguments.sheet)
     except InvalidDataError as exc:
         return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {exc}")
     except OSError as exc:
         return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {_reason(exc)}")
 
     report = policy.check(data)
-    input_format = arguments.format or Path(arguments.input).suffix.lower().lstrip(".")
+    input_format = arguments.format or input_format_for(Path(arguments.input))
     artifact = build_artifact(
         report,
         policy=policy,
         input_locator=arguments.input,
         input_format=input_format,
+        input_sheet=arguments.sheet,
         generated_at=_generated_at(),
     )
 
@@ -179,6 +220,42 @@ def _rules(*, json_output: bool, stream: TextIO) -> int:
                 note += f"; one of {', '.join(parameter.choices)}"
             print(f"    {parameter.name} ({note}): {parameter.description}", file=stream)
         print(file=stream)
+    return EXIT_PASSED
+
+
+def _templates(*, stream: TextIO) -> int:
+    for template in policy_templates():
+        print(f"{template.name}: {template.title}", file=stream)
+        print(f"  {template.summary}", file=stream)
+    print("\nWrite one with: finassert init --template NAME", file=stream)
+    return EXIT_PASSED
+
+
+def _init(arguments: argparse.Namespace) -> int:
+    try:
+        template = get_template(arguments.template)
+    except KeyError:
+        names = [template.name for template in policy_templates()]
+        hint = closest(arguments.template, names)
+        suggestion = f" Did you mean {hint!r}?" if hint else ""
+        return _fail(
+            EXIT_USAGE,
+            f"unknown template {arguments.template!r}; available: {', '.join(names)}.{suggestion}",
+        )
+    path = Path(arguments.output)
+    if path.exists() and not arguments.force:
+        return _fail(
+            EXIT_USAGE, f"{arguments.output!r} already exists; pass --force to replace it."
+        )
+    try:
+        _write_atomic(path, template.to_yaml())
+    except OSError as exc:
+        return _fail(EXIT_IO, f"cannot write {arguments.output!r}: {_reason(exc)}")
+    print(f"Wrote {arguments.output} from the '{template.name}' template.")
+    print("Before relying on it:")
+    for line in template.adapt:
+        print(f"  - {line}")
+    print("  - Check the assumptions listed in the file hold for your data.")
     return EXIT_PASSED
 
 

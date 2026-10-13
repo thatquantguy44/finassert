@@ -2,8 +2,9 @@
 
 **Status:** Implemented (initial). Milestones 1–3 are complete: the artifact
 envelope (`schema_version` 1), CSV/JSON loaders, YAML/JSON policy schema, and
-`finassert check` with the exit codes below. Parquet input and orchestrator
-recipes remain proposed. YAML policies require the `cli` (or `yaml`) extra;
+`finassert check` with the exit codes below. Milestone 4 is complete: Parquet
+input through the `parquet` extra (and Excel `.xlsx` input, from 0011).
+Orchestrator recipes remain proposed. YAML policies require the `cli` (or `yaml`) extra;
 JSON policies need no dependency. Input format is inferred from the file
 extension unless `--format` is given; unknown extensions are rejected.
 

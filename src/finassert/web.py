@@ -15,14 +15,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from finassert._xlsx import sheet_names
 from finassert.core.exceptions import InvalidDataError, PolicyError
-from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json
+from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json, parse_xlsx
 from finassert.policy import (
     ParameterKind,
     default_catalog,
     dump_policy,
     parse_policy,
     parse_policy_text,
+    policy_templates,
 )
 from finassert.policy.io import policy_format_for
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
@@ -35,10 +37,42 @@ def catalog() -> str:
     return json.dumps(default_catalog().to_dict())
 
 
-def inspect_input(text: str, name: str) -> str:
-    """Parse an input file and return its columns, row count, and a preview."""
+def templates() -> str:
+    """Return the starter policies in the editable form used by the application."""
+    return json.dumps(
+        {
+            "templates": [
+                {
+                    "name": template.name,
+                    "title": template.title,
+                    "summary": template.summary,
+                    "adapt": list(template.adapt),
+                    "policy": _editable(template.policy().to_document()),
+                }
+                for template in policy_templates()
+            ]
+        }
+    )
+
+
+def inspect_input(content: Any, name: str, sheet: str | None = None) -> str:
+    """Parse an input file and return its columns, row count, and a preview.
+
+    ``content`` is text for CSV and JSON and bytes for Excel workbooks. When a
+    workbook has several sheets and none is chosen, the result lists them.
+    """
     try:
-        data = _parse_input(text, name)
+        if sheet is None and input_format_for(Path(name)) == "xlsx":
+            names = sheet_names(_as_bytes(content))
+            if len(names) > 1:
+                return json.dumps(
+                    {
+                        "ok": False,
+                        "sheets": list(names),
+                        "error": "This workbook has several sheets; choose the one to check.",
+                    }
+                )
+        data = _parse_input(content, name, sheet)
     except InvalidDataError as exc:
         return json.dumps({"ok": False, "error": str(exc)})
     if isinstance(data, TableSource):
@@ -79,7 +113,7 @@ def read_policy(text: str, name: str) -> str:
     return json.dumps({"ok": True, "policy": _editable(policy.to_document())})
 
 
-def run(input_text: str, input_name: str, policy_json: str) -> str:
+def run(content: Any, input_name: str, policy_json: str, sheet: str | None = None) -> str:
     """Validate an input against an edited policy and return every output.
 
     The result holds the HTML report, the JSON artifact, and the policy
@@ -90,7 +124,7 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
     except PolicyError as exc:
         return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
     try:
-        data = _parse_input(input_text, input_name)
+        data = _parse_input(content, input_name, sheet)
     except InvalidDataError as exc:
         return json.dumps({"ok": False, "error": f"The data file could not be read: {exc}"})
     report = policy.check(data)
@@ -99,6 +133,7 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
         policy=policy,
         input_locator=input_name,
         input_format=input_format_for(Path(input_name)),
+        input_sheet=sheet,
     )
     return json.dumps(
         {
@@ -112,11 +147,36 @@ def run(input_text: str, input_name: str, policy_json: str) -> str:
     )
 
 
-def _parse_input(text: str, name: str) -> Any:
+def _parse_input(content: Any, name: str, sheet: str | None = None) -> Any:
     # Same format rules as the command line, so files the app accepts also run there.
-    if input_format_for(Path(name)) == "json":
-        return parse_json(text)
-    return parse_csv(text)
+    input_format = input_format_for(Path(name))
+    if input_format == "xlsx":
+        return parse_xlsx(_as_bytes(content), sheet=sheet)
+    if sheet is not None:
+        raise InvalidDataError("a sheet can only be chosen for Excel (.xlsx) input")
+    if input_format == "json":
+        return parse_json(_as_text(content))
+    if input_format == "csv":
+        return parse_csv(_as_text(content))
+    raise InvalidDataError(f"{input_format} files cannot be opened in the browser app")
+
+
+def _as_bytes(content: Any) -> bytes:
+    # Pyodide passes a JavaScript Uint8Array as a proxy with to_py().
+    if hasattr(content, "to_py"):
+        content = content.to_py()
+    if isinstance(content, str):
+        raise InvalidDataError("the workbook was read as text; open it again")
+    return bytes(content)
+
+
+def _as_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    try:
+        return _as_bytes(content).decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise InvalidDataError("the file is not UTF-8 text; re-save it as 'CSV UTF-8'") from exc
 
 
 def _editable(document: dict[str, Any]) -> dict[str, Any]:
