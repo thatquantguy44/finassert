@@ -304,7 +304,9 @@ def test_every_built_in_rule_is_fully_documented() -> None:
     assert catalog.names() == (
         "cash_reconciles",
         "nav_reconciles",
+        "no_duplicates",
         "non_negative",
+        "required_fields",
         "weights_sum_to_one",
     )
     for spec in catalog.specs():

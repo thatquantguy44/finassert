@@ -19,6 +19,8 @@ nav:
       - Grouped validation: design/grouped-validation.md
   - Examples:
       - Portfolio validation: examples/portfolio-validation.md
+      - Multi-portfolio holdings: examples/multi-portfolio-holdings.md
+      - Cash reconciliation: examples/cash-reconciliation.md
       - NAV reconciliation: examples/nav-reconciliation.md
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md

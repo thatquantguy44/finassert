@@ -48,6 +48,13 @@ and intends to use Semantic Versioning after the public API stabilizes.
 - `ColumnMapping.order_key` and `aggregate_ordered`: first and last values are
   taken by an explicit ordering column, never by row order.
 
+- `weights_sum_to_one(group_by=...)` checks each portfolio of a multi-portfolio
+  file; `no_duplicates` and `required_fields` check file shape; a
+  `multi-portfolio-holdings` template combines them with NAV reconciliation.
+- Sample `cash.csv` and `holdings.csv` files and example pages for cash
+  reconciliation, NAV reconciliation, and multi-portfolio holdings; a test keeps
+  each sample showing exactly its documented break.
+
 ### Changed
 
 - The private grouped cash-reconciliation prototype is replaced by the public

@@ -1,8 +1,8 @@
 # Roadmap
 
 1. Harden dataframe adapters and diagnostic row identity under specification
-   0004 (grouped rules and the ordering column are in place), and add grouped
-   variants of the portfolio rules, such as weights per portfolio.
+   0004 (grouped rules, the ordering column, and per-portfolio weights are in
+   place), and add grouped variants of the remaining rules.
 2. Add returns and exposure rules, then collateral and financing rules
    (specification 0002, milestones 3–4). Cash and NAV reconciliation are
    available now.

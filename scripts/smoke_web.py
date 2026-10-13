@@ -123,6 +123,7 @@ def main(argv: list[str] | None = None) -> int:
         expect(page.locator("#template-notes")).to_contain_text("Before relying on this template")
 
         _check_cash_reconciliation(page, Path(scratch), failures)
+        _check_multi_portfolio(page, failures)
 
         page.wait_for_timeout(500)
         browser.close()
@@ -202,6 +203,23 @@ def _check_cash_reconciliation(page: Any, scratch: Path, failures: list[str]) ->
         failures.append(f"unexpected cash reconciliation result {banner!r}")
     report = page.frame_locator("#report-frame")
     expect(report.locator(".card.failed")).to_contain_text("EUR")
+
+
+def _check_multi_portfolio(page: Any, failures: list[str]) -> None:
+    """Run the multi-portfolio template on examples/holdings.csv: one break."""
+    from playwright.sync_api import expect
+
+    page.set_input_files("#data-file", str(EXAMPLES / "holdings.csv"))
+    expect(page.locator("#data-name")).to_contain_text("4 row(s), 5 column(s)")
+    page.select_option("#template", "multi-portfolio-holdings")
+    expect(page.locator(".check")).to_have_count(4)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"holdings result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 3 passed.":
+        failures.append(f"unexpected multi-portfolio result {banner!r}")
+    report = page.frame_locator("#report-frame")
+    expect(report.locator(".card.failed")).to_contain_text("Beta")
 
 
 def _cell(value: str) -> Any:

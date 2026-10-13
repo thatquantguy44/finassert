@@ -233,7 +233,9 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
     assert [rule["name"] for rule in catalog["rules"]] == [
         "cash_reconciles",
         "nav_reconciles",
+        "no_duplicates",
         "non_negative",
+        "required_fields",
         "weights_sum_to_one",
     ]
 

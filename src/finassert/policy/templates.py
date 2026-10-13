@@ -182,6 +182,55 @@ _TEMPLATES += (
         ),
     ),
     PolicyTemplate(
+        name="multi-portfolio-holdings",
+        title="Holdings of several portfolios",
+        summary="One file of positions for many portfolios, with weights, market values, and NAV.",
+        adapt=(
+            "Set each column to the header your file uses.",
+            "Remove the NAV check if your file has no NAV column, and add a "
+            "'non_negative' check on the weight column if your portfolios are long-only.",
+            "Set the weight 'tolerance' to how your weights are rounded; "
+            '"0.0001" allows one basis point.',
+        ),
+        document=_freeze(
+            {
+                "version": 1,
+                "name": "Holdings of several portfolios",
+                "description": "Each portfolio's weights add up to 1 and its holdings to its NAV.",
+                "assumptions": [
+                    "Each row is one position of one portfolio, and every position, "
+                    "including cash and liabilities, is a row.",
+                    "A security appears once per portfolio; several lots of one security "
+                    "are combined before this check.",
+                    "Weights are fractions of the portfolio's NAV (0.25, not 25).",
+                    "Market values and NAV are in each portfolio's base currency, and "
+                    "liabilities and short positions have negative market values.",
+                    "The NAV is given on every row, or on at least one row, of each portfolio.",
+                ],
+                "rules": [
+                    {
+                        "rule": "required_fields",
+                        "columns": ["portfolio", "ticker", "weight", "market_value"],
+                    },
+                    {"rule": "no_duplicates", "columns": ["portfolio", "ticker"]},
+                    {
+                        "rule": "weights_sum_to_one",
+                        "column": "weight",
+                        "group_by": ["portfolio"],
+                        "tolerance": "0.0001",
+                    },
+                    {
+                        "rule": "nav_reconciles",
+                        "market_value": "market_value",
+                        "nav": "nav",
+                        "group_by": ["portfolio"],
+                        "tolerance": "0.01",
+                    },
+                ],
+            }
+        ),
+    ),
+    PolicyTemplate(
         name="nav-reconciliation",
         title="Holdings add up to the NAV",
         summary="Holdings of several funds, each line with a market value and the fund's NAV.",

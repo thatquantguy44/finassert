@@ -17,6 +17,7 @@ finassert init --template long-only-holdings --output policy.yml
 |---|---|
 | `long-only-holdings` | Daily holdings of one long-only portfolio, with cash held as a position. |
 | `target-allocation` | A model portfolio or strategic asset allocation, before it is traded. |
+| `multi-portfolio-holdings` | One file of positions for many portfolios, with weights, market values, and NAV. |
 | `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
 | `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
 

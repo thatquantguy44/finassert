@@ -3,7 +3,8 @@
 ## Top-level API
 
 - `check(data, rules, *, raise_on_error=False) -> ValidationReport`
-- `weights_sum_to_one(*, column="weight", tolerance=1e-8, null_policy="fail")`
+- `weights_sum_to_one(*, column="weight", tolerance=1e-8, null_policy="fail",
+  group_by=(), max_violations=20)`; with `group_by`, each group must add up to 1.
 - `non_negative(*, column, tolerance=0, null_policy="fail", max_violations=20)`
 - `cash_reconciles(*, outflow_sign, opening_cash, inflows, outflows,
   closing_cash, cash_pnl=None, group_by=(), currency=None, grain="summary",
@@ -12,6 +13,10 @@
 - `nav_reconciles(*, market_value, nav, group_by=(), currency=None,
   row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
   that signed market values add up to the reported NAV within each group.
+- `no_duplicates(*, columns, null_policy="fail", max_violations=20)` checks
+  that no value, or combination of values, appears on two rows.
+- `required_fields(*, columns, max_violations=20)` checks that the named
+  columns are never blank.
 - `custom_rule(rule_id, name, evaluator, ...)`
 - `Tolerance(absolute=0, relative=0)`
 

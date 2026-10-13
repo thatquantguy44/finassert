@@ -17,7 +17,9 @@ from finassert.rules import (
     cash_reconciles,
     custom_rule,
     nav_reconciles,
+    no_duplicates,
     non_negative,
+    required_fields,
     weights_sum_to_one,
 )
 
@@ -36,6 +38,8 @@ __all__ = [
     "check",
     "custom_rule",
     "nav_reconciles",
+    "no_duplicates",
     "non_negative",
+    "required_fields",
     "weights_sum_to_one",
 ]

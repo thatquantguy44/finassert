@@ -1,0 +1,5 @@
+portfolio,ticker,weight,market_value,nav
+Alpha,AAPL,0.60,600000.00,1000000.00
+Alpha,MSFT,0.40,400000.00,1000000.00
+Beta,JNJ,0.50,625000.00,1000000.00
+Beta,XOM,0.30,375000.00,1000000.00

@@ -36,7 +36,9 @@ def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
         "cash_reconciles",
         "nav_reconciles",
+        "no_duplicates",
         "non_negative",
+        "required_fields",
         "weights_sum_to_one",
     ]
     templates = list_templates()["templates"]
@@ -44,6 +46,7 @@ def test_catalog_and_templates_are_described() -> None:
     assert sorted(by_name) == [
         "cash-reconciliation",
         "long-only-holdings",
+        "multi-portfolio-holdings",
         "nav-reconciliation",
         "target-allocation",
     ]

@@ -8,20 +8,26 @@ separately. Every result records the equation and sign convention it checked.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, ClassVar
 
 from finassert.adapters.contracts import ColumnMapping, FieldAggregation, GroupKey
-from finassert.core.exceptions import GroupAggregationError
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance
-from finassert.rules._grouping import Collected, Group, collect_groups
+from finassert.rules._grouping import Group, Wording, evaluate_groups
 from finassert.rules._helpers import precise_sum
 from finassert.rules.base import NullPolicy
 
-_MAX_ROWS_LISTED = 20
+_RECONCILE = Wording(
+    action="reconcile",
+    passes="reconcile",
+    fails="do not reconcile",
+    unusable="cannot be reconciled",
+    file_passes="reconciles",
+    file_fails="does not reconcile",
+)
 
 
 class OutflowSign(StrEnum):
@@ -40,95 +46,6 @@ class CashGrain(StrEnum):
     """One row per group holds the opening balance, flows, and closing balance."""
     TRANSACTIONS = "transactions"
     """Each row is a movement carrying the running balance before and after it."""
-
-
-GroupCheck = Callable[[Group], dict[str, Any] | None]
-
-
-def _evaluate(
-    rule: CashReconciliationRule | NavReconciliationRule,
-    data: Any,
-    semantics: Sequence[str],
-    check: GroupCheck,
-    *,
-    blank_allowed: Sequence[str] = (),
-    description: dict[str, Any],
-) -> ValidationResult:
-    collected: Collected = collect_groups(
-        data, rule.mapping, semantics, blank_allowed=blank_allowed
-    )
-    context = {
-        **description,
-        "group_keys": [key.name for key in rule.mapping.group_keys],
-        "row_count": collected.row_count,
-    }
-    if collected.row_count == 0:
-        return rule._result(
-            Outcome.SKIPPED, "The file has no rows to reconcile.", {**context, "group_count": 0}
-        )
-    unusable = collected.unusable_rows
-    if collected.has_blanks and rule.null_policy is NullPolicy.SKIP:
-        blank = [item for item in unusable if item.get("blank")]
-        return rule._result(
-            Outcome.SKIPPED,
-            f"Skipped because {len(blank)} row(s) have blank values.",
-            {**context, "blank_rows": blank[: rule.max_violations]},
-        )
-    if unusable:
-        return rule._result(
-            Outcome.FAILED,
-            f"{len(unusable)} row(s) have blank or non-numeric values, so their groups "
-            "cannot be reconciled.",
-            {
-                **context,
-                "unusable_row_count": len(unusable),
-                "unusable_rows": unusable[: rule.max_violations],
-                "unusable_rows_truncated": len(unusable) > rule.max_violations,
-            },
-        )
-
-    failed: list[dict[str, Any]] = []
-    for group in collected.groups:
-        try:
-            failure = check(group)
-        except GroupAggregationError as exc:
-            failure = {"reason": "inconsistent_rows", "detail": str(exc)}
-        if failure is not None:
-            failed.append(
-                {
-                    "group": group.identity,
-                    **failure,
-                    "row_count": len(group.rows),
-                    "rows": group.rows[:_MAX_ROWS_LISTED],
-                }
-            )
-    count = len(collected.groups)
-    noun = "group" if rule.mapping.group_keys else "file"
-    if failed:
-        message = (
-            f"{len(failed)} of {count} {noun}(s) do not reconcile."
-            if rule.mapping.group_keys
-            else "The file does not reconcile."
-        )
-    else:
-        message = (
-            f"All {count} {noun}(s) reconcile."
-            if rule.mapping.group_keys
-            else "The file reconciles."
-        )
-    return rule._result(
-        Outcome.FAILED if failed else Outcome.PASSED,
-        message,
-        {
-            **context,
-            "group_count": count,
-            "failed_group_count": len(failed),
-            "failed_groups": failed[: rule.max_violations],
-            "failed_groups_truncated": len(failed) > rule.max_violations,
-        },
-        observed=len(failed),
-        expected=0,
-    )
 
 
 def _difference(observed: Numeric, expected: Numeric) -> Numeric:
@@ -219,11 +136,12 @@ class CashReconciliationRule:
                 "difference": _difference(observed, expected),
             }
 
-        return _evaluate(
+        return evaluate_groups(
             self,
             data,
             self.semantics,
             check,
+            wording=_RECONCILE,
             description={
                 "equation": self.equation,
                 "outflow_sign": self.outflow_sign.value,
@@ -236,7 +154,7 @@ class CashReconciliationRule:
             },
         )
 
-    def _result(
+    def _grouped_result(
         self,
         outcome: Outcome,
         message: str,
@@ -294,19 +212,20 @@ class NavReconciliationRule:
                 "difference": _difference(total, nav),
             }
 
-        return _evaluate(
+        return evaluate_groups(
             self,
             data,
             self.required_semantics,
             check,
             blank_allowed=("nav",),
+            wording=_RECONCILE,
             description={
                 "equation": self.equation,
                 "currency": _currency_note(self.mapping, self.currency_key),
             },
         )
 
-    def _result(
+    def _grouped_result(
         self,
         outcome: Outcome,
         message: str,

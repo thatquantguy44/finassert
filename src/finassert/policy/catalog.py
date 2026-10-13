@@ -14,7 +14,9 @@ from finassert.rules import (
     OutflowSign,
     cash_reconciles,
     nav_reconciles,
+    no_duplicates,
     non_negative,
+    required_fields,
     weights_sum_to_one,
 )
 
@@ -193,15 +195,19 @@ def default_catalog() -> RuleCatalog:
             name="weights_sum_to_one",
             rule_id="portfolio.weights_sum_to_one",
             title="Portfolio weights add up to 100%",
-            summary="Checks that the values in a weight column add up to exactly 1.",
+            summary=(
+                "Checks that the values in a weight column add up to exactly 1, for the "
+                "whole file or for each portfolio."
+            ),
             rationale=(
                 "Weights that do not add to 1 mean some holdings are missing, duplicated, "
                 "or mis-scaled, so exposures and performance attribution will be wrong."
             ),
             inappropriate_when=(
                 "Weights are written as percentages (40 rather than 0.4), the file holds "
-                "several portfolios, or the portfolio is deliberately levered or holds "
-                "cash outside the weight column."
+                "several portfolios and you have not chosen a column to check each one by, "
+                "or the portfolio is deliberately levered or holds cash outside the weight "
+                "column."
             ),
             parameters=(
                 ParameterSpec(
@@ -222,6 +228,17 @@ def default_catalog() -> RuleCatalog:
                 ),
                 _NULL_POLICY,
                 _SEVERITY,
+                ParameterSpec(
+                    name="group_by",
+                    kind=ParameterKind.COLUMNS,
+                    label="Check separately for each",
+                    description=(
+                        "Columns that identify each portfolio, such as a portfolio code, so "
+                        "every portfolio must add up to 1. Leave empty if the file holds "
+                        "a single portfolio."
+                    ),
+                ),
+                _MAX_GROUPS,
             ),
             factory=weights_sum_to_one,
         )
@@ -274,6 +291,8 @@ def default_catalog() -> RuleCatalog:
             factory=non_negative,
         )
     )
+    catalog.register(_no_duplicates_spec())
+    catalog.register(_required_fields_spec())
     catalog.register(_cash_reconciles_spec())
     catalog.register(_nav_reconciles_spec())
     return catalog
@@ -342,6 +361,83 @@ _MAX_GROUPS = ParameterSpec(
     default=20,
     minimum=0,
 )
+
+
+def _no_duplicates_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="no_duplicates",
+        rule_id="data.no_duplicates",
+        title="Each item appears only once",
+        summary=("Checks that no value, or combination of values, appears on more than one row."),
+        rationale=(
+            "A position or transaction listed twice double-counts value and exposure, and "
+            "usually means two extracts were combined or a row was pasted twice."
+        ),
+        inappropriate_when=(
+            "A repeated identifier is legitimate: several tax lots of one security, one "
+            "row per trade or per date, or the columns chosen do not identify a row. "
+            "Values are compared exactly, so 'AAPL' and 'aapl ' count as different."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="columns",
+                kind=ParameterKind.COLUMNS,
+                label="Columns that identify a row",
+                description=(
+                    "Column, or columns taken together, that must be unique, for example "
+                    "portfolio and ticker."
+                ),
+                required=True,
+            ),
+            _NULL_POLICY,
+            _SEVERITY,
+            ParameterSpec(
+                name="max_violations",
+                kind=ParameterKind.INTEGER,
+                label="Repeats listed",
+                description="Maximum number of repeated values listed in the report.",
+                default=20,
+                minimum=0,
+            ),
+        ),
+        factory=no_duplicates,
+    )
+
+
+def _required_fields_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="required_fields",
+        rule_id="data.required_fields",
+        title="Required fields are filled in",
+        summary="Checks that none of the chosen columns has a blank cell.",
+        rationale=(
+            "A missing identifier, price, or quantity usually means an incomplete export, "
+            "and downstream totals may silently skip the row or treat it as zero."
+        ),
+        inappropriate_when=(
+            "A column is legitimately empty on some rows, such as an optional comment, or "
+            "a price on cash lines. A cell of only spaces counts as blank; zero does not."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="columns",
+                kind=ParameterKind.COLUMNS,
+                label="Columns that must be filled in",
+                description="Columns that must have a value on every row.",
+                required=True,
+            ),
+            _SEVERITY,
+            ParameterSpec(
+                name="max_violations",
+                kind=ParameterKind.INTEGER,
+                label="Rows listed per column",
+                description="Maximum number of blank rows listed for each column.",
+                default=20,
+                minimum=0,
+            ),
+        ),
+        factory=required_fields,
+    )
 
 
 def _cash_reconciles_spec() -> RuleFactorySpec:
