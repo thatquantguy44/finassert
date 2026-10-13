@@ -134,6 +134,8 @@
           parameter.default && columns.includes(parameter.default) ? parameter.default : "";
       } else if (parameter.kind === "tolerance") {
         initial[parameter.name] = { absolute: parameter.default || "", relative: "" };
+      } else if (parameter.kind === "columns") {
+        initial[parameter.name] = [];
       } else {
         initial[parameter.name] = parameter.default == null ? "" : String(parameter.default);
       }
@@ -159,6 +161,8 @@
         } else {
           initial[key] = { absolute: remember(`${key}.absolute`, value), relative: "" };
         }
+      } else if (parameter && parameter.kind === "columns") {
+        initial[key] = Array.isArray(value) ? value.map(String) : [String(value)];
       } else {
         initial[key] = String(value);
       }
@@ -191,6 +195,7 @@
     if (parameter.kind === "tolerance") {
       return value.absolute.trim() === fallback && !value.relative.trim();
     }
+    if (parameter.kind === "columns") return value.length === 0;
     return String(value).trim() === fallback || String(value).trim() === "";
   }
 
@@ -242,13 +247,44 @@
       const columns = state.data ? state.data.columns : [];
       const choices = columns.includes(value) || !value ? columns : [value, ...columns];
       control = element("select", { id }, [
-        option("", parameter.required ? "Choose a column…" : `Default (${parameter.default})`, !value),
+        option(
+          "",
+          parameter.required
+            ? "Choose a column…"
+            : parameter.default == null
+              ? "Not used"
+              : `Default (${parameter.default})`,
+          !value
+        ),
         ...choices.map((c) => option(c, c, c === value)),
       ]);
       control.addEventListener("change", () => set(control.value));
     } else if (parameter.kind === "choice") {
-      control = element("select", { id }, parameter.choices.map((c) => option(c, c, c === value)));
+      // A required choice with no default starts unselected, so it must be picked.
+      const prompt = parameter.default == null ? [option("", "Choose…", !value)] : [];
+      control = element("select", { id }, [
+        ...prompt,
+        ...parameter.choices.map((c) => option(c, c, c === value)),
+      ]);
       control.addEventListener("change", () => set(control.value));
+    } else if (parameter.kind === "columns") {
+      const columns = state.data ? state.data.columns : [];
+      const choices = [...value.filter((c) => !columns.includes(c)), ...columns];
+      const boxes = choices.map((column, index) => {
+        const boxId = `${id}-${index}`;
+        const box = element("input", { id: boxId, type: "checkbox" });
+        box.checked = value.includes(column);
+        box.addEventListener("change", () => {
+          const current = check.values[parameter.name].filter((c) => c !== column);
+          // Keep columns in the order they were ticked: group keys are ordered.
+          set(box.checked ? [...current, column] : current);
+        });
+        return element("label", { for: boxId, className: "checkbox" }, [box, " ", column]);
+      });
+      control = element("fieldset", { className: "columns", id }, [
+        element("legend", { className: "visually-hidden", text: parameter.label }),
+        ...(boxes.length ? boxes : [element("p", { className: "hint", text: "Open a data file to choose columns." })]),
+      ]);
     } else if (parameter.kind === "integer") {
       control = element("input", { id, type: "number", min: String(parameter.minimum ?? 0), step: "1", value });
       control.addEventListener("input", () => set(control.value));
@@ -311,6 +347,8 @@
           } else if (absolute) {
             entry[name] = numberValue(check, `${name}.absolute`, absolute);
           }
+        } else if (parameter.kind === "columns") {
+          entry[parameter.name] = [...value];
         } else if (parameter.kind === "integer") {
           const text = String(value).trim();
           if (text) entry[parameter.name] = /^\d+$/.test(text) ? Number(text) : text;
@@ -425,11 +463,17 @@
       : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
     $("report-frame").srcdoc = outcome.html;
     $("cli-command").textContent =
-      `finassert check --config policy.yml --input "${state.data.name}"` +
-      (state.data.sheet ? ` --sheet "${state.data.sheet}"` : "") +
+      `finassert check --config policy.yml --input ${shellQuote(state.data.name)}` +
+      (state.data.sheet ? ` --sheet ${shellQuote(state.data.sheet)}` : "") +
       " --html report.html";
     $("results").hidden = false;
     setStatus("Checks finished. The full report is below.");
+  }
+
+  function shellQuote(text) {
+    // Single quotes stop a shell from expanding $(...) or backticks in a file
+    // or sheet name chosen by whoever sent the workbook.
+    return "'" + String(text).replace(/'/g, "'\\''") + "'";
   }
 
   function download(text, name, type) {

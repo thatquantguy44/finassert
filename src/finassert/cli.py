@@ -212,7 +212,12 @@ def _rules(*, json_output: bool, stream: TextIO) -> int:
         print(f"  Do not use when: {spec.inappropriate_when}", file=stream)
         print("  Settings:", file=stream)
         for parameter in spec.parameters:
-            note = "required" if parameter.required else f"default {parameter.default}"
+            if parameter.required:
+                note = "required"
+            elif parameter.default is None:
+                note = "optional"
+            else:
+                note = f"default {parameter.default}"
             if parameter.choices:
                 note += f"; one of {', '.join(parameter.choices)}"
             print(f"    {parameter.name} ({note}): {parameter.description}", file=stream)

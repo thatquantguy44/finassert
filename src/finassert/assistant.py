@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import os
 from collections.abc import Sequence
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from finassert._files import write_atomic
@@ -79,6 +79,10 @@ class Workspace:
 
     def path(self, value: str, *, must_exist: bool = True) -> Path:
         """Resolve ``value`` (absolute, or relative to the first root) inside a root."""
+        # Resolving a network path (\\server\share or //server/share) can make
+        # Windows connect and authenticate to that server, so refuse it first.
+        if value.startswith(("\\\\", "//")) or PureWindowsPath(value).drive.startswith("\\\\"):
+            raise PermissionError(f"{value!r} is a network path; use a folder on this computer")
         candidate = Path(value).expanduser()
         if not candidate.is_absolute():
             candidate = self.roots[0] / candidate
@@ -332,7 +336,10 @@ def build_server(workspace: Workspace) -> Any:
     @server.tool(
         title="Run checks on a data file",
         annotations=ToolAnnotations(
-            read_only_hint=False, destructive_hint=False, open_world_hint=False
+            # With overwrite set, an existing HTML report can be replaced.
+            read_only_hint=False,
+            destructive_hint=True,
+            open_world_hint=False,
         ),
     )
     def run_checks(

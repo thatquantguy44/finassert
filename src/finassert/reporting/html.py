@@ -365,7 +365,9 @@ def _record_table(key: str, records: list[Mapping[str, Any]]) -> str:
     shown = records[:_MAX_LISTED_VALUES]
     head = "".join(f'<th scope="col">{_text(_humanize(column))}</th>' for column in columns)
     body = "".join(
-        "<tr>" + "".join(f"<td>{_value(record.get(column))}</td>" for column in columns) + "</tr>"
+        "<tr>"
+        + "".join(f"<td>{_cell(column, record.get(column))}</td>" for column in columns)
+        + "</tr>"
         for record in shown
     )
     note = (
@@ -378,6 +380,13 @@ def _record_table(key: str, records: list[Mapping[str, Any]]) -> str:
         f'<div class="table-wrap"><table class="rows"><thead><tr>{head}</tr></thead>'
         f"<tbody>{body}</tbody></table></div>{note}"
     )
+
+
+def _cell(column: str, value: Any) -> str:
+    # Reason codes stay stable in the JSON artifact; people read them as words.
+    if column == "reason" and isinstance(value, str):
+        return _text(_humanize(value))
+    return _value(value)
 
 
 def _value(value: Any) -> str:

@@ -40,8 +40,20 @@ and intends to use Semantic Versioning after the public API stabilizes.
   that lets AI assistants list checks, validate policies, inspect files, and
   run checks, restricted to the folders given with `--root`.
 
+- Grouped reconciliation rules: `cash_reconciles` (opening plus flows equals
+  closing, with a required outflow sign convention, summary or transaction
+  rows) and `nav_reconciles` (signed market values add up to the reported NAV),
+  in the catalog, CLI, browser app, and assistant server, with
+  `cash-reconciliation` and `nav-reconciliation` templates.
+- `ColumnMapping.order_key` and `aggregate_ordered`: first and last values are
+  taken by an explicit ordering column, never by row order.
+
 ### Changed
 
+- The private grouped cash-reconciliation prototype is replaced by the public
+  `accounting.cash_reconciles` rule.
+- Excel input treats blank text cells as empty and numeric text as numbers,
+  like CSV; sheet selection problems exit with code 3 and suggest `--sheet`.
 - Missing-column errors list the available columns and suggest the closest one.
 - Weight-sum results for non-numeric weights also report `invalid_rows` using
   the dataset's row labels.

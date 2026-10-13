@@ -79,7 +79,7 @@ def _thaw(value: Any) -> Any:
     return value
 
 
-_TEMPLATES = (
+_TEMPLATES: tuple[PolicyTemplate, ...] = (
     PolicyTemplate(
         name="long-only-holdings",
         title="Long-only holdings file",
@@ -135,6 +135,79 @@ _TEMPLATES = (
                         "tolerance": "0.0001",
                     },
                     {"rule": "non_negative", "column": "target_weight"},
+                ],
+            }
+        ),
+    ),
+)
+
+
+_TEMPLATES += (
+    PolicyTemplate(
+        name="cash-reconciliation",
+        title="Daily cash reconciliation",
+        summary="One row per portfolio, currency, and day with balances and total flows.",
+        adapt=(
+            "Set each column to the header your file uses.",
+            "Set 'outflow_sign' to how your file records money paid out.",
+            "Set the 'tolerance' in currency units; \"0.01\" allows one cent.",
+        ),
+        document=_freeze(
+            {
+                "version": 1,
+                "name": "Daily cash reconciliation",
+                "description": "Cash balances roll forward for every portfolio and currency.",
+                "assumptions": [
+                    "Each row covers one portfolio, currency, and day.",
+                    "Inflows, outflows, and cash income or expense include every "
+                    "movement between the two balances, fees and FX included.",
+                    "Opening and closing balances are as of the start and end of the "
+                    "same day as the movements.",
+                ],
+                "rules": [
+                    {
+                        "rule": "cash_reconciles",
+                        "outflow_sign": "positive",
+                        "opening_cash": "opening_balance",
+                        "inflows": "inflows",
+                        "outflows": "outflows",
+                        "cash_pnl": "cash_income",
+                        "closing_cash": "closing_balance",
+                        "group_by": ["portfolio", "date"],
+                        "currency": "currency",
+                        "tolerance": "0.01",
+                    }
+                ],
+            }
+        ),
+    ),
+    PolicyTemplate(
+        name="nav-reconciliation",
+        title="Holdings add up to the NAV",
+        summary="Holdings of several funds, each line with a market value and the fund's NAV.",
+        adapt=(
+            "Set each column to the header your file uses.",
+            "Set the 'tolerance' in currency units; \"0.01\" allows one cent.",
+        ),
+        document=_freeze(
+            {
+                "version": 1,
+                "name": "NAV reconciliation",
+                "description": "Holdings of each fund add up to its reported NAV.",
+                "assumptions": [
+                    "Every asset, liability, accrual, and cash balance is a line in the file.",
+                    "Liabilities and short positions have negative market values.",
+                    "Market values and the NAV are in each fund's base currency.",
+                    "The NAV is given on every line, or on at least one line, of each fund.",
+                ],
+                "rules": [
+                    {
+                        "rule": "nav_reconciles",
+                        "market_value": "market_value",
+                        "nav": "nav",
+                        "group_by": ["fund"],
+                        "tolerance": "0.01",
+                    }
                 ],
             }
         ),

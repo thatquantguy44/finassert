@@ -230,7 +230,12 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
 
     assert cli.main(["rules", "--json"]) == cli.EXIT_PASSED
     catalog = json.loads(capsys.readouterr().out)
-    assert [rule["name"] for rule in catalog["rules"]] == ["non_negative", "weights_sum_to_one"]
+    assert [rule["name"] for rule in catalog["rules"]] == [
+        "cash_reconciles",
+        "nav_reconciles",
+        "non_negative",
+        "weights_sum_to_one",
+    ]
 
 
 def test_interrupt_writes_nothing(

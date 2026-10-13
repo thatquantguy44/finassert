@@ -7,9 +7,9 @@ contract described; **Proposed** means no public capability should be inferred.
 | Specification | Status |
 |---|---|
 | [0001 Core validation engine](0001-core-validation-engine.md) | Implemented (initial) |
-| [0002 Financial invariants](0002-financial-invariants.md) | Proposed; two initial rules implemented |
+| [0002 Financial invariants](0002-financial-invariants.md) | Milestones 1–2 implemented (initial) |
 | [0003 Numerical tolerances](0003-numerical-tolerances.md) | Implemented (initial) |
-| [0004 DataFrame adapters](0004-dataframe-adapters.md) | pandas initial; Polars proposed |
+| [0004 DataFrame adapters](0004-dataframe-adapters.md) | pandas initial; ordering decided; Polars proposed |
 | [0005 Reporting and diagnostics](0005-reporting-and-diagnostics.md) | Text/JSON/HTML initial |
 | [0006 Rule registry and custom rules](0006-rule-registry-and-custom-rules.md) | Implemented (initial) |
 | [0007 CLI and pipeline integration](0007-cli-and-pipeline-integration.md) | Implemented (initial) |

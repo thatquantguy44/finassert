@@ -132,7 +132,7 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 
 | Available now | Designed and deferred |
 |---|---|
-| Weight-sum and nonnegative-value rules | NAV, cash, returns, collateral, exposure rules |
+| Weight, nonnegative, cash, and NAV reconciliation rules | Returns, collateral, exposure rules |
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |

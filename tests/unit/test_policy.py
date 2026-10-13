@@ -301,13 +301,21 @@ def test_catalog_rejects_collisions_and_unknown_names() -> None:
 
 def test_every_built_in_rule_is_fully_documented() -> None:
     catalog = default_catalog()
-    assert catalog.names() == ("non_negative", "weights_sum_to_one")
+    assert catalog.names() == (
+        "cash_reconciles",
+        "nav_reconciles",
+        "non_negative",
+        "weights_sum_to_one",
+    )
     for spec in catalog.specs():
         for text in (spec.title, spec.summary, spec.rationale, spec.inappropriate_when):
             assert text.strip()
         for parameter in spec.parameters:
             assert parameter.label.strip() and parameter.description.strip()
-            assert parameter.required or parameter.default is not None
+            # Only column settings may be optional with no default: leaving them
+            # empty means "not used", which each description must say.
+            optional_column = parameter.kind in {ParameterKind.COLUMN, ParameterKind.COLUMNS}
+            assert parameter.required or parameter.default is not None or optional_column
     described = catalog.to_dict()["rules"]
     assert [item["name"] for item in described] == list(catalog.names())
 

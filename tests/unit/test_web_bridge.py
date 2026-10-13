@@ -10,7 +10,7 @@ CSV = "ticker,weight,market_value\nAAA,0.40,100\nBBB,0.60,-5\n"
 
 def test_catalog_lists_built_in_rules() -> None:
     names = [item["name"] for item in json.loads(web.catalog())["rules"]]
-    assert names == ["non_negative", "weights_sum_to_one"]
+    assert names == ["cash_reconciles", "nav_reconciles", "non_negative", "weights_sum_to_one"]
 
 
 def test_inspect_csv_and_json_inputs() -> None:
@@ -186,8 +186,9 @@ def test_browser_rejects_formats_it_cannot_open() -> None:
 
 def test_templates_are_offered_in_editable_form() -> None:
     offered = json.loads(web.templates())["templates"]
-    assert [item["name"] for item in offered] == ["long-only-holdings", "target-allocation"]
-    holdings = offered[0]
+    names = [item["name"] for item in offered]
+    assert names == sorted(names) and "long-only-holdings" in names
+    holdings = offered[names.index("long-only-holdings")]
     assert holdings["policy"]["assumptions"]
     result = json.loads(
         web.run("weight,market_value\n0.5,1\n0.5,1\n", "d.csv", json.dumps(holdings["policy"]))

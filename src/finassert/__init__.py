@@ -12,7 +12,14 @@ from finassert.core import (
     check,
 )
 from finassert.numerical import Tolerance
-from finassert.rules import NullPolicy, custom_rule, non_negative, weights_sum_to_one
+from finassert.rules import (
+    NullPolicy,
+    cash_reconciles,
+    custom_rule,
+    nav_reconciles,
+    non_negative,
+    weights_sum_to_one,
+)
 
 __all__ = [
     "GroupAggregationError",
@@ -25,8 +32,10 @@ __all__ = [
     "ValidationReport",
     "ValidationResult",
     "__version__",
+    "cash_reconciles",
     "check",
     "custom_rule",
+    "nav_reconciles",
     "non_negative",
     "weights_sum_to_one",
 ]

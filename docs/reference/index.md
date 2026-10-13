@@ -5,13 +5,22 @@
 - `check(data, rules, *, raise_on_error=False) -> ValidationReport`
 - `weights_sum_to_one(*, column="weight", tolerance=1e-8, null_policy="fail")`
 - `non_negative(*, column, tolerance=0, null_policy="fail", max_violations=20)`
+- `cash_reconciles(*, outflow_sign, opening_cash, inflows, outflows,
+  closing_cash, cash_pnl=None, group_by=(), currency=None, grain="summary",
+  order_by=None, row_key=None, mapping=None, tolerance=0, null_policy="fail",
+  max_violations=20)` checks that cash rolls forward within each group.
+- `nav_reconciles(*, market_value, nav, group_by=(), currency=None,
+  row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
+  that signed market values add up to the reported NAV within each group.
 - `custom_rule(rule_id, name, evaluator, ...)`
 - `Tolerance(absolute=0, relative=0)`
 
 ## Adapter contracts
 
-- `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={})` creates
-  an immutable semantic-to-physical field and aggregation map.
+- `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={},
+  order_key=None)` creates an immutable semantic-to-physical field and
+  aggregation map. `order_key` names the column that orders rows for `FIRST`
+  and `LAST`, which public rules require.
 - `FieldAggregation` provides `SUM`, `FIRST`, `LAST`, and `REQUIRE_UNIQUE`.
 - `GroupKey(name, column)` declares one ordered grouping dimension.
 - `PandasDataFrameAdapter(frame)` exposes pandas values and index labels through
@@ -19,10 +28,9 @@
 - `GroupedRule` is the structural protocol for ordinary rules that declare a
   mapping and required semantic fields.
 - `finassert.rules.aggregate_values(values, aggregation)` applies one configured
-  numeric reduction without dataframe coercion.
-
-The grouped cash-reconciliation module is private exploratory code and is not part
-of the supported API.
+  numeric reduction without dataframe coercion, taking `FIRST`/`LAST` by
+  physical order; `finassert.rules.grouped.aggregate_ordered(values, order,
+  aggregation)` takes them by ordering keys from `order_value`.
 
 ## Policies
 
