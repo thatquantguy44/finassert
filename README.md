@@ -138,7 +138,7 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
 | Text, JSON, and self-contained HTML reports | Integration inside Excel |
 | Assistant tool server (MCP) for AI assistants | |
-| Starter policy templates with stated assumptions | |
+| Starter policy templates with stated assumptions, matched to your file's column names | |
 | YAML/JSON policies, CLI, and in-browser app | More templates as rules are added |
 | CSV, JSON, Excel (.xlsx), and Parquet input files | |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |

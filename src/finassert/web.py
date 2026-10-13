@@ -22,11 +22,13 @@ from finassert.policy import (
     ParameterKind,
     default_catalog,
     dump_policy,
+    get_template,
     parse_policy,
     parse_policy_text,
     policy_templates,
 )
 from finassert.policy.io import policy_format_for
+from finassert.policy.suggest import TemplateFit, fit_template, suggest_templates
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
 _PREVIEW_ROWS = 5
@@ -51,6 +53,35 @@ def templates() -> str:
                 }
                 for template in policy_templates()
             ]
+        }
+    )
+
+
+def suggest(columns_json: str, template: str = "") -> str:
+    """Match templates to a file's columns and return each fit with its adapted policy.
+
+    With no ``template`` the built-in templates that fit are ranked best first;
+    with one, only that template is returned, however well it fits.
+    """
+    columns = [str(item) for item in json.loads(columns_json)]
+    fits: tuple[TemplateFit, ...]
+    if template:
+        try:
+            fits = (fit_template(get_template(template), columns),)
+        except KeyError:
+            return json.dumps({"ok": False, "error": f"Unknown template {template!r}."})
+    else:
+        fits = suggest_templates(columns)
+    return json.dumps(
+        {
+            "ok": True,
+            "suggestions": [
+                {
+                    **{key: item for key, item in fit.to_dict().items() if key != "document"},
+                    "policy": _editable(fit.adapted().policy().to_document()),
+                }
+                for fit in fits
+            ],
         }
     )
 

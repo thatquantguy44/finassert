@@ -30,6 +30,43 @@ that kind of file; they never encode regulatory or house limits, so write exposu
 and position limits yourself (see [exposure limits](examples/exposure-limits.md)). `init` will
 not replace an existing file unless you pass `--force`.
 
+## Matching a template to your file
+
+Templates name the columns they expect (`market_value`, `closing_balance`), but
+your file may say `Mkt Val` or `Ending Balance`. `finassert suggest` reads your
+file's headers, ranks the templates by how well their columns match, and
+explains every match:
+
+```bash
+finassert suggest --input holdings.csv
+finassert suggest --input holdings.csv --output policy.yml   # write the best fit
+finassert suggest --input holdings.csv --template nav-reconciliation --output policy.yml
+```
+
+```text
+1. multi-portfolio-holdings: Holdings of several portfolios
+   5 of 5 columns matched.
+   - 'portfolio' is your column 'Fund' (known name match)
+   - 'market_value' is your column 'MV (Base)' (known name match)
+```
+
+A match is one of: `exact` (same words, ignoring case and punctuation), `known
+name` (a common name for the same thing, such as `qty` for quantity), `contains`
+(a header that includes a multi-word known name, such as `Market Value (Base)`,
+choosing the one with the fewest extra words), or `similar` (a typo, for names of
+six or more letters). When two headers fit equally well, as with `MV (Base)` and
+`MV (Local)`, or two expected columns want the same header, nothing is chosen
+and the candidates are listed. Currency, date, and sign conventions are never
+guessed.
+
+These are proposals. The policy `--output` writes lists each match to confirm at
+the top of the file, keeps the template's name for any column it could not
+match (so `finassert check` reports it rather than skipping the check), and
+keeps the template's assumptions. `--json` prints the suggestions for scripts.
+Exit code 3 means no template fits or the output file exists; use `--force` to
+replace it. The browser app does the same when you open a file: it offers the
+templates that fit and fills in the matched columns for you to confirm.
+
 ## Writing a policy
 
 ```yaml

@@ -60,6 +60,11 @@
 - `Policy` exposes `rules`, `entries`, `name`, `description`, `assumptions`,
   `digest`, `check(data)`, `to_document()`, and `describe()`.
 - `dump_policy(policy) -> str` writes YAML that reloads to an identical policy.
+- `suggest_templates(columns, *, minimum_fraction=0.5) -> tuple[TemplateFit, ...]`
+  and `fit_template(template, columns)` match a template's expected columns to a
+  file's headers; `TemplateFit.matches` lists each `ColumnMatch` (with `how` it
+  matched) and `TemplateFit.adapted()` returns the template with the file's
+  column names filled in and the matches to confirm added to its notes.
 - `PolicyError.issues` holds `PolicyIssue` values with `location`, `line`,
   `message`, and `suggestion`.
 - `RuleCatalog`, `RuleFactorySpec`, `ParameterSpec`, and `default_catalog()`

@@ -90,6 +90,7 @@
     const errorBox = $("data-error");
     if (!info.ok) {
       state.data = null;
+      renderSuggestions([]);
       $("data-summary").hidden = true;
       if (info.sheets) {
         $("sheet-select").replaceChildren(
@@ -117,8 +118,30 @@
     );
     $("data-preview").replaceChildren(element("thead", {}, [head]), element("tbody", {}, rows));
     $("data-summary").hidden = false;
+    renderSuggestions(call("suggest", JSON.stringify(info.columns)).suggestions);
     renderChecks();
     refresh();
+  }
+
+  function renderSuggestions(fits) {
+    const box = $("suggestions");
+    if (!fits.length) {
+      box.hidden = true;
+      box.replaceChildren();
+      return;
+    }
+    const buttons = fits.slice(0, 3).map((fit) => {
+      const button = element("button", { type: "button" }, [
+        `${fit.title} (${fit.matched} of ${fit.expected} columns matched)`,
+      ]);
+      button.addEventListener("click", () => {
+        $("template").value = fit.name;
+        useTemplate(fit.name);
+      });
+      return button;
+    });
+    box.replaceChildren(element("span", { className: "hint", text: "This file looks like: " }), ...buttons);
+    box.hidden = false;
   }
 
   /* ---------- checks ---------- */
@@ -422,10 +445,19 @@
       notes.hidden = true;
       return;
     }
-    applyPolicy(template.policy);
+    // With a file open, the template's column names are matched to the file's
+    // headers; every match is listed for the person to confirm.
+    let policy = template.policy;
+    let adapt = template.adapt;
+    if (state.data) {
+      const fit = call("suggest", JSON.stringify(state.data.columns), name).suggestions[0];
+      policy = fit.policy;
+      adapt = fit.adapt;
+    }
+    applyPolicy(policy);
     notes.replaceChildren(
       element("strong", { text: "Before relying on this template: " }),
-      [...template.adapt, "Check the assumptions below hold for your file."].join(" ")
+      [...adapt, "Check the assumptions below hold for your file."].join(" ")
     );
     notes.hidden = false;
     setStatus(`Started from the "${template.title}" template.`);

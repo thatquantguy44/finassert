@@ -70,6 +70,13 @@ and intends to use Semantic Versioning after the public API stabilizes.
   `twine check`; the release process is written up in `docs/releasing.md`.
   Publishing to PyPI remains off until maintainers enable it.
 
+- Column matching: `finassert suggest` (and `suggest_templates`, the browser app,
+  and the assistant's `suggest` tool) ranks the starter policies by how well
+  their columns match a file's headers and proposes which header plays which
+  part (`Mkt Val` for market value, `Shares` for quantity), explaining every
+  match, listing ambiguous candidates instead of guessing, and writing a policy
+  with the matches to confirm at the top.
+
 ### Changed
 
 - The private grouped cash-reconciliation prototype is replaced by the public

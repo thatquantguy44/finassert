@@ -27,7 +27,7 @@ from finassert._version import __version__
 from finassert._xlsx import SheetError
 from finassert.cli import exit_code
 from finassert.core.exceptions import InvalidDataError, PolicyError
-from finassert.loaders import TableSource, input_format_for, load_input
+from finassert.loaders import TableSource, column_names, input_format_for, load_input
 from finassert.policy import (
     POLICY_FORMATS,
     Policy,
@@ -37,6 +37,7 @@ from finassert.policy import (
     parse_policy_text,
     policy_templates,
 )
+from finassert.policy.suggest import TemplateFit, fit_template, suggest_templates
 from finassert.reporting import build_artifact, render_artifact_html
 
 _PREVIEW_ROWS = 5
@@ -47,8 +48,13 @@ INSTRUCTIONS = """\
 finassert checks financial data files (CSV, Excel .xlsx, JSON, Parquet) against
 a policy: a short YAML list of named checks such as "weights add up to 1" or
 "no negative values". Typical flow: call inspect_data to see a file's columns,
-pick checks with list_rules or start from list_templates, confirm the policy
-with validate_policy, then run check_data.
+call suggest_policy to find the starter policy whose columns fit the file (or
+pick checks with list_rules), confirm the policy with validate_policy, then run
+check_data.
+
+suggest_policy only proposes column matches. Show the user each match and get
+their confirmation before running checks on the adapted policy; unmatched or
+ambiguous columns need their decision.
 
 When reporting results:
 - An outcome of "error" means the check could not run (often a misspelled
@@ -109,6 +115,38 @@ def list_templates() -> dict[str, Any]:
     }
 
 
+def suggest_policy(
+    workspace: Workspace,
+    path: str,
+    sheet: str | None = None,
+    template: str | None = None,
+) -> dict[str, Any]:
+    """Rank starter policies by how well their columns match a data file's headers.
+
+    Each suggestion lists which of the file's columns was matched to each column
+    the template expects (and how), the adapted policy as YAML, and what to
+    confirm. Matches are proposals, not decisions.
+    """
+    info = inspect_data(workspace, path, sheet)
+    if not info["ok"]:
+        return info
+    columns = info["columns"]
+    fits: tuple[TemplateFit, ...]
+    if template:
+        try:
+            fits = (fit_template(get_template(template), columns),)
+        except KeyError:
+            names = [item.name for item in policy_templates()]
+            return {"ok": False, "error": f"Unknown template {template!r}; use one of {names}."}
+    else:
+        fits = suggest_templates(columns)
+    return {
+        "ok": True,
+        "columns": columns,
+        "suggestions": [{**fit.to_dict(), "yaml": fit.adapted().to_yaml()} for fit in fits],
+    }
+
+
 def validate_policy(policy_text: str, policy_format: str = "yaml") -> dict[str, Any]:
     """Check a policy's text and list every problem with its line number."""
     try:
@@ -133,18 +171,13 @@ def inspect_data(workspace: Workspace, path: str, sheet: str | None = None) -> d
         return {"ok": False, "error": str(exc)}
     except (InvalidDataError, OSError) as exc:
         return {"ok": False, "error": _reason(exc)}
+    columns = column_names(data)
     if isinstance(data, TableSource):
-        columns, rows, preview = (
-            list(data.column_names),
-            data.row_count,
-            data.preview(_PREVIEW_ROWS),
-        )
+        rows, preview = data.row_count, data.preview(_PREVIEW_ROWS)
     elif isinstance(data, dict):
-        columns = [str(key) for key in data]
         rows = max((len(value) for value in data.values() if isinstance(value, list)), default=0)
         preview = []
     else:
-        columns = list(dict.fromkeys(str(key) for row in data for key in row))
         rows, preview = len(data), data[:_PREVIEW_ROWS]
     return {
         "ok": True,
@@ -318,6 +351,16 @@ def build_server(workspace: Workspace) -> Any:
     def templates() -> dict[str, Any]:
         """List starter policies with their assumptions and YAML text."""
         return list_templates()
+
+    @server.tool(title="Suggest a policy for a data file", annotations=read_only)
+    def suggest(path: str, sheet: str | None = None, template: str | None = None) -> dict[str, Any]:
+        """Match starter policies to a data file's column names.
+
+        Returns the best-fitting templates with the file column chosen for each
+        expected column (and how confident the match is), plus the adapted YAML.
+        Show the user the matches and ask them to confirm before running checks.
+        """
+        return suggest_policy(workspace, path, sheet, template)
 
     @server.tool(title="Validate a policy", annotations=read_only)
     def check_policy(policy_text: str, policy_format: str = "yaml") -> dict[str, Any]:

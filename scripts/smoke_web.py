@@ -125,6 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         _check_cash_reconciliation(page, Path(scratch), failures)
         _check_multi_portfolio(page, failures)
         _check_limits_policy(page, failures)
+        _check_suggestions(page, Path(scratch), failures)
 
         page.wait_for_timeout(500)
         browser.close()
@@ -258,6 +259,30 @@ def _check_limits_policy(page: Any, failures: list[str]) -> None:
     print(f"hand-built limit result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 0 passed.":
         failures.append(f"unexpected hand-built limit result {banner!r}")
+
+
+def _check_suggestions(page: Any, scratch: Path, failures: list[str]) -> None:
+    """Open a file with unfamiliar headers and let the app match a template to them."""
+    from playwright.sync_api import expect
+
+    path = scratch / "odd.csv"
+    path.write_text(
+        "Fund,Security,Wt,MV (Base),NAV\nA,X,0.5,10,20\nA,Y,0.5,10,20\n",
+        encoding="utf-8",
+    )
+    page.set_input_files("#data-file", str(path))
+    expect(page.locator("#data-name")).to_contain_text("2 row(s), 5 column(s)")
+    suggestions = page.locator("#suggestions")
+    expect(suggestions).to_be_visible()
+    expect(suggestions.locator("button").first).to_contain_text("5 of 5 columns matched")
+    suggestions.locator("button").first.click()
+    expect(page.locator(".check")).to_have_count(4)
+    expect(page.locator("#template-notes")).to_contain_text("Confirm the columns finassert matched")
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"matched-columns result: {banner}")
+    if not banner.startswith("✓ Passed"):
+        failures.append(f"unexpected matched-columns result {banner!r}")
 
 
 def _cell(value: str) -> Any:

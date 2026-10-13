@@ -238,6 +238,15 @@ def input_format_for(path: Path) -> str:
     )
 
 
+def column_names(data: Any) -> list[str]:
+    """Return the column names of loaded data, in order of first appearance."""
+    if isinstance(data, TableSource):
+        return list(data.column_names)
+    if isinstance(data, dict):
+        return [str(key) for key in data]
+    return list(dict.fromkeys(str(key) for row in data for key in row))
+
+
 def load_input(
     path: str | PathLike[str],
     *,

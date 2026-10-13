@@ -220,3 +220,22 @@ def test_unedited_limits_run_with_the_cli_fingerprint(limit: str) -> None:
     assert artifact["policy"]["digest"] == cli_policy.digest
     exported = parse_policy_text(result["policy_yaml"], format="yaml")
     assert exported.to_document() == cli_policy.to_document()
+
+
+def test_suggest_ranks_templates_and_returns_editable_adapted_policies() -> None:
+    columns = json.dumps(["Fund", "Security", "Wt", "MV (Base)", "NAV"])
+
+    result = json.loads(web.suggest(columns))
+
+    assert result["ok"] is True
+    best = result["suggestions"][0]
+    assert best["name"] == "multi-portfolio-holdings"
+    assert (best["matched"], best["expected"]) == (5, 5)
+    assert best["policy"]["rules"][2]["group_by"] == ["Fund"]
+    assert "document" not in best
+    assert any("Confirm the columns" in line for line in best["adapt"])
+
+    chosen = json.loads(web.suggest(columns, "long-only-holdings"))["suggestions"]
+    assert [item["name"] for item in chosen] == ["long-only-holdings"]
+    assert json.loads(web.suggest("[]", "no-such"))["ok"] is False
+    assert json.loads(web.suggest(json.dumps(["Name"])))["suggestions"] == []

@@ -372,3 +372,74 @@ def test_init_suggests_the_closest_template(workspace: Path) -> None:
     assert result.returncode == cli.EXIT_USAGE
     assert "Did you mean 'long-only-holdings'?" in result.stderr
     assert not (workspace / "policy.yml").exists()
+
+
+ODD = "Fund,Security,Wt,MV (Base),NAV\nA,X,0.5,10,20\nA,Y,0.5,10,20\n"
+
+
+def test_suggest_lists_fits_with_every_match_explained(workspace: Path) -> None:
+    (workspace / "odd.csv").write_text(ODD, encoding="utf-8")
+
+    result = run("suggest", "--input", "odd.csv", cwd=workspace)
+
+    assert result.returncode == cli.EXIT_PASSED
+    assert "1. multi-portfolio-holdings" in result.stdout
+    assert "5 of 5 columns matched" in result.stdout
+    assert "'portfolio' is your column 'Fund' (known name match)" in result.stdout
+    assert "proposals" in result.stdout
+
+
+def test_suggest_writes_a_policy_that_runs_on_the_file(workspace: Path) -> None:
+    (workspace / "odd.csv").write_text(ODD, encoding="utf-8")
+
+    written = run("suggest", "--input", "odd.csv", "--output", "odd.yml", cwd=workspace)
+    checked = run("check", "--config", "odd.yml", "--input", "odd.csv", cwd=workspace)
+
+    assert written.returncode == cli.EXIT_PASSED
+    assert "Wrote odd.yml from the 'multi-portfolio-holdings' template" in written.stdout
+    assert "Confirm the columns finassert matched" in written.stdout
+    assert checked.returncode == cli.EXIT_PASSED, checked.stdout + checked.stderr
+
+
+def test_suggest_refuses_to_replace_a_file_and_unknown_templates(workspace: Path) -> None:
+    (workspace / "odd.csv").write_text(ODD, encoding="utf-8")
+    (workspace / "odd.yml").write_text("keep", encoding="utf-8")
+
+    clash = run("suggest", "--input", "odd.csv", "--output", "odd.yml", cwd=workspace)
+    unknown = run("suggest", "--input", "odd.csv", "--template", "nav-reconcilation", cwd=workspace)
+
+    assert clash.returncode == cli.EXIT_USAGE and "pass --force" in clash.stderr
+    assert (workspace / "odd.yml").read_text(encoding="utf-8") == "keep"
+    assert unknown.returncode == cli.EXIT_USAGE
+    assert "Did you mean 'nav-reconciliation'?" in unknown.stderr
+
+
+def test_suggest_with_no_fit_says_so_and_writes_nothing(workspace: Path) -> None:
+    (workspace / "other.csv").write_text("Name,Notes\nx,y\n", encoding="utf-8")
+
+    listed = run("suggest", "--input", "other.csv", cwd=workspace)
+    written = run("suggest", "--input", "other.csv", "--output", "p.yml", cwd=workspace)
+
+    assert listed.returncode == cli.EXIT_PASSED and "No starter policy fits" in listed.stdout
+    assert written.returncode == cli.EXIT_USAGE
+    assert not (workspace / "p.yml").exists()
+
+
+def test_suggest_json_and_a_chosen_template(workspace: Path) -> None:
+    (workspace / "odd.csv").write_text(ODD, encoding="utf-8")
+
+    result = run(
+        "suggest", "--input", "odd.csv", "--template", "nav-reconciliation", "--json", cwd=workspace
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["columns"] == ["Fund", "Security", "Wt", "MV (Base)", "NAV"]
+    (suggestion,) = payload["suggestions"]
+    assert suggestion["name"] == "nav-reconciliation"
+    assert suggestion["document"]["rules"][0]["group_by"] == ["Fund"]
+
+
+def test_suggest_reports_unreadable_input(workspace: Path) -> None:
+    result = run("suggest", "--input", "missing.csv", cwd=workspace)
+
+    assert result.returncode == cli.EXIT_IO
