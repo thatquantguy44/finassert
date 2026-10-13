@@ -4,6 +4,26 @@ A **policy** is a small file that names the checks a dataset must pass. Policies
 let people who do not write Python define, review, and run checks, and let
 pipelines run exactly the same checks without bespoke code.
 
+## Starting from a template
+
+`finassert templates` lists starter policies, and `finassert init` writes one
+for you to adapt:
+
+```bash
+finassert init --template long-only-holdings --output policy.yml
+```
+
+| Template | For |
+|---|---|
+| `long-only-holdings` | Daily holdings of one long-only portfolio, with cash held as a position. |
+| `target-allocation` | A model portfolio or strategic asset allocation, before it is traded. |
+
+Each template lists the assumptions under which its checks are meaningful,
+and the file opens with comments on what to change, usually the column names
+and the rounding tolerance. Templates check only what holds by definition for
+that kind of file; they never encode regulatory or house limits. `init` will
+not replace an existing file unless you pass `--force`.
+
 ## Writing a policy
 
 ```yaml

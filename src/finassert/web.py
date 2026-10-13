@@ -24,6 +24,7 @@ from finassert.policy import (
     dump_policy,
     parse_policy,
     parse_policy_text,
+    policy_templates,
 )
 from finassert.policy.io import policy_format_for
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
@@ -34,6 +35,24 @@ _PREVIEW_ROWS = 5
 def catalog() -> str:
     """Return the built-in rule catalog as JSON."""
     return json.dumps(default_catalog().to_dict())
+
+
+def templates() -> str:
+    """Return the starter policies in the editable form used by the application."""
+    return json.dumps(
+        {
+            "templates": [
+                {
+                    "name": template.name,
+                    "title": template.title,
+                    "summary": template.summary,
+                    "adapt": list(template.adapt),
+                    "policy": _editable(template.policy().to_document()),
+                }
+                for template in policy_templates()
+            ]
+        }
+    )
 
 
 def inspect_input(content: Any, name: str, sheet: str | None = None) -> str:

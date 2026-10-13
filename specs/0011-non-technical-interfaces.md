@@ -1,10 +1,11 @@
 # 0011 — Non-technical interfaces
 
-**Status:** Milestones 1–4 implemented (initial): catalog metadata, policy
-diagnostics, the HTML renderer and `--html` flag, and the Pyodide browser
-application. Spreadsheet *files* are also supported: Excel `.xlsx` is read
-without a dependency in both the CLI and the browser. Templates, the assistant
-tool server, and integration inside Excel itself (milestone 7) remain proposed.
+**Status:** Milestones 1–5 implemented (initial): catalog metadata, policy
+diagnostics, the HTML renderer and `--html` flag, the Pyodide browser
+application, and starter policy templates. Spreadsheet *files* are also
+supported: Excel `.xlsx` is read without a dependency in both the CLI and the
+browser. The assistant tool server and integration inside Excel itself
+(milestone 7) remain proposed.
 
 ## Problem statement
 

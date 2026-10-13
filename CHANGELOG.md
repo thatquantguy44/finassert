@@ -32,6 +32,10 @@ and intends to use Semantic Versioning after the public API stabilizes.
   browser app, reading stored values exactly and refusing uncached formulas and
   ambiguous sheets; Parquet input through the `parquet` extra.
 
+- Starter policy templates (`long-only-holdings`, `target-allocation`) with
+  stated assumptions and adaptation notes, written by `finassert init` and
+  offered in the browser app; `finassert templates` lists them.
+
 ### Changed
 
 - Missing-column errors list the available columns and suggest the closest one.

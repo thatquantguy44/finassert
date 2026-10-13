@@ -25,7 +25,14 @@ from finassert._version import __version__
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.core.models import ValidationReport
 from finassert.loaders import INPUT_FORMATS, input_format_for, load_input
-from finassert.policy import POLICY_FORMATS, default_catalog, load_policy
+from finassert.policy import (
+    POLICY_FORMATS,
+    default_catalog,
+    get_template,
+    load_policy,
+    policy_templates,
+)
+from finassert.policy.issues import closest
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
 EXIT_PASSED = 0
@@ -55,6 +62,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if arguments.command == "rules":
             return _rules(json_output=arguments.json, stream=sys.stdout)
+        if arguments.command == "templates":
+            return _templates(stream=sys.stdout)
+        if arguments.command == "init":
+            return _init(arguments)
         return _check(arguments)
     except KeyboardInterrupt:
         print("finassert: interrupted; no report was written.", file=sys.stderr)
@@ -105,6 +116,23 @@ def _parser() -> argparse.ArgumentParser:
         description="Describe every rule a policy may name, in plain language.",
     )
     rules.add_argument("--json", action="store_true", help="print the catalog as JSON")
+
+    commands.add_parser(
+        "templates",
+        help="list starter policies",
+        description="List the starter policies 'finassert init' can write.",
+    )
+
+    init = commands.add_parser(
+        "init",
+        help="write a starter policy from a template",
+        description="Write a starter policy, with its assumptions, for you to adapt.",
+    )
+    init.add_argument("--template", required=True, metavar="NAME", help="template to start from")
+    init.add_argument(
+        "--output", default="policy.yml", metavar="FILE", help="where to write it (policy.yml)"
+    )
+    init.add_argument("--force", action="store_true", help="replace an existing file")
     return parser
 
 
@@ -192,6 +220,42 @@ def _rules(*, json_output: bool, stream: TextIO) -> int:
                 note += f"; one of {', '.join(parameter.choices)}"
             print(f"    {parameter.name} ({note}): {parameter.description}", file=stream)
         print(file=stream)
+    return EXIT_PASSED
+
+
+def _templates(*, stream: TextIO) -> int:
+    for template in policy_templates():
+        print(f"{template.name}: {template.title}", file=stream)
+        print(f"  {template.summary}", file=stream)
+    print("\nWrite one with: finassert init --template NAME", file=stream)
+    return EXIT_PASSED
+
+
+def _init(arguments: argparse.Namespace) -> int:
+    try:
+        template = get_template(arguments.template)
+    except KeyError:
+        names = [template.name for template in policy_templates()]
+        hint = closest(arguments.template, names)
+        suggestion = f" Did you mean {hint!r}?" if hint else ""
+        return _fail(
+            EXIT_USAGE,
+            f"unknown template {arguments.template!r}; available: {', '.join(names)}.{suggestion}",
+        )
+    path = Path(arguments.output)
+    if path.exists() and not arguments.force:
+        return _fail(
+            EXIT_USAGE, f"{arguments.output!r} already exists; pass --force to replace it."
+        )
+    try:
+        _write_atomic(path, template.to_yaml())
+    except OSError as exc:
+        return _fail(EXIT_IO, f"cannot write {arguments.output!r}: {_reason(exc)}")
+    print(f"Wrote {arguments.output} from the '{template.name}' template.")
+    print("Before relying on it:")
+    for line in template.adapt:
+        print(f"  - {line}")
+    print("  - Check the assumptions listed in the file hold for your data.")
     return EXIT_PASSED
 
 

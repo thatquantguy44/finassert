@@ -108,7 +108,8 @@ finassert check --config policy.yml --input positions.csv --html report.html
 Exit codes separate passes (`0`), failed checks (`1`), checks that could not
 run (`2`), invalid policies (`3`), and unreadable files (`4`), so the same
 command gates CI jobs and ETL steps. `finassert rules` describes every check in
-plain language.
+plain language, and `finassert init --template long-only-holdings` writes a
+starter policy, with its assumptions, for you to adapt.
 
 For people who prefer not to use a terminal, `python scripts/build_web.py`
 produces a single HTML file that runs the same checks entirely inside the
@@ -131,7 +132,8 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text, JSON, and self-contained HTML reports | Policy templates and assistant tools |
+| Text, JSON, and self-contained HTML reports | Assistant tool server |
+| Starter policy templates with stated assumptions | |
 | YAML/JSON policies, CLI, and in-browser app | Polars and SQL inputs |
 | CSV, JSON, Excel (.xlsx), and Parquet input files | |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
@@ -171,7 +173,7 @@ The next milestones are the adapter and diagnostic contract described in
 [specification 0004](specs/0004-dataframe-adapters.md), catalog rules whose
 financial semantics can be stated without institutional assumptions, and the
 remaining [non-technical interface](specs/0011-non-technical-interfaces.md)
-work: starter policy templates and an assistant tool server. The
+work: an assistant tool server and more templates as rules are added. The
 full sequence appears in the [roadmap](docs/roadmap.md).
 
 ## License

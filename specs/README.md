@@ -16,7 +16,7 @@ contract described; **Proposed** means no public capability should be inferred.
 | [0008 Financial units and currencies](0008-financial-units-and-currencies.md) | Proposed |
 | [0009 Property-based testing](0009-property-based-testing.md) | Implemented (initial) |
 | [0010 Performance and batch validation](0010-performance-and-batch-validation.md) | Proposed |
-| [0011 Non-technical interfaces](0011-non-technical-interfaces.md) | Milestones 1–4 implemented (initial); Excel files supported |
+| [0011 Non-technical interfaces](0011-non-technical-interfaces.md) | Milestones 1–5 implemented (initial); Excel files supported |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

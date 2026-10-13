@@ -37,7 +37,9 @@
       state.pyodide = pyodide;
       state.web = pyodide.pyimport("finassert.web");
       state.catalog = call("catalog").rules;
+      state.templates = call("templates").templates;
       renderCatalogPicker();
+      renderTemplates();
       setStatus("Ready. Nothing you open here is uploaded.");
       refresh();
     } catch (error) {
@@ -330,10 +332,15 @@
       setStatus("The policy file was not opened.", true);
       return;
     }
-    const policy = parsed.policy;
+    applyPolicy(parsed.policy);
+    setStatus(`Opened ${file.name} with ${parsed.policy.rules.length} check(s).`);
+  }
+
+  function applyPolicy(policy) {
     $("policy-name").value = policy.name || "";
     $("policy-description").value = policy.description || "";
     $("policy-assumptions").value = (policy.assumptions || []).join("\n");
+    $("policy-assumptions").rows = Math.max(3, (policy.assumptions || []).length + 1);
     state.checks = [];
     for (const entry of policy.rules) {
       const { rule, ...values } = entry;
@@ -342,7 +349,30 @@
     }
     showIssues([]);
     renderChecks();
-    setStatus(`Opened ${file.name} with ${policy.rules.length} check(s).`);
+    refresh();
+  }
+
+  function renderTemplates() {
+    $("template").replaceChildren(
+      option("", "Choose a template…", true),
+      ...state.templates.map((item) => option(item.name, item.title))
+    );
+  }
+
+  function useTemplate(name) {
+    const template = state.templates.find((item) => item.name === name);
+    const notes = $("template-notes");
+    if (!template) {
+      notes.hidden = true;
+      return;
+    }
+    applyPolicy(template.policy);
+    notes.replaceChildren(
+      element("strong", { text: "Before relying on this template: " }),
+      [...template.adapt, "Check the assumptions below hold for your file."].join(" ")
+    );
+    notes.hidden = false;
+    setStatus(`Started from the "${template.title}" template.`);
   }
 
   function showIssues(issues, heading) {
@@ -443,6 +473,7 @@
     await openPolicy($("policy-file").files[0]);
     $("policy-file").value = "";
   }));
+  $("template").addEventListener("change", guarded(async () => useTemplate($("template").value)));
   $("add-check-button").addEventListener("click", () => addCheck($("add-check").value));
   $("run").addEventListener("click", guarded(run));
   $("download-html").addEventListener("click", () =>

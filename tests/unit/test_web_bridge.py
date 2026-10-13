@@ -182,3 +182,14 @@ def test_browser_rejects_formats_it_cannot_open() -> None:
     assert result["ok"] is False
     assert "cannot be opened in the browser" in result["error"]
     assert json.loads(web.inspect_input("a\n1\n", "data.csv", "Sheet"))["ok"] is False
+
+
+def test_templates_are_offered_in_editable_form() -> None:
+    offered = json.loads(web.templates())["templates"]
+    assert [item["name"] for item in offered] == ["long-only-holdings", "target-allocation"]
+    holdings = offered[0]
+    assert holdings["policy"]["assumptions"]
+    result = json.loads(
+        web.run("weight,market_value\n0.5,1\n0.5,1\n", "d.csv", json.dumps(holdings["policy"]))
+    )
+    assert result["passed"] is True

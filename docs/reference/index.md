@@ -39,6 +39,10 @@ of the supported API.
 - `RuleCatalog`, `RuleFactorySpec`, `ParameterSpec`, and `default_catalog()`
   define which factories a policy may name and describe them in plain language.
 
+- `policy_templates()` and `get_template(name)` return `PolicyTemplate` starter
+  policies with `policy()`, `to_yaml()`, `assumptions` in the document, and
+  `adapt` notes.
+
 ## Loaders
 
 - `finassert.loaders.load_input(path, *, format=None, sheet=None)` reads CSV,

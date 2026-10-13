@@ -45,7 +45,12 @@
   <section class="step" aria-labelledby="step-checks">
     <div class="step-head"><span class="step-number" aria-hidden="true">2</span>
       <div><h2 id="step-checks">Choose the checks</h2>
-      <p class="hint">Add checks one by one, or open a policy file someone has shared with you.</p></div></div>
+      <p class="hint">Start from a template, add checks one by one, or open a policy file someone has shared with you.</p></div></div>
+    <div class="toolbar">
+      <label for="template" class="hint inline-label">Start from a template</label>
+      <select id="template" class="compact"></select>
+    </div>
+    <p id="template-notes" class="caution" hidden></p>
     <div class="grid">
       <div class="field"><label for="policy-name">Policy name</label>
         <input id="policy-name" type="text" placeholder="e.g. Daily positions"></div>

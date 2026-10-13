@@ -118,6 +118,10 @@ def main(argv: list[str] | None = None) -> int:
 
         _check_workbook(page, Path(scratch), failures)
 
+        page.select_option("#template", "long-only-holdings")
+        expect(page.locator(".check")).to_have_count(3)
+        expect(page.locator("#template-notes")).to_contain_text("Before relying on this template")
+
         page.wait_for_timeout(500)
         browser.close()
 

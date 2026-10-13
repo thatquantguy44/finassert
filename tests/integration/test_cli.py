@@ -323,3 +323,38 @@ def test_parquet_input(workspace: Path) -> None:
         "check", "--config", "policy file.yml", "--input", "positions.parquet", cwd=workspace
     )
     assert result.returncode == cli.EXIT_PASSED, result.stderr
+
+
+def test_init_writes_a_template_and_refuses_to_overwrite(workspace: Path) -> None:
+    listing = run("templates", cwd=workspace)
+    assert listing.returncode == cli.EXIT_PASSED
+    assert "long-only-holdings: Long-only holdings file" in listing.stdout
+
+    created = run("init", "--template", "target-allocation", "--output", "new.yml", cwd=workspace)
+    assert created.returncode == cli.EXIT_PASSED, created.stderr
+    assert "Before relying on it:" in created.stdout
+    assert "finassert template 'target-allocation'" in (workspace / "new.yml").read_text(
+        encoding="utf-8"
+    )
+
+    again = run("init", "--template", "target-allocation", "--output", "new.yml", cwd=workspace)
+    assert again.returncode == cli.EXIT_USAGE
+    assert "already exists; pass --force" in again.stderr
+    forced = run(
+        "init",
+        "--template",
+        "long-only-holdings",
+        "--output",
+        "new.yml",
+        "--force",
+        cwd=workspace,
+    )
+    assert forced.returncode == cli.EXIT_PASSED
+    assert "long-only-holdings" in (workspace / "new.yml").read_text(encoding="utf-8")
+
+
+def test_init_suggests_the_closest_template(workspace: Path) -> None:
+    result = run("init", "--template", "long-only", cwd=workspace)
+    assert result.returncode == cli.EXIT_USAGE
+    assert "Did you mean 'long-only-holdings'?" in result.stderr
+    assert not (workspace / "policy.yml").exists()
