@@ -151,11 +151,13 @@ they are displayed:
   day counts Excel stores them as;
 - formulas are checked by their saved result. A formula with no saved result,
   as some export tools write, is an error: open the file in Excel and save it;
+- text cells follow the CSV rules: numbers stored as text read as numbers, and
+  blank or space-only cells are empty;
 - rows with no values are skipped; a value in a column with no header is an
-  error.
+  error; chart sheets are ignored.
 
-A workbook with several sheets needs `--sheet`, so the wrong tab is never
-checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
+A workbook with several sheets needs `--sheet` (otherwise the command exits
+with code 3 and lists the sheets), so the wrong tab is never checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
 
 Parquet files need `finassert[parquet]` (pyarrow). Values keep their stored
 types: decimal columns become exact decimals, floating-point columns stay

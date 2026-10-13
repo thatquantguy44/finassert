@@ -11,8 +11,10 @@ import io
 import posixpath
 import re
 import zipfile
+import zlib
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from typing import Any
 from xml.etree import ElementTree
@@ -28,6 +30,18 @@ _INTEGER = re.compile(r"^[+-]?\d+$")
 # Built-in number formats that display dates or times (ECMA-376 18.8.30).
 _DATE_FORMAT_IDS = frozenset([*range(14, 23), *range(27, 37), *range(45, 48), *range(50, 59)])
 _FORMAT_NOISE = re.compile(r'"[^"]*"|\\.|\[[^\]]*\]')
+
+
+class SheetError(InvalidDataError):
+    """Raised when the worksheet to read is ambiguous or does not exist.
+
+    Attributes:
+        sheets: Worksheet names in tab order, so callers can offer a choice.
+    """
+
+    def __init__(self, message: str, sheets: tuple[str, ...]) -> None:
+        super().__init__(message)
+        self.sheets = sheets
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,18 +77,19 @@ def read_sheet(data: bytes, sheet: str | None = None) -> Sheet:
     """
     with _open(data) as archive:
         sheets = _sheets(archive)
-        names = [name for name, _ in sheets]
+        names = tuple(name for name, _ in sheets)
         if sheet is None:
             if len(sheets) != 1:
-                raise InvalidDataError(
-                    f"the workbook has {len(sheets)} sheets ({_listed(names)}); choose one"
+                raise SheetError(
+                    f"the workbook has {len(sheets)} sheets ({_listed(names)}); choose one",
+                    names,
                 )
             name, path = sheets[0]
         else:
             matches = [(name, path) for name, path in sheets if name == sheet]
             if not matches:
-                raise InvalidDataError(
-                    f"the workbook has no sheet {sheet!r}; it has {_listed(names)}"
+                raise SheetError(
+                    f"the workbook has no sheet {sheet!r}; it has {_listed(names)}", names
                 )
             name, path = matches[0]
         strings = _shared_strings(archive)
@@ -91,6 +106,8 @@ def read_sheet(data: bytes, sheet: str | None = None) -> Sheet:
             column = _column_index(cell.get("r"), last_column)
             last_column = column
             value = _cell_value(cell, strings, date_styles, date1904, name)
+            if isinstance(value, str) and not value.strip():
+                value = None  # blank text counts as an empty cell, as in CSV
             if value is not None:
                 values[column] = value
         if values:
@@ -127,6 +144,9 @@ def _xml(archive: zipfile.ZipFile, path: str) -> ElementTree.Element:
         return ElementTree.fromstring(archive.read(path))
     except KeyError as exc:
         raise InvalidDataError(f"the workbook is missing {path!r}") from exc
+    except (zipfile.BadZipFile, zlib.error, EOFError, NotImplementedError, RuntimeError) as exc:
+        # Corrupt, truncated, encrypted, or unusually compressed parts.
+        raise InvalidDataError(f"the workbook part {path!r} cannot be read: {exc}") from exc
     except ElementTree.ParseError as exc:
         raise InvalidDataError(f"the workbook part {path!r} is not valid XML") from exc
 
@@ -134,8 +154,11 @@ def _xml(archive: zipfile.ZipFile, path: str) -> ElementTree.Element:
 def _sheets(archive: zipfile.ZipFile) -> list[tuple[str, str]]:
     workbook = _xml(archive, "xl/workbook.xml")
     relations = _xml(archive, "xl/_rels/workbook.xml.rels")
+    # Chart sheets and dialog sheets are tabs too, but hold no cells to check.
     targets = {
-        rel.get("Id"): rel.get("Target", "") for rel in relations.iter(f"{_PKG_REL}Relationship")
+        rel.get("Id"): rel.get("Target", "")
+        for rel in relations.iter(f"{_PKG_REL}Relationship")
+        if rel.get("Type", "worksheet").rsplit("/", 1)[-1] == "worksheet"
     }
     sheets = []
     for sheet in workbook.iter(f"{_MAIN}sheet"):
@@ -222,6 +245,8 @@ def _cell_value(
     if kind == "inlineStr":
         inline = cell.find(f"{_MAIN}is")
         return None if inline is None else _text_of(inline)
+    if text is None and kind == "str":
+        return ""  # a formula whose saved result is empty text, such as =IF(..., "")
     if text is None:
         if cell.find(f"{_MAIN}f") is not None:
             raise InvalidDataError(
@@ -245,7 +270,13 @@ def _cell_value(
             return text
     number = _number(text)
     if int(cell.get("s", "0")) in date_styles:
-        return _excel_date(number, date1904)
+        try:
+            return _excel_date(number, date1904)
+        except (OverflowError, ValueError) as exc:
+            raise InvalidDataError(
+                f"cell {sheet}!{cell.get('r', '?')} is formatted as a date but holds "
+                f"{text}, which is not a valid date"
+            ) from exc
     return number
 
 
@@ -264,16 +295,30 @@ def _number(text: str) -> int | Decimal:
     return int(number) if number == number.to_integral_value() and abs(number) < 10**15 else number
 
 
-def _excel_date(serial: int | Decimal, date1904: bool) -> date | datetime:
-    # The 1900 system counts a non-existent 29 Feb 1900, hence the 1899-12-30 base.
-    base = datetime(1904, 1, 1) if date1904 else datetime(1899, 12, 30)
+def _excel_date(serial: int | Decimal, date1904: bool) -> date | datetime | time:
     # Excel keeps times to the millisecond; exact arithmetic avoids float drift.
     milliseconds = int((Decimal(serial) * 86_400_000).to_integral_value())
+    if milliseconds < 0:
+        raise ValueError("negative date serial")
+    if milliseconds < 86_400_000 and not date1904:
+        # In the 1900 system a serial below 1 is a time of day with no date
+        # (Excel shows 1900-01-00); in the 1904 system serial 0 is 1 Jan 1904.
+        return (datetime.min + timedelta(milliseconds=milliseconds)).time()
+    if date1904:
+        base = datetime(1904, 1, 1)
+    elif serial >= 61:
+        # The 1900 system counts a fictitious 29 Feb 1900 (serial 60), so from
+        # 1 March 1900 onwards serials are one day ahead of the calendar.
+        base = datetime(1899, 12, 30)
+    elif serial >= 60:
+        raise ValueError("29 February 1900 does not exist")
+    else:
+        base = datetime(1899, 12, 31)
     moment = base + timedelta(milliseconds=milliseconds)
     if moment.time() == datetime.min.time():
         return moment.date()
     return moment
 
 
-def _listed(names: list[str]) -> str:
+def _listed(names: Sequence[str]) -> str:
     return ", ".join(repr(name) for name in names)

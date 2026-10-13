@@ -283,8 +283,10 @@ def test_excel_input_with_sheet_choice(workspace: Path) -> None:
     (workspace / "book.xlsx").write_bytes(buffer.getvalue())
 
     ambiguous = run("check", "--config", "policy file.yml", "--input", "book.xlsx", cwd=workspace)
-    assert ambiguous.returncode == cli.EXIT_IO
-    assert "has 2 sheets ('Notes', 'Positions'); choose one" in ambiguous.stderr
+    assert ambiguous.returncode == cli.EXIT_USAGE
+    assert "has 2 sheets ('Notes', 'Positions'); choose one; pass one with --sheet NAME" in (
+        ambiguous.stderr
+    )
 
     result = run(
         "check",
@@ -308,7 +310,7 @@ def test_excel_input_with_sheet_choice(workspace: Path) -> None:
 def test_sheet_option_needs_an_excel_input(workspace: Path) -> None:
     result = run(*check_args("--sheet", "Data"), cwd=workspace)
     assert result.returncode == cli.EXIT_USAGE
-    assert "--sheet can only be used with an Excel" in result.stderr
+    assert "a sheet can only be chosen for Excel (.xlsx) input" in result.stderr
 
 
 def test_parquet_input(workspace: Path) -> None:

@@ -15,13 +15,14 @@ import argparse
 import json
 import os
 import sys
-import tempfile
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import NoReturn, TextIO
 
+from finassert._files import write_atomic
 from finassert._version import __version__
+from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.core.models import ValidationReport
 from finassert.loaders import INPUT_FORMATS, input_format_for, load_input
@@ -151,15 +152,11 @@ def _check(arguments: argparse.Namespace) -> int:
     except OSError as exc:
         return _fail(EXIT_USAGE, f"cannot read policy {arguments.config!r}: {_reason(exc)}")
 
-    if arguments.sheet is not None:
-        try:
-            chosen = arguments.format or input_format_for(Path(arguments.input))
-        except InvalidDataError:
-            chosen = None
-        if chosen != "xlsx":
-            return _fail(EXIT_USAGE, "--sheet can only be used with an Excel (.xlsx) input.")
     try:
         data = load_input(arguments.input, format=arguments.format, sheet=arguments.sheet)
+    except SheetError as exc:
+        hint = "; pass one with --sheet NAME" if arguments.sheet is None and exc.sheets else ""
+        return _fail(EXIT_USAGE, f"{arguments.input!r}: {exc}{hint}.")
     except InvalidDataError as exc:
         return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {exc}")
     except OSError as exc:
@@ -180,11 +177,11 @@ def _check(arguments: argparse.Namespace) -> int:
         print(report.summary())
     try:
         if arguments.output:
-            _write_atomic(Path(arguments.output), artifact_to_json(artifact) + "\n")
+            write_atomic(Path(arguments.output), artifact_to_json(artifact) + "\n")
             if not arguments.quiet:
                 print(f"JSON report written to {arguments.output}")
         if arguments.html:
-            _write_atomic(Path(arguments.html), render_artifact_html(artifact))
+            write_atomic(Path(arguments.html), render_artifact_html(artifact))
             if not arguments.quiet:
                 print(f"HTML report written to {arguments.html}")
     except OSError as exc:
@@ -248,7 +245,7 @@ def _init(arguments: argparse.Namespace) -> int:
             EXIT_USAGE, f"{arguments.output!r} already exists; pass --force to replace it."
         )
     try:
-        _write_atomic(path, template.to_yaml())
+        write_atomic(path, template.to_yaml())
     except OSError as exc:
         return _fail(EXIT_IO, f"cannot write {arguments.output!r}: {_reason(exc)}")
     print(f"Wrote {arguments.output} from the '{template.name}' template.")
@@ -264,44 +261,6 @@ def _generated_at() -> datetime:
     if epoch and epoch.isdigit():
         return datetime.fromtimestamp(int(epoch), UTC)
     return datetime.now(UTC)
-
-
-def _write_atomic(path: Path, text: str) -> None:
-    directory = path.parent if str(path.parent) else Path(".")
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        dir=directory,
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as handle:
-        temporary = Path(handle.name)
-        try:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-            # Temporary files are owner-only; give the report the mode a plain
-            # write would have, keeping an existing report's mode if there is one.
-            os.chmod(handle.name, _report_mode(path))
-        except BaseException:
-            handle.close()
-            temporary.unlink(missing_ok=True)
-            raise
-    try:
-        os.replace(temporary, path)
-    except BaseException:
-        temporary.unlink(missing_ok=True)
-        raise
-
-
-def _report_mode(path: Path) -> int:
-    try:
-        return path.stat().st_mode & 0o777
-    except OSError:
-        umask = os.umask(0)
-        os.umask(umask)
-        return 0o666 & ~umask
 
 
 def _reason(exc: OSError) -> str:
