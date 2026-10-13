@@ -54,12 +54,17 @@ class ColumnMapping:
         aggregations: Reduction policy keyed by semantic field name. Ungrouped
             rules may omit it. Grouped rules must explicitly require policies
             for every semantic field they aggregate.
+        order_key: Optional physical column that orders rows within a group,
+            such as a timestamp or sequence number. Public rules require it
+            whenever a ``FIRST`` or ``LAST`` aggregation is configured, because
+            physical row order is not a financial ordering.
     """
 
     columns: Mapping[str, str]
     group_keys: tuple[GroupKey, ...] = ()
     row_key: str | None = None
     aggregations: Mapping[str, FieldAggregation] = field(default_factory=dict)
+    order_key: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.columns, Mapping):
@@ -89,6 +94,12 @@ class ColumnMapping:
                 raise TypeError("row_key must be a string when provided")
             if not self.row_key.strip():
                 raise ValueError("row_key must be a non-empty column name when provided")
+
+        if self.order_key is not None:
+            if not isinstance(self.order_key, str):
+                raise TypeError("order_key must be a string when provided")
+            if not self.order_key.strip():
+                raise ValueError("order_key must be a non-empty column name when provided")
 
         if not isinstance(self.aggregations, Mapping):
             raise TypeError("aggregations must be a mapping")
@@ -130,6 +141,14 @@ class ColumnMapping:
     def required_aggregations(self, *semantic_names: str) -> tuple[FieldAggregation, ...]:
         """Resolve required aggregations in caller-provided order."""
         return tuple(self.aggregation_for(name) for name in semantic_names)
+
+    @property
+    def uses_ordered_aggregation(self) -> bool:
+        """Return whether any configured aggregation depends on row order."""
+        return any(
+            aggregation in {FieldAggregation.FIRST, FieldAggregation.LAST}
+            for aggregation in self.aggregations.values()
+        )
 
     @property
     def grouping_columns(self) -> tuple[str, ...]:

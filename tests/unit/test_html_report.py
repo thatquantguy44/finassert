@@ -141,3 +141,16 @@ def test_rule_descriptions_require_matching_results() -> None:
     page = to_html(other, policy=policy, generated_at=MOMENT)
     assert '">1. Financial values are nonnegative</h3>' in page
     assert "1. Portfolio weights add up to 100%" not in page
+
+
+def test_reason_codes_read_as_words() -> None:
+    rule = fa.nav_reconciles(market_value="mv", nav="nav", group_by=["fund"])
+    report = fa.check({"fund": ["F"], "mv": [1], "nav": [2]}, [rule])
+    page = to_html(report, generated_at=MOMENT)
+    assert "<td>Does not reconcile</td>" in page
+    assert (
+        embedded_artifact(page)["report"]["results"][0]["metadata"]["failed_groups"][0][  # type: ignore[index]
+            "reason"
+        ]
+        == "does_not_reconcile"
+    )

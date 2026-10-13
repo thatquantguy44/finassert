@@ -311,6 +311,16 @@ def _parameter_value(
             issues.add(path, f"'{parameter.name}' must be a column name written as text.")
             return _INVALID
         return value
+    if parameter.kind is ParameterKind.COLUMNS:
+        if not isinstance(value, list) or not all(
+            isinstance(item, str) and item.strip() for item in value
+        ):
+            issues.add(path, f"'{parameter.name}' must be a list of column names.")
+            return _INVALID
+        if len(set(value)) != len(value):
+            issues.add(path, f"'{parameter.name}' names a column more than once.")
+            return _INVALID
+        return list(value)
     if parameter.kind is ParameterKind.CHOICE:
         if not isinstance(value, str) or value not in parameter.choices:
             issues.add(

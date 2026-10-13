@@ -15,7 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from finassert._xlsx import sheet_names
+from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json, parse_xlsx
 from finassert.policy import (
@@ -62,17 +62,17 @@ def inspect_input(content: Any, name: str, sheet: str | None = None) -> str:
     workbook has several sheets and none is chosen, the result lists them.
     """
     try:
-        if sheet is None and input_format_for(Path(name)) == "xlsx":
-            names = sheet_names(_as_bytes(content))
-            if len(names) > 1:
-                return json.dumps(
-                    {
-                        "ok": False,
-                        "sheets": list(names),
-                        "error": "This workbook has several sheets; choose the one to check.",
-                    }
-                )
         data = _parse_input(content, name, sheet)
+    except SheetError as exc:
+        if sheet is None and exc.sheets:
+            return json.dumps(
+                {
+                    "ok": False,
+                    "sheets": list(exc.sheets),
+                    "error": "This workbook has several sheets; choose the one to check.",
+                }
+            )
+        return json.dumps({"ok": False, "error": str(exc)})
     except InvalidDataError as exc:
         return json.dumps({"ok": False, "error": str(exc)})
     if isinstance(data, TableSource):
@@ -153,7 +153,7 @@ def _parse_input(content: Any, name: str, sheet: str | None = None) -> Any:
     if input_format == "xlsx":
         return parse_xlsx(_as_bytes(content), sheet=sheet)
     if sheet is not None:
-        raise InvalidDataError("a sheet can only be chosen for Excel (.xlsx) input")
+        raise SheetError("a sheet can only be chosen for Excel (.xlsx) input", ())
     if input_format == "json":
         return parse_json(_as_text(content))
     if input_format == "csv":

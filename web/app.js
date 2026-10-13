@@ -134,6 +134,8 @@
           parameter.default && columns.includes(parameter.default) ? parameter.default : "";
       } else if (parameter.kind === "tolerance") {
         initial[parameter.name] = { absolute: parameter.default || "", relative: "" };
+      } else if (parameter.kind === "columns") {
+        initial[parameter.name] = [];
       } else {
         initial[parameter.name] = parameter.default == null ? "" : String(parameter.default);
       }
@@ -159,6 +161,8 @@
         } else {
           initial[key] = { absolute: remember(`${key}.absolute`, value), relative: "" };
         }
+      } else if (parameter && parameter.kind === "columns") {
+        initial[key] = Array.isArray(value) ? value.map(String) : [String(value)];
       } else {
         initial[key] = String(value);
       }
@@ -191,6 +195,7 @@
     if (parameter.kind === "tolerance") {
       return value.absolute.trim() === fallback && !value.relative.trim();
     }
+    if (parameter.kind === "columns") return value.length === 0;
     return String(value).trim() === fallback || String(value).trim() === "";
   }
 
@@ -242,13 +247,45 @@
       const columns = state.data ? state.data.columns : [];
       const choices = columns.includes(value) || !value ? columns : [value, ...columns];
       control = element("select", { id }, [
-        option("", parameter.required ? "Choose a column…" : `Default (${parameter.default})`, !value),
+        option(
+          "",
+          parameter.required
+            ? "Choose a column…"
+            : parameter.default == null
+              ? "Not used"
+              : `Default (${parameter.default})`,
+          !value
+        ),
         ...choices.map((c) => option(c, c, c === value)),
       ]);
       control.addEventListener("change", () => set(control.value));
     } else if (parameter.kind === "choice") {
-      control = element("select", { id }, parameter.choices.map((c) => option(c, c, c === value)));
+      // A required choice with no default starts unselected, so it must be picked.
+      const prompt = parameter.default == null ? [option("", "Choose…", !value)] : [];
+      control = element("select", { id }, [
+        ...prompt,
+        ...parameter.choices.map((c) => option(c, c, c === value)),
+      ]);
       control.addEventListener("change", () => set(control.value));
+    } else if (parameter.kind === "columns") {
+      const columns = state.data ? state.data.columns : [];
+      const choices = [...value.filter((c) => !columns.includes(c)), ...columns];
+      const boxes = choices.map((column, index) => {
+        const boxId = `${id}-${index}`;
+        const box = element("input", { id: boxId, type: "checkbox" });
+        box.checked = value.includes(column);
+        box.addEventListener("change", () => {
+          const current = check.values[parameter.name].filter((c) => c !== column);
+          // Keep columns in the order they were ticked: group keys are ordered.
+          set(box.checked ? [...current, column] : current);
+        });
+        return element("label", { for: boxId, className: "checkbox" }, [box, " ", column]);
+      });
+      control = element("fieldset", { className: "columns", id }, [
+        // The visible label is the group's legend, since a fieldset cannot be a label target.
+        element("legend", { text: parameter.label + (parameter.required ? " (required)" : "") }),
+        ...(boxes.length ? boxes : [element("p", { className: "hint", text: "Open a data file to choose columns." })]),
+      ]);
     } else if (parameter.kind === "integer") {
       control = element("input", { id, type: "number", min: String(parameter.minimum ?? 0), step: "1", value });
       control.addEventListener("input", () => set(control.value));
@@ -274,8 +311,17 @@
       }
       return element("div", { className: "field" }, children);
     }
+    const heading =
+      parameter.kind === "columns"
+        ? []
+        : [
+            element("label", {
+              for: id,
+              text: parameter.label + (parameter.required ? " (required)" : ""),
+            }),
+          ];
     return element("div", { className: "field" }, [
-      element("label", { for: id, text: parameter.label + (parameter.required ? " (required)" : "") }),
+      ...heading,
       control,
       element("p", { className: "hint", text: parameter.description }),
     ]);
@@ -311,6 +357,8 @@
           } else if (absolute) {
             entry[name] = numberValue(check, `${name}.absolute`, absolute);
           }
+        } else if (parameter.kind === "columns") {
+          entry[parameter.name] = [...value];
         } else if (parameter.kind === "integer") {
           const text = String(value).trim();
           if (text) entry[parameter.name] = /^\d+$/.test(text) ? Number(text) : text;
@@ -424,12 +472,27 @@
       ? `✓ Passed: ${counts.passed} passed, ${counts.skipped} skipped.`
       : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
     $("report-frame").srcdoc = outcome.html;
+    const input = cliArgument(state.data.name);
+    const sheet = state.data.sheet ? cliArgument(state.data.sheet) : null;
     $("cli-command").textContent =
-      `finassert check --config policy.yml --input "${state.data.name}"` +
-      (state.data.sheet ? ` --sheet "${state.data.sheet}"` : "") +
+      `finassert check --config policy.yml --input ${input.text}` +
+      (sheet ? ` --sheet ${sheet.text}` : "") +
       " --html report.html";
+    // Names with special characters are quoted for macOS/Linux shells only.
+    $("cli-note").hidden = input.plain && (!sheet || sheet.plain);
     $("results").hidden = false;
     setStatus("Checks finished. The full report is below.");
+  }
+
+  // Names made only of ordinary characters are safe inside double quotes in
+  // every common shell (bash, PowerShell, cmd), so show them that way.
+  const PLAIN_NAME = /^[^"$`\\%^&|<>!;'\r\n]*$/;
+
+  function cliArgument(text) {
+    const value = String(text);
+    if (PLAIN_NAME.test(value)) return { text: `"${value}"`, plain: true };
+    // Otherwise single-quote for POSIX shells, which stops $(...) and backticks.
+    return { text: "'" + value.replace(/'/g, "'\\''") + "'", plain: false };
   }
 
   function download(text, name, type) {

@@ -6,6 +6,7 @@ import math
 from decimal import Decimal
 from typing import Any
 
+from finassert.adapters._column import is_missing
 from finassert.numerical import Numeric, is_finite
 
 
@@ -32,3 +33,12 @@ def precise_sum(values: list[Numeric]) -> Numeric:
 
 def _decimal(value: Numeric) -> Decimal:
     return value if isinstance(value, Decimal) else Decimal(str(value))
+
+
+def is_blank(value: object) -> bool:
+    """Return whether a cell holds nothing: missing, or text with no characters.
+
+    Text of only spaces counts as blank, as a person looking at a spreadsheet
+    would see it. Zero and ``False`` are values, not blanks.
+    """
+    return is_missing(value) or (isinstance(value, str) and not value.strip())

@@ -1,6 +1,13 @@
 # 0002 — Financial invariants
 
-**Status:** Proposed catalog; weight-sum and nonnegative rules implemented
+**Status:** Milestones 1–2 implemented (initial): weight-sum and nonnegative
+rules, and grouped cash (`accounting.cash_reconciles`) and NAV
+(`accounting.nav_reconciles`) reconciliation. Cash requires an explicit
+`outflow_sign`; NAV sums signed lines, so assets minus liabilities is
+`sum(market_value)` with liabilities negative. Currencies are never converted;
+a currency column becomes a group key. `weights_sum_to_one` can check each
+portfolio with `group_by`. Returns, exposure, collateral, and financing rules
+remain proposed.
 
 ## Problem statement
 
@@ -25,7 +32,9 @@ currencies, fetch market data, or replace accounting control ownership.
 ## Proposed architecture
 
 Rule families are `portfolio`, `accounting`, `returns`, `collateral`, `exposure`,
-and `securities_financing`. Each rule is immutable configuration plus pure
+and `securities_financing`, plus `arithmetic` for single-column value checks and
+`data` for file-shape checks (`data.no_duplicates`, `data.required_fields`) that
+hold for any file. Each rule is immutable configuration plus pure
 evaluation. Stable IDs use `family.rule_name`.
 
 Catalog candidates include weight totals; cash opening + flows + P&L = closing;

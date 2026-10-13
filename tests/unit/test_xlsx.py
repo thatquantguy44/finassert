@@ -1,6 +1,6 @@
 import io
 import zipfile
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from pathlib import Path
 
@@ -174,7 +174,7 @@ def test_several_sheets_require_a_choice() -> None:
     [
         ([], "is empty"),
         ([["a", "a"], [1, 2]], "appears more than once"),
-        ([["a", " "], [1, 2]], "B1 has no header text"),
+        ([["a", " "], [1, 2]], "B2 has a value but its column has no header"),
         ([["a"], [1, 2]], "B2 has a value but its column has no header"),
     ],
 )
@@ -209,3 +209,87 @@ def test_load_input_reads_workbooks_with_a_sheet(tmp_path: Path) -> None:
 @pytest.mark.parametrize(("index", "letters"), [(0, "A"), (25, "Z"), (26, "AA"), (701, "ZZ")])
 def test_column_letters(index: int, letters: str) -> None:
     assert column_letter(index) == letters
+
+
+def test_formula_with_empty_text_result_is_a_blank_cell() -> None:
+    sheet = (
+        '<row r="1"><c r="A1" t="inlineStr"><is><t>weight</t></is></c></row>'
+        '<row r="2"><c r="A2"><v>1</v></c></row>'
+        '<row r="3"><c r="A3" t="str"><f>IF(B3&gt;0,B3,"")</f><v></v></c></row>'
+    )
+    table = parse_xlsx(raw_workbook(sheet))
+    assert table.column("weight") == ([1], [2])
+
+
+def test_blank_and_numeric_text_cells_follow_the_csv_rules() -> None:
+    data = workbook_bytes(
+        (
+            "Sheet",
+            [["weight", "note"], ["0.25", " "], ["0.75", "x"], [" ", None], [None, None, " "]],
+        )
+    )
+    table = parse_xlsx(data)
+    assert table.column("weight") == ([Decimal("0.25"), Decimal("0.75")], [2, 3])
+    assert table.column("note")[0] == [None, "x"]
+    csv = parse_csv("weight,note\n0.25, \n0.75,x\n")
+    assert fa.check(table, [fa.weights_sum_to_one()]) == fa.check(csv, [fa.weights_sum_to_one()])
+
+
+def test_early_1900_dates_and_time_only_cells() -> None:
+    styles = '<cellXfs count="2"><xf numFmtId="0"/><xf numFmtId="14"/></cellXfs>'
+    cells = "".join(
+        f'<row r="{row}"><c r="A{row}" s="1"><v>{serial}</v></c></row>'
+        for row, serial in ((2, 1), (3, 59), (4, 61), (5, "0.75"))
+    )
+    sheet = '<row r="1"><c r="A1" t="inlineStr"><is><t>d</t></is></c></row>' + cells
+    values = parse_xlsx(raw_workbook(sheet, styles=styles)).column("d")[0]
+    assert values == [date(1900, 1, 1), date(1900, 2, 28), date(1900, 3, 1), time(18, 0)]
+
+
+@pytest.mark.parametrize(("serial", "message"), [(60, "not a valid date"), (99999999, "99999999")])
+def test_impossible_dates_are_reported_with_the_cell(serial: int, message: str) -> None:
+    styles = '<cellXfs count="2"><xf numFmtId="0"/><xf numFmtId="14"/></cellXfs>'
+    sheet = (
+        '<row r="1"><c r="A1" t="inlineStr"><is><t>d</t></is></c></row>'
+        f'<row r="2"><c r="A2" s="1"><v>{serial}</v></c></row>'
+    )
+    with pytest.raises(InvalidDataError, match=rf"Data!A2 is formatted as a date.*{message}"):
+        parse_xlsx(raw_workbook(sheet, styles=styles))
+
+
+def test_corrupt_workbook_parts_are_reported() -> None:
+    sheet = '<row r="1"><c r="A1" t="inlineStr"><is><t>weight</t></is></c></row>'
+    buffer = io.BytesIO()
+    with (
+        zipfile.ZipFile(io.BytesIO(raw_workbook(sheet))) as source,
+        zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_STORED) as target,
+    ):
+        for info in source.infolist():
+            target.writestr(info.filename, source.read(info.filename))
+    damaged = buffer.getvalue().replace(b"<t>weight</t>", b"<t>wEight</t>")
+    with pytest.raises(InvalidDataError, match="cannot be read"):
+        parse_xlsx(damaged)
+
+
+def test_chart_sheets_are_not_offered_as_data_sheets() -> None:
+    buffer = io.BytesIO()
+    source = zipfile.ZipFile(
+        io.BytesIO(raw_workbook('<row r="1"><c r="A1" t="inlineStr"><is><t>w</t></is></c></row>'))
+    )
+    with zipfile.ZipFile(buffer, "w") as target:
+        for info in source.infolist():
+            content = source.read(info.filename)
+            if info.filename == "xl/workbook.xml":
+                content = content.replace(
+                    b"</sheets>", b'<sheet name="Chart1" sheetId="2" r:id="rId2"/></sheets>'
+                )
+            if info.filename == "xl/_rels/workbook.xml.rels":
+                content = content.replace(
+                    b"</Relationships>",
+                    b'<Relationship Id="rId2" Target="chartsheets/sheet1.xml" Type="http://'
+                    b'schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet"/>'
+                    b"</Relationships>",
+                )
+            target.writestr(info.filename, content)
+    assert sheet_names(buffer.getvalue()) == ("Data",)
+    assert parse_xlsx(buffer.getvalue()).column_names == ("w",)

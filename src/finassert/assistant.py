@@ -18,13 +18,13 @@ from __future__ import annotations
 
 import argparse
 import os
-import tempfile
 from collections.abc import Sequence
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
+from finassert._files import write_atomic
 from finassert._version import __version__
-from finassert._xlsx import sheet_names
+from finassert._xlsx import SheetError
 from finassert.cli import exit_code
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.loaders import TableSource, input_format_for, load_input
@@ -79,6 +79,10 @@ class Workspace:
 
     def path(self, value: str, *, must_exist: bool = True) -> Path:
         """Resolve ``value`` (absolute, or relative to the first root) inside a root."""
+        # Resolving a network path (\\server\share or //server/share) can make
+        # Windows connect and authenticate to that server, so refuse it first.
+        if value.startswith(("\\\\", "//")) or PureWindowsPath(value).drive.startswith("\\\\"):
+            raise PermissionError(f"{value!r} is a network path; use a folder on this computer")
         candidate = Path(value).expanduser()
         if not candidate.is_absolute():
             candidate = self.roots[0] / candidate
@@ -118,15 +122,15 @@ def inspect_data(workspace: Workspace, path: str, sheet: str | None = None) -> d
     """Return a data file's columns, row count, and first rows."""
     try:
         location = workspace.path(path)
-        if sheet is None and input_format_for(location) == "xlsx":
-            names = sheet_names(location.read_bytes())
-            if len(names) > 1:
-                return {
-                    "ok": False,
-                    "sheets": list(names),
-                    "error": "The workbook has several sheets; pass the one to check as 'sheet'.",
-                }
         data = load_input(location, sheet=sheet)
+    except SheetError as exc:
+        if sheet is None and exc.sheets:
+            return {
+                "ok": False,
+                "sheets": list(exc.sheets),
+                "error": "The workbook has several sheets; pass the one to check as 'sheet'.",
+            }
+        return {"ok": False, "error": str(exc)}
     except (InvalidDataError, OSError) as exc:
         return {"ok": False, "error": _reason(exc)}
     if isinstance(data, TableSource):
@@ -269,17 +273,7 @@ def _write_report(workspace: Workspace, value: str, html: str, overwrite: bool) 
         raise ValueError("the HTML report path must end in .html")
     if target.exists() and not overwrite:
         raise ValueError(f"{target} already exists; pass overwrite=true to replace it")
-    with tempfile.NamedTemporaryFile(
-        "w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
-    ) as handle:
-        temporary = Path(handle.name)
-        handle.write(html)
-    try:
-        os.chmod(temporary, 0o644)
-        os.replace(temporary, target)
-    except BaseException:
-        temporary.unlink(missing_ok=True)
-        raise
+    write_atomic(target, html)
     return target
 
 
@@ -342,7 +336,10 @@ def build_server(workspace: Workspace) -> Any:
     @server.tool(
         title="Run checks on a data file",
         annotations=ToolAnnotations(
-            read_only_hint=False, destructive_hint=False, open_world_hint=False
+            # With overwrite set, an existing HTML report can be replaced.
+            read_only_hint=False,
+            destructive_hint=True,
+            open_world_hint=False,
         ),
     )
     def run_checks(

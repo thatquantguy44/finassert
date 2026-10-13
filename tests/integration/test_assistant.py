@@ -34,13 +34,24 @@ def workspace(tmp_path: Path) -> Workspace:
 
 def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
+        "cash_reconciles",
+        "nav_reconciles",
+        "no_duplicates",
         "non_negative",
+        "required_fields",
         "weights_sum_to_one",
     ]
     templates = list_templates()["templates"]
-    assert templates[0]["name"] == "long-only-holdings"
-    assert templates[0]["yaml"].startswith("# Long-only holdings file")
-    assert templates[0]["document"]["assumptions"]
+    by_name = {template["name"]: template for template in templates}
+    assert sorted(by_name) == [
+        "cash-reconciliation",
+        "long-only-holdings",
+        "multi-portfolio-holdings",
+        "nav-reconciliation",
+        "target-allocation",
+    ]
+    assert by_name["long-only-holdings"]["yaml"].startswith("# Long-only holdings file")
+    assert all(template["document"]["assumptions"] for template in templates)
 
 
 def test_validate_policy_reports_lines_and_suggestions() -> None:
@@ -108,6 +119,13 @@ def test_files_outside_the_roots_are_refused(workspace: Workspace, tmp_path: Pat
     assert "outside the folders" in inspect_data(workspace, "link.csv")["error"]
     escaped = check_data(workspace, "positions.csv", policy_path="../secret.csv")
     assert "outside the folders" in escaped["error"]
+
+
+@pytest.mark.parametrize("path", ["\\\\server\\share\\a.csv", "//server/share/a.csv"])
+def test_network_paths_are_refused_before_resolving(workspace: Workspace, path: str) -> None:
+    result = inspect_data(workspace, path)
+    assert result["ok"] is False
+    assert "is a network path" in result["error"]
 
 
 def test_inspect_csv_and_multi_sheet_workbook(workspace: Workspace) -> None:

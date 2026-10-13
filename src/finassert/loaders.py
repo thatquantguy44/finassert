@@ -18,7 +18,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
-from finassert._xlsx import column_letter, read_sheet
+from finassert._xlsx import SheetError, column_letter, read_sheet
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
 
 INPUT_FORMATS = ("csv", "json", "xlsx", "parquet")
@@ -152,9 +152,10 @@ def parse_xlsx(data: bytes, *, sheet: str | None = None) -> TableSource:
 
     The first non-empty row holds the headers. Numbers keep the exact decimal
     value Excel stored, whatever the cell displays; percentage cells keep their
-    stored fraction (``0.4`` for 40%). Date cells become ``date``/``datetime``
-    and are never read as day counts. Rows with no values are skipped, and row
-    labels are the sheet's own row numbers.
+    stored fraction (``0.4`` for 40%). Date cells become ``date``, ``datetime``,
+    or ``time`` and are never read as day counts. Text cells follow the CSV
+    rules: numeric text becomes a number and blank text is an empty cell. Rows
+    with no values are skipped, and row labels are the sheet's own row numbers.
 
     Args:
         data: The workbook file contents.
@@ -186,7 +187,9 @@ def parse_xlsx(data: bytes, *, sheet: str | None = None) -> TableSource:
                     "has no header"
                 )
         for position, name in headers.items():
-            columns[name].append(cells.get(position))
+            value = cells.get(position)
+            # Numbers stored as text read as numbers, exactly as in a CSV file.
+            columns[name].append(parse_cell(value) if isinstance(value, str) else value)
         labels.append(row_number)
     return TableSource(columns, labels)
 
@@ -261,7 +264,7 @@ def load_input(
             f"unknown input format {resolved!r}; use one of: {', '.join(INPUT_FORMATS)}"
         )
     if sheet is not None and resolved != "xlsx":
-        raise InvalidDataError("a sheet can only be chosen for Excel (.xlsx) input")
+        raise SheetError("a sheet can only be chosen for Excel (.xlsx) input", ())
     if resolved == "xlsx":
         return parse_xlsx(location.read_bytes(), sheet=sheet)
     if resolved == "parquet":

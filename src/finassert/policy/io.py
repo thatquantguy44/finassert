@@ -112,7 +112,10 @@ def dump_policy(policy: Policy) -> str:
             for key, value in entry.items():
                 if key == "rule":
                     continue
-                if isinstance(value, Mapping) and not value:
+                if isinstance(value, list):
+                    # Flow style keeps an empty list readable as a list.
+                    lines.append(f"    {key}: [{', '.join(_scalar(item) for item in value)}]")
+                elif isinstance(value, Mapping) and not value:
                     lines.append(f"    {key}: {{}}")
                 elif isinstance(value, Mapping):
                     lines.append(f"    {key}:")

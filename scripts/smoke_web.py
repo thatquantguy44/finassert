@@ -122,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
         expect(page.locator(".check")).to_have_count(3)
         expect(page.locator("#template-notes")).to_contain_text("Before relying on this template")
 
+        _check_cash_reconciliation(page, Path(scratch), failures)
+        _check_multi_portfolio(page, failures)
+
         page.wait_for_timeout(500)
         browser.close()
 
@@ -175,6 +178,53 @@ def _check_workbook(page: Any, scratch: Path, failures: list[str]) -> None:
     print(f"workbook result: {banner}")
     if banner != EXPECTED_BANNER:
         failures.append(f"unexpected workbook result {banner!r}")
+
+
+def _check_cash_reconciliation(page: Any, scratch: Path, failures: list[str]) -> None:
+    """Start from the cash template on a daily cash file with one break."""
+    from playwright.sync_api import expect
+
+    path = scratch / "cash.csv"
+    path.write_text(
+        "portfolio,date,currency,opening_balance,inflows,outflows,cash_income,closing_balance\n"
+        "A,2026-01-02,USD,100.00,25.00,10.00,0.05,115.05\n"
+        "A,2026-01-02,EUR,50.00,0,5.00,0,45.02\n",
+        encoding="utf-8",
+    )
+    page.set_input_files("#data-file", str(path))
+    expect(page.locator("#data-name")).to_contain_text("2 row(s), 8 column(s)")
+    page.select_option("#template", "cash-reconciliation")
+    expect(page.locator(".check")).to_have_count(1)
+    expect(page.locator("fieldset.columns input:checked")).to_have_count(2)
+    expect(page.locator("fieldset.columns legend").first).to_be_visible()
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"cash result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 0 passed.":
+        failures.append(f"unexpected cash reconciliation result {banner!r}")
+    report = page.frame_locator("#report-frame")
+    expect(report.locator(".card.failed")).to_contain_text("EUR")
+    command = page.locator("#cli-command").text_content() or ""
+    if not command.startswith('finassert check --config policy.yml --input "cash.csv"'):
+        failures.append(f"unexpected command hint {command!r}")
+    expect(page.locator("#cli-note")).to_be_hidden()
+
+
+def _check_multi_portfolio(page: Any, failures: list[str]) -> None:
+    """Run the multi-portfolio template on examples/holdings.csv: one break."""
+    from playwright.sync_api import expect
+
+    page.set_input_files("#data-file", str(EXAMPLES / "holdings.csv"))
+    expect(page.locator("#data-name")).to_contain_text("4 row(s), 5 column(s)")
+    page.select_option("#template", "multi-portfolio-holdings")
+    expect(page.locator(".check")).to_have_count(4)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"holdings result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 3 passed.":
+        failures.append(f"unexpected multi-portfolio result {banner!r}")
+    report = page.frame_locator("#report-frame")
+    expect(report.locator(".card.failed")).to_contain_text("Beta")
 
 
 def _cell(value: str) -> Any:

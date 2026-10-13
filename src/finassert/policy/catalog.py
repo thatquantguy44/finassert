@@ -8,13 +8,24 @@ from enum import StrEnum
 from typing import Any
 
 from finassert.core.models import Severity
-from finassert.rules import NullPolicy, non_negative, weights_sum_to_one
+from finassert.rules import (
+    CashGrain,
+    NullPolicy,
+    OutflowSign,
+    cash_reconciles,
+    nav_reconciles,
+    no_duplicates,
+    non_negative,
+    required_fields,
+    weights_sum_to_one,
+)
 
 
 class ParameterKind(StrEnum):
     """How a policy parameter is written and validated."""
 
     COLUMN = "column"
+    COLUMNS = "columns"
     TOLERANCE = "tolerance"
     CHOICE = "choice"
     INTEGER = "integer"
@@ -184,15 +195,19 @@ def default_catalog() -> RuleCatalog:
             name="weights_sum_to_one",
             rule_id="portfolio.weights_sum_to_one",
             title="Portfolio weights add up to 100%",
-            summary="Checks that the values in a weight column add up to exactly 1.",
+            summary=(
+                "Checks that the values in a weight column add up to exactly 1, for the "
+                "whole file or for each portfolio."
+            ),
             rationale=(
                 "Weights that do not add to 1 mean some holdings are missing, duplicated, "
                 "or mis-scaled, so exposures and performance attribution will be wrong."
             ),
             inappropriate_when=(
                 "Weights are written as percentages (40 rather than 0.4), the file holds "
-                "several portfolios, or the portfolio is deliberately levered or holds "
-                "cash outside the weight column."
+                "several portfolios and you have not chosen a column to check each one by, "
+                "or the portfolio is deliberately levered or holds cash outside the weight "
+                "column."
             ),
             parameters=(
                 ParameterSpec(
@@ -213,6 +228,17 @@ def default_catalog() -> RuleCatalog:
                 ),
                 _NULL_POLICY,
                 _SEVERITY,
+                ParameterSpec(
+                    name="group_by",
+                    kind=ParameterKind.COLUMNS,
+                    label="Check separately for each",
+                    description=(
+                        "Columns that identify each portfolio, such as a portfolio code, so "
+                        "every portfolio must add up to 1. Leave empty if the file holds "
+                        "a single portfolio."
+                    ),
+                ),
+                _MAX_GROUPS,
             ),
             factory=weights_sum_to_one,
         )
@@ -265,4 +291,273 @@ def default_catalog() -> RuleCatalog:
             factory=non_negative,
         )
     )
+    catalog.register(_no_duplicates_spec())
+    catalog.register(_required_fields_spec())
+    catalog.register(_cash_reconciles_spec())
+    catalog.register(_nav_reconciles_spec())
     return catalog
+
+
+_RECONCILE_NULLS = ParameterSpec(
+    name="null_policy",
+    kind=ParameterKind.CHOICE,
+    label="Blank cells",
+    description=(
+        "What to do with blank amounts: 'fail' lists the rows as a failure, and 'skip' "
+        "records the whole check as not run. Blanks are never treated as zero."
+    ),
+    default=NullPolicy.FAIL.value,
+    choices=(NullPolicy.FAIL.value, NullPolicy.SKIP.value),
+)
+
+_GROUP_BY = ParameterSpec(
+    name="group_by",
+    kind=ParameterKind.COLUMNS,
+    label="Reconcile separately for each",
+    description=(
+        "Columns that identify each account or portfolio, such as a portfolio code "
+        "and a date. Leave empty to reconcile the whole file as one."
+    ),
+)
+
+_CURRENCY = ParameterSpec(
+    name="currency",
+    kind=ParameterKind.COLUMN,
+    label="Currency column",
+    description=(
+        "Column holding each row's currency, so each currency reconciles separately. "
+        "Leave empty only if every group is in one currency; amounts are never converted."
+    ),
+)
+
+
+def _amount_column(
+    name: str, label: str, description: str, *, required: bool = True
+) -> ParameterSpec:
+    return ParameterSpec(
+        name=name,
+        kind=ParameterKind.COLUMN,
+        label=label,
+        description=description,
+        required=required,
+    )
+
+
+def _reconcile_tolerance(description: str) -> ParameterSpec:
+    return ParameterSpec(
+        name="tolerance",
+        kind=ParameterKind.TOLERANCE,
+        label="Allowed difference",
+        description=description,
+        default="0",
+    )
+
+
+_MAX_GROUPS = ParameterSpec(
+    name="max_violations",
+    kind=ParameterKind.INTEGER,
+    label="Groups listed",
+    description="Maximum number of failing groups or rows listed in the report.",
+    default=20,
+    minimum=0,
+)
+
+
+def _no_duplicates_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="no_duplicates",
+        rule_id="data.no_duplicates",
+        title="Each item appears only once",
+        summary=("Checks that no value, or combination of values, appears on more than one row."),
+        rationale=(
+            "A position or transaction listed twice double-counts value and exposure, and "
+            "usually means two extracts were combined or a row was pasted twice."
+        ),
+        inappropriate_when=(
+            "A repeated identifier is legitimate: several tax lots of one security, one "
+            "row per trade or per date, or the columns chosen do not identify a row. "
+            "Text is compared exactly, so 'AAPL' and 'aapl ' count as different; numbers "
+            "compare by value, so 1 and 1.0 count as the same."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="columns",
+                kind=ParameterKind.COLUMNS,
+                label="Columns that identify a row",
+                description=(
+                    "Column, or columns taken together, that must be unique, for example "
+                    "portfolio and ticker."
+                ),
+                required=True,
+            ),
+            _NULL_POLICY,
+            _SEVERITY,
+            ParameterSpec(
+                name="max_violations",
+                kind=ParameterKind.INTEGER,
+                label="Repeats listed",
+                description="Maximum number of repeated values listed in the report.",
+                default=20,
+                minimum=0,
+            ),
+        ),
+        factory=no_duplicates,
+    )
+
+
+def _required_fields_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="required_fields",
+        rule_id="data.required_fields",
+        title="Required fields are filled in",
+        summary="Checks that none of the chosen columns has a blank cell.",
+        rationale=(
+            "A missing identifier, price, or quantity usually means an incomplete export, "
+            "and downstream totals may silently skip the row or treat it as zero."
+        ),
+        inappropriate_when=(
+            "A column is legitimately empty on some rows, such as an optional comment, or "
+            "a price on cash lines. A cell of only spaces counts as blank; zero does not."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="columns",
+                kind=ParameterKind.COLUMNS,
+                label="Columns that must be filled in",
+                description="Columns that must have a value on every row.",
+                required=True,
+            ),
+            _SEVERITY,
+            ParameterSpec(
+                name="max_violations",
+                kind=ParameterKind.INTEGER,
+                label="Rows listed per column",
+                description="Maximum number of blank rows listed for each column.",
+                default=20,
+                minimum=0,
+            ),
+        ),
+        factory=required_fields,
+    )
+
+
+def _cash_reconciles_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="cash_reconciles",
+        rule_id="accounting.cash_reconciles",
+        title="Cash balances roll forward",
+        summary=(
+            "Checks that opening cash plus inflows, less outflows, plus any cash P&L, "
+            "equals closing cash for each account."
+        ),
+        rationale=(
+            "A cash balance that does not roll forward means a movement is missing, "
+            "duplicated, or booked with the wrong sign, or a balance is stale."
+        ),
+        inappropriate_when=(
+            "Movements are recorded in a different currency from the balances, the file "
+            "omits some movement types (such as fees or FX), or balances are as of "
+            "different dates than the movements."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="outflow_sign",
+                kind=ParameterKind.CHOICE,
+                label="Outflows are recorded as",
+                description=(
+                    "'positive' if money paid out appears as positive amounts (they are "
+                    "subtracted), 'negative' if it appears as negative amounts (they are "
+                    "added). There is no default: a wrong guess would hide real breaks."
+                ),
+                required=True,
+                choices=tuple(item.value for item in OutflowSign),
+            ),
+            _amount_column(
+                "opening_cash", "Opening balance", "Column with the balance at the start."
+            ),
+            _amount_column("inflows", "Inflows", "Column with cash received."),
+            _amount_column("outflows", "Outflows", "Column with cash paid out."),
+            _amount_column(
+                "closing_cash", "Closing balance", "Column with the balance at the end."
+            ),
+            _amount_column(
+                "cash_pnl",
+                "Cash income or expense",
+                "Optional column with interest, fees, or other cash P&L. Leave empty if none.",
+                required=False,
+            ),
+            _GROUP_BY,
+            _CURRENCY,
+            ParameterSpec(
+                name="grain",
+                kind=ParameterKind.CHOICE,
+                label="Each row is",
+                description=(
+                    "'summary': one row per account holds both balances and the total "
+                    "flows. 'transactions': each row is a movement carrying the balance "
+                    "before and after it, ordered by 'order_by'."
+                ),
+                default=CashGrain.SUMMARY.value,
+                choices=tuple(item.value for item in CashGrain),
+            ),
+            _amount_column(
+                "order_by",
+                "Order transactions by",
+                "Needed for 'transactions': a sequence number or timestamp that is unique "
+                "within each account. A plain date works only if no two movements share "
+                "the first or last date. Dates must be ISO (2026-01-31) or real date cells.",
+                required=False,
+            ),
+            _reconcile_tolerance(
+                "How far closing cash may be from the expected balance, in the "
+                "currency's units, for example 0.01."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=cash_reconciles,
+    )
+
+
+def _nav_reconciles_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="nav_reconciles",
+        rule_id="accounting.nav_reconciles",
+        title="Market values add up to the NAV",
+        summary=(
+            "Checks that the market values of every line in a portfolio add up to its "
+            "reported net asset value (NAV)."
+        ),
+        rationale=(
+            "If holdings do not add up to the NAV, a position is missing or duplicated, a "
+            "price is stale, or the NAV was struck on different data."
+        ),
+        inappropriate_when=(
+            "Liabilities, accruals, or cash are not rows in the file, liabilities are "
+            "stored as positive numbers, or market values are in local currencies while "
+            "the NAV is in the base currency."
+        ),
+        parameters=(
+            _amount_column(
+                "market_value",
+                "Market value column",
+                "Column with each line's signed market value; liabilities and short "
+                "positions are negative.",
+            ),
+            _amount_column(
+                "nav",
+                "NAV column",
+                "Column with the reported NAV, on every row or on some rows of each portfolio.",
+            ),
+            _GROUP_BY,
+            _CURRENCY,
+            _reconcile_tolerance(
+                "How far the total may be from the NAV, in the currency's units, for example 0.01."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=nav_reconciles,
+    )

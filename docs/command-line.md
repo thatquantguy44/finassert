@@ -17,6 +17,9 @@ finassert init --template long-only-holdings --output policy.yml
 |---|---|
 | `long-only-holdings` | Daily holdings of one long-only portfolio, with cash held as a position. |
 | `target-allocation` | A model portfolio or strategic asset allocation, before it is traded. |
+| `multi-portfolio-holdings` | One file of positions for many portfolios, with weights, market values, and NAV. |
+| `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
+| `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
 
 Each template lists the assumptions under which its checks are meaningful,
 and the file opens with comments on what to change, usually the column names
@@ -151,11 +154,13 @@ they are displayed:
   day counts Excel stores them as;
 - formulas are checked by their saved result. A formula with no saved result,
   as some export tools write, is an error: open the file in Excel and save it;
+- text cells follow the CSV rules: numbers stored as text read as numbers, and
+  blank or space-only cells are empty;
 - rows with no values are skipped; a value in a column with no header is an
-  error.
+  error; chart sheets are ignored.
 
-A workbook with several sheets needs `--sheet`, so the wrong tab is never
-checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
+A workbook with several sheets needs `--sheet` (otherwise the command exits
+with code 3 and lists the sheets), so the wrong tab is never checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
 
 Parquet files need `finassert[parquet]` (pyarrow). Values keep their stored
 types: decimal columns become exact decimals, floating-point columns stay
