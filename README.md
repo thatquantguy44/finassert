@@ -118,6 +118,10 @@ policy. The data never leaves the computer. See
 [policies and the command line](docs/command-line.md) and the
 [browser app](docs/browser-app.md).
 
+AI assistants such as Claude can run the same checks through the
+[assistant tool server](docs/assistant.md) (`finassert[assistant]`), which
+reads only the folders you allow.
+
 ## Errors and failures
 
 Evaluation errors (for example, a missing configured column) are a separate
@@ -132,9 +136,10 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text, JSON, and self-contained HTML reports | Assistant tool server |
+| Text, JSON, and self-contained HTML reports | Integration inside Excel |
+| Assistant tool server (MCP) for AI assistants | |
 | Starter policy templates with stated assumptions | |
-| YAML/JSON policies, CLI, and in-browser app | Polars and SQL inputs |
+| YAML/JSON policies, CLI, and in-browser app | More templates as rules are added |
 | CSV, JSON, Excel (.xlsx), and Parquet input files | |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
 
@@ -173,7 +178,7 @@ The next milestones are the adapter and diagnostic contract described in
 [specification 0004](specs/0004-dataframe-adapters.md), catalog rules whose
 financial semantics can be stated without institutional assumptions, and the
 remaining [non-technical interface](specs/0011-non-technical-interfaces.md)
-work: an assistant tool server and more templates as rules are added. The
+work: more templates as rules are added, and integration inside Excel. The
 full sequence appears in the [roadmap](docs/roadmap.md).
 
 ## License

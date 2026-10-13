@@ -62,6 +62,14 @@ of the supported API.
 - `to_html(report, ...)` and `render_artifact_html(artifact)` produce a
   self-contained HTML page that embeds the artifact.
 
+## Assistant tool server
+
+`finassert-assistant --root FOLDER` serves the tools `rules`, `templates`,
+`check_policy`, `inspect`, and `run_checks` over MCP; see
+[Assistant tool server](../assistant.md). The same functions are available as
+`finassert.assistant.list_rules`, `list_templates`, `validate_policy`,
+`inspect_data`, and `check_data`, with `Workspace` restricting file access.
+
 ## Command line
 
 `finassert check` and `finassert rules`; see

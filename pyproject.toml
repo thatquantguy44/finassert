@@ -28,9 +28,11 @@ pandas = ["pandas>=2.1"]
 yaml = ["PyYAML>=6.0"]
 cli = ["PyYAML>=6.0"]
 parquet = ["pyarrow>=15"]
+assistant = ["mcp>=2,<3"]
 
 [project.scripts]
 finassert = "finassert.cli:main"
+finassert-assistant = "finassert.assistant:main"
 
 [dependency-groups]
 dev = [

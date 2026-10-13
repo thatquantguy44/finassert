@@ -36,6 +36,10 @@ and intends to use Semantic Versioning after the public API stabilizes.
   stated assumptions and adaptation notes, written by `finassert init` and
   offered in the browser app; `finassert templates` lists them.
 
+- `finassert-assistant`, a Model Context Protocol server (`assistant` extra)
+  that lets AI assistants list checks, validate policies, inspect files, and
+  run checks, restricted to the folders given with `--root`.
+
 ### Changed
 
 - Missing-column errors list the available columns and suggest the closest one.
