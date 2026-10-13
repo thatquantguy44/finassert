@@ -6,11 +6,12 @@ from collections.abc import Callable, Collection, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from finassert.adapters._column import extract_columns, is_missing
+from finassert.adapters._column import extract_columns
 from finassert.adapters.contracts import ColumnMapping
 from finassert.core.exceptions import GroupAggregationError, InvalidDataError
 from finassert.core.models import Outcome, ValidationResult
 from finassert.numerical import Numeric, is_finite
+from finassert.rules._helpers import is_blank
 from finassert.rules.base import NullPolicy
 from finassert.rules.grouped import aggregate_ordered, order_value
 
@@ -84,15 +85,16 @@ def collect_groups(
     """
     physical = {semantic: mapping.resolve(semantic) for semantic in semantics}
     names = [*physical.values(), *mapping.grouping_columns]
-    if mapping.order_key is not None:
-        names.append(mapping.order_key)
+    use_order = mapping.order_key is not None and mapping.uses_ordered_aggregation
+    if use_order:
+        names.append(mapping.order_key)  # type: ignore[arg-type]
     columns, labels = extract_columns(data, names, row_key=mapping.row_key)
 
     groups: dict[tuple[Any, ...], Group] = {}
     unusable_rows: list[dict[str, Any]] = []
     for position, label in enumerate(labels):
         key = tuple(columns[group_key.column][position] for group_key in mapping.group_keys)
-        if any(is_missing(value) for value in key):
+        if any(is_blank(value) for value in key):
             raise InvalidDataError(f"row {label!r} has a blank value in a grouping column")
 
         missing: list[str] = []
@@ -100,7 +102,7 @@ def collect_groups(
         present: dict[str, Numeric] = {}
         for semantic, column in physical.items():
             value = columns[column][position]
-            if is_missing(value):
+            if is_blank(value):
                 if semantic not in blank_allowed:
                     missing.append(semantic)
             elif not is_finite(value):
@@ -108,9 +110,9 @@ def collect_groups(
             else:
                 present[semantic] = value
         order: tuple[int, Any] = (0, 0)
-        if mapping.order_key is not None:
-            raw = columns[mapping.order_key][position]
-            if is_missing(raw):
+        if use_order:
+            raw = columns[mapping.order_key][position]  # type: ignore[index]
+            if is_blank(raw):
                 missing.append(_ORDER_FIELD)
             else:
                 try:
@@ -228,7 +230,10 @@ def evaluate_groups(
             {**context, "group_count": 0},
         )
     unusable = collected.unusable_rows
-    if collected.has_blanks and rule.null_policy is NullPolicy.SKIP:
+    only_blanks = all("invalid" not in item for item in unusable)
+    if collected.has_blanks and only_blanks and rule.null_policy is NullPolicy.SKIP:
+        # Skipping covers blanks only: a non-numeric value is corrupt data and
+        # must fail even when other rows are blank.
         blank = [item for item in unusable if item.get("blank")]
         return rule._grouped_result(
             Outcome.SKIPPED,

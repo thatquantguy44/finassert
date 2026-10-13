@@ -121,6 +121,7 @@ footer { color: var(--muted); font-size: 0.85rem; margin-top: 32px; }
 .inline-label { margin: 0; }
 select.compact { width: auto; }
 fieldset.columns { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; margin: 0; max-height: 9.5em; overflow-y: auto; }
+fieldset.columns legend { font-weight: 600; font-size: 0.92rem; padding: 0 4px; }
 label.checkbox { display: flex; align-items: center; gap: 6px; font-weight: 400; margin: 2px 0; }
 label.checkbox input { width: auto; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

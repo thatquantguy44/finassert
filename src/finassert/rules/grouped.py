@@ -102,7 +102,10 @@ def aggregate_ordered(
         return aggregate_values(values, aggregation)
     if len(order) != len(values):
         raise GroupAggregationError("ordering keys are not aligned with values")
-    aggregate_values(values, FieldAggregation.SUM)  # validates non-empty, finite values
+    if not values:
+        raise GroupAggregationError("cannot aggregate an empty group field")
+    if any(not is_finite(value) for value in values):
+        raise GroupAggregationError("group field values must be finite numbers")
     if len({kind for kind, _ in order}) > 1:
         raise GroupAggregationError("the ordering column mixes numbers and dates")
     try:
@@ -114,6 +117,7 @@ def aggregate_ordered(
     chosen = [value for value, (_, key) in zip(values, order, strict=True) if key == target]
     if any(value != chosen[0] for value in chosen[1:]):
         raise GroupAggregationError(
-            f"rows tie on the ordering column at {target} with different values"
+            f"rows tie on the ordering column at {target} with different values; "
+            "use a sequence number or timestamp that is unique within each group"
         )
     return chosen[0]

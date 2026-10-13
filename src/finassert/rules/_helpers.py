@@ -6,6 +6,7 @@ import math
 from decimal import Decimal
 from typing import Any
 
+from finassert.adapters._column import is_missing
 from finassert.numerical import Numeric, is_finite
 
 
@@ -40,6 +41,4 @@ def is_blank(value: object) -> bool:
     Text of only spaces counts as blank, as a person looking at a spreadsheet
     would see it. Zero and ``False`` are values, not blanks.
     """
-    from finassert.adapters._column import is_missing
-
     return is_missing(value) or (isinstance(value, str) and not value.strip())

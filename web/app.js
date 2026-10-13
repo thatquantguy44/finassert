@@ -282,7 +282,8 @@
         return element("label", { for: boxId, className: "checkbox" }, [box, " ", column]);
       });
       control = element("fieldset", { className: "columns", id }, [
-        element("legend", { className: "visually-hidden", text: parameter.label }),
+        // The visible label is the group's legend, since a fieldset cannot be a label target.
+        element("legend", { text: parameter.label + (parameter.required ? " (required)" : "") }),
         ...(boxes.length ? boxes : [element("p", { className: "hint", text: "Open a data file to choose columns." })]),
       ]);
     } else if (parameter.kind === "integer") {
@@ -310,8 +311,17 @@
       }
       return element("div", { className: "field" }, children);
     }
+    const heading =
+      parameter.kind === "columns"
+        ? []
+        : [
+            element("label", {
+              for: id,
+              text: parameter.label + (parameter.required ? " (required)" : ""),
+            }),
+          ];
     return element("div", { className: "field" }, [
-      element("label", { for: id, text: parameter.label + (parameter.required ? " (required)" : "") }),
+      ...heading,
       control,
       element("p", { className: "hint", text: parameter.description }),
     ]);
@@ -462,18 +472,27 @@
       ? `✓ Passed: ${counts.passed} passed, ${counts.skipped} skipped.`
       : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
     $("report-frame").srcdoc = outcome.html;
+    const input = cliArgument(state.data.name);
+    const sheet = state.data.sheet ? cliArgument(state.data.sheet) : null;
     $("cli-command").textContent =
-      `finassert check --config policy.yml --input ${shellQuote(state.data.name)}` +
-      (state.data.sheet ? ` --sheet ${shellQuote(state.data.sheet)}` : "") +
+      `finassert check --config policy.yml --input ${input.text}` +
+      (sheet ? ` --sheet ${sheet.text}` : "") +
       " --html report.html";
+    // Names with special characters are quoted for macOS/Linux shells only.
+    $("cli-note").hidden = input.plain && (!sheet || sheet.plain);
     $("results").hidden = false;
     setStatus("Checks finished. The full report is below.");
   }
 
-  function shellQuote(text) {
-    // Single quotes stop a shell from expanding $(...) or backticks in a file
-    // or sheet name chosen by whoever sent the workbook.
-    return "'" + String(text).replace(/'/g, "'\\''") + "'";
+  // Names made only of ordinary characters are safe inside double quotes in
+  // every common shell (bash, PowerShell, cmd), so show them that way.
+  const PLAIN_NAME = /^[^"$`\\%^&|<>!;'\r\n]*$/;
+
+  function cliArgument(text) {
+    const value = String(text);
+    if (PLAIN_NAME.test(value)) return { text: `"${value}"`, plain: true };
+    // Otherwise single-quote for POSIX shells, which stops $(...) and backticks.
+    return { text: "'" + value.replace(/'/g, "'\\''") + "'", plain: false };
   }
 
   function download(text, name, type) {

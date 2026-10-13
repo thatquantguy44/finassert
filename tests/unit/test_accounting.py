@@ -358,3 +358,50 @@ def test_currency_note_follows_an_explicit_mapping() -> None:
     assert only(summary(), rule).metadata["currency"] == (
         "reconciled separately for each value of 'ccy'"
     )
+
+
+def test_ordering_column_is_ignored_unless_first_or_last_is_used() -> None:
+    mapping = ColumnMapping(
+        {"opening_cash": "open", "inflows": "in", "outflows": "out", "closing_cash": "close"},
+        group_keys=(GroupKey("portfolio", "portfolio"),),
+        aggregations={
+            name: FieldAggregation.REQUIRE_UNIQUE
+            for name in ("opening_cash", "inflows", "outflows", "closing_cash")
+        },
+        order_key="when",
+    )
+    rule = fa.cash_reconciles(outflow_sign="positive", mapping=mapping)
+    data = summary(close=[105, 102], when=["not a date", None])
+    assert only(data, rule).passed
+    with pytest.raises(ValueError, match="only used with grain='transactions'"):
+        cash_rule(order_by="when")
+
+
+def test_date_ties_explain_the_fix() -> None:
+    rule = cash_rule(grain="transactions", order_by="when")
+    tied = transactions(when=["2026-01-02", "2026-01-01", "2026-01-02"])
+    detail = only(tied, rule).metadata["failed_groups"][0]["detail"]
+    assert "unique within each group" in detail and "2026-01-02" in detail
+
+
+def test_skip_never_hides_non_numeric_values() -> None:
+    data = summary(**{"in": [None, "abc"]})
+    result = only(data, cash_rule(null_policy="skip"))
+    assert result.outcome is Outcome.FAILED
+    assert result.metadata["unusable_rows"] == [
+        {"row": 0, "blank": ["inflows"]},
+        {"row": 1, "invalid": ["inflows"]},
+    ]
+    assert only(summary(**{"in": [None, 5]}), cash_rule(null_policy="skip")).outcome is (
+        Outcome.SKIPPED
+    )
+
+
+def test_text_blanks_from_json_or_pandas_count_as_blank() -> None:
+    data = holdings(nav=[100, " ", 100, 8])
+    assert only(data, nav_rule()).metadata["failed_group_count"] == 1  # only F2 breaks
+    skipped = only(holdings(mv=[60, " ", -10, 7]), nav_rule(null_policy="skip"))
+    assert skipped.outcome is Outcome.SKIPPED
+    errored = only(holdings(fund=["F1", " ", "F1", "F2"]), nav_rule())
+    assert errored.outcome is Outcome.ERROR
+    assert "blank value in a grouping column" in errored.message

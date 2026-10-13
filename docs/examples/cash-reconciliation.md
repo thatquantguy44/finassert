@@ -35,12 +35,14 @@ rule = fa.cash_reconciles(
   holding both balances and the total flows, and repeated rows must agree.
   With `grain="transactions"`, each row is a movement carrying the balance
   before and after it; the opening balance is then the *first* row's and the
-  closing balance the *last* row's, which needs `order_by`, a date or sequence
-  column.
+  closing balance the *last* row's, which needs `order_by`: a sequence number
+  or timestamp that is unique within each account. A plain date works only if
+  no two movements share the first or last date.
 - **Ordering uses the column, never row order.** `order_by` values must be
   numbers, real dates, or ISO dates (`2026-01-31`); text such as `1/10/2026`
   is rejected because it would sort before `1/9/2026`. Rows that tie on the
-  first or last position with different balances fail rather than picking one.
+  first or last position with different balances fail rather than picking one,
+  and `order_by` cannot be used with `grain="summary"`.
 - **Blanks are never zero**, and currencies are never converted: name the
   `currency` column so each currency reconciles on its own.
 

@@ -14,10 +14,30 @@ from typing import Any
 
 from finassert.adapters._column import extract_columns
 from finassert.core.models import Outcome, Severity, ValidationResult
+from finassert.rules._grouping import _MAX_ROWS_LISTED
 from finassert.rules._helpers import is_blank
 from finassert.rules.base import NullPolicy
 
-_MAX_ROWS_PER_ITEM = 20
+
+def _result(
+    rule: NoDuplicatesRule | RequiredFieldsRule,
+    outcome: Outcome,
+    message: str,
+    metadata: dict[str, Any],
+    *,
+    observed: Any = None,
+    expected: Any = None,
+) -> ValidationResult:
+    return ValidationResult(
+        rule_id=rule.rule_id,
+        rule_name=rule.name,
+        outcome=outcome,
+        severity=rule.severity,
+        message=message,
+        observed=observed,
+        expected=expected,
+        metadata={"columns": list(rule.columns), **metadata},
+    )
 
 
 def _columns(columns: Sequence[str]) -> tuple[str, ...]:
@@ -59,7 +79,7 @@ class NoDuplicatesRule:
         """Find repeated keys without reordering or changing the data."""
         values, labels = extract_columns(data, self.columns)
         if not labels:
-            return self._result(Outcome.SKIPPED, "The file has no rows to check.", {})
+            return _result(self, Outcome.SKIPPED, "The file has no rows to check.", {})
 
         seen: dict[tuple[Any, ...], list[Any]] = {}
         blank_rows: list[Any] = []
@@ -76,7 +96,8 @@ class NoDuplicatesRule:
 
         base = {"columns": list(self.columns), "row_count": len(labels)}
         if blank_rows and self.null_policy is NullPolicy.SKIP:
-            return self._result(
+            return _result(
+                self,
                 Outcome.SKIPPED,
                 f"Skipped because {len(blank_rows)} row(s) have a blank key.",
                 {**base, "blank_rows": blank_rows[: self.max_violations]},
@@ -85,7 +106,7 @@ class NoDuplicatesRule:
             {
                 "key": dict(zip(self.columns, key, strict=True)),
                 "count": len(rows),
-                "rows": rows[:_MAX_ROWS_PER_ITEM],
+                "rows": rows[:_MAX_ROWS_LISTED],
             }
             for key, rows in seen.items()
             if len(rows) > 1
@@ -120,32 +141,13 @@ class NoDuplicatesRule:
             if failed
             else f"All {metadata['checked_count']} row(s) have a unique {what}."
         )
-        return self._result(
+        return _result(
+            self,
             Outcome.FAILED if failed else Outcome.PASSED,
             message,
             metadata,
             observed=len(duplicates),
             expected=0,
-        )
-
-    def _result(
-        self,
-        outcome: Outcome,
-        message: str,
-        metadata: dict[str, Any],
-        *,
-        observed: Any = None,
-        expected: Any = None,
-    ) -> ValidationResult:
-        return ValidationResult(
-            rule_id=self.rule_id,
-            rule_name=self.name,
-            outcome=outcome,
-            severity=self.severity,
-            message=message,
-            observed=observed,
-            expected=expected,
-            metadata={"columns": list(self.columns), **metadata},
         )
 
 
@@ -172,7 +174,7 @@ class RequiredFieldsRule:
         """List each column's blank rows."""
         values, labels = extract_columns(data, self.columns)
         if not labels:
-            return self._result(Outcome.SKIPPED, "The file has no rows to check.", {})
+            return _result(self, Outcome.SKIPPED, "The file has no rows to check.", {})
         blanks: list[dict[str, Any]] = []
         for column in self.columns:
             rows = [
@@ -197,7 +199,8 @@ class RequiredFieldsRule:
             "blank_cells": blanks,
         }
         if not blanks:
-            return self._result(
+            return _result(
+                self,
                 Outcome.PASSED,
                 f"All {len(labels)} row(s) have every required field filled in.",
                 metadata,
@@ -205,32 +208,13 @@ class RequiredFieldsRule:
                 expected=0,
             )
         detail = ", ".join(f"{item['column']} ({item['blank_count']})" for item in blanks)
-        return self._result(
+        return _result(
+            self,
             Outcome.FAILED,
             f"{total} required cell(s) are blank: {detail}.",
             metadata,
             observed=total,
             expected=0,
-        )
-
-    def _result(
-        self,
-        outcome: Outcome,
-        message: str,
-        metadata: dict[str, Any],
-        *,
-        observed: Any = None,
-        expected: Any = None,
-    ) -> ValidationResult:
-        return ValidationResult(
-            rule_id=self.rule_id,
-            rule_name=self.name,
-            outcome=outcome,
-            severity=self.severity,
-            message=message,
-            observed=observed,
-            expected=expected,
-            metadata={"columns": list(self.columns), **metadata},
         )
 
 

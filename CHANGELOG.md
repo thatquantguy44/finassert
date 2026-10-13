@@ -59,6 +59,10 @@ and intends to use Semantic Versioning after the public API stabilizes.
 
 - The private grouped cash-reconciliation prototype is replaced by the public
   `accounting.cash_reconciles` rule.
+- Grouped rules treat spaces-only text as blank, read the ordering column only
+  when first/last balances need it, and never let `null_policy: skip` hide
+  non-numeric values. Date ties in transaction rows now say to use a unique
+  sequence number or timestamp.
 - Excel input treats blank text cells as empty and numeric text as numbers,
   like CSV; sheet selection problems exit with code 3 and suggest `--sheet`.
 - Missing-column errors list the available columns and suggest the closest one.

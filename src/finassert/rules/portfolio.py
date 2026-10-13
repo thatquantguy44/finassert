@@ -42,13 +42,25 @@ class WeightsSumToOneRule:
     name: str = "Portfolio weights sum to one"
     group_by: tuple[str, ...] = ()
     max_violations: int = 20
+    _grouped_mapping: ColumnMapping | None = field(
+        default=None, init=False, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         if self.max_violations < 0:
             raise ValueError("max_violations must be non-negative")
         if self.column in self.group_by:
             raise ValueError("group_by must not include the weight column")
-        self._mapping()  # rejects empty or repeated grouping columns
+        # Built once; this also rejects empty or repeated grouping columns.
+        object.__setattr__(
+            self,
+            "_grouped_mapping",
+            ColumnMapping(
+                {"weight": self.column},
+                group_keys=tuple(GroupKey(column, column) for column in self.group_by),
+                aggregations={"weight": FieldAggregation.SUM},
+            ),
+        )
 
     def evaluate(self, data: Any) -> ValidationResult:
         """Evaluate the invariant without modifying or normalizing weights."""
@@ -102,17 +114,11 @@ class WeightsSumToOneRule:
     @property
     def mapping(self) -> ColumnMapping:
         """Return the grouped column mapping used when ``group_by`` is set."""
-        return self._mapping()
-
-    def _mapping(self) -> ColumnMapping:
-        return ColumnMapping(
-            {"weight": self.column},
-            group_keys=tuple(GroupKey(column, column) for column in self.group_by),
-            aggregations={"weight": FieldAggregation.SUM},
-        )
+        assert self._grouped_mapping is not None
+        return self._grouped_mapping
 
     def _evaluate_groups(self, data: Any) -> ValidationResult:
-        mapping = self._mapping()
+        mapping = self.mapping
 
         def check(group: Group) -> dict[str, Any] | None:
             if not group.values["weight"]:

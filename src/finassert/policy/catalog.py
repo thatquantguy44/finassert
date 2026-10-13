@@ -376,7 +376,8 @@ def _no_duplicates_spec() -> RuleFactorySpec:
         inappropriate_when=(
             "A repeated identifier is legitimate: several tax lots of one security, one "
             "row per trade or per date, or the columns chosen do not identify a row. "
-            "Values are compared exactly, so 'AAPL' and 'aapl ' count as different."
+            "Text is compared exactly, so 'AAPL' and 'aapl ' count as different; numbers "
+            "compare by value, so 1 and 1.0 count as the same."
         ),
         parameters=(
             ParameterSpec(
@@ -502,8 +503,9 @@ def _cash_reconciles_spec() -> RuleFactorySpec:
             _amount_column(
                 "order_by",
                 "Order transactions by",
-                "Date or sequence column; needed for 'transactions'. Dates must be ISO "
-                "(2026-01-31) or real date cells.",
+                "Needed for 'transactions': a sequence number or timestamp that is unique "
+                "within each account. A plain date works only if no two movements share "
+                "the first or last date. Dates must be ISO (2026-01-31) or real date cells.",
                 required=False,
             ),
             _reconcile_tolerance(

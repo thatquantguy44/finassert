@@ -316,7 +316,8 @@ def cash_reconciles(
             only when every group holds a single currency.
         grain: ``"summary"`` for one row per group, or ``"transactions"`` for
             movement rows carrying running balances, which needs ``order_by``.
-        order_by: Date or sequence column ordering transaction rows.
+        order_by: Sequence number or timestamp ordering transaction rows; it must
+            be unique within each group at its first and last rows.
         row_key: Column used to label rows in the report.
         mapping: A complete mapping, instead of the column arguments above.
         tolerance: Allowed difference, in the currency's units.
@@ -340,6 +341,8 @@ def cash_reconciles(
         if cash_pnl is not None:
             columns["cash_pnl"] = cash_pnl
         chosen = CashGrain(grain)
+        if chosen is CashGrain.SUMMARY and order_by is not None:
+            raise ValueError("order_by is only used with grain='transactions'")
         if chosen is CashGrain.TRANSACTIONS:
             if order_by is None:
                 raise ValueError("transaction rows need order_by, a date or sequence column")

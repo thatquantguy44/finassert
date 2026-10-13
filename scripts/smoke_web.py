@@ -196,6 +196,7 @@ def _check_cash_reconciliation(page: Any, scratch: Path, failures: list[str]) ->
     page.select_option("#template", "cash-reconciliation")
     expect(page.locator(".check")).to_have_count(1)
     expect(page.locator("fieldset.columns input:checked")).to_have_count(2)
+    expect(page.locator("fieldset.columns legend").first).to_be_visible()
     page.click("#run")
     banner = page.locator("#result-banner").inner_text()
     print(f"cash result: {banner}")
@@ -203,6 +204,10 @@ def _check_cash_reconciliation(page: Any, scratch: Path, failures: list[str]) ->
         failures.append(f"unexpected cash reconciliation result {banner!r}")
     report = page.frame_locator("#report-frame")
     expect(report.locator(".card.failed")).to_contain_text("EUR")
+    command = page.locator("#cli-command").text_content() or ""
+    if not command.startswith('finassert check --config policy.yml --input "cash.csv"'):
+        failures.append(f"unexpected command hint {command!r}")
+    expect(page.locator("#cli-note")).to_be_hidden()
 
 
 def _check_multi_portfolio(page: Any, failures: list[str]) -> None:
