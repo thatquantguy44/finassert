@@ -57,7 +57,20 @@ Issues = "https://github.com/thatquantguy44/finassert/issues"
 packages = ["src/finassert"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/docs", "/specs", "/examples", "/README.md", "/LICENSE", "/pyproject.toml", "/mkdocs.yml"]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/specs",
+  "/examples",
+  "/scripts",
+  "/web",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/LICENSE",
+  "/pyproject.toml",
+  "/mkdocs.yml",
+]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"

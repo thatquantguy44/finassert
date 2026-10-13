@@ -46,6 +46,8 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src/finassert
       - run: uv build
+      - name: Verify the built distributions install and run
+        run: uv run python scripts/verify_dist.py dist
   web:
     runs-on: ubuntu-latest
     steps:

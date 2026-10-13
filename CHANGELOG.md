@@ -64,6 +64,12 @@ and intends to use Semantic Versioning after the public API stabilizes.
   `return-reconciliation` templates and sample files; policy files accept
   plain-number settings such as limits.
 
+- `scripts/verify_dist.py` installs the built wheel into a fresh environment and
+  runs the sample policy, checks versions and the source distribution's
+  contents, and is run by CI and the release workflow, which also runs
+  `twine check`; the release process is written up in `docs/releasing.md`.
+  Publishing to PyPI remains off until maintainers enable it.
+
 ### Changed
 
 - The private grouped cash-reconciliation prototype is replaced by the public

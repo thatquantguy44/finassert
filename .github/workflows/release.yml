@@ -20,6 +20,18 @@ jobs:
       - run: uv sync --all-extras --dev
       - run: uv run pytest
       - run: uv build
+      - name: Verify the distributions and that the tag matches the version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$REF_TYPE" = "tag" ]; then
+            uv run python scripts/verify_dist.py dist --tag "$REF_NAME"
+          else
+            uv run python scripts/verify_dist.py dist
+          fi
+      - name: Check package metadata renders on PyPI
+        run: uvx twine check --strict dist/*
       - run: uv run python scripts/build_web.py --output dist/finassert-web.html
       - uses: actions/upload-artifact@v4
         with:

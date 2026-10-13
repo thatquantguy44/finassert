@@ -27,6 +27,7 @@ nav:
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md
   - Roadmap: roadmap.md
+  - Releasing: releasing.md
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
