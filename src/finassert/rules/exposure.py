@@ -21,9 +21,10 @@ from finassert.rules._grouping import (
     Wording,
     currency_note,
     evaluate_groups,
+    group_base,
     group_keys_for,
 )
-from finassert.rules._helpers import precise_product, precise_quotient, precise_sum
+from finassert.rules._helpers import absolute, precise_product, precise_quotient, precise_sum
 from finassert.rules.base import NullPolicy
 
 _WITHIN = Wording(
@@ -77,24 +78,8 @@ def _validate_common(rule: ExposureLimitRule | PositionLimitRule) -> None:
     rule.mapping.required_columns("value")
 
 
-def _absolute(value: Numeric) -> Numeric:
-    return -value if value < 0 else value
-
-
 def _scaled(limit: Numeric, base: Numeric | None) -> Numeric:
     return limit if base is None else precise_product([limit, base])
-
-
-def _base(
-    group: Group, mapping: ColumnMapping, uses_base: bool
-) -> tuple[Numeric | None, str | None]:
-    """Return the group's base and a failure reason when it cannot be used."""
-    if not uses_base:
-        return None, None
-    if not group.values["base"]:
-        return None, "no_base"
-    base = group.aggregate("base", mapping)
-    return (base, None) if base > 0 else (base, "base_not_positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,10 +128,10 @@ class ExposureLimitRule:
         def check(group: Group) -> dict[str, Any] | None:
             values = group.values["value"]
             if self.measure is ExposureMeasure.GROSS:
-                total = precise_sum([_absolute(v) for v in values])
+                total = precise_sum([absolute(v) for v in values])
             else:
                 total = precise_sum(values)
-            base, problem = _base(group, self.mapping, self.uses_base)
+            base, problem = group_base(group, self.mapping, self.uses_base)
             if problem is not None:
                 return {"reason": problem, "base": base}
             exposure = total if base is None else precise_quotient(total, base)
@@ -227,7 +212,7 @@ class PositionLimitRule:
         """Check every position."""
 
         def check(group: Group) -> dict[str, Any] | None:
-            base, problem = _base(group, self.mapping, self.uses_base)
+            base, problem = group_base(group, self.mapping, self.uses_base)
             if problem is not None:
                 return {"reason": problem, "base": base}
             limit = _scaled(self.maximum, base)
@@ -235,10 +220,10 @@ class PositionLimitRule:
                 {
                     "row": row,
                     "value": value,
-                    "size": value if base is None else precise_quotient(_absolute(value), base),
+                    "size": value if base is None else precise_quotient(absolute(value), base),
                 }
                 for row, value in zip(group.rows, group.values["value"], strict=True)
-                if _absolute(value) > limit
+                if absolute(value) > limit
             ]
             if not breaches:
                 return None

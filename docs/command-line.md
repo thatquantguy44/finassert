@@ -21,6 +21,7 @@ finassert init --template long-only-holdings --output policy.yml
 | `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
 | `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
 | `position-valuation` | One row per position with quantity, price, and market value. |
+| `position-rollforward` | One row per portfolio and security: opening and closing quantities and trades. |
 | `return-reconciliation` | One row per portfolio and period with beginning and ending values and a return. |
 
 Each template lists the assumptions under which its checks are meaningful,

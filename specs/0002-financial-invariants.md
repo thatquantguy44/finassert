@@ -12,7 +12,11 @@ portfolio with `group_by`. Milestone 3 is implemented (initial):
 the end of the period), and `exposure.gross_within_limit`,
 `exposure.net_within_limit`, and `exposure.position_within_limit`, which
 measure per group against an optional base column such as the NAV. Limits are
-inclusive and supplied by the user: no template encodes one. Collateral and
+inclusive and supplied by the user: no template encodes one. Portfolio-management rules follow:
+`arithmetic.in_range`, `portfolio.weights_match_market_values`,
+`portfolio.drift_within_band` (default severity `warning`),
+`portfolio.turnover_within_limit` (explicit `one_way` or `two_way`), and
+`accounting.position_rolls_forward` (explicit sell sign). Collateral and
 financing rules remain proposed.
 
 ## Problem statement

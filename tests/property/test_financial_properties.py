@@ -170,3 +170,69 @@ def test_position_limit_at_the_largest_position_passes_and_below_fails(
     if largest > 0:
         below = fa.position_within_limit(value="w", maximum=largest - Decimal("0.0001"))
         assert not fa.check(data, [below]).passed
+
+
+_quantity_moves = st.tuples(
+    st.decimals(min_value=0, max_value=10_000, places=4),
+    st.decimals(min_value=0, max_value=10_000, places=4),
+    st.decimals(min_value=0, max_value=10_000, places=4),
+)
+
+
+@given(st.lists(_quantity_moves, min_size=1, max_size=15))
+def test_positions_built_from_the_identity_always_roll_forward(
+    moves: list[tuple[Decimal, Decimal, Decimal]],
+) -> None:
+    data = {
+        "ticker": [f"T{i}" for i in range(len(moves))],
+        "open": [o for o, _, _ in moves],
+        "buys": [b for _, b, _ in moves],
+        "sells": [s for _, _, s in moves],
+        "close": [o + b - s for o, b, s in moves],
+    }
+    positive = fa.position_rolls_forward(
+        sell_sign="positive", opening_quantity="open", buys="buys", sells="sells",
+        closing_quantity="close", group_by=["ticker"],
+    )  # fmt: skip
+    flipped = {**data, "sells": [-s for s in data["sells"]]}
+    negative = fa.position_rolls_forward(
+        sell_sign="negative", opening_quantity="open", buys="buys", sells="sells",
+        closing_quantity="close", group_by=["ticker"],
+    )  # fmt: skip
+
+    assert fa.check(data, [positive]).passed
+    assert fa.check(flipped, [negative]).passed
+
+
+_weights = st.lists(st.decimals(min_value=-1, max_value=1, places=4), min_size=1, max_size=15)
+
+
+@given(_weights, _weights)
+def test_one_way_turnover_is_half_of_two_way_and_limits_are_inclusive(
+    now: list[Decimal], before: list[Decimal]
+) -> None:
+    size = min(len(now), len(before))
+    data = {"w": now[:size], "p": before[:size]}
+    two_way = sum(abs(a - b) for a, b in zip(now[:size], before[:size], strict=True))
+
+    def run(sides: str, limit: Decimal) -> bool:
+        rule = fa.turnover_within_limit(weight="w", previous_weight="p", maximum=limit, sides=sides)
+        return fa.check(data, [rule]).passed
+
+    assert run("two_way", two_way)
+    assert run("one_way", two_way / 2)
+    if two_way > 0:
+        assert not run("two_way", two_way - Decimal("0.0001"))
+
+
+@given(st.lists(st.decimals(min_value=-5, max_value=5, places=4), min_size=1, max_size=20))
+def test_in_range_at_the_observed_extremes_passes_and_just_inside_fails(
+    values: list[Decimal],
+) -> None:
+    data = {"x": values}
+    lowest, highest = min(values), max(values)
+
+    assert fa.check(data, [fa.in_range(column="x", minimum=lowest, maximum=highest)]).passed
+    if highest > lowest:
+        inside = fa.in_range(column="x", minimum=lowest + Decimal("0.0001"), maximum=highest)
+        assert not fa.check(data, [inside]).passed

@@ -1,0 +1,39 @@
+# Example rebalancing checks for examples/rebalance.csv. The limits are illustrative:
+# replace them with the ones in your own mandate.
+#
+# With the sample data: weights stay in range and match their market values;
+# Alpha has drifted from its targets (a warning, so it does not fail the run);
+# Beta traded 20% one way against a 10% limit (an error, so it fails the run).
+version: 1
+name: Rebalancing checks
+description: Weights are consistent, close to target, and traded within budget.
+assumptions:
+  - Each row is one position, and weights are fractions of the portfolio's NAV.
+  - Previous weights are on the same basis and date as the current ones.
+  - Limits are inclusive.
+rules:
+  - rule: in_range
+    column: weight
+    minimum: "0"
+    maximum: "1"
+    row_key: ticker
+  - rule: weights_match_market_values
+    weight: weight
+    market_value: market_value
+    nav: nav
+    group_by: [portfolio]
+    tolerance: "0.0001"
+  - rule: drift_within_band
+    weight: weight
+    target_weight: target_weight
+    band: "0.03"
+    group_by: [portfolio]
+    row_key: ticker
+    # severity defaults to warning for drift
+  - rule: turnover_within_limit
+    weight: weight
+    previous_weight: previous_weight
+    sides: one_way
+    maximum: "0.10"
+    group_by: [portfolio]
+    row_key: ticker

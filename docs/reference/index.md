@@ -26,6 +26,21 @@
   return_unit, net_flows=None, row_key=None, tolerance=0, ...)` checks
   `(ending - beginning - net_flows) / beginning`; `return_unit` is
   `"fraction"` or `"percent"` and has no default.
+- `in_range(*, column, minimum=None, maximum=None, tolerance=0,
+  null_policy="fail", severity="error", max_violations=20, row_key=None)`
+  requires every value to lie between inclusive limits.
+- `weights_match_market_values(*, weight, market_value, nav=None, group_by=(),
+  row_key=None, tolerance=1e-8, ...)` checks `weight = market_value / NAV` (or
+  `/ sum(market_value)` without `nav`) in each portfolio.
+- `drift_within_band(*, weight, target_weight, band=None, total_limit=None,
+  group_by=(), row_key=None, severity="warning", ...)` limits each position's
+  drift from its target and, optionally, the portfolio's total drift.
+- `turnover_within_limit(*, weight, previous_weight, maximum, sides,
+  group_by=(), ...)` limits `sum(abs(weight - previous_weight))`, halved for
+  `sides="one_way"`; `sides` has no default.
+- `position_rolls_forward(*, sell_sign, opening_quantity, buys, sells,
+  closing_quantity, group_by, adjustments=None, tolerance=0, ...)` checks
+  `closing = opening + buys - sells + adjustments`; `sell_sign` has no default.
 - `no_duplicates(*, columns, null_policy="fail", max_violations=20)` checks
   that no value, or combination of values, appears on two rows.
 - `required_fields(*, columns, max_violations=20)` checks that the named

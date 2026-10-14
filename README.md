@@ -132,7 +132,7 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 
 | Available now | Designed and deferred |
 |---|---|
-| Weight (per portfolio), nonnegative, duplicate, required-field, cash, NAV, market-value, return, exposure, and position-limit rules | Collateral and financing rules |
+| Weight (per portfolio), nonnegative, duplicate, required-field, cash, NAV, market-value, return, exposure, position-limit, range, weight-consistency, drift, turnover, and position roll-forward rules | Collateral and financing rules |
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |

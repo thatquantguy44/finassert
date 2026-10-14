@@ -127,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         _check_limits_policy(page, failures)
         _check_suggestions(page, Path(scratch), failures)
         _check_warning_severity(page, Path(scratch), failures)
+        _check_portfolio_pack(page, failures)
 
         page.wait_for_timeout(500)
         browser.close()
@@ -307,6 +308,35 @@ def _check_warning_severity(page: Any, scratch: Path, failures: list[str]) -> No
     if banner != "✓ Passed with 1 warning(s): 1 passed, 0 skipped.":
         failures.append(f"unexpected warning result {banner!r}")
     expect(page.frame_locator("#report-frame").locator(".card.warning")).to_have_count(1)
+
+
+def _check_portfolio_pack(page: Any, failures: list[str]) -> None:
+    """Drift warns (its default severity) while a turnover breach fails; positions roll forward."""
+    from playwright.sync_api import expect
+
+    page.set_input_files("#data-file", str(EXAMPLES / "rebalance.csv"))
+    expect(page.locator("#data-name")).to_contain_text("6 row(s), 7 column(s)")
+    page.set_input_files("#policy-file", str(EXAMPLES / "rebalance-policy.yml"))
+    expect(page.locator(".check")).to_have_count(4)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"rebalance result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed. 1 more only warned.":
+        failures.append(f"unexpected rebalance result {banner!r}")
+    report = page.frame_locator("#report-frame")
+    expect(report.locator(".card.warning")).to_have_count(1)
+    expect(report.locator(".card.failed")).to_contain_text("Beta")
+
+    page.set_input_files("#data-file", str(EXAMPLES / "positions-rollforward.csv"))
+    expect(page.locator("#data-name")).to_contain_text("4 row(s), 6 column(s)")
+    page.select_option("#template", "position-rollforward")
+    expect(page.locator(".check")).to_have_count(3)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"rollforward result: {banner}")
+    if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed.":
+        failures.append(f"unexpected rollforward result {banner!r}")
+    expect(page.frame_locator("#report-frame").locator(".card.failed")).to_contain_text("AAPL")
 
 
 def _cell(value: str) -> Any:

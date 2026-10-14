@@ -25,6 +25,8 @@ nav:
       - NAV reconciliation: examples/nav-reconciliation.md
       - Market values and returns: examples/valuation-and-returns.md
       - Exposure and position limits: examples/exposure-limits.md
+      - Weights, targets, and turnover: examples/rebalancing.md
+      - Position roll-forward: examples/position-rollforward.md
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md
   - Roadmap: roadmap.md

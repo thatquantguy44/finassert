@@ -342,6 +342,62 @@ _TEMPLATES += (
 )
 
 
+_TEMPLATES += (
+    PolicyTemplate(
+        name="position-rollforward",
+        title="Position quantity roll-forward",
+        summary="One row per portfolio and security: opening and closing quantities and trades.",
+        adapt=(
+            "Set each column to the header your file uses.",
+            "Set 'sell_sign' to how your file records quantities sold: 'positive' if sells "
+            "are positive numbers, 'negative' if they are negative.",
+            "Add an 'adjustments' column for splits, transfers, or corporate actions if "
+            "your file has them; without it they show up as breaks.",
+            "Set the 'tolerance' in units of the security if quantities are fractional.",
+        ),
+        document=_freeze(
+            {
+                "version": 1,
+                "name": "Position quantity roll-forward",
+                "description": "Every position's quantity rolls from opening to closing.",
+                "assumptions": [
+                    "Each row is one position of one portfolio over one period, and the "
+                    "buys and sells are the totals for that period.",
+                    "Opening and closing quantities are as of the start and end of the "
+                    "same period as the trades.",
+                    "Splits, transfers, and corporate actions are in the adjustments "
+                    "column, or the file has none.",
+                    "Quantities are in units of the security, not market value.",
+                ],
+                "rules": [
+                    {
+                        "rule": "required_fields",
+                        "columns": [
+                            "portfolio",
+                            "ticker",
+                            "opening_quantity",
+                            "buys",
+                            "sells",
+                            "closing_quantity",
+                        ],
+                    },
+                    {"rule": "no_duplicates", "columns": ["portfolio", "ticker"]},
+                    {
+                        "rule": "position_rolls_forward",
+                        "sell_sign": "positive",
+                        "opening_quantity": "opening_quantity",
+                        "buys": "buys",
+                        "sells": "sells",
+                        "closing_quantity": "closing_quantity",
+                        "group_by": ["portfolio", "ticker"],
+                    },
+                ],
+            }
+        ),
+    ),
+)
+
+
 def policy_templates() -> tuple[PolicyTemplate, ...]:
     """Return the built-in templates, ordered by name."""
     return tuple(sorted(_TEMPLATES, key=lambda template: template.name))

@@ -12,15 +12,20 @@ def test_catalog_lists_built_in_rules() -> None:
     names = [item["name"] for item in json.loads(web.catalog())["rules"]]
     assert names == [
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     ]
 

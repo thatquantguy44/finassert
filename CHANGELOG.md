@@ -77,6 +77,11 @@ and intends to use Semantic Versioning after the public API stabilizes.
   match, listing ambiguous candidates instead of guessing, and writing a policy
   with the matches to confirm at the top.
 
+- Portfolio-management rules: `in_range`, `weights_match_market_values`,
+  `drift_within_band` (warns by default), `turnover_within_limit` (requires
+  `sides`), and `position_rolls_forward` (requires `sell_sign`), in the catalog,
+  CLI, browser app, and assistant, with a `position-rollforward` template,
+  column-matching names, sample files, and docs.
 - Severity now gates the run: a failed check set to `severity: warning` or `info`
   is reported (as a Warning in the HTML report and browser app) but does not
   fail the report or the exit code; `finassert check --fail-on warning|info`

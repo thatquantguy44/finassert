@@ -35,15 +35,20 @@ def workspace(tmp_path: Path) -> Workspace:
 def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     ]
     templates = list_templates()["templates"]
@@ -53,6 +58,7 @@ def test_catalog_and_templates_are_described() -> None:
         "long-only-holdings",
         "multi-portfolio-holdings",
         "nav-reconciliation",
+        "position-rollforward",
         "position-valuation",
         "return-reconciliation",
         "target-allocation",
