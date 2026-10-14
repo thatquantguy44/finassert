@@ -1,6 +1,7 @@
 # Excel integration design
 
-**Status:** proposed (specification 0011, milestone 7). Nothing here is built.
+**Status:** the finassert side is built and tested against a stand-in for Excel (see
+[the add-in](../excel-add-in.md)); the spike below, which needs real Excel, has not been run.
 
 Spreadsheet *files* already work: `finassert check` and the browser app read
 `.xlsx` workbooks. This note covers checking data *inside* Excel, without saving
@@ -50,8 +51,9 @@ How it behaves:
    the pane, with the same column matching and confirmation notes.
 3. **Report** in the pane (the HTML report), and optionally write a **Results
    sheet** with one row per failing check or row. The user's data is never
-   modified unless they choose "mark failing cells", which only adds a fill and
-   a comment.
+   modified. Marking failing cells (a fill or comment) was considered and left out
+   of the first version: changes made by an add-in cannot be undone with Ctrl+Z, so
+   it needs a clear opt-in and a way to restore.
 4. **Export** the policy (YAML) and report, so the same checks run in a pipeline.
 
 ## Numbers, dates, and what Excel hands over

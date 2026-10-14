@@ -48,6 +48,12 @@
 - `custom_rule(rule_id, name, evaluator, ...)`
 - `Tolerance(absolute=0, relative=0)`
 
+## Excel
+
+- `finassert.excel.read_range(payload)` converts cells selected in Excel (values, number
+  formats, value types) into a table, and `results_table(artifact)` shapes a report as
+  rows for a results sheet. See the [Excel add-in](../excel-add-in.md).
+
 ## Adapter contracts
 
 - `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={},

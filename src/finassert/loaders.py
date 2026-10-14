@@ -13,6 +13,7 @@ import csv
 import io
 import json
 import re
+from collections.abc import Sequence
 from decimal import Decimal
 from os import PathLike
 from pathlib import Path
@@ -43,14 +44,21 @@ class TableSource:
     Args:
         columns: Column values keyed by header text, in file order.
         labels: Row label for each position.
+        notes: Plain-language remarks about how the data was read, for display.
     """
 
-    def __init__(self, columns: dict[str, list[Any]], labels: list[Any]) -> None:
+    def __init__(
+        self,
+        columns: dict[str, list[Any]],
+        labels: list[Any],
+        notes: Sequence[str] = (),
+    ) -> None:
         for name, values in columns.items():
             if len(values) != len(labels):
                 raise InvalidDataError(f"column {name!r} does not match the row count")
         self._columns = columns
         self._labels = labels
+        self.notes: tuple[str, ...] = tuple(notes)
 
     @property
     def column_names(self) -> tuple[str, ...]:

@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "src" / "finassert"
 WEB = ROOT / "web"
+OFFICE_JS_URL = "https://appsforoffice.microsoft.com/lib/1/hosted/office.js"
 PYODIDE_VERSION = "0.27.7"
 PYODIDE_URL = f"https://cdn.jsdelivr.net/pyodide/v{PYODIDE_VERSION}/full/"
 # Subresource Integrity hash of pyodide.js for PYODIDE_VERSION. The browser
@@ -62,15 +63,31 @@ def package_version() -> str:
     return match.group(1)
 
 
-def build(pyodide_url: str = PYODIDE_URL) -> str:
-    """Return the complete application HTML."""
+def _hash(script: str) -> str:
+    return (
+        "'sha256-"
+        + base64.b64encode(hashlib.sha256(script.encode("utf-8")).digest()).decode()
+        + "'"
+    )
+
+
+def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
+    """Return the complete application HTML.
+
+    With ``excel`` true the page is the Excel add-in's task pane: it adds a way to
+    read the selected cells and write results to a sheet, and loads Microsoft's
+    Office library, which the content security policy then allows.
+    """
     version = package_version()
     app_js = (WEB / "app.js").read_text(encoding="utf-8").replace("{{PYODIDE_URL}}", pyodide_url)
-    script_hash = base64.b64encode(hashlib.sha256(app_js.encode("utf-8")).digest()).decode()
+    excel_js = (WEB / "excel.js").read_text(encoding="utf-8") if excel else ""
+    sources = [_hash(app_js), "'wasm-unsafe-eval'", pyodide_url]
+    if excel:
+        sources += [_hash(excel_js), "https://appsforoffice.microsoft.com"]
     csp = "; ".join(
         [
             "default-src 'none'",
-            f"script-src 'sha256-{script_hash}' 'wasm-unsafe-eval' {pyodide_url}",
+            "script-src " + " ".join(sources),
             f"connect-src {pyodide_url}",
             "style-src 'unsafe-inline'",
             "img-src data:",
@@ -89,6 +106,13 @@ def build(pyodide_url: str = PYODIDE_URL) -> str:
         "{{WHEEL_NAME}}": f"finassert-{version}.zip",
         "{{WHEEL_B64}}": wheel,
         "{{APP_JS}}": app_js,
+        "{{EXCEL_PANEL}}": (WEB / "excel-panel.html").read_text(encoding="utf-8") if excel else "",
+        "{{EXCEL_RESULTS}}": (
+            (WEB / "excel-results.html").read_text(encoding="utf-8") if excel else ""
+        ),
+        "{{EXCEL_SCRIPTS}}": (
+            f'<script src="{OFFICE_JS_URL}"></script>\n<script>{excel_js}</script>' if excel else ""
+        ),
     }
     html = (WEB / "index.html").read_text(encoding="utf-8")
     for token, value in replacements.items():

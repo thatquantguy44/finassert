@@ -14,6 +14,7 @@ nav:
   - Policies and command line: command-line.md
   - Browser app: browser-app.md
   - Assistant tool server: assistant.md
+  - Excel add-in: excel-add-in.md
   - Integrations: integrations.md
   - Design notes:
       - Grouped validation: design/grouped-validation.md
