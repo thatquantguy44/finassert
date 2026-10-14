@@ -26,7 +26,10 @@ browser tab:
    same loader as the command line. For a workbook with several sheets, the app
    asks which sheet to check. The first rows are previewed so the user can confirm the
    columns.
-2. **Choose the checks**: start from a template, or add checks one by one;
+2. **Choose the checks**: start from a template (once a file is open, the app
+   offers the templates that fit its columns and fills in the matched headers,
+   listing each match to confirm; columns it cannot match are left for you to
+   choose), or add checks one by one;
    each check shows a plain-language summary, a "don't
    use when" caution, and form fields for its settings. Column settings are
    picked from the file's headers. Settings typed into the form are kept as

@@ -40,6 +40,7 @@ In Claude Code: `claude mcp add finassert -- finassert-assistant --root /path/to
 |---|---|
 | `rules` | Lists every check with its settings and when not to use it. |
 | `templates` | Lists the starter policies with their assumptions. |
+| `suggest` | Matches the starter policies to a file's column names, explaining each match, and returns the adapted policy for the user to confirm. |
 | `check_policy` | Validates policy text and lists problems with line numbers. |
 | `inspect` | Shows a file's columns, row count, and first rows; lists a workbook's sheets. |
 | `run_checks` | Runs a policy (text, file, or template) on a file and returns every result. |

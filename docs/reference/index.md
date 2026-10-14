@@ -13,6 +13,19 @@
 - `nav_reconciles(*, market_value, nav, group_by=(), currency=None,
   row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
   that signed market values add up to the reported NAV within each group.
+- `market_value_reconciles(*, quantity, price, market_value, multiplier=None,
+  row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
+  `market_value = quantity * price * multiplier` on every row.
+- `gross_within_limit(*, value, maximum=None, minimum=None, base=None,
+  group_by=(), currency=None, row_key=None, null_policy="fail",
+  max_violations=20)` limits `sum(abs(value)) / base` of each group;
+  `net_within_limit` limits `sum(value) / base` and accepts negative limits.
+- `position_within_limit(*, value, maximum, base=None, group_by=(),
+  currency=None, row_key=None, ...)` limits `abs(value) / base` of every row.
+- `simple_return_reconciles(*, beginning_value, ending_value, reported_return,
+  return_unit, net_flows=None, row_key=None, tolerance=0, ...)` checks
+  `(ending - beginning - net_flows) / beginning`; `return_unit` is
+  `"fraction"` or `"percent"` and has no default.
 - `no_duplicates(*, columns, null_policy="fail", max_violations=20)` checks
   that no value, or combination of values, appears on two rows.
 - `required_fields(*, columns, max_violations=20)` checks that the named
@@ -47,6 +60,11 @@
 - `Policy` exposes `rules`, `entries`, `name`, `description`, `assumptions`,
   `digest`, `check(data)`, `to_document()`, and `describe()`.
 - `dump_policy(policy) -> str` writes YAML that reloads to an identical policy.
+- `suggest_templates(columns, *, minimum_fraction=0.5) -> tuple[TemplateFit, ...]`
+  and `fit_template(template, columns)` match a template's expected columns to a
+  file's headers; `TemplateFit.matches` lists each `ColumnMatch` (with `how` it
+  matched) and `TemplateFit.adapted()` returns the template with the file's
+  column names filled in and the matches to confirm added to its notes.
 - `PolicyError.issues` holds `PolicyIssue` values with `location`, `line`,
   `message`, and `suggestion`.
 - `RuleCatalog`, `RuleFactorySpec`, `ParameterSpec`, and `default_catalog()`

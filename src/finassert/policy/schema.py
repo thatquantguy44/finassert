@@ -133,7 +133,7 @@ def parse_policy(
 
     Args:
         document: Parsed policy, such as the result of reading YAML or JSON.
-            Quoted numeric text in tolerances becomes ``Decimal``.
+            Quoted numeric text in tolerances and numbers becomes ``Decimal``.
         catalog: Allowlisted factories; defaults to :func:`default_catalog`.
         lines: Optional source line for each document path, used in issues.
 
@@ -338,6 +338,14 @@ def _parameter_value(
             issues.add(path, f"'{parameter.name}' must be at least {parameter.minimum}.")
             return _INVALID
         return value
+    if parameter.kind is ParameterKind.NUMBER:
+        return _number(
+            value,
+            path,
+            issues,
+            subject=f"'{parameter.name}'",
+            allow_negative=parameter.allow_negative,
+        )
     return _tolerance_value(parameter, value, path, issues)
 
 
@@ -357,7 +365,7 @@ def _tolerance_value(
                     suggestion=closest(key, _TOLERANCE_KEYS),
                 )
                 continue
-            number = _tolerance_number(item, (*path, key), issues)
+            number = _number(item, (*path, key), issues)
             if number is not _INVALID:
                 result[key] = number
         if not parameter.allow_relative and result.get("relative", 0) != 0:
@@ -367,10 +375,18 @@ def _tolerance_value(
             )
             return _INVALID
         return result
-    return _tolerance_number(value, path, issues)
+    return _number(value, path, issues)
 
 
-def _tolerance_number(value: Any, path: PolicyPath, issues: _Issues) -> Any:
+def _number(
+    value: Any,
+    path: PolicyPath,
+    issues: _Issues,
+    *,
+    subject: str = "A tolerance",
+    allow_negative: bool = False,
+) -> Any:
+    """Read a plain number: quoted decimal text stays exact, bare numbers keep their type."""
     number: Any
     if isinstance(value, str):
         text = value.strip()
@@ -389,13 +405,14 @@ def _tolerance_number(value: Any, path: PolicyPath, issues: _Issues) -> Any:
     elif type(value) in (int, float):
         number = value
         if isinstance(value, float) and not math.isfinite(value):
-            issues.add(path, "A tolerance must be a finite number.")
+            issues.add(path, f"{subject} must be a finite number.")
             return _INVALID
     else:
-        issues.add(path, 'A tolerance must be a number, such as "0.0001".')
+        example = '"1.25"' if allow_negative else '"0.0001"'
+        issues.add(path, f"{subject} must be a number, such as {example}.")
         return _INVALID
-    if number < 0:
-        issues.add(path, "A tolerance cannot be negative.")
+    if number < 0 and not allow_negative:
+        issues.add(path, f"{subject} cannot be negative.")
         return _INVALID
     return number
 

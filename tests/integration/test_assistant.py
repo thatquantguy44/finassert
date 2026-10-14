@@ -35,10 +35,15 @@ def workspace(tmp_path: Path) -> Workspace:
 def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
         "cash_reconciles",
+        "gross_within_limit",
+        "market_value_reconciles",
         "nav_reconciles",
+        "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_within_limit",
         "required_fields",
+        "simple_return_reconciles",
         "weights_sum_to_one",
     ]
     templates = list_templates()["templates"]
@@ -48,6 +53,8 @@ def test_catalog_and_templates_are_described() -> None:
         "long-only-holdings",
         "multi-portfolio-holdings",
         "nav-reconciliation",
+        "position-valuation",
+        "return-reconciliation",
         "target-allocation",
     ]
     assert by_name["long-only-holdings"]["yaml"].startswith("# Long-only holdings file")
@@ -211,7 +218,25 @@ def test_server_speaks_mcp_over_stdio(workspace: Workspace) -> None:
     initialized, names, result = anyio.run(session)
     assert initialized.server_info.name == "finassert"
     assert "never a pass" in initialized.instructions
-    assert names == ["rules", "templates", "check_policy", "inspect", "run_checks"]
+    assert names == ["rules", "templates", "suggest", "check_policy", "inspect", "run_checks"]
     assert result.is_error is False
     payload = result.structured_content or json.loads(result.content[0].text)
     assert payload["status"] == "failed"
+
+
+def test_suggest_policy_matches_a_files_columns(workspace: Workspace, tmp_path: Path) -> None:
+    from finassert.assistant import suggest_policy
+
+    folder = tmp_path / "data"
+    (folder / "odd.csv").write_text(
+        "Fund,Security,Wt,MV (Base),NAV\nA,X,0.5,10,20\n", encoding="utf-8"
+    )
+
+    result = suggest_policy(workspace, "odd.csv")
+
+    assert result["ok"] is True
+    best = result["suggestions"][0]
+    assert best["name"] == "multi-portfolio-holdings"
+    assert "Confirm the columns finassert matched" in best["yaml"]
+    assert suggest_policy(workspace, "odd.csv", template="nope")["ok"] is False
+    assert suggest_policy(workspace, "missing.csv")["ok"] is False

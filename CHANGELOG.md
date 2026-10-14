@@ -55,6 +55,28 @@ and intends to use Semantic Versioning after the public API stabilizes.
   reconciliation, NAV reconciliation, and multi-portfolio holdings; a test keeps
   each sample showing exactly its documented break.
 
+- Valuation, return, and exposure rules: `market_value_reconciles` (quantity
+  times price times an optional multiplier), `simple_return_reconciles` (with a
+  required return unit), `gross_within_limit` and `net_within_limit` (per
+  portfolio, optionally as a fraction of a base such as the NAV), and
+  `position_within_limit` (largest single position). They are in the catalog,
+  CLI, browser app, and assistant server, with `position-valuation` and
+  `return-reconciliation` templates and sample files; policy files accept
+  plain-number settings such as limits.
+
+- `scripts/verify_dist.py` installs the built wheel into a fresh environment and
+  runs the sample policy, checks versions and the source distribution's
+  contents, and is run by CI and the release workflow, which also runs
+  `twine check`; the release process is written up in `docs/releasing.md`.
+  Publishing to PyPI remains off until maintainers enable it.
+
+- Column matching: `finassert suggest` (and `suggest_templates`, the browser app,
+  and the assistant's `suggest` tool) ranks the starter policies by how well
+  their columns match a file's headers and proposes which header plays which
+  part (`Mkt Val` for market value, `Shares` for quantity), explaining every
+  match, listing ambiguous candidates instead of guessing, and writing a policy
+  with the matches to confirm at the top.
+
 ### Changed
 
 - The private grouped cash-reconciliation prototype is replaced by the public

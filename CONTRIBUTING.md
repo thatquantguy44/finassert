@@ -18,7 +18,10 @@ uv run ruff format --check .
 uv run mypy src/finassert
 uv run mkdocs build --strict
 uv build
+uv run python scripts/verify_dist.py dist
 ```
+
+Maintainers: see [releasing](docs/releasing.md).
 
 Public APIs require type annotations and Google-style docstrings. Tests should
 cover boundaries, nulls, empty data, non-finite values, and Decimal behavior as

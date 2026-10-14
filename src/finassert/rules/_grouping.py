@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from finassert.adapters._column import extract_columns
-from finassert.adapters.contracts import ColumnMapping
+from finassert.adapters.contracts import ColumnMapping, GroupKey
 from finassert.core.exceptions import GroupAggregationError, InvalidDataError
 from finassert.core.models import Outcome, ValidationResult
 from finassert.numerical import Numeric, is_finite
@@ -296,3 +296,25 @@ def evaluate_groups(
         observed=len(failed),
         expected=0,
     )
+
+
+def currency_note(
+    mapping: ColumnMapping, currency_key: str | None, verb: str = "reconciled"
+) -> str:
+    """Say how currencies were handled, for the result's metadata."""
+    column = currency_key or next(
+        (key.column for key in mapping.group_keys if key.name == "currency"), None
+    )
+    if column is not None:
+        return f"{verb} separately for each value of {column!r}"
+    return "not grouped by currency: assumes all amounts in a group share one currency"
+
+
+def group_keys_for(group_by: Sequence[str], currency: str | None) -> tuple[GroupKey, ...]:
+    """Build ordered group keys from grouping columns plus an optional currency column."""
+    if isinstance(group_by, str):
+        raise TypeError("group_by must be a list of column names")
+    keys = [GroupKey(column, column) for column in group_by]
+    if currency is not None:
+        keys.append(GroupKey("currency", currency))
+    return tuple(keys)

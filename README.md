@@ -132,13 +132,13 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 
 | Available now | Designed and deferred |
 |---|---|
-| Weight (per portfolio), nonnegative, duplicate, required-field, cash, and NAV rules | Returns, collateral, exposure rules |
+| Weight (per portfolio), nonnegative, duplicate, required-field, cash, NAV, market-value, return, exposure, and position-limit rules | Collateral and financing rules |
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
 | Text, JSON, and self-contained HTML reports | Integration inside Excel |
 | Assistant tool server (MCP) for AI assistants | |
-| Starter policy templates with stated assumptions | |
+| Starter policy templates with stated assumptions, matched to your file's column names | |
 | YAML/JSON policies, CLI, and in-browser app | More templates as rules are added |
 | CSV, JSON, Excel (.xlsx), and Parquet input files | |
 | Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |

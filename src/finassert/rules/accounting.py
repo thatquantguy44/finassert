@@ -13,10 +13,16 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, ClassVar
 
-from finassert.adapters.contracts import ColumnMapping, FieldAggregation, GroupKey
+from finassert.adapters.contracts import ColumnMapping, FieldAggregation
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance
-from finassert.rules._grouping import Group, Wording, evaluate_groups
+from finassert.rules._grouping import (
+    Group,
+    Wording,
+    currency_note,
+    evaluate_groups,
+    group_keys_for,
+)
 from finassert.rules._helpers import precise_sum
 from finassert.rules.base import NullPolicy
 
@@ -50,15 +56,6 @@ class CashGrain(StrEnum):
 
 def _difference(observed: Numeric, expected: Numeric) -> Numeric:
     return precise_sum([observed, -expected])
-
-
-def _currency_note(mapping: ColumnMapping, currency_key: str | None) -> str:
-    column = currency_key or next(
-        (key.column for key in mapping.group_keys if key.name == "currency"), None
-    )
-    if column is not None:
-        return f"reconciled separately for each value of {column!r}"
-    return "not grouped by currency: assumes all amounts in a group share one currency"
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,7 +147,7 @@ class CashReconciliationRule:
                     for semantic in self.semantics
                 },
                 "order_by": self.mapping.order_key,
-                "currency": _currency_note(self.mapping, self.currency_key),
+                "currency": currency_note(self.mapping, self.currency_key),
             },
         )
 
@@ -221,7 +218,7 @@ class NavReconciliationRule:
             wording=_RECONCILE,
             description={
                 "equation": self.equation,
-                "currency": _currency_note(self.mapping, self.currency_key),
+                "currency": currency_note(self.mapping, self.currency_key),
             },
         )
 
@@ -267,15 +264,6 @@ def _result(
         tolerance=rule.tolerance.to_dict(),
         metadata=metadata,
     )
-
-
-def _group_keys(group_by: Sequence[str], currency: str | None) -> tuple[GroupKey, ...]:
-    if isinstance(group_by, str):
-        raise TypeError("group_by must be a list of column names")
-    keys = [GroupKey(column, column) for column in group_by]
-    if currency is not None:
-        keys.append(GroupKey("currency", currency))
-    return tuple(keys)
 
 
 def cash_reconciles(
@@ -363,7 +351,7 @@ def cash_reconciles(
         }
         mapping = ColumnMapping(
             columns,
-            group_keys=_group_keys(group_by, currency),
+            group_keys=group_keys_for(group_by, currency),
             row_key=row_key,
             aggregations=aggregations,
             order_key=order_by,
@@ -420,7 +408,7 @@ def nav_reconciles(
     """
     mapping = ColumnMapping(
         {"market_value": market_value, "nav": nav},
-        group_keys=_group_keys(group_by, currency),
+        group_keys=group_keys_for(group_by, currency),
         row_key=row_key,
         aggregations={
             "market_value": FieldAggregation.SUM,

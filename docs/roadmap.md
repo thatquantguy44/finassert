@@ -3,9 +3,10 @@
 1. Harden dataframe adapters and diagnostic row identity under specification
    0004 (grouped rules, the ordering column, and per-portfolio weights are in
    place), and add grouped variants of the remaining rules.
-2. Add returns and exposure rules, then collateral and financing rules
-   (specification 0002, milestones 3–4). Cash and NAV reconciliation are
-   available now.
+2. Add collateral and financing rules (specification 0002, milestone 4), and
+   exposure rules that need classification data or notional. Cash and NAV
+   reconciliation, market values, simple returns, and gross, net, and position
+   limits are available now.
 3. Add policy templates as rules are added, and integration inside Excel
    (specification 0011).
 4. Introduce typed financial units and explicit FX provenance.

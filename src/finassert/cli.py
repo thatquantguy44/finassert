@@ -25,7 +25,7 @@ from finassert._version import __version__
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.core.models import ValidationReport
-from finassert.loaders import INPUT_FORMATS, input_format_for, load_input
+from finassert.loaders import INPUT_FORMATS, column_names, input_format_for, load_input
 from finassert.policy import (
     POLICY_FORMATS,
     default_catalog,
@@ -34,6 +34,7 @@ from finassert.policy import (
     policy_templates,
 )
 from finassert.policy.issues import closest
+from finassert.policy.suggest import TemplateFit, fit_template, suggest_templates
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
 
 EXIT_PASSED = 0
@@ -67,6 +68,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _templates(stream=sys.stdout)
         if arguments.command == "init":
             return _init(arguments)
+        if arguments.command == "suggest":
+            return _suggest(arguments)
         return _check(arguments)
     except KeyboardInterrupt:
         print("finassert: interrupted; no report was written.", file=sys.stderr)
@@ -134,6 +137,25 @@ def _parser() -> argparse.ArgumentParser:
         "--output", default="policy.yml", metavar="FILE", help="where to write it (policy.yml)"
     )
     init.add_argument("--force", action="store_true", help="replace an existing file")
+
+    suggest = commands.add_parser(
+        "suggest",
+        help="find the template that fits a data file and match its columns",
+        description=(
+            "Read a data file's column names, rank the starter policies by how well their "
+            "columns match, and optionally write the best fit with your column names filled "
+            "in. The matches are proposals for you to confirm: nothing is applied silently."
+        ),
+    )
+    suggest.add_argument("--input", required=True, metavar="FILE", help="data file to read")
+    suggest.add_argument("--format", choices=INPUT_FORMATS, help="input format")
+    suggest.add_argument("--sheet", metavar="NAME", help="worksheet in an Excel workbook")
+    suggest.add_argument("--template", metavar="NAME", help="match this template only")
+    suggest.add_argument(
+        "--output", metavar="FILE", help="write the best-fitting policy here, columns filled in"
+    )
+    suggest.add_argument("--force", action="store_true", help="replace an existing file")
+    suggest.add_argument("--json", action="store_true", help="print the suggestions as JSON")
     return parser
 
 
@@ -259,6 +281,77 @@ def _init(arguments: argparse.Namespace) -> int:
         print(f"  - {line}")
     print("  - Check the assumptions listed in the file hold for your data.")
     return EXIT_PASSED
+
+
+def _suggest(arguments: argparse.Namespace) -> int:
+    path = Path(arguments.output) if arguments.output else None
+    if path is not None and path.exists() and not arguments.force:
+        return _fail(
+            EXIT_USAGE, f"{arguments.output!r} already exists; pass --force to replace it."
+        )
+    try:
+        data = load_input(arguments.input, format=arguments.format, sheet=arguments.sheet)
+    except SheetError as exc:
+        hint = "; pass one with --sheet NAME" if arguments.sheet is None and exc.sheets else ""
+        return _fail(EXIT_USAGE, f"{arguments.input!r}: {exc}{hint}.")
+    except InvalidDataError as exc:
+        return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {exc}")
+    except OSError as exc:
+        return _fail(EXIT_IO, f"cannot read input {arguments.input!r}: {_reason(exc)}")
+    columns = column_names(data)
+
+    fits: tuple[TemplateFit, ...]
+    if arguments.template:
+        try:
+            fits = (fit_template(get_template(arguments.template), columns),)
+        except KeyError:
+            names = [template.name for template in policy_templates()]
+            near = closest(arguments.template, names)
+            suggestion = f" Did you mean {near!r}?" if near else ""
+            return _fail(
+                EXIT_USAGE,
+                f"unknown template {arguments.template!r}; available: "
+                f"{', '.join(names)}.{suggestion}",
+            )
+    else:
+        fits = suggest_templates(columns)
+
+    if arguments.json:
+        print(json.dumps({"columns": columns, "suggestions": [fit.to_dict() for fit in fits]}))
+    else:
+        _print_suggestions(arguments.input, columns, fits)
+    if path is None:
+        return EXIT_PASSED
+    if not fits:
+        return _fail(EXIT_USAGE, "no template fits this file, so nothing was written.")
+    best = fits[0]
+    try:
+        write_atomic(path, best.adapted().to_yaml())
+    except OSError as exc:
+        return _fail(EXIT_IO, f"cannot write {arguments.output!r}: {_reason(exc)}")
+    print(f"\nWrote {arguments.output} from the '{best.template.name}' template.")
+    print("Before relying on it:")
+    for line in best.adapted().adapt:
+        print(f"  - {line}")
+    print("  - Check the assumptions listed in the file hold for your data.")
+    return EXIT_PASSED
+
+
+def _print_suggestions(name: str, columns: list[str], fits: tuple[TemplateFit, ...]) -> None:
+    print(f"{name}: {len(columns)} column(s): {', '.join(columns)}")
+    if not fits:
+        print("\nNo starter policy fits these columns. See 'finassert templates', or write")
+        print("a policy yourself with 'finassert rules' as a guide.")
+        return
+    for position, fit in enumerate(fits, start=1):
+        print(f"\n{position}. {fit.template.name}: {fit.template.title}")
+        print(
+            f"   {len(fit.matched)} of {len(fit.matches)} columns matched. {fit.template.summary}"
+        )
+        for match in fit.matches:
+            print(f"   - {match.sentence}")
+    print("\nThese are proposals: confirm each match before relying on it.")
+    print("Write the best fit with: finassert suggest --input FILE --output policy.yml")
 
 
 def _generated_at() -> datetime:

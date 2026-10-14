@@ -12,11 +12,17 @@ from finassert.rules import (
     CashGrain,
     NullPolicy,
     OutflowSign,
+    ReturnUnit,
     cash_reconciles,
+    gross_within_limit,
+    market_value_reconciles,
     nav_reconciles,
+    net_within_limit,
     no_duplicates,
     non_negative,
+    position_within_limit,
     required_fields,
+    simple_return_reconciles,
     weights_sum_to_one,
 )
 
@@ -29,6 +35,7 @@ class ParameterKind(StrEnum):
     TOLERANCE = "tolerance"
     CHOICE = "choice"
     INTEGER = "integer"
+    NUMBER = "number"
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,6 +53,7 @@ class ParameterSpec:
         minimum: Inclusive lower bound for ``ParameterKind.INTEGER``.
         allow_relative: Whether a ``ParameterKind.TOLERANCE`` may set a nonzero
             relative bound. Rules that ignore the relative part must reject it.
+        allow_negative: Whether a ``ParameterKind.NUMBER`` may be below zero.
     """
 
     name: str
@@ -57,6 +65,7 @@ class ParameterSpec:
     choices: tuple[str, ...] = ()
     minimum: int | None = None
     allow_relative: bool = True
+    allow_negative: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible description."""
@@ -70,6 +79,7 @@ class ParameterSpec:
             "choices": list(self.choices),
             "minimum": self.minimum,
             "allow_relative": self.allow_relative,
+            "allow_negative": self.allow_negative,
         }
 
 
@@ -295,6 +305,11 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_required_fields_spec())
     catalog.register(_cash_reconciles_spec())
     catalog.register(_nav_reconciles_spec())
+    catalog.register(_market_value_reconciles_spec())
+    catalog.register(_exposure_spec("gross"))
+    catalog.register(_exposure_spec("net"))
+    catalog.register(_position_within_limit_spec())
+    catalog.register(_simple_return_reconciles_spec())
     return catalog
 
 
@@ -560,4 +575,239 @@ def _nav_reconciles_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=nav_reconciles,
+    )
+
+
+_ROW_KEY = ParameterSpec(
+    name="row_key",
+    kind=ParameterKind.COLUMN,
+    label="Name rows by",
+    description=(
+        "Optional column, such as a ticker, used to name rows in the report. "
+        "Without it rows are named by their position in the file."
+    ),
+)
+
+
+def _market_value_reconciles_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="market_value_reconciles",
+        rule_id="accounting.market_value_reconciles",
+        title="Market value equals quantity times price",
+        summary=(
+            "Checks, on every row, that the reported market value equals quantity times "
+            "price (times a contract multiplier, if there is one)."
+        ),
+        rationale=(
+            "A market value that disagrees with its own quantity and price means a stale "
+            "price, a wrong multiplier, a sign error, or a hand-edited cell."
+        ),
+        inappropriate_when=(
+            "Prices are quoted per 100 of par (bonds) or as a percentage, the price and the "
+            "market value are in different currencies, or the market value includes accrued "
+            "interest that the price does not."
+        ),
+        parameters=(
+            _amount_column(
+                "quantity", "Quantity column", "Column with units held; shorts are negative."
+            ),
+            _amount_column("price", "Price column", "Column with the price of one unit."),
+            _amount_column("market_value", "Market value column", "Column with the market value."),
+            _amount_column(
+                "multiplier",
+                "Multiplier column",
+                "Optional column with a contract multiplier. Leave empty if there is none.",
+                required=False,
+            ),
+            _ROW_KEY,
+            _reconcile_tolerance(
+                "How far the market value may be from quantity times price, in its own units, "
+                "for example 0.01. A relative allowance also covers prices rounded before "
+                "multiplying."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=market_value_reconciles,
+    )
+
+
+def _limit(name: str, label: str, description: str, *, negative: bool) -> ParameterSpec:
+    return ParameterSpec(
+        name=name,
+        kind=ParameterKind.NUMBER,
+        label=label,
+        description=description,
+        allow_negative=negative,
+    )
+
+
+_BASE = ParameterSpec(
+    name="base",
+    kind=ParameterKind.COLUMN,
+    label="Base column (for example NAV)",
+    description=(
+        "Optional column with the amount exposure is measured against, such as the "
+        "portfolio's NAV, on every row or some rows of each portfolio. Leave empty if the "
+        "value column already holds weights."
+    ),
+)
+
+
+def _exposure_spec(measure: str) -> RuleFactorySpec:
+    gross = measure == "gross"
+    return RuleFactorySpec(
+        name=f"{measure}_within_limit",
+        rule_id=f"exposure.{measure}_within_limit",
+        title="Gross exposure is within its limit" if gross else "Net exposure is within its limit",
+        summary=(
+            "Checks that the total of the absolute values (longs plus shorts) of each "
+            "portfolio, as a fraction of its base, is within the limits you set."
+            if gross
+            else "Checks that the total of the signed values (shorts offset longs) of each "
+            "portfolio, as a fraction of its base, is within the limits you set."
+        ),
+        rationale=(
+            "Gross exposure measures leverage; a breach means the book is bigger than its "
+            "mandate allows, or a position was entered at the wrong size."
+            if gross
+            else "Net exposure measures directional market risk; a breach means the book is "
+            "more long or short than its mandate allows."
+        ),
+        inappropriate_when=(
+            "The file holds several portfolios and you have not chosen a column to check "
+            "each one by, values are in several currencies without a currency column, "
+            "derivatives are listed at market value rather than notional while the limit is "
+            "on notional, or the base is not in the same currency as the values."
+        ),
+        parameters=(
+            _amount_column(
+                "value",
+                "Value column",
+                "Column with each position's signed weight or market value; shorts are negative.",
+            ),
+            _BASE,
+            _limit(
+                "maximum",
+                "Highest allowed",
+                "Largest allowed exposure as a fraction (1.3 means 130%). Inclusive.",
+                negative=not gross,
+            ),
+            _limit(
+                "minimum",
+                "Lowest allowed",
+                "Smallest allowed exposure as a fraction. Inclusive. Set a highest, a "
+                "lowest, or both.",
+                negative=not gross,
+            ),
+            _GROUP_BY,
+            _CURRENCY,
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=gross_within_limit if gross else net_within_limit,
+    )
+
+
+def _position_within_limit_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="position_within_limit",
+        rule_id="exposure.position_within_limit",
+        title="No single position is too large",
+        summary=(
+            "Checks that no position, long or short, is larger than the limit you set, as a "
+            "fraction of its portfolio's base."
+        ),
+        rationale=(
+            "Concentration in one name is a classic mandate breach, and often the symptom of "
+            "a mis-sized order or a duplicated line."
+        ),
+        inappropriate_when=(
+            "The limit applies to a whole issuer or sector rather than to single lines (use "
+            "a gross exposure check grouped by that column instead), or the same security "
+            "appears on several rows."
+        ),
+        parameters=(
+            _amount_column(
+                "value",
+                "Value column",
+                "Column with each position's signed weight or market value.",
+            ),
+            _BASE,
+            ParameterSpec(
+                name="maximum",
+                kind=ParameterKind.NUMBER,
+                label="Largest allowed position",
+                description="Largest allowed position as a fraction (0.1 means 10%). Inclusive.",
+                required=True,
+            ),
+            _GROUP_BY,
+            _CURRENCY,
+            _ROW_KEY,
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=position_within_limit,
+    )
+
+
+def _simple_return_reconciles_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="simple_return_reconciles",
+        rule_id="returns.simple_return_reconciles",
+        title="Reported returns follow from the values",
+        summary=(
+            "Checks, on every row, that the reported return equals (ending value - "
+            "beginning value - net flows) divided by the beginning value."
+        ),
+        rationale=(
+            "A return that does not follow from its own start and end values usually means "
+            "a different denominator, stale values, or flows that were handled twice."
+        ),
+        inappropriate_when=(
+            "Money moves in or out during the period and the file reports a time-weighted or "
+            "Modified Dietz return, returns are compounded over several periods, or returns "
+            "are reported net of fees that the values do not reflect."
+        ),
+        parameters=(
+            _amount_column(
+                "beginning_value", "Beginning value column", "Value at the start of the period."
+            ),
+            _amount_column(
+                "ending_value", "Ending value column", "Value at the end of the period."
+            ),
+            _amount_column(
+                "reported_return", "Reported return column", "The return the file reports."
+            ),
+            ParameterSpec(
+                name="return_unit",
+                kind=ParameterKind.CHOICE,
+                label="Returns are written as",
+                description=(
+                    "'fraction' if 0.05 means 5%, 'percent' if 5 means 5%. There is no "
+                    "default: a wrong guess is off by a factor of 100."
+                ),
+                required=True,
+                choices=tuple(item.value for item in ReturnUnit),
+            ),
+            _amount_column(
+                "net_flows",
+                "Net flows column",
+                "Optional column with money added (positive) or withdrawn (negative) "
+                "during the period. Leave empty if none.",
+                required=False,
+            ),
+            _ROW_KEY,
+            _reconcile_tolerance(
+                "How far the reported return may be from the computed one, in the return's "
+                "own unit, for example 0.0001 for a fraction."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=simple_return_reconciles,
     )

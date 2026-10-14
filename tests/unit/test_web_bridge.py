@@ -12,10 +12,15 @@ def test_catalog_lists_built_in_rules() -> None:
     names = [item["name"] for item in json.loads(web.catalog())["rules"]]
     assert names == [
         "cash_reconciles",
+        "gross_within_limit",
+        "market_value_reconciles",
         "nav_reconciles",
+        "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_within_limit",
         "required_fields",
+        "simple_return_reconciles",
         "weights_sum_to_one",
     ]
 
@@ -201,3 +206,36 @@ def test_templates_are_offered_in_editable_form() -> None:
         web.run("weight,market_value\n0.5,1\n0.5,1\n", "d.csv", json.dumps(holdings["policy"]))
     )
     assert result["passed"] is True
+
+
+@pytest.mark.parametrize("limit", ["1.3", '"1.30"', "2", '"-0.5"'])
+def test_unedited_limits_run_with_the_cli_fingerprint(limit: str) -> None:
+    text = (
+        f"version: 1\nrules:\n  - rule: net_within_limit\n    value: weight\n    maximum: {limit}\n"
+    )
+    cli_policy = parse_policy_text(text, format="yaml")
+    editable = json.loads(web.read_policy(text, "policy.yml"))["policy"]
+    result = json.loads(web.run("weight\n1\n", "d.csv", json.dumps(editable)))
+    artifact = json.loads(result["artifact_json"])
+    assert artifact["policy"]["digest"] == cli_policy.digest
+    exported = parse_policy_text(result["policy_yaml"], format="yaml")
+    assert exported.to_document() == cli_policy.to_document()
+
+
+def test_suggest_ranks_templates_and_returns_editable_adapted_policies() -> None:
+    columns = json.dumps(["Fund", "Security", "Wt", "MV (Base)", "NAV"])
+
+    result = json.loads(web.suggest(columns))
+
+    assert result["ok"] is True
+    best = result["suggestions"][0]
+    assert best["name"] == "multi-portfolio-holdings"
+    assert (best["matched"], best["expected"]) == (5, 5)
+    assert best["policy"]["rules"][2]["group_by"] == ["Fund"]
+    assert "document" not in best
+    assert any("Confirm the columns" in line for line in best["adapt"])
+
+    chosen = json.loads(web.suggest(columns, "long-only-holdings"))["suggestions"]
+    assert [item["name"] for item in chosen] == ["long-only-holdings"]
+    assert json.loads(web.suggest("[]", "no-such"))["ok"] is False
+    assert json.loads(web.suggest(json.dumps(["Name"])))["suggestions"] == []

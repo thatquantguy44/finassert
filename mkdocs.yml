@@ -22,9 +22,12 @@ nav:
       - Multi-portfolio holdings: examples/multi-portfolio-holdings.md
       - Cash reconciliation: examples/cash-reconciliation.md
       - NAV reconciliation: examples/nav-reconciliation.md
+      - Market values and returns: examples/valuation-and-returns.md
+      - Exposure and position limits: examples/exposure-limits.md
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md
   - Roadmap: roadmap.md
+  - Releasing: releasing.md
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
