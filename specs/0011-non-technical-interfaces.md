@@ -6,7 +6,9 @@ application, starter policy templates, and the assistant tool server
 (`finassert-assistant`, shipped as the `assistant` extra rather than a separate
 distribution). Spreadsheet *files* are also supported: Excel `.xlsx` is read
 without a dependency in both the CLI and the browser. Integration inside Excel
-itself (milestone 7) remains proposed. Column matching (`finassert suggest`, the
+itself (milestone 7) remains proposed; the market survey, options, and a
+recommended Office-add-in design with a spike plan are in
+`docs/design/excel-integration.md`. Column matching (`finassert suggest`, the
 browser app, and the assistant) proposes which header plays which template
 column; it explains each match and never applies one silently.
 
@@ -105,7 +107,8 @@ report. Reports omit full records beyond capped diagnostics.
 1. Catalog metadata for existing rules and `default_catalog()`. 2. Human policy
 diagnostics in the 0007 loader. 3. Self-contained HTML renderer and CLI flag.
 4. Pyodide browser application with policy export. 5. Starter policy templates.
-6. Assistant tool server. 7. Spreadsheet integration after PyPI publication.
+6. Assistant tool server. 7. Spreadsheet integration. The recommended design bundles the engine inside the
+add-in, so it does not depend on PyPI publication.
 
 ## Acceptance criteria
 
