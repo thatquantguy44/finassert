@@ -232,15 +232,20 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
     catalog = json.loads(capsys.readouterr().out)
     assert [rule["name"] for rule in catalog["rules"]] == [
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     ]
 
@@ -443,3 +448,72 @@ def test_suggest_reports_unreadable_input(workspace: Path) -> None:
     result = run("suggest", "--input", "missing.csv", cwd=workspace)
 
     assert result.returncode == cli.EXIT_IO
+
+
+WARN_POLICY = """\
+version: 1
+rules:
+  - rule: weights_sum_to_one
+    column: weight
+    tolerance: "0.0001"
+  - rule: non_negative
+    column: market_value
+    severity: warning
+"""
+NEGATIVE = "ticker,weight,market_value\nAAA,0.40,100\nBBB,0.60,-250\n"
+
+
+def test_warning_severity_failures_do_not_fail_the_run(workspace: Path) -> None:
+    (workspace / "warn.yml").write_text(WARN_POLICY, encoding="utf-8")
+    (workspace / "neg.csv").write_text(NEGATIVE, encoding="utf-8")
+
+    result = run("check", "--config", "warn.yml", "--input", "neg.csv", cwd=workspace)
+
+    assert result.returncode == cli.EXIT_PASSED
+    assert "finassert PASS (1 warning)" in result.stdout
+    assert "[warning] arithmetic.non_negative" in result.stdout
+
+
+def test_fail_on_makes_warnings_fail_the_run(workspace: Path) -> None:
+    (workspace / "warn.yml").write_text(WARN_POLICY, encoding="utf-8")
+    (workspace / "neg.csv").write_text(NEGATIVE, encoding="utf-8")
+
+    strict = run(
+        "check", "--config", "warn.yml", "--input", "neg.csv", "--fail-on", "warning", cwd=workspace
+    )
+    lenient = run(
+        "check", "--config", "warn.yml", "--input", "neg.csv", "--fail-on", "error", cwd=workspace
+    )
+
+    assert strict.returncode == cli.EXIT_FAILED
+    assert "Failing because --fail-on warning counts these warnings as failures." in strict.stdout
+    assert lenient.returncode == cli.EXIT_PASSED
+    bad = run(
+        "check", "--config", "warn.yml", "--input", "neg.csv", "--fail-on", "fatal", cwd=workspace
+    )
+    assert bad.returncode == cli.EXIT_USAGE
+
+
+def test_a_warning_level_check_that_cannot_run_still_exits_2(workspace: Path) -> None:
+    policy = WARN_POLICY.replace("column: market_value", "column: no_such_column")
+    (workspace / "warn.yml").write_text(policy, encoding="utf-8")
+    (workspace / "neg.csv").write_text(NEGATIVE, encoding="utf-8")
+
+    result = run("check", "--config", "warn.yml", "--input", "neg.csv", cwd=workspace)
+
+    assert result.returncode == cli.EXIT_ERROR
+
+
+def test_the_json_report_and_html_record_warnings(workspace: Path) -> None:
+    (workspace / "warn.yml").write_text(WARN_POLICY, encoding="utf-8")
+    (workspace / "neg.csv").write_text(NEGATIVE, encoding="utf-8")
+
+    result = run(
+        "check", "--config", "warn.yml", "--input", "neg.csv",
+        "--output", "r.json", "--html", "r.html", cwd=workspace,
+    )  # fmt: skip
+
+    report = json.loads((workspace / "r.json").read_text(encoding="utf-8"))["report"]
+    assert result.returncode == cli.EXIT_PASSED
+    assert report["passed"] is True and report["warnings"] == 1
+    assert "Passed with warnings" in (workspace / "r.html").read_text(encoding="utf-8")

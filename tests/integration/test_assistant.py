@@ -35,15 +35,20 @@ def workspace(tmp_path: Path) -> Workspace:
 def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     ]
     templates = list_templates()["templates"]
@@ -53,6 +58,7 @@ def test_catalog_and_templates_are_described() -> None:
         "long-only-holdings",
         "multi-portfolio-holdings",
         "nav-reconciliation",
+        "position-rollforward",
         "position-valuation",
         "return-reconciliation",
         "target-allocation",
@@ -240,3 +246,19 @@ def test_suggest_policy_matches_a_files_columns(workspace: Workspace, tmp_path: 
     assert "Confirm the columns finassert matched" in best["yaml"]
     assert suggest_policy(workspace, "odd.csv", template="nope")["ok"] is False
     assert suggest_policy(workspace, "missing.csv")["ok"] is False
+
+
+def test_warning_severity_failures_are_reported_as_warnings(
+    workspace: Workspace, tmp_path: Path
+) -> None:
+    policy = (
+        "version: 1\nrules:\n  - rule: non_negative\n"
+        "    column: Mkt Val (USD)\n    severity: warning\n"
+    )
+
+    result = check_data(workspace, "positions.csv", policy_text=policy)
+
+    assert result["status"] == "passed" and result["exit_code"] == 0
+    assert result["warnings"] == 1
+    assert result["results"][0]["outcome"] == "failed"
+    assert result["results"][0]["blocking"] is False

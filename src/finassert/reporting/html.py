@@ -31,6 +31,11 @@ _OUTCOME_TEXT = {
         "column or a value that could not be read.",
     ),
     "skipped": ("Skipped", "○", "The check was not evaluated, as its settings allow."),
+    "warning": (
+        "Warning",
+        "⚠",
+        "The data broke this check, which is set to warn: it does not fail the report.",
+    ),
 }
 
 _STYLE = """
@@ -39,14 +44,14 @@ _STYLE = """
   --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #5d5d58;
   --border: #dcdcd6; --pass: #1f7a3d; --pass-bg: #e6f4ea; --fail: #b3261e;
   --fail-bg: #fce8e6; --error: #8a4b00; --error-bg: #fff1dc; --skip: #4d5562;
-  --skip-bg: #eceef1; --code: #f0f0ec;
+  --skip-bg: #eceef1; --code: #f0f0ec; --warn: #7a5b00; --warn-bg: #fff6d6;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #141413; --surface: #1e1e1c; --text: #ececea; --muted: #a8a8a2;
     --border: #3a3a36; --pass: #7dd69b; --pass-bg: #173322; --fail: #f2a29b;
     --fail-bg: #3d1a17; --error: #f5c27a; --error-bg: #3a2a12; --skip: #c3c8d0;
-    --skip-bg: #2a2d32; --code: #2a2a27;
+    --skip-bg: #2a2d32; --code: #2a2a27; --warn: #f0d58a; --warn-bg: #3a3112;
   }
 }
 * { box-sizing: border-box; }
@@ -72,6 +77,7 @@ code {
 .banner strong { display: block; font-size: 1.2rem; }
 .banner.passed { background: var(--pass-bg); color: var(--pass); }
 .banner.failed { background: var(--fail-bg); color: var(--fail); }
+.banner.warning { background: var(--warn-bg); color: var(--warn); }
 .banner p { color: var(--text); margin: 2px 0 0; }
 .counts { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; }
 .counts li { list-style: none; }
@@ -83,6 +89,7 @@ code {
 .pill.failed { background: var(--fail-bg); color: var(--fail); }
 .pill.error { background: var(--error-bg); color: var(--error); }
 .pill.skipped { background: var(--skip-bg); color: var(--skip); }
+.pill.warning { background: var(--warn-bg); color: var(--warn); }
 .card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
   padding: 16px 20px; margin: 12px 0;
@@ -90,6 +97,7 @@ code {
 .card.failed { border-left: 5px solid var(--fail); }
 .card.error { border-left: 5px solid var(--error); }
 .card.skipped { border-left: 5px solid var(--skip); }
+.card.warning { border-left: 5px solid var(--warn); }
 .card.passed { border-left: 5px solid var(--pass); }
 .card header { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .meta { color: var(--muted); font-size: 0.9rem; }
@@ -206,8 +214,15 @@ def _banner(report: Mapping[str, Any]) -> str:
     counts = report["counts_by_outcome"]
     total = sum(counts.values())
     passed = bool(report["passed"])
+    warnings = int(report.get("warnings", 0))
     if total == 0:
         headline, detail = "Passed", "No checks were run, so nothing was found wrong."
+    elif passed and warnings:
+        headline = "Passed with warnings"
+        detail = (
+            f"{warnings} check(s) broke a rule set to warn, which does not fail the report; "
+            f"the other {total - warnings} passed or were skipped."
+        )
     elif passed:
         headline = "Passed"
         detail = (
@@ -217,18 +232,24 @@ def _banner(report: Mapping[str, Any]) -> str:
         )
     else:
         headline = "Failed"
+        blocking = int(report.get("blocking_failures", counts["failed"] + counts["error"]))
         problems = []
-        if counts["failed"]:
-            problems.append(f"{counts['failed']} check(s) failed")
         if counts["error"]:
             problems.append(f"{counts['error']} could not run")
+        failed_blocking = blocking - counts["error"]
+        if failed_blocking > 0:
+            problems.insert(0, f"{failed_blocking} check(s) failed")
         detail = " and ".join(problems) + f" out of {total}."
-    state = "passed" if passed else "failed"
-    icon = "✓" if passed else "✗"
+        if warnings:
+            detail += f" {warnings} more only warned."
+    state = "failed" if not passed else ("warning" if warnings else "passed")
+    icon = "✗" if not passed else ("⚠" if warnings else "✓")
+    shown = {**counts, "failed": counts["failed"] - warnings, "warning": warnings}
     items = "".join(
         f'<li><span class="pill {outcome}">{_text(_OUTCOME_TEXT[outcome][0])}: '
-        f"{counts[outcome]}</span></li>"
-        for outcome in ("passed", "failed", "error", "skipped")
+        f"{shown[outcome]}</span></li>"
+        for outcome in ("passed", "failed", "warning", "error", "skipped")
+        if outcome != "warning" or warnings
     )
     return (
         f'<section class="banner {state}" role="status" aria-live="polite">'
@@ -292,6 +313,8 @@ def _rule_descriptions(
 
 def _result_card(index: int, result: Mapping[str, Any], description: Mapping[str, Any]) -> str:
     outcome = result["outcome"]
+    if outcome == "failed" and result.get("blocking") is False:
+        outcome = "warning"
     label, icon, _ = _OUTCOME_TEXT.get(outcome, (outcome, "?", ""))
     title = description.get("title") or result["rule_name"]
     summary = description.get("summary")

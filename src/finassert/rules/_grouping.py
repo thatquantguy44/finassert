@@ -318,3 +318,20 @@ def group_keys_for(group_by: Sequence[str], currency: str | None) -> tuple[Group
     if currency is not None:
         keys.append(GroupKey("currency", currency))
     return tuple(keys)
+
+
+def group_base(
+    group: Group, mapping: ColumnMapping, uses_base: bool, field: str = "base"
+) -> tuple[Numeric | None, str | None]:
+    """Return a group's base amount, or a failure reason when it cannot be used.
+
+    The base is the group's ``field`` (``base`` by default, such as its NAV), which
+    must be given, agree across rows, and be positive. Without a base column there is no
+    base and no failure.
+    """
+    if not uses_base:
+        return None, None
+    if not group.values[field]:
+        return None, "no_base"
+    base = group.aggregate(field, mapping)
+    return (base, None) if base > 0 else (base, "base_not_positive")

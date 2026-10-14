@@ -110,6 +110,26 @@ _CONCEPTS: dict[str, str] = {
         "ending value|end value|closing value|emv|ending market value|"
         "closing market value|ending mv|end mv|value end"
     ),
+    "previous_weight": (
+        "previous weight|prior weight|prev weight|last weight|old weight|opening weight|"
+        "beginning weight|previous wt|prior wt|weight prior|weight previous"
+    ),
+    "opening_quantity": (
+        "opening quantity|opening qty|open qty|open quantity|beginning quantity|"
+        "beginning qty|start quantity|start qty|opening shares|opening position|"
+        "opening units|quantity start|prior quantity"
+    ),
+    "buys": (
+        "buys|purchases|bought|buy quantity|buy qty|quantity bought|total buys|"
+        "shares bought|units bought"
+    ),
+    "sells": (
+        "sells|sales|sold|sell quantity|sell qty|quantity sold|total sells|shares sold|units sold"
+    ),
+    "closing_quantity": (
+        "closing quantity|closing qty|close qty|close quantity|ending quantity|ending qty|"
+        "end quantity|end qty|closing shares|closing position|closing units|quantity end"
+    ),
     "return": (
         "return|ret|total return|reported return|period return|twr|return pct|"
         "rate of return|ror|gross return|net return|performance"

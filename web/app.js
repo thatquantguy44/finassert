@@ -507,10 +507,13 @@
     state.result = outcome;
     const counts = outcome.counts;
     const banner = $("result-banner");
-    banner.className = "result-banner " + (outcome.passed ? "passed" : "failed");
+    const warned = outcome.warnings || 0;
+    const failedBlocking = counts.failed - warned;
+    banner.className = "result-banner " + (outcome.passed ? (warned ? "warning" : "passed") : "failed");
     banner.textContent = outcome.passed
-      ? `✓ Passed: ${counts.passed} passed, ${counts.skipped} skipped.`
-      : `✗ Failed: ${counts.failed} failed, ${counts.error} could not run, ${counts.passed} passed.`;
+      ? `✓ Passed${warned ? ` with ${warned} warning(s)` : ""}: ${counts.passed} passed, ${counts.skipped} skipped.`
+      : `✗ Failed: ${failedBlocking} failed, ${counts.error} could not run, ${counts.passed} passed.` +
+        (warned ? ` ${warned} more only warned.` : "");
     $("report-frame").srcdoc = outcome.html;
     const input = cliArgument(state.data.name);
     const sheet = state.data.sheet ? cliArgument(state.data.sheet) : null;

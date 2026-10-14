@@ -8,7 +8,7 @@
    reconciliation, market values, simple returns, and gross, net, and position
    limits are available now.
 3. Add policy templates as rules are added, and integration inside Excel
-   (specification 0011).
+   (specification 0011; see the [design](design/excel-integration.md)).
 4. Introduce typed financial units and explicit FX provenance.
 5. Benchmark batch execution before selecting vectorization or concurrency work.
 

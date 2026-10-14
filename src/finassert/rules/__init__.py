@@ -8,7 +8,16 @@ from finassert.rules.accounting import (
     cash_reconciles,
     nav_reconciles,
 )
-from finassert.rules.arithmetic import NonNegativeRule, non_negative
+from finassert.rules.alignment import (
+    DriftWithinBandRule,
+    TurnoverSides,
+    TurnoverWithinLimitRule,
+    WeightsMatchMarketValuesRule,
+    drift_within_band,
+    turnover_within_limit,
+    weights_match_market_values,
+)
+from finassert.rules.arithmetic import InRangeRule, NonNegativeRule, in_range, non_negative
 from finassert.rules.base import NullPolicy
 from finassert.rules.custom import FunctionRule, custom_rule
 from finassert.rules.exposure import (
@@ -27,15 +36,18 @@ from finassert.rules.integrity import (
     required_fields,
 )
 from finassert.rules.portfolio import WeightsSumToOneRule, weights_sum_to_one
+from finassert.rules.positions import PositionRollForwardRule, SellSign, position_rolls_forward
 from finassert.rules.returns import ReturnUnit, SimpleReturnReconcilesRule, simple_return_reconciles
 from finassert.rules.valuation import MarketValueReconcilesRule, market_value_reconciles
 
 __all__ = [
     "CashGrain",
     "CashReconciliationRule",
+    "DriftWithinBandRule",
     "ExposureLimitRule",
     "ExposureMeasure",
     "FunctionRule",
+    "InRangeRule",
     "MarketValueReconcilesRule",
     "NavReconciliationRule",
     "NoDuplicatesRule",
@@ -43,21 +55,31 @@ __all__ = [
     "NullPolicy",
     "OutflowSign",
     "PositionLimitRule",
+    "PositionRollForwardRule",
     "RequiredFieldsRule",
     "ReturnUnit",
+    "SellSign",
     "SimpleReturnReconcilesRule",
+    "TurnoverSides",
+    "TurnoverWithinLimitRule",
+    "WeightsMatchMarketValuesRule",
     "WeightsSumToOneRule",
     "aggregate_values",
     "cash_reconciles",
     "custom_rule",
+    "drift_within_band",
     "gross_within_limit",
+    "in_range",
     "market_value_reconciles",
     "nav_reconciles",
     "net_within_limit",
     "no_duplicates",
     "non_negative",
+    "position_rolls_forward",
     "position_within_limit",
     "required_fields",
     "simple_return_reconciles",
+    "turnover_within_limit",
+    "weights_match_market_values",
     "weights_sum_to_one",
 ]

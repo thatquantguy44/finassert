@@ -12,15 +12,20 @@ def test_catalog_lists_built_in_rules() -> None:
     names = [item["name"] for item in json.loads(web.catalog())["rules"]]
     assert names == [
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     ]
 
@@ -239,3 +244,18 @@ def test_suggest_ranks_templates_and_returns_editable_adapted_policies() -> None
     assert [item["name"] for item in chosen] == ["long-only-holdings"]
     assert json.loads(web.suggest("[]", "no-such"))["ok"] is False
     assert json.loads(web.suggest(json.dumps(["Name"])))["suggestions"] == []
+
+
+def test_run_reports_warnings_without_failing_the_run() -> None:
+    document = {
+        "version": 1,
+        "rules": [
+            {"rule": "non_negative", "column": "weight", "severity": "warning"},
+        ],
+    }
+
+    result = json.loads(web.run("weight\n0.5\n-0.1\n", "d.csv", json.dumps(document)))
+
+    assert result["passed"] is True and result["warnings"] == 1
+    assert result["counts"]["failed"] == 1
+    assert "Passed with warnings" in result["html"]

@@ -21,6 +21,7 @@ finassert init --template long-only-holdings --output policy.yml
 | `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
 | `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
 | `position-valuation` | One row per position with quantity, price, and market value. |
+| `position-rollforward` | One row per portfolio and security: opening and closing quantities and trades. |
 | `return-reconciliation` | One row per portfolio and period with beginning and ending values and a return. |
 
 Each template lists the assumptions under which its checks are meaningful,
@@ -160,11 +161,37 @@ leaves any previous file untouched, and an interrupted run writes nothing.
 
 | Code | Meaning |
 |---|---|
-| `0` | Every check passed or was skipped. |
-| `1` | At least one check failed. |
+| `0` | Every check passed or was skipped, or failed only at `warning` or `info` severity (see below). |
+| `1` | At least one check failed at `error` severity, or at or above the `--fail-on` severity. |
 | `2` | At least one check could not run, for example a missing column. Wins over `1`. |
 | `3` | The command line or policy is invalid, or the policy cannot be read. |
 | `4` | The input cannot be read or parsed, or a report cannot be written. |
+
+### Warnings and severity
+
+Every check has a `severity`, set per check in the policy:
+
+```yaml
+  - rule: position_within_limit
+    value: market_value
+    maximum: "0.1"
+    severity: warning      # error (the default), warning, or info
+```
+
+- `error` (the default): if the check fails, the run fails (exit code `1`).
+- `warning` and `info`: the failure is still reported, in full and in the
+  report as a **Warning**, but the run does not fail. The summary says
+  `PASS (2 warnings)`, the HTML report says "Passed with warnings", and the JSON
+  report counts them (`warnings`, `blocking_failures`) and marks each result
+  `blocking: true` or `false`.
+- A check that **could not run** (a missing column, unreadable values) always
+  fails the run, whatever its severity: it is never a pass.
+
+A pipeline that wants warnings to stop it can say so without editing the policy:
+`finassert check ... --fail-on warning` fails the run (exit code `1`) for any
+failure of `warning` severity or above, and `--fail-on info` for any failure at
+all. The reports are unchanged: `--fail-on` only affects the exit code. In the
+browser app, choose "If this check fails" on each check.
 
 ### Reading data files
 

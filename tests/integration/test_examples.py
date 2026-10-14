@@ -98,3 +98,41 @@ def test_limits_example_breaks_only_betas_jnj_position() -> None:
     (failure,) = report.results[2].metadata["failed_groups"]
     assert failure["group"] == {"portfolio": "Beta"}
     assert [item["row"] for item in failure["breaches"]] == ["JNJ"]
+
+
+def test_rollforward_example_breaks_only_betas_aapl() -> None:
+    report = (
+        get_template("position-rollforward")
+        .policy()
+        .check(load_input(EXAMPLES / "positions-rollforward.csv"))
+    )
+    assert outcomes(report) == {
+        "data.required_fields": "passed",
+        "data.no_duplicates": "passed",
+        "accounting.position_rolls_forward": "failed",
+    }
+    (failure,) = report.results[2].metadata["failed_groups"]
+    assert failure["group"] == {"portfolio": "Beta", "ticker": "AAPL"}
+    assert (failure["observed"], failure["expected"], failure["difference"]) == (310, 300, 10)
+
+
+def test_rebalance_example_warns_on_alpha_drift_and_fails_on_betas_turnover() -> None:
+    report = load_policy(EXAMPLES / "rebalance-policy.yml").check(
+        load_input(EXAMPLES / "rebalance.csv")
+    )
+    assert outcomes(report) == {
+        "arithmetic.in_range": "passed",
+        "portfolio.weights_match_market_values": "passed",
+        "portfolio.drift_within_band": "failed",
+        "portfolio.turnover_within_limit": "failed",
+    }
+    drift, turnover = report.results[2], report.results[3]
+    assert drift.severity.value == "warning" and not drift.blocking
+    assert turnover.severity.value == "error" and turnover.blocking
+    assert report.passed is False and len(report.warnings) == 1
+    (alpha,) = drift.metadata["failed_groups"]
+    assert alpha["group"] == {"portfolio": "Alpha"}
+    assert [item["row"] for item in alpha["breaches"]] == ["AAPL", "MSFT"]
+    (beta,) = turnover.metadata["failed_groups"]
+    assert beta["group"] == {"portfolio": "Beta"}
+    assert beta["observed"] == Decimal("0.20")

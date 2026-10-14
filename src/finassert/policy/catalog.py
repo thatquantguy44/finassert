@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from typing import Any
 
@@ -13,16 +13,23 @@ from finassert.rules import (
     NullPolicy,
     OutflowSign,
     ReturnUnit,
+    SellSign,
+    TurnoverSides,
     cash_reconciles,
+    drift_within_band,
     gross_within_limit,
+    in_range,
     market_value_reconciles,
     nav_reconciles,
     net_within_limit,
     no_duplicates,
     non_negative,
+    position_rolls_forward,
     position_within_limit,
     required_fields,
     simple_return_reconciles,
+    turnover_within_limit,
+    weights_match_market_values,
     weights_sum_to_one,
 )
 
@@ -175,10 +182,10 @@ class RuleCatalog:
 _SEVERITY = ParameterSpec(
     name="severity",
     kind=ParameterKind.CHOICE,
-    label="Severity",
+    label="If this check fails",
     description=(
-        "Business impact recorded with the result. Any failure fails the report "
-        "regardless of severity."
+        "'error' (the default) fails the run. 'warning' and 'info' are listed in the "
+        "report but do not fail the run. A check that could not run always fails it."
     ),
     default=Severity.ERROR.value,
     choices=tuple(item.value for item in Severity),
@@ -310,6 +317,11 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_exposure_spec("net"))
     catalog.register(_position_within_limit_spec())
     catalog.register(_simple_return_reconciles_spec())
+    catalog.register(_in_range_spec())
+    catalog.register(_weights_match_market_values_spec())
+    catalog.register(_drift_within_band_spec())
+    catalog.register(_turnover_within_limit_spec())
+    catalog.register(_position_rolls_forward_spec())
     return catalog
 
 
@@ -810,4 +822,311 @@ def _simple_return_reconciles_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=simple_return_reconciles,
+    )
+
+
+_PORTFOLIO_GROUP = ParameterSpec(
+    name="group_by",
+    kind=ParameterKind.COLUMNS,
+    label="Check separately for each",
+    description=(
+        "Columns that identify each portfolio, such as a portfolio code, so every portfolio "
+        "is checked on its own. Leave empty if the file holds a single portfolio."
+    ),
+)
+
+
+def _in_range_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="in_range",
+        rule_id="arithmetic.in_range",
+        title="Values stay within a range",
+        summary="Checks that every value in a column is between a lowest and a highest value.",
+        rationale=(
+            "A cash weight of 140%, a leverage of -3x, or a rate of 4000% is usually a "
+            "unit or sign error, and downstream calculations will quietly use it."
+        ),
+        inappropriate_when=(
+            "The range is not a fact about the data but a choice you have not made yet, "
+            "the column mixes units (percent and fractions), or the legitimate range "
+            "differs by row, such as by asset class."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="column",
+                kind=ParameterKind.COLUMN,
+                label="Column",
+                description="Column whose values must stay within the range.",
+                required=True,
+            ),
+            _limit(
+                "minimum",
+                "Lowest allowed",
+                "Smallest allowed value, inclusive. Set a lowest, a highest, or both.",
+                negative=True,
+            ),
+            _limit(
+                "maximum",
+                "Highest allowed",
+                "Largest allowed value, inclusive. Set a highest, a lowest, or both.",
+                negative=True,
+            ),
+            ParameterSpec(
+                name="tolerance",
+                kind=ParameterKind.TOLERANCE,
+                label="Allowed overshoot",
+                description=(
+                    "How far beyond either limit a value may be and still pass, for example "
+                    "0.01 to tolerate rounding."
+                ),
+                default="0",
+                allow_relative=False,
+            ),
+            _NULL_POLICY,
+            _SEVERITY,
+            ParameterSpec(
+                name="max_violations",
+                kind=ParameterKind.INTEGER,
+                label="Rows listed",
+                description="Maximum number of offending rows listed in the report.",
+                default=20,
+                minimum=0,
+            ),
+            _ROW_KEY,
+        ),
+        factory=in_range,
+    )
+
+
+def _weights_match_market_values_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="weights_match_market_values",
+        rule_id="portfolio.weights_match_market_values",
+        title="Weights match market values",
+        summary=(
+            "Checks that each weight equals its market value divided by the portfolio's "
+            "NAV (or by its total market value if there is no NAV column)."
+        ),
+        rationale=(
+            "Weights that were not refreshed after prices moved no longer describe the "
+            "portfolio, so exposures, attribution, and rebalancing trades built on them "
+            "will be wrong even though they still add up to 1."
+        ),
+        inappropriate_when=(
+            "Weights are measured against something other than NAV or total market value "
+            "(for example gross exposure), market values and NAV are in different "
+            "currencies, or the weights are deliberately target weights, not current ones."
+        ),
+        parameters=(
+            _amount_column(
+                "weight", "Weight column", "Column with each weight as a fraction of 1."
+            ),
+            _amount_column(
+                "market_value", "Market value column", "Column with each signed market value."
+            ),
+            _amount_column(
+                "nav",
+                "NAV column",
+                "Optional column with the portfolio's NAV, on every row or some rows of each "
+                "portfolio. Leave empty to measure against the total market value.",
+                required=False,
+            ),
+            _PORTFOLIO_GROUP,
+            _ROW_KEY,
+            ParameterSpec(
+                name="tolerance",
+                kind=ParameterKind.TOLERANCE,
+                label="Allowed difference",
+                description=(
+                    "How far a weight may be from its expected value and still pass, as a "
+                    "fraction: 0.0001 is one basis point."
+                ),
+                default="1e-8",
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=weights_match_market_values,
+    )
+
+
+def _drift_within_band_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="drift_within_band",
+        rule_id="portfolio.drift_within_band",
+        title="Weights stay near their targets",
+        summary=(
+            "Checks that no weight has drifted from its target by more than a band you set, "
+            "and optionally that total drift stays within a limit."
+        ),
+        rationale=(
+            "Drift beyond a tolerance is the usual trigger for rebalancing, and a portfolio "
+            "far from its targets is no longer the portfolio that was approved."
+        ),
+        inappropriate_when=(
+            "Targets are not set for every position, drift is measured in market value or "
+            "risk rather than weight, or small positions need a relative band (this check "
+            "uses one absolute band for all positions)."
+        ),
+        parameters=(
+            _amount_column("weight", "Current weight column", "Column with each current weight."),
+            _amount_column(
+                "target_weight",
+                "Target weight column",
+                "Column with each position's target weight.",
+            ),
+            _limit(
+                "band",
+                "Largest drift for one position",
+                "Largest allowed difference between a weight and its target, as a fraction "
+                "(0.02 is two percentage points). Inclusive.",
+                negative=False,
+            ),
+            _limit(
+                "total_limit",
+                "Largest total drift",
+                "Optional limit on the sum of all absolute drifts in a portfolio. Set a band, "
+                "a total limit, or both.",
+                negative=False,
+            ),
+            _PORTFOLIO_GROUP,
+            _ROW_KEY,
+            _RECONCILE_NULLS,
+            replace(
+                _SEVERITY,
+                default=Severity.WARNING.value,
+                description=(
+                    "'warning' (the default for drift) lists the drift but does not fail the "
+                    "run; 'error' fails the run. A check that could not run always fails it."
+                ),
+            ),
+            _MAX_GROUPS,
+        ),
+        factory=drift_within_band,
+    )
+
+
+def _turnover_within_limit_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="turnover_within_limit",
+        rule_id="portfolio.turnover_within_limit",
+        title="Turnover stays within a limit",
+        summary=(
+            "Checks that the change from the previous weights, summed over every position, "
+            "stays within a limit you set."
+        ),
+        rationale=(
+            "Turnover drives trading costs and often has a mandate or budget limit; an "
+            "unexpectedly high figure usually means stale previous weights or a mapping error."
+        ),
+        inappropriate_when=(
+            "The previous weights are not on the same basis (different NAV or date), positions "
+            "that were not held before have a blank instead of 0, or turnover should be "
+            "measured in market value or after cash flows."
+        ),
+        parameters=(
+            _amount_column("weight", "Current weight column", "Column with each current weight."),
+            _amount_column(
+                "previous_weight",
+                "Previous weight column",
+                "Column with the previous weight. Use 0, not blank, for a position not held "
+                "before.",
+            ),
+            ParameterSpec(
+                name="sides",
+                kind=ParameterKind.CHOICE,
+                label="Turnover counts",
+                description=(
+                    "'one_way' is half the sum of absolute changes (each unit sold funds a unit "
+                    "bought); 'two_way' is the full sum. There is no default: the two differ by "
+                    "a factor of 2."
+                ),
+                required=True,
+                choices=tuple(item.value for item in TurnoverSides),
+            ),
+            ParameterSpec(
+                name="maximum",
+                kind=ParameterKind.NUMBER,
+                label="Largest allowed turnover",
+                description="Largest allowed turnover as a fraction (0.2 is 20%). Inclusive.",
+                required=True,
+            ),
+            _PORTFOLIO_GROUP,
+            _ROW_KEY,
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=turnover_within_limit,
+    )
+
+
+def _position_rolls_forward_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="position_rolls_forward",
+        rule_id="accounting.position_rolls_forward",
+        title="Position quantities roll forward",
+        summary=(
+            "Checks that each position's opening quantity plus buys, less sells, plus any "
+            "other movements, equals its closing quantity."
+        ),
+        rationale=(
+            "A closing quantity that does not follow from the opening quantity and the trades "
+            "means a trade is missing or booked twice, a sell has the wrong sign, or a "
+            "corporate action was not applied."
+        ),
+        inappropriate_when=(
+            "Trades are listed on several rows with a running quantity (combine them first), "
+            "the quantities are in different units on different rows, or movements such as "
+            "splits and transfers are not in the file and not in the adjustments column."
+        ),
+        parameters=(
+            ParameterSpec(
+                name="sell_sign",
+                kind=ParameterKind.CHOICE,
+                label="Sells are recorded as",
+                description=(
+                    "'positive' if quantities sold appear as positive numbers (they are "
+                    "subtracted), 'negative' if they appear as negative numbers (they are "
+                    "added). There is no default: a wrong guess would hide real breaks."
+                ),
+                required=True,
+                choices=tuple(item.value for item in SellSign),
+            ),
+            _amount_column(
+                "opening_quantity", "Opening quantity", "Column with the quantity at the start."
+            ),
+            _amount_column("buys", "Buys", "Column with the quantity bought."),
+            _amount_column("sells", "Sells", "Column with the quantity sold."),
+            _amount_column(
+                "closing_quantity", "Closing quantity", "Column with the quantity at the end."
+            ),
+            _amount_column(
+                "adjustments",
+                "Other movements",
+                "Optional column with splits, transfers, or corporate actions, added to the "
+                "opening quantity. Leave empty if none.",
+                required=False,
+            ),
+            ParameterSpec(
+                name="group_by",
+                kind=ParameterKind.COLUMNS,
+                label="Each position is identified by",
+                description=(
+                    "Columns that identify one position, such as portfolio and ticker. Each "
+                    "position is one row, or several rows that agree."
+                ),
+                required=True,
+            ),
+            _ROW_KEY,
+            _reconcile_tolerance(
+                "How far the closing quantity may be from the expected one, in units of the "
+                "security, for example 0.0001 for fractional shares."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=position_rolls_forward,
     )

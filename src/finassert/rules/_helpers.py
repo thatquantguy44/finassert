@@ -70,3 +70,8 @@ def is_blank(value: object) -> bool:
     would see it. Zero and ``False`` are values, not blanks.
     """
     return is_missing(value) or (isinstance(value, str) and not value.strip())
+
+
+def absolute(value: Numeric) -> Numeric:
+    """Return the absolute value of a number, keeping its type."""
+    return -value if value < 0 else value

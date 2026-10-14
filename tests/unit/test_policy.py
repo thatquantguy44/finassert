@@ -303,15 +303,20 @@ def test_every_built_in_rule_is_fully_documented() -> None:
     catalog = default_catalog()
     assert catalog.names() == (
         "cash_reconciles",
+        "drift_within_band",
         "gross_within_limit",
+        "in_range",
         "market_value_reconciles",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
         "non_negative",
+        "position_rolls_forward",
         "position_within_limit",
         "required_fields",
         "simple_return_reconciles",
+        "turnover_within_limit",
+        "weights_match_market_values",
         "weights_sum_to_one",
     )
     for spec in catalog.specs():
@@ -509,3 +514,134 @@ def test_exposure_policy_runs_end_to_end() -> None:
         Outcome.PASSED,
         Outcome.FAILED,  # 0.2 is above 10%
     ]
+
+
+PACK = """\
+version: 1
+rules:
+  - rule: in_range
+    column: weight
+    minimum: "-0.05"
+    maximum: 1
+  - rule: weights_match_market_values
+    weight: weight
+    market_value: mv
+    nav: nav
+    group_by: [portfolio]
+  - rule: drift_within_band
+    weight: weight
+    target_weight: target
+    band: "0.02"
+  - rule: turnover_within_limit
+    weight: weight
+    previous_weight: previous
+    sides: one_way
+    maximum: "0.2"
+  - rule: position_rolls_forward
+    sell_sign: positive
+    opening_quantity: open
+    buys: buys
+    sells: sells
+    closing_quantity: close
+    group_by: [portfolio, ticker]
+"""
+
+
+def test_the_portfolio_pack_rules_load_and_round_trip() -> None:
+    policy = parse_policy_text(PACK, format="yaml")
+
+    assert [rule.rule_id for rule in policy.rules] == [
+        "arithmetic.in_range",
+        "portfolio.weights_match_market_values",
+        "portfolio.drift_within_band",
+        "portfolio.turnover_within_limit",
+        "accounting.position_rolls_forward",
+    ]
+    again = parse_policy_text(dump_policy(policy), format="yaml")
+    assert again.digest == policy.digest
+
+
+def test_drift_defaults_to_warning_in_a_policy_and_can_be_raised_to_error() -> None:
+    base = (
+        "version: 1\nrules:\n  - rule: drift_within_band\n"
+        "    weight: w\n    target_weight: t\n    band: 0.1\n"
+    )
+
+    default = parse_policy_text(base, format="yaml").rules[0]
+    raised = parse_policy_text(base + "    severity: error\n", format="yaml").rules[0]
+
+    assert default.severity.value == "warning"  # type: ignore[attr-defined]
+    assert raised.severity.value == "error"  # type: ignore[attr-defined]
+    described = {spec.name: spec for spec in default_catalog().specs()}["drift_within_band"]
+    assert described.parameter("severity").default == "warning"
+
+
+@pytest.mark.parametrize(
+    ("entry", "expected"),
+    [
+        (
+            {
+                "rule": "position_rolls_forward",
+                "opening_quantity": "o",
+                "buys": "b",
+                "sells": "s",
+                "closing_quantity": "c",
+                "group_by": ["p"],
+            },
+            "needs 'sell_sign'",
+        ),
+        (
+            {
+                "rule": "position_rolls_forward",
+                "sell_sign": "both",
+                "opening_quantity": "o",
+                "buys": "b",
+                "sells": "s",
+                "closing_quantity": "c",
+                "group_by": ["p"],
+            },
+            "must be one of: positive, negative",
+        ),
+        (
+            {
+                "rule": "position_rolls_forward",
+                "sell_sign": "positive",
+                "opening_quantity": "o",
+                "buys": "b",
+                "sells": "s",
+                "closing_quantity": "c",
+            },
+            "needs 'group_by'",
+        ),
+        (
+            {
+                "rule": "turnover_within_limit",
+                "weight": "w",
+                "previous_weight": "p",
+                "maximum": "0.2",
+            },
+            "needs 'sides'",
+        ),
+        (
+            {
+                "rule": "turnover_within_limit",
+                "weight": "w",
+                "previous_weight": "p",
+                "sides": "one_way",
+            },
+            "needs 'maximum'",
+        ),
+        ({"rule": "drift_within_band", "weight": "w", "target_weight": "t"}, "set a band"),
+        (
+            {"rule": "drift_within_band", "weight": "w", "target_weight": "t", "band": "-0.1"},
+            "cannot be negative",
+        ),
+        ({"rule": "in_range", "column": "w"}, "set a minimum, a maximum, or both"),
+        (
+            {"rule": "in_range", "column": "w", "maximum": 1, "tolerance": {"relative": "0.1"}},
+            "supports only an absolute amount",
+        ),
+    ],
+)
+def test_portfolio_pack_parameter_problems(entry: dict[str, object], expected: str) -> None:
+    assert expected in "\n".join(issues_of_entry(entry))

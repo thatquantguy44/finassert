@@ -26,6 +26,21 @@
   return_unit, net_flows=None, row_key=None, tolerance=0, ...)` checks
   `(ending - beginning - net_flows) / beginning`; `return_unit` is
   `"fraction"` or `"percent"` and has no default.
+- `in_range(*, column, minimum=None, maximum=None, tolerance=0,
+  null_policy="fail", severity="error", max_violations=20, row_key=None)`
+  requires every value to lie between inclusive limits.
+- `weights_match_market_values(*, weight, market_value, nav=None, group_by=(),
+  row_key=None, tolerance=1e-8, ...)` checks `weight = market_value / NAV` (or
+  `/ sum(market_value)` without `nav`) in each portfolio.
+- `drift_within_band(*, weight, target_weight, band=None, total_limit=None,
+  group_by=(), row_key=None, severity="warning", ...)` limits each position's
+  drift from its target and, optionally, the portfolio's total drift.
+- `turnover_within_limit(*, weight, previous_weight, maximum, sides,
+  group_by=(), ...)` limits `sum(abs(weight - previous_weight))`, halved for
+  `sides="one_way"`; `sides` has no default.
+- `position_rolls_forward(*, sell_sign, opening_quantity, buys, sells,
+  closing_quantity, group_by, adjustments=None, tolerance=0, ...)` checks
+  `closing = opening + buys - sells + adjustments`; `sell_sign` has no default.
 - `no_duplicates(*, columns, null_policy="fail", max_violations=20)` checks
   that no value, or combination of values, appears on two rows.
 - `required_fields(*, columns, max_violations=20)` checks that the named
@@ -105,14 +120,18 @@
 
 `finassert check` and `finassert rules`; see
 [Policies and the command line](../command-line.md) for options and exit codes.
-`finassert.cli.exit_code(report)` maps a report to its exit code.
+`finassert.cli.exit_code(report, fail_on="error")` maps a report to its exit code.
 
 ## Results
 
 `ValidationResult` contains `rule_id`, `rule_name`, `outcome`, `severity`,
 `message`, `observed`, `expected`, `tolerance`, and `metadata`; `passed` is a
-derived property. `ValidationReport` exposes ordered `results`, `failures`,
-counts, `passed`, `to_dict()`, and `summary()`.
+derived property, `blocking` (the result fails the report) and `warning` (a failed
+result whose severity is below `error`), and `blocks(fail_on)` for a stricter
+threshold. `ValidationReport` exposes ordered `results`, `failures`,
+`blocking_failures`, `warnings`, counts, `passed` (true when nothing blocks),
+`to_dict()`, and `summary()`. `finassert.cli.exit_code(report, fail_on)` maps a
+report to its exit code.
 
 Outcomes are `passed`, `failed`, `error`, and `skipped`. JSON serialization uses
 strings for Decimal values so precision is not lost.

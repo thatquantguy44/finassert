@@ -57,6 +57,9 @@ their confirmation before running checks on the adapted policy; unmatched or
 ambiguous columns need their decision.
 
 When reporting results:
+- A failed check whose severity is "warning" or "info" is a warning: it is
+  reported but does not fail the run (status "passed", with a warnings count).
+  Say so, and do not present it as a pass or hide it.
 - An outcome of "error" means the check could not run (often a misspelled
   column). It is never a pass; say so plainly.
 - Say which rows failed, using the row labels given (for CSV and Excel these
@@ -234,6 +237,7 @@ def check_data(
         "ok": True,
         "status": _OUTCOME_WORDS[code],
         "exit_code": code,
+        "warnings": len(report.warnings),
         "counts": report.counts_by_outcome,
         "policy": {
             "name": policy.name,
@@ -293,6 +297,7 @@ def _summarise(result: dict[str, Any], described: dict[str, Any]) -> dict[str, A
         "title": described.get("title") or result["rule_name"],
         "outcome": result["outcome"],
         "severity": result["severity"],
+        "blocking": result["blocking"],
         "message": result["message"],
         "observed": result["observed"],
         "expected": result["expected"],

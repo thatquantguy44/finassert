@@ -77,8 +77,22 @@ and intends to use Semantic Versioning after the public API stabilizes.
   match, listing ambiguous candidates instead of guessing, and writing a policy
   with the matches to confirm at the top.
 
+- Portfolio-management rules: `in_range`, `weights_match_market_values`,
+  `drift_within_band` (warns by default), `turnover_within_limit` (requires
+  `sides`), and `position_rolls_forward` (requires `sell_sign`), in the catalog,
+  CLI, browser app, and assistant, with a `position-rollforward` template,
+  column-matching names, sample files, and docs.
+- Severity now gates the run: a failed check set to `severity: warning` or `info`
+  is reported (as a Warning in the HTML report and browser app) but does not
+  fail the report or the exit code; `finassert check --fail-on warning|info`
+  raises the threshold. Reports count `warnings` and `blocking_failures`.
+
 ### Changed
 
+- **Behavior change:** `ValidationReport.passed` and `finassert check` no longer
+  fail for a failed check of `warning` or `info` severity. Checks default to
+  `error`, so existing policies behave as before; a check that could not run
+  still fails the run at any severity.
 - The private grouped cash-reconciliation prototype is replaced by the public
   `accounting.cash_reconciles` rule.
 - Grouped rules treat spaces-only text as blank, read the ordering column only
