@@ -79,14 +79,14 @@
     if (!file || !state.web) return;
     const workbook = /\.xls[xm]$/i.test(file.name);
     const content = workbook ? new Uint8Array(await file.arrayBuffer()) : await file.text();
-    state.pending = { name: file.name, content };
+    state.pending = { name: file.name, content, format: "" };
     $("sheet-picker").hidden = true;
     showData(null);
   }
 
   function showData(sheet) {
-    const { name, content } = state.pending;
-    const info = call("inspect_input", content, name, sheet);
+    const { name, content, format } = state.pending;
+    const info = call("inspect_input", content, name, sheet, format);
     const errorBox = $("data-error");
     if (!info.ok) {
       state.data = null;
@@ -107,7 +107,7 @@
       return;
     }
     errorBox.hidden = true;
-    state.data = { name, content, sheet, columns: info.columns };
+    state.data = { name, content, sheet, columns: info.columns, format };
     const where = sheet ? `${name}, sheet "${sheet}"` : name;
     $("data-name").textContent =
       `${where}: ${info.row_count} row(s), ${info.columns.length} column(s).` +
@@ -117,6 +117,9 @@
       element("tr", {}, info.columns.map((c) => element("td", { text: row[c] == null ? "" : String(row[c]) })))
     );
     $("data-preview").replaceChildren(element("thead", {}, [head]), element("tbody", {}, rows));
+    const notes = $("data-notes");
+    notes.textContent = (info.notes || []).join(" ");
+    notes.hidden = !(info.notes && info.notes.length);
     $("data-summary").hidden = false;
     renderSuggestions(call("suggest", JSON.stringify(info.columns)).suggestions);
     renderChecks();
@@ -404,15 +407,20 @@
 
   async function openPolicy(file) {
     if (!file || !state.web) return;
-    const text = await file.text();
-    const parsed = call("read_policy", text, file.name);
+    openPolicyText(await file.text(), file.name, file.name);
+  }
+
+  // `name` decides the format (.yml or .json); `label` is what messages call the policy.
+  function openPolicyText(text, name, label) {
+    const parsed = call("read_policy", text, name);
     if (!parsed.ok) {
-      showIssues(parsed.issues, `${file.name} has problems:`);
-      setStatus("The policy file was not opened.", true);
-      return;
+      showIssues(parsed.issues, `${label} has problems:`);
+      setStatus("The policy was not opened.", true);
+      return false;
     }
     applyPolicy(parsed.policy);
-    setStatus(`Opened ${file.name} with ${parsed.policy.rules.length} check(s).`);
+    setStatus(`Opened ${label} with ${parsed.policy.rules.length} check(s).`);
+    return true;
   }
 
   function applyPolicy(policy) {
@@ -495,7 +503,8 @@
       state.data.content,
       state.data.name,
       JSON.stringify(policyDocument()),
-      state.data.sheet
+      state.data.sheet,
+      state.data.format
     );
     if (!outcome.ok) {
       $("results").hidden = true;
@@ -515,14 +524,23 @@
       : `✗ Failed: ${failedBlocking} failed, ${counts.error} could not run, ${counts.passed} passed.` +
         (warned ? ` ${warned} more only warned.` : "");
     $("report-frame").srcdoc = outcome.html;
-    const input = cliArgument(state.data.name);
-    const sheet = state.data.sheet ? cliArgument(state.data.sheet) : null;
-    $("cli-command").textContent =
-      `finassert check --config policy.yml --input ${input.text}` +
-      (sheet ? ` --sheet ${sheet.text}` : "") +
-      " --html report.html";
-    // Names with special characters are quoted for macOS/Linux shells only.
-    $("cli-note").hidden = input.plain && (!sheet || sheet.plain);
+    if (state.data.format === "excel-range") {
+      // Cells selected in Excel have no file name: save the sheet as a workbook first.
+      $("cli-command").textContent =
+        'finassert check --config policy.yml --input "workbook.xlsx" --sheet "<sheet name>" --html report.html';
+      $("cli-note").textContent =
+        "Save the workbook, then replace the file and sheet names. Row numbers in the report are the sheet's own rows.";
+      $("cli-note").hidden = false;
+    } else {
+      const input = cliArgument(state.data.name);
+      const sheet = state.data.sheet ? cliArgument(state.data.sheet) : null;
+      $("cli-command").textContent =
+        `finassert check --config policy.yml --input ${input.text}` +
+        (sheet ? ` --sheet ${sheet.text}` : "") +
+        " --html report.html";
+      // Names with special characters are quoted for macOS/Linux shells only.
+      $("cli-note").hidden = input.plain && (!sheet || sheet.plain);
+    }
     $("results").hidden = false;
     setStatus("Checks finished. The full report is below.");
   }
@@ -549,7 +567,8 @@
 
   function baseName() {
     const name = (state.data && state.data.name) || "data";
-    return name.replace(/\.[^.]+$/, "");
+    const stem = state.data && state.data.format === "excel-range" ? name : name.replace(/\.[^.]+$/, "");
+    return stem.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "data";
   }
 
   function refresh() {
@@ -588,6 +607,35 @@
     download(state.result.artifact_json, `${baseName()}-report.json`, "application/json"));
   $("download-policy").addEventListener("click", () =>
     download(state.result.policy_yaml, "policy.yml", "application/yaml"));
+
+  // A small, stable surface for the Excel add-in script (excel.js), which feeds the
+  // application cells read from the workbook and writes results back.
+  window.finassertApp = {
+    ready: () => Boolean(state.web),
+    useData(name, content, format) {
+      state.pending = { name, content, format };
+      $("sheet-picker").hidden = true;
+      showData(null);
+    },
+    result: () => state.result,
+    resultsSheet: () => call("results_sheet", state.result.artifact_json),
+    // The checks as YAML, or null (with the problems shown) if they are not valid.
+    policyYaml() {
+      const exported = call("export_policy", JSON.stringify(policyDocument()));
+      if (!exported.ok) {
+        showIssues(exported.issues, "These checks have problems:");
+        setStatus("The checks were not saved: fix the problems listed first.", true);
+        return null;
+      }
+      showIssues([]);
+      return exported.yaml;
+    },
+    hasChecks: () => state.checks.length > 0,
+    policySheet: (yaml) => call("policy_sheet", yaml).rows,
+    policyFromSheet: (values) => call("policy_from_sheet", JSON.stringify(values)),
+    openPolicyText,
+    setStatus,
+  };
 
   boot();
 })();

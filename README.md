@@ -136,7 +136,7 @@ with `RuleEvaluationError`; otherwise the engine records the error and continues
 | Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
 | Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
 | Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text, JSON, and self-contained HTML reports | Integration inside Excel |
+| Text, JSON, and self-contained HTML reports | Excel add-in verified in real Excel (an initial task pane exists) |
 | Assistant tool server (MCP) for AI assistants | |
 | Starter policy templates with stated assumptions, matched to your file's column names | |
 | YAML/JSON policies, CLI, and in-browser app | More templates as rules are added |

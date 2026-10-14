@@ -82,6 +82,16 @@ and intends to use Semantic Versioning after the public API stabilizes.
   `sides`), and `position_rolls_forward` (requires `sell_sign`), in the catalog,
   CLI, browser app, and assistant, with a `position-rollforward` template,
   column-matching names, sample files, and docs.
+- Excel add-in (initial): `scripts/build_excel.py` builds a task pane and manifest that
+  read the selected cells (numbers, dates, percentages, and Excel errors read by the
+  same rules as a saved workbook, with the sheet's own row numbers), run checks with the
+  same engine as the browser app, and write a results sheet without changing the data.
+  Tested against a stand-in for Excel in CI; not yet run in real Excel. The results sheet
+  opens with a stamp (outcome, policy name and fingerprint, range checked, counts, time,
+  version); checks can be saved to and loaded from a `finassert policy` sheet; a single
+  selected cell uses its table; `--bundle-pyodide` carries the engine inside the add-in
+  for use with no CDN; `scripts/serve_excel.py` serves the build for trials; CI runs
+  Microsoft's manifest validator (informational).
 - Severity now gates the run: a failed check set to `severity: warning` or `info`
   is reported (as a Warning in the HTML report and browser app) but does not
   fail the report or the exit code; `finassert check --fail-on warning|info`

@@ -17,6 +17,14 @@ from typing import Any
 
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
+from finassert.excel import (
+    policy_sheet_rows,
+    policy_text_from_rows,
+    read_range,
+)
+from finassert.excel import (
+    results_sheet as excel_results_sheet,
+)
 from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json, parse_xlsx
 from finassert.policy import (
     ParameterKind,
@@ -86,14 +94,18 @@ def suggest(columns_json: str, template: str = "") -> str:
     )
 
 
-def inspect_input(content: Any, name: str, sheet: str | None = None) -> str:
+def inspect_input(
+    content: Any, name: str, sheet: str | None = None, source_format: str | None = None
+) -> str:
     """Parse an input file and return its columns, row count, and a preview.
 
     ``content`` is text for CSV and JSON and bytes for Excel workbooks. When a
-    workbook has several sheets and none is chosen, the result lists them.
+    workbook has several sheets and none is chosen, the result lists them. With
+    ``source_format`` ``"excel-range"``, ``content`` is the JSON of cells selected
+    in Excel (see :func:`finassert.excel.read_range`) and ``name`` describes them.
     """
     try:
-        data = _parse_input(content, name, sheet)
+        data = _parse_input(content, name, sheet, source_format)
     except SheetError as exc:
         if sheet is None and exc.sheets:
             return json.dumps(
@@ -131,6 +143,7 @@ def inspect_input(content: Any, name: str, sheet: str | None = None) -> str:
             "columns": columns,
             "row_count": rows,
             "preview": [{str(k): _display(v) for k, v in row.items()} for row in preview],
+            "notes": list(getattr(data, "notes", ())),
         }
     )
 
@@ -144,7 +157,13 @@ def read_policy(text: str, name: str) -> str:
     return json.dumps({"ok": True, "policy": _editable(policy.to_document())})
 
 
-def run(content: Any, input_name: str, policy_json: str, sheet: str | None = None) -> str:
+def run(
+    content: Any,
+    input_name: str,
+    policy_json: str,
+    sheet: str | None = None,
+    source_format: str | None = None,
+) -> str:
     """Validate an input against an edited policy and return every output.
 
     The result holds the HTML report, the JSON artifact, and the policy
@@ -155,7 +174,7 @@ def run(content: Any, input_name: str, policy_json: str, sheet: str | None = Non
     except PolicyError as exc:
         return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
     try:
-        data = _parse_input(content, input_name, sheet)
+        data = _parse_input(content, input_name, sheet, source_format)
     except InvalidDataError as exc:
         return json.dumps({"ok": False, "error": f"The data file could not be read: {exc}"})
     report = policy.check(data)
@@ -163,7 +182,7 @@ def run(content: Any, input_name: str, policy_json: str, sheet: str | None = Non
         report,
         policy=policy,
         input_locator=input_name,
-        input_format=input_format_for(Path(input_name)),
+        input_format=source_format or input_format_for(Path(input_name)),
         input_sheet=sheet,
     )
     return json.dumps(
@@ -179,7 +198,44 @@ def run(content: Any, input_name: str, policy_json: str, sheet: str | None = Non
     )
 
 
-def _parse_input(content: Any, name: str, sheet: str | None = None) -> Any:
+def results_sheet(artifact_json: str) -> str:
+    """Return a report as rows of cells for a results sheet in Excel, and the rows to bold."""
+    rows, bold = excel_results_sheet(json.loads(artifact_json))
+    return json.dumps({"rows": rows, "boldRows": bold})
+
+
+def export_policy(policy_json: str) -> str:
+    """Validate the policy being edited and return it as YAML, without running anything."""
+    try:
+        policy = parse_policy(json.loads(policy_json, object_hook=_restore_number))
+    except PolicyError as exc:
+        return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
+    return json.dumps({"ok": True, "yaml": dump_policy(policy)})
+
+
+def policy_sheet(policy_text: str) -> str:
+    """Return a policy's YAML as rows of cells for the policy sheet in Excel."""
+    return json.dumps({"rows": policy_sheet_rows(policy_text)})
+
+
+def policy_from_sheet(values_json: str) -> str:
+    """Return the policy text held in the policy sheet's cells."""
+    try:
+        return json.dumps({"ok": True, "text": policy_text_from_rows(json.loads(values_json))})
+    except InvalidDataError as exc:
+        return json.dumps({"ok": False, "error": str(exc)})
+
+
+def _parse_input(
+    content: Any, name: str, sheet: str | None = None, source_format: str | None = None
+) -> Any:
+    if source_format == "excel-range":
+        try:
+            return read_range(json.loads(_as_text(content)))
+        except (json.JSONDecodeError, TypeError) as exc:
+            raise InvalidDataError(f"the selected cells could not be read: {exc}") from exc
+    if source_format:
+        raise InvalidDataError(f"unknown source format {source_format!r}")
     # Same format rules as the command line, so files the app accepts also run there.
     input_format = input_format_for(Path(name))
     if input_format == "xlsx":

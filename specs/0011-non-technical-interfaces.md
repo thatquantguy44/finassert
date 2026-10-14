@@ -6,7 +6,8 @@ application, starter policy templates, and the assistant tool server
 (`finassert-assistant`, shipped as the `assistant` extra rather than a separate
 distribution). Spreadsheet *files* are also supported: Excel `.xlsx` is read
 without a dependency in both the CLI and the browser. Integration inside Excel
-itself (milestone 7) remains proposed; the market survey, options, and a
+itself (milestone 7) is implemented as an initial task pane (`docs/excel-add-in.md`),
+tested against a stand-in for Excel but not yet in real Excel; the market survey, options, and a
 recommended Office-add-in design with a spike plan are in
 `docs/design/excel-integration.md`. Column matching (`finassert suggest`, the
 browser app, and the assistant) proposes which header plays which template

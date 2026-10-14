@@ -26,6 +26,7 @@
       <div><h2 id="step-data">Choose your data</h2>
       <p class="hint">An Excel workbook (.xlsx) or a CSV file whose first row holds the
       column names. JSON files also work.</p></div></div>
+    {{EXCEL_PANEL}}
     <div id="data-drop" class="drop">
       <input id="data-file" type="file" accept=".xlsx,.xlsm,.csv,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
       <label for="data-file" class="button">Choose a data file</label>
@@ -37,6 +38,7 @@
     </div>
     <div id="data-summary" hidden>
       <p id="data-name"></p>
+      <p id="data-notes" class="caution" hidden></p>
       <div class="table-wrap"><table id="data-preview"></table></div>
     </div>
     <div id="data-error" class="issues" role="alert" hidden></div>
@@ -69,6 +71,7 @@
       <span class="hint">or</span>
       <input id="policy-file" type="file" accept=".yml,.yaml,.json">
       <label for="policy-file" class="button inline-label">Open a policy file</label>
+      {{EXCEL_POLICY}}
     </div>
     <div id="policy-issues" class="issues" role="alert" hidden></div>
   </section>
@@ -85,6 +88,7 @@
         <button id="download-html" type="button">Download report (HTML)</button>
         <button id="download-json" type="button">Download report (JSON)</button>
         <button id="download-policy" type="button">Download policy (YAML)</button>
+        {{EXCEL_RESULTS}}
       </div>
       <details><summary>Run these exact checks from the command line</summary>
         <p>Save the policy file, then run:</p>
@@ -100,5 +104,6 @@
 <script type="application/octet-stream" id="finassert-wheel" data-name="{{WHEEL_NAME}}">{{WHEEL_B64}}</script>
 <script src="{{PYODIDE_URL}}pyodide.js" integrity="{{PYODIDE_INTEGRITY}}" crossorigin="anonymous"></script>
 <script>{{APP_JS}}</script>
+{{EXCEL_SCRIPTS}}
 </body>
 </html>
