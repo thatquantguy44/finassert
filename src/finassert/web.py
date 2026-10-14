@@ -17,7 +17,14 @@ from typing import Any
 
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
-from finassert.excel import read_range, results_table
+from finassert.excel import (
+    policy_sheet_rows,
+    policy_text_from_rows,
+    read_range,
+)
+from finassert.excel import (
+    results_sheet as excel_results_sheet,
+)
 from finassert.loaders import TableSource, input_format_for, parse_csv, parse_json, parse_xlsx
 from finassert.policy import (
     ParameterKind,
@@ -192,8 +199,31 @@ def run(
 
 
 def results_sheet(artifact_json: str) -> str:
-    """Return a report as rows of cells for a results sheet in Excel."""
-    return json.dumps({"rows": results_table(json.loads(artifact_json))})
+    """Return a report as rows of cells for a results sheet in Excel, and the rows to bold."""
+    rows, bold = excel_results_sheet(json.loads(artifact_json))
+    return json.dumps({"rows": rows, "boldRows": bold})
+
+
+def export_policy(policy_json: str) -> str:
+    """Validate the policy being edited and return it as YAML, without running anything."""
+    try:
+        policy = parse_policy(json.loads(policy_json, object_hook=_restore_number))
+    except PolicyError as exc:
+        return json.dumps({"ok": False, "issues": [issue.to_dict() for issue in exc.issues]})
+    return json.dumps({"ok": True, "yaml": dump_policy(policy)})
+
+
+def policy_sheet(policy_text: str) -> str:
+    """Return a policy's YAML as rows of cells for the policy sheet in Excel."""
+    return json.dumps({"rows": policy_sheet_rows(policy_text)})
+
+
+def policy_from_sheet(values_json: str) -> str:
+    """Return the policy text held in the policy sheet's cells."""
+    try:
+        return json.dumps({"ok": True, "text": policy_text_from_rows(json.loads(values_json))})
+    except InvalidDataError as exc:
+        return json.dumps({"ok": False, "error": str(exc)})
 
 
 def _parse_input(

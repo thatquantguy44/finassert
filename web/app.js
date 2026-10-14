@@ -407,15 +407,20 @@
 
   async function openPolicy(file) {
     if (!file || !state.web) return;
-    const text = await file.text();
-    const parsed = call("read_policy", text, file.name);
+    openPolicyText(await file.text(), file.name, file.name);
+  }
+
+  // `name` decides the format (.yml or .json); `label` is what messages call the policy.
+  function openPolicyText(text, name, label) {
+    const parsed = call("read_policy", text, name);
     if (!parsed.ok) {
-      showIssues(parsed.issues, `${file.name} has problems:`);
-      setStatus("The policy file was not opened.", true);
-      return;
+      showIssues(parsed.issues, `${label} has problems:`);
+      setStatus("The policy was not opened.", true);
+      return false;
     }
     applyPolicy(parsed.policy);
-    setStatus(`Opened ${file.name} with ${parsed.policy.rules.length} check(s).`);
+    setStatus(`Opened ${label} with ${parsed.policy.rules.length} check(s).`);
+    return true;
   }
 
   function applyPolicy(policy) {
@@ -613,7 +618,22 @@
       showData(null);
     },
     result: () => state.result,
-    resultsSheet: () => call("results_sheet", state.result.artifact_json).rows,
+    resultsSheet: () => call("results_sheet", state.result.artifact_json),
+    // The checks as YAML, or null (with the problems shown) if they are not valid.
+    policyYaml() {
+      const exported = call("export_policy", JSON.stringify(policyDocument()));
+      if (!exported.ok) {
+        showIssues(exported.issues, "These checks have problems:");
+        setStatus("The checks were not saved: fix the problems listed first.", true);
+        return null;
+      }
+      showIssues([]);
+      return exported.yaml;
+    },
+    hasChecks: () => state.checks.length > 0,
+    policySheet: (yaml) => call("policy_sheet", yaml).rows,
+    policyFromSheet: (values) => call("policy_from_sheet", JSON.stringify(values)),
+    openPolicyText,
     setStatus,
   };
 

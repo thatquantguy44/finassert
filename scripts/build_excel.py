@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import build_web  # noqa: E402
+import bundle_pyodide  # noqa: E402
 
 ADD_IN_ID = uuid.uuid5(uuid.NAMESPACE_URL, "https://github.com/thatquantguy44/finassert#excel")
 SUPPORT_URL = "https://github.com/thatquantguy44/finassert"
@@ -90,6 +91,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--output-dir", default=str(ROOT / "dist" / "excel"))
     parser.add_argument("--pyodide-url", default=build_web.PYODIDE_URL)
+    parser.add_argument(
+        "--bundle-pyodide",
+        metavar="DIR|download",
+        help=(
+            "carry Pyodide inside the add-in, for use with no CDN: a local Pyodide "
+            "distribution folder, or 'download' to fetch it"
+        ),
+    )
     arguments = parser.parse_args(argv)
     if not arguments.base_url.startswith("https://") or not arguments.base_url.endswith("/"):
         parser.error("--base-url must start with https:// and end with '/'")
@@ -98,8 +107,18 @@ def main(argv: list[str] | None = None) -> int:
 
     output = Path(arguments.output_dir)
     output.mkdir(parents=True, exist_ok=True)
+    pyodide_url = arguments.pyodide_url
+    if arguments.bundle_pyodide:
+        try:
+            if arguments.bundle_pyodide == "download":
+                bundle_pyodide.download(output / "pyodide")
+            else:
+                bundle_pyodide.bundle(Path(arguments.bundle_pyodide), output / "pyodide")
+        except bundle_pyodide.BundleError as exc:
+            parser.error(f"cannot bundle Pyodide: {exc}")
+        pyodide_url = "pyodide/"
     (output / "taskpane.html").write_text(
-        build_web.build(arguments.pyodide_url, excel=True), encoding="utf-8"
+        build_web.build(pyodide_url, excel=True), encoding="utf-8"
     )
     (output / "manifest.xml").write_text(
         manifest(arguments.base_url, build_web.package_version()), encoding="utf-8"

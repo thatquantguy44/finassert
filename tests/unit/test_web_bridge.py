@@ -322,8 +322,11 @@ def test_the_results_sheet_rows_come_from_the_artifact() -> None:
         web.run(selected_cells(), "Sheet1!A4:B7", json.dumps(document), None, "excel-range")
     )
 
-    rows = json.loads(web.results_sheet(result["artifact_json"]))["rows"]
+    sheet = json.loads(web.results_sheet(result["artifact_json"]))
+    rows, bold = sheet["rows"], sheet["boldRows"]
 
-    assert rows[0] == ["Check", "Result", "Severity", "Row", "Details"]
-    assert rows[1][:3] == ["No negative values", "Failed", "error"]
-    assert rows[2][3] == 7
+    assert rows[0][0] == "finassert results" and bold[0] == 0
+    assert rows[bold[1]] == ["Check", "Result", "Severity", "Row", "Details"]
+    assert rows[bold[1] + 1][:3] == ["No negative values", "Failed", "error"]
+    assert rows[bold[1] + 2][3] == 7
+    assert {len(row) for row in rows} == {5}

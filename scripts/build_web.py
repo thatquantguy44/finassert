@@ -81,14 +81,16 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
     version = package_version()
     app_js = (WEB / "app.js").read_text(encoding="utf-8").replace("{{PYODIDE_URL}}", pyodide_url)
     excel_js = (WEB / "excel.js").read_text(encoding="utf-8") if excel else ""
-    sources = [_hash(app_js), "'wasm-unsafe-eval'", pyodide_url]
+    # A relative address means Pyodide is served alongside the page (offline bundle).
+    engine = pyodide_url if pyodide_url.startswith("https://") else "'self'"
+    sources = [_hash(app_js), "'wasm-unsafe-eval'", engine]
     if excel:
         sources += [_hash(excel_js), "https://appsforoffice.microsoft.com"]
     csp = "; ".join(
         [
             "default-src 'none'",
             "script-src " + " ".join(sources),
-            f"connect-src {pyodide_url}",
+            f"connect-src {engine}",
             "style-src 'unsafe-inline'",
             "img-src data:",
             "base-uri 'none'",
@@ -107,6 +109,9 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
         "{{WHEEL_B64}}": wheel,
         "{{APP_JS}}": app_js,
         "{{EXCEL_PANEL}}": (WEB / "excel-panel.html").read_text(encoding="utf-8") if excel else "",
+        "{{EXCEL_POLICY}}": (
+            (WEB / "excel-policy.html").read_text(encoding="utf-8") if excel else ""
+        ),
         "{{EXCEL_RESULTS}}": (
             (WEB / "excel-results.html").read_text(encoding="utf-8") if excel else ""
         ),

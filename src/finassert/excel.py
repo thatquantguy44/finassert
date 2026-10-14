@@ -137,6 +137,89 @@ def results_table(artifact: Mapping[str, Any]) -> list[list[Any]]:
     return [[_safe(cell) for cell in row] for row in rows]
 
 
+RESULTS_WIDTH = 5
+POLICY_FIRST_ROW = 3
+"""Row of the policy sheet where the policy text starts (rows 1-2 explain the sheet)."""
+
+
+def results_sheet(artifact: Mapping[str, Any]) -> tuple[list[list[Any]], list[int]]:
+    """Return the full results sheet: a stamp describing the run, then the checks.
+
+    The stamp records what was checked, with which policy (name and fingerprint), by
+    which version of finassert, and when, so the sheet can be kept as evidence. Every
+    row has :data:`RESULTS_WIDTH` cells. Also returns the zero-based rows to show in bold.
+    """
+    report = artifact["report"]
+    policy = artifact.get("policy") or {}
+    source = artifact.get("input") or {}
+    warned = int(report.get("warnings", 0))
+    outcome = "Failed" if not report["passed"] else "Passed with warnings" if warned else "Passed"
+    counts = report["counts_by_outcome"]
+    stamp: list[list[Any]] = [
+        ["finassert results"],
+        ["Outcome", outcome],
+        ["Policy", policy.get("name") or "(unnamed)"],
+        ["Policy fingerprint", policy.get("digest") or ""],
+        ["Checked", source.get("locator") or ""],
+        [
+            "Counts",
+            f"{counts['passed']} passed, {counts['failed']} failed, {counts['error']} could "
+            f"not run, {counts['skipped']} skipped"
+            + (f" ({warned} of the failures only warn)" if warned else ""),
+        ],
+        ["Generated (UTC)", artifact.get("generated_at") or ""],
+        ["finassert version", (artifact.get("tool") or {}).get("version") or ""],
+        ["Your data was not changed."],
+        [],
+    ]
+    table = results_table(artifact)
+    rows = [_pad(_safe_row(row)) for row in [*stamp, *table]]
+    return rows, [0, len(stamp)]
+
+
+def policy_sheet_rows(policy_text: str) -> list[list[Any]]:
+    """Return a policy as rows for the policy sheet: two explanatory rows, then one line each.
+
+    Lines go in one column, so the policy can be read and edited in Excel. Text that
+    could be read as a formula is prefixed so it stays text.
+    """
+    rows: list[list[Any]] = [
+        ["finassert policy"],
+        ["The add-in reads column A from row 3 as the policy. Edit with care."],
+    ]
+    rows += [[_safe(line)] for line in policy_text.rstrip("\n").split("\n")]
+    return rows
+
+
+def policy_text_from_rows(values: Sequence[Sequence[Any]]) -> str:
+    """Read a policy back from the policy sheet's cells (the inverse of :func:`policy_sheet_rows`).
+
+    Raises:
+        InvalidDataError: If the sheet holds no policy text.
+    """
+    # A leading apostrophe is the mark of text that could have been a formula; drop it.
+    lines = [
+        "" if row[0] is None else str(row[0]).removeprefix("'")
+        for row in values[POLICY_FIRST_ROW - 1 :]
+        if row
+    ]
+    while lines and not lines[-1].strip():
+        lines.pop()
+    if not lines:
+        raise InvalidDataError(
+            "the sheet 'finassert policy' holds no policy: the text starts in cell A3"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _pad(row: list[Any]) -> list[Any]:
+    return [*row, *([""] * (RESULTS_WIDTH - len(row)))]
+
+
+def _safe_row(row: list[Any]) -> list[Any]:
+    return [_safe(cell) for cell in row]
+
+
 def _label(result: Mapping[str, Any]) -> str:
     outcome = str(result["outcome"])
     if outcome == "failed" and result.get("blocking") is False:

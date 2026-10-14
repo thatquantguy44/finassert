@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from decimal import Decimal
 from typing import Any
@@ -281,3 +282,95 @@ def test_row_labels_in_lists_and_groups_are_used() -> None:
 
     assert [row[3] for row in rows[2:]] == [7, 9, 4]
     assert rows[4][4] == "group: p A; observed: 1"
+
+
+# Results stamp and policy sheet ---------------------------------------------------------
+
+
+def stamped(severity: str = "error") -> tuple[list[list[Any]], list[int]]:
+    policy = parse_policy(
+        {
+            "version": 1,
+            "name": "Daily checks",
+            "rules": [{"rule": "non_negative", "column": "w", "severity": severity}],
+        }
+    )
+    table = read_range(payload([["w"], [0.5], [-0.25]], firstRow=3))
+    artifact = build_artifact(
+        policy.check(table),
+        policy=policy,
+        input_locator="Holdings!A3:A5",
+        input_format="excel-range",
+    )
+    return excel.results_sheet(artifact)
+
+
+def test_the_results_sheet_opens_with_a_stamp_describing_the_run() -> None:
+    rows, bold = stamped()
+
+    by_label = {row[0]: row[1] for row in rows[: bold[1]] if len(row) > 1 and row[1] != ""}
+    assert rows[0][0] == "finassert results"
+    assert by_label["Outcome"] == "Failed"
+    assert by_label["Policy"] == "Daily checks"
+    assert str(by_label["Policy fingerprint"]).startswith("sha256:")
+    assert by_label["Checked"] == "Holdings!A3:A5"
+    assert by_label["Counts"] == "0 passed, 1 failed, 0 could not run, 0 skipped"
+    assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", by_label["Generated (UTC)"])
+    assert by_label["finassert version"] == fa.__version__
+    assert ["Your data was not changed."] + [""] * 4 in rows
+
+
+def test_the_stamp_says_when_the_run_only_warned() -> None:
+    rows, _ = stamped("warning")
+
+    stamp = {row[0]: row[1] for row in rows if row[1]}
+    assert stamp["Outcome"] == "Passed with warnings"
+    assert "(1 of the failures only warn)" in stamp["Counts"]
+
+
+def test_every_results_row_has_the_same_width_and_the_table_follows_the_stamp() -> None:
+    rows, bold = stamped()
+
+    assert {len(row) for row in rows} == {excel.RESULTS_WIDTH}
+    assert rows[bold[1]] == ["Check", "Result", "Severity", "Row", "Details"]
+    assert rows[bold[1] + 1][:3] == ["No negative values", "Failed", "error"]
+    assert rows[bold[1] + 2][3] == 5
+
+
+def test_a_policy_survives_a_round_trip_through_the_policy_sheet() -> None:
+    from finassert.policy import dump_policy, parse_policy_text
+
+    text = (
+        'version: 1\nname: "=Evil"\nrules:\n'
+        "  - rule: non_negative\n    column: w\n\n  - rule: weights_sum_to_one\n"
+    )
+    policy = parse_policy_text(text, format="yaml")
+    exported = dump_policy(policy)
+
+    rows = excel.policy_sheet_rows(exported)
+    values = [row[0] for row in rows]  # what Excel hands back for text cells
+    restored = excel.policy_text_from_rows([[cell] for cell in values])
+
+    assert rows[0] == ["finassert policy"]
+    assert all(len(row) == 1 for row in rows)
+    assert parse_policy_text(restored, format="yaml").digest == policy.digest
+
+
+def test_policy_lines_that_could_be_formulas_are_kept_as_text() -> None:
+    rows = excel.policy_sheet_rows("=1+1\n- item\n+x\nplain")
+
+    assert [row[0] for row in rows[2:]] == ["'=1+1", "'- item", "'+x", "plain"]
+
+
+def test_reading_the_policy_sheet_ignores_the_notes_and_trailing_blanks() -> None:
+    text = excel.policy_text_from_rows(
+        [["finassert policy"], ["note"], ["version: 1"], [""], ["rules: []"], [""], [None]]
+    )
+
+    assert text == "version: 1\n\nrules: []\n"
+    assert excel.policy_text_from_rows([[""], [""], ["'=x"]]) == "=x\n"
+
+
+def test_an_empty_policy_sheet_is_explained() -> None:
+    with pytest.raises(InvalidDataError, match="holds no policy"):
+        excel.policy_text_from_rows([["finassert policy"], ["note"], [""]])
