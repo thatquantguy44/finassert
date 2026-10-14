@@ -2,8 +2,9 @@
 
 Exit codes:
 
-* ``0`` every check passed or was skipped;
-* ``1`` at least one check failed;
+* ``0`` every check passed or was skipped, or failed only at a severity below
+  ``--fail-on`` (by default, ``warning`` and ``info`` checks do not fail the run);
+* ``1`` at least one check failed at or above the ``--fail-on`` severity;
 * ``2`` at least one check could not run (wins over ``1``);
 * ``3`` the command line or policy is invalid;
 * ``4`` an input file could not be read or a report could not be written.
@@ -24,7 +25,7 @@ from finassert._files import write_atomic
 from finassert._version import __version__
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
-from finassert.core.models import ValidationReport
+from finassert.core.models import Severity, ValidationReport
 from finassert.loaders import INPUT_FORMATS, column_names, input_format_for, load_input
 from finassert.policy import (
     POLICY_FORMATS,
@@ -112,6 +113,16 @@ def _parser() -> argparse.ArgumentParser:
     )
     check.add_argument("--output", metavar="FILE", help="write the JSON report here")
     check.add_argument("--html", metavar="FILE", help="write a readable HTML report here")
+    check.add_argument(
+        "--fail-on",
+        choices=[item.value for item in Severity],
+        default=Severity.ERROR.value,
+        metavar="SEVERITY",
+        help=(
+            "lowest severity of a failed check that fails the run: error (the default, so "
+            "'warning' and 'info' checks only warn), warning, or info"
+        ),
+    )
     check.add_argument("--quiet", action="store_true", help="do not print the summary")
 
     rules = commands.add_parser(
@@ -195,8 +206,12 @@ def _check(arguments: argparse.Namespace) -> int:
         generated_at=_generated_at(),
     )
 
+    fail_on = Severity(arguments.fail_on)
+    code = exit_code(report, fail_on)
     if not arguments.quiet:
         print(report.summary())
+        if code == EXIT_FAILED and report.passed:
+            print(f"Failing because --fail-on {fail_on.value} counts these warnings as failures.")
     try:
         if arguments.output:
             write_atomic(Path(arguments.output), artifact_to_json(artifact) + "\n")
@@ -208,15 +223,19 @@ def _check(arguments: argparse.Namespace) -> int:
                 print(f"HTML report written to {arguments.html}")
     except OSError as exc:
         return _fail(EXIT_IO, f"cannot write report: {_reason(exc)}")
-    return exit_code(report)
+    return code
 
 
-def exit_code(report: ValidationReport) -> int:
-    """Return the documented exit code for ``report``."""
-    counts = report.counts_by_outcome
-    if counts["error"]:
+def exit_code(report: ValidationReport, fail_on: Severity | str = Severity.ERROR) -> int:
+    """Return the documented exit code for ``report``.
+
+    A check that could not run always gives ``2``. A failed check gives ``1`` when
+    its severity is at least ``fail_on``; failures below it are warnings.
+    """
+    threshold = Severity(fail_on)
+    if report.counts_by_outcome["error"]:
         return EXIT_ERROR
-    if counts["failed"]:
+    if any(result.blocks(threshold) for result in report.results):
         return EXIT_FAILED
     return EXIT_PASSED
 

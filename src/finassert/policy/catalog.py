@@ -175,10 +175,10 @@ class RuleCatalog:
 _SEVERITY = ParameterSpec(
     name="severity",
     kind=ParameterKind.CHOICE,
-    label="Severity",
+    label="If this check fails",
     description=(
-        "Business impact recorded with the result. Any failure fails the report "
-        "regardless of severity."
+        "'error' (the default) fails the run. 'warning' and 'info' are listed in the "
+        "report but do not fail the run. A check that could not run always fails it."
     ),
     default=Severity.ERROR.value,
     choices=tuple(item.value for item in Severity),

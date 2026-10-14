@@ -105,14 +105,18 @@
 
 `finassert check` and `finassert rules`; see
 [Policies and the command line](../command-line.md) for options and exit codes.
-`finassert.cli.exit_code(report)` maps a report to its exit code.
+`finassert.cli.exit_code(report, fail_on="error")` maps a report to its exit code.
 
 ## Results
 
 `ValidationResult` contains `rule_id`, `rule_name`, `outcome`, `severity`,
 `message`, `observed`, `expected`, `tolerance`, and `metadata`; `passed` is a
-derived property. `ValidationReport` exposes ordered `results`, `failures`,
-counts, `passed`, `to_dict()`, and `summary()`.
+derived property, `blocking` (the result fails the report) and `warning` (a failed
+result whose severity is below `error`), and `blocks(fail_on)` for a stricter
+threshold. `ValidationReport` exposes ordered `results`, `failures`,
+`blocking_failures`, `warnings`, counts, `passed` (true when nothing blocks),
+`to_dict()`, and `summary()`. `finassert.cli.exit_code(report, fail_on)` maps a
+report to its exit code.
 
 Outcomes are `passed`, `failed`, `error`, and `skipped`. JSON serialization uses
 strings for Decimal values so precision is not lost.

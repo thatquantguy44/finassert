@@ -126,6 +126,7 @@ def main(argv: list[str] | None = None) -> int:
         _check_multi_portfolio(page, failures)
         _check_limits_policy(page, failures)
         _check_suggestions(page, Path(scratch), failures)
+        _check_warning_severity(page, Path(scratch), failures)
 
         page.wait_for_timeout(500)
         browser.close()
@@ -283,6 +284,29 @@ def _check_suggestions(page: Any, scratch: Path, failures: list[str]) -> None:
     print(f"matched-columns result: {banner}")
     if not banner.startswith("✓ Passed"):
         failures.append(f"unexpected matched-columns result {banner!r}")
+
+
+def _check_warning_severity(page: Any, scratch: Path, failures: list[str]) -> None:
+    """A failed check set to 'warning' is reported but does not fail the run."""
+    from playwright.sync_api import expect
+
+    policy = scratch / "warn.yml"
+    policy.write_text(
+        (EXAMPLES / "policy.yml")
+        .read_text(encoding="utf-8")
+        .replace("  - rule: non_negative\n", "  - rule: non_negative\n    severity: warning\n"),
+        encoding="utf-8",
+    )
+    page.set_input_files("#data-file", str(EXAMPLES / "positions.csv"))
+    expect(page.locator("#data-name")).to_contain_text("5 row(s), 4 column(s)")
+    page.set_input_files("#policy-file", str(policy))
+    expect(page.locator(".check")).to_have_count(2)
+    page.click("#run")
+    banner = page.locator("#result-banner").inner_text()
+    print(f"warning result: {banner}")
+    if banner != "✓ Passed with 1 warning(s): 1 passed, 0 skipped.":
+        failures.append(f"unexpected warning result {banner!r}")
+    expect(page.frame_locator("#report-frame").locator(".card.warning")).to_have_count(1)
 
 
 def _cell(value: str) -> Any:

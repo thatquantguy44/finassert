@@ -170,6 +170,7 @@ def run(content: Any, input_name: str, policy_json: str, sheet: str | None = Non
         {
             "ok": True,
             "passed": report.passed,
+            "warnings": len(report.warnings),
             "counts": report.counts_by_outcome,
             "html": render_artifact_html(artifact),
             "artifact_json": artifact_to_json(artifact) + "\n",
