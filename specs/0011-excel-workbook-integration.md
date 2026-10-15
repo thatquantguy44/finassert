@@ -18,8 +18,8 @@ workbook in CI via the CLI (0007), and reviewers receive diagnostics as an
 ## Goals
 
 Define optional, explicit workbook input and report output: named sheet and
-header selection, a column mapping onto 0004 contracts, row identity that points
-at worksheet row numbers, and a tabular `.xlsx` diagnostics export.
+header selection, a `ColumnSource` over physical header names, row identity that points at
+worksheet row numbers, and a tabular `.xlsx` report export.
 
 ## Non-goals
 
@@ -31,9 +31,12 @@ deferred below; "Excel API" in this spec means a Python API for workbook files.
 ## Proposed architecture
 
 An optional `excel` extra depends on openpyxl and is never imported by the core.
-`read_workbook` returns a column source satisfying the 0004 `ColumnSource`
-contract, reusing `ColumnMapping`. `write_report_xlsx` renders a 0005 report to
-a workbook. Reading opens files read-only with `data_only=True`, so only cached
+`read_workbook` returns an object satisfying the core `ColumnSource` protocol
+(`column(name) -> (values, labels)`), exactly like `PandasDataFrameAdapter`. It
+exposes physical headers only. `ColumnMapping` stays on the rules, as in 0004,
+and its `row_key` and group keys are resolved by the existing extraction path,
+so the reader needs no mapping argument. `write_report_xlsx` renders a 0005
+report to a workbook. Reading opens files read-only with `data_only=True`, so only cached
 formula values are seen and the file is never modified.
 
 ## Public API design
@@ -42,16 +45,12 @@ formula values are seen and the file is never modified.
 from finassert.adapters import ColumnMapping, GroupKey
 from finassert.excel import read_workbook, write_report_xlsx
 
-source = read_workbook(
-    "positions.xlsx",
-    sheet="Positions",
-    header_row=3,
-    mapping=ColumnMapping(
-        columns={"market_value": "MV (USD)", "weight": "Weight"},
-        group_keys=(GroupKey("portfolio", "Portfolio"),),
-    ),
+mapping = ColumnMapping(
+    columns={"market_value": "MV (USD)", "weight": "Weight"},
+    group_keys=(GroupKey("portfolio", "Portfolio"),),
 )
-report = fa.check(source, rules)
+source = read_workbook("positions.xlsx", sheet="Positions", header_row=3)
+report = fa.check(source, rules_built_with(mapping))
 write_report_xlsx(report, "validation.xlsx")
 ```
 
@@ -68,8 +67,15 @@ where available, never through binary float rounding; blank cells to `None`;
 error cells (`#N/A`, `#DIV/0!`) to a distinct error marker that rules treat as
 an evaluation error, not a null; dates to `datetime.date` or timezone-naive
 `datetime` with the workbook epoch (1900 or 1904) honored. The report workbook
-has fixed sheets: `Summary`, `Results`, and `Diagnostics` (one row per
-diagnostic with sheet, row, column, rule ID, outcome, expected, observed).
+has fixed sheets: `Summary` (counts by outcome) and `Results` (one row per
+`ValidationResult`: rule ID, name, outcome, severity, message, observed,
+expected, tolerance, and `metadata` serialized as canonical JSON text). Decimals
+are written as text to avoid float drift. Rule metadata is currently free-form
+(`missing_rows`, `invalid_positions`, ...), so the writer does not flatten it
+into per-row records; a `Diagnostics` sheet is blocked on 0005 defining
+structured, bounded failing observations. Values beginning with `=`, `+`, `-`,
+or `@` are written as text to prevent formula injection when a reviewer opens the
+report.
 
 ## Financial and numerical edge cases
 
@@ -92,12 +98,22 @@ pass. Reports never include full rows beyond the bounded diagnostic fields.
 1. Freeze cell-to-value conversion table and error marker. 2. `read_workbook`
 with header and mapping handling plus row-number labels. 3. Contract tests from
 0004. 4. `write_report_xlsx`. 5. CLI flags in 0007. 6. Decide whether totals-row
-and hidden-row handling need explicit options.
+and hidden-row handling need explicit options. 7. Add a `Diagnostics` sheet once
+0005 defines structured failing observations.
+
+## Open questions
+
+- Should hidden rows and columns be read, skipped, or an error by default?
+  Proposed: read them and record their presence in report metadata.
+- How is the end of data detected when a totals row follows? Proposed: an
+  explicit `max_row`/`stop_at` option, never a heuristic.
+- Is `data_only=True` acceptable when a workbook was last saved by a tool that
+  does not cache formula values? Proposed: yes, failing loudly per cell.
 
 ## Acceptance criteria
 
-Core imports without openpyxl; reading never modifies the file; diagnostics cite
-the worksheet row Excel shows; Decimal values round-trip without float drift;
+Core imports without openpyxl; reading never modifies the file; row labels
+passed to rules are the worksheet row numbers Excel shows; Decimal values round-trip without float drift;
 formula and error cells fail loudly; results match the same data passed through
 the pandas adapter.
 

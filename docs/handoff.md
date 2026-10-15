@@ -47,6 +47,20 @@ Ordered; mirrors the [roadmap](roadmap.md). Move items to an entry when done.
 
 ## Entries
 
+### 2026-10-15 — Spec 0011 reviewed against code
+- **Author:** Claude Code (Joshua Lutkemuller's session)
+- **Branch / PR:** `docs/spec-0011-excel` (initial commit `93ca479`)
+- **Done:** Fixed two spec/code mismatches: `ColumnMapping` belongs to rules,
+  not the reader (`read_workbook` now takes no mapping); rule metadata is
+  free-form, so the report `Diagnostics` sheet is deferred until 0005 defines
+  structured observations. Added formula-injection guard and open questions.
+- **Not done / partial:** No code. openpyxl not yet added to `pyproject.toml`.
+- **Decisions made:** Reader returns a plain `ColumnSource`; worksheet row
+  numbers are labels; Decimals written to reports as text.
+- **Open questions / blockers:** See the spec's Open questions section.
+- **Verify with:** `mkdocs build --strict`
+- **Next step:** Implement milestone 1-2 behind an `excel` extra, test-first.
+
 ### 2026-10-15 — Draft spec 0011 Excel workbook integration
 - **Author:** Claude Code (Joshua Lutkemuller's session)
 - **Branch / PR:** `fix/github-merge-author` (uncommitted)
