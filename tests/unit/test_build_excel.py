@@ -29,6 +29,8 @@ def test_the_task_pane_adds_excel_support_and_every_inline_script_is_hashed() ->
 
     assert "{{" not in page
     assert 'id="excel-panel"' in page and 'id="excel-read"' in page and 'id="excel-write"' in page
+    for control in ("excel-spike", "spike-run", "spike-copy", "spike-report", "spike-how"):
+        assert f'id="{control}"' in page
     assert (
         '<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>' in page
     )
@@ -49,6 +51,7 @@ def test_the_plain_browser_app_has_no_excel_code_and_loads_nothing_from_microsof
 
     assert "{{" not in page
     assert "excel-panel" not in page and "appsforoffice" not in page and "Excel.run" not in page
+    assert "spike-run" not in page and "{{VERSION}}" not in page
 
 
 def test_the_manifest_names_the_task_pane_and_asks_for_the_permission_it_needs() -> None:

@@ -5,4 +5,22 @@
       the sheet's own row numbers.</p>
       <p class="hint">Your cells are read in this window and never sent anywhere. This pane
       loads Microsoft's Office library to talk to Excel.</p>
+      <details id="excel-spike">
+        <summary>Diagnostics for testers</summary>
+        <p class="hint">Runs the checklist from the add-in's real-Excel test: environment, security
+        policy, network use, reading and checking a large generated book, writing the results
+        sheet, saving and loading checks, and confirming your data was not changed. It creates
+        a sheet named "finassert spike data" (replaced if it exists) and nothing else in your
+        workbook. Use a new, empty workbook.</p>
+        <div class="field"><label for="spike-how">How was this add-in loaded?</label>
+          <select id="spike-how" class="compact">
+            <option>sideloaded</option><option>shared-folder catalog</option>
+            <option>centralized deployment</option><option>AppSource</option><option>other</option>
+          </select></div>
+        <div class="field"><label for="spike-portfolios">Test portfolios (50 positions each)</label>
+          <input id="spike-portfolios" type="number" min="10" max="2000" value="1000"></div>
+        <button id="spike-run" type="button">Run the diagnostics</button>
+        <button id="spike-copy" type="button">Copy the report</button>
+        <textarea id="spike-report" readonly rows="14" aria-label="Diagnostics report"></textarea>
+      </details>
     </div>

@@ -6,9 +6,10 @@ open a policy, run the checks, and read the report, all in a pane beside the she
 
 **Status: initial.** Everything on the finassert side is built and tested against a
 stand-in for Excel (`scripts/smoke_excel.py`). It has not yet been run in real Excel on
-Windows, Mac, or the web: that is the spike in the
-[design note](design/excel-integration.md), and until it has been done the add-in
-should be treated as a prototype.
+Windows, Mac, or the web. The [real-Excel spike runbook](design/excel-spike.md) is the
+test that does that: the pane has a **Diagnostics for testers** section that runs most of
+it and produces a report. Until it has been done the add-in should be treated as a
+prototype.
 
 ## What it does
 

@@ -102,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"FAIL: engine did not start: {page.locator('#status').inner_text()}")
                 return 1
             failures += _exercise(page, label, what, expect)
+            if selected == "range":
+                failures += _spike(page, expect)
             context.close()
         browser.close()
     if server is not None:
@@ -124,6 +126,32 @@ def _office_stub(stub: str) -> Any:
         route.fulfill(body=stub, content_type="application/javascript")
 
     return handle
+
+
+def _spike(page: Any, expect: Any) -> list[str]:
+    """Run the diagnostics for testers against the stand-in, on a small generated book."""
+    page.click("#excel-spike summary")
+    page.fill("#spike-portfolios", "40")
+    page.select_option("#spike-how", "sideloaded")
+    page.click("#spike-run")
+    report = page.locator("#spike-report")
+    expect(report).to_have_value(
+        re.compile(r"(All steps passed|step\(s\) FAILED)"), timeout=180_000
+    )
+    text = report.input_value()
+    print(text.split("\n\n")[0])
+    failures = []
+    if "All steps passed" not in text:
+        failures.append(f"the diagnostics reported failures:\n{text}")
+    for needed in (
+        "write 2,000 test rows",
+        "weights failed in 3 portfolio(s) (expected 3)",
+        "round-tripped unchanged",
+        "no content-security-policy violations",
+    ):
+        if needed not in text:
+            failures.append(f"the diagnostics report lacks {needed!r}")
+    return failures
 
 
 def _exercise(page: Any, label: str, what: str, expect: Any) -> list[str]:

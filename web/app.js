@@ -40,6 +40,7 @@
       state.templates = call("templates").templates;
       renderCatalogPicker();
       renderTemplates();
+      state.readyMs = Math.round(performance.now());
       setStatus("Ready. Nothing you open here is uploaded.");
       refresh();
     } catch (error) {
@@ -630,7 +631,15 @@
       showIssues([]);
       return exported.yaml;
     },
+    version: "{{VERSION}}",
     hasChecks: () => state.checks.length > 0,
+    // For the diagnostics panel: when the engine became ready, and a template run in one step.
+    readyMs: () => state.readyMs,
+    runTemplate(name) {
+      useTemplate(name);
+      run();
+      return state.result;
+    },
     policySheet: (yaml) => call("policy_sheet", yaml).rows,
     policyFromSheet: (values) => call("policy_from_sheet", JSON.stringify(values)),
     openPolicyText,

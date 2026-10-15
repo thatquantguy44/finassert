@@ -79,7 +79,12 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
     Office library, which the content security policy then allows.
     """
     version = package_version()
-    app_js = (WEB / "app.js").read_text(encoding="utf-8").replace("{{PYODIDE_URL}}", pyodide_url)
+    app_js = (
+        (WEB / "app.js")
+        .read_text(encoding="utf-8")
+        .replace("{{PYODIDE_URL}}", pyodide_url)
+        .replace("{{VERSION}}", version)
+    )
     excel_js = (WEB / "excel.js").read_text(encoding="utf-8") if excel else ""
     # A relative address means Pyodide is served alongside the page (offline bundle).
     engine = pyodide_url if pyodide_url.startswith("https://") else "'self'"

@@ -92,6 +92,11 @@ and intends to use Semantic Versioning after the public API stabilizes.
   selected cell uses its table; `--bundle-pyodide` carries the engine inside the add-in
   for use with no CDN; `scripts/serve_excel.py` serves the build for trials; CI runs
   Microsoft's manifest validator (informational).
+- Real-Excel spike: a **Diagnostics for testers** section in the Excel task pane runs the
+  spike checklist (environment, API support, security policy, network use, writing and
+  reading 50,000 generated rows, the multi-portfolio template with planted breaks, the
+  results sheet, saving and loading checks, and that data is unchanged) and produces a
+  report to send back; `docs/design/excel-spike.md` is the runbook with manual checks.
 - Severity now gates the run: a failed check set to `severity: warning` or `info`
   is reported (as a Warning in the HTML report and browser app) but does not
   fail the report or the exit code; `finassert check --fail-on warning|info`

@@ -19,6 +19,7 @@ nav:
   - Design notes:
       - Grouped validation: design/grouped-validation.md
       - Excel integration: design/excel-integration.md
+      - Real-Excel spike: design/excel-spike.md
   - Examples:
       - Portfolio validation: examples/portfolio-validation.md
       - Multi-portfolio holdings: examples/multi-portfolio-holdings.md
