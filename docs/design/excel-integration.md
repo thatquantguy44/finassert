@@ -91,6 +91,9 @@ How it behaves:
 
 ## Spike before committing
 
+The runbook is [real-Excel spike](excel-spike.md): a diagnostics panel in the add-in runs
+most of this list and produces a report; a short manual list covers the rest.
+
 A one-week experiment, in this order, stops at the first blocker:
 
 1. Load Pyodide and the finassert wheel in a task pane on Windows, Mac, and

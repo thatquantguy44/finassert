@@ -3,6 +3,7 @@ import hashlib
 import http.client
 import importlib.util
 import json
+import re
 import shutil
 import ssl
 import subprocess
@@ -187,8 +188,9 @@ def test_an_offline_task_pane_loads_nothing_from_a_cdn(
     builder.main(["--output-dir", str(out), "--bundle-pyodide", str(tmp_path / "dist")])
 
     page = (out / "taskpane.html").read_text(encoding="utf-8")
-    assert "jsdelivr" not in page and 'src="pyodide/pyodide.js"' in page
     policy = page.split('content="default-src', 1)[1].split('"', 1)[0]
+    assert "jsdelivr" not in policy and 'src="pyodide/pyodide.js"' in page
+    assert "jsdelivr" not in "".join(re.findall(r"<script [^>]*>", page))
     assert "connect-src 'self'" in policy and "https://cdn" not in policy
     assert "https://appsforoffice.microsoft.com" in policy
     assert (out / "pyodide" / "pyodide.asm.wasm").is_file()

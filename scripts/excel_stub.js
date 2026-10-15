@@ -85,7 +85,15 @@
     activate() { state.active = sheet.name; },
   });
 
-  window.Office = { HostType: { Excel: "Excel" }, onReady: () => Promise.resolve({ host: "Excel" }) };
+  window.Office = {
+    HostType: { Excel: "Excel" },
+    onReady: () => Promise.resolve({ host: "Excel" }),
+    context: {
+      platform: "PC",
+      diagnostics: { host: "Excel", platform: "PC", version: "16.0.stub" },
+      requirements: { isSetSupported: () => true },
+    },
+  };
   window.Excel = {
     run: async (callback) => {
       const context = {
@@ -97,6 +105,10 @@
           },
           worksheets: {
             getActiveWorksheet: () => sheetApi(holdings),
+            getItem: (name) => {
+              if (!sheets[name]) throw new Error(`no sheet named ${name}`);
+              return sheetApi(sheets[name]);
+            },
             getItemOrNullObject: (name) => (sheets[name] ? Object.assign(sheetApi(sheets[name]), { isNullObject: false }) : { isNullObject: true }),
             add: (name) => sheetApi(makeSheet(name, [])),
           },
