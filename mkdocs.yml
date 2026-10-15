@@ -20,6 +20,7 @@ nav:
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md
   - Roadmap: roadmap.md
+  - Handoff log: handoff.md
 markdown_extensions:
   - admonition
   - pymdownx.highlight:
