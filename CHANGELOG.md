@@ -13,5 +13,7 @@ and intends to use Semantic Versioning after the public API stabilizes.
 - Mapping, row-record, and optional pandas support.
 - Typed grouped mappings with explicit sum, first, last, and uniqueness
   aggregation policies.
+- Optional `finassert.excel.read_workbook` (`excel` extra) exposing a worksheet
+  as a `ColumnSource` with worksheet row labels.
 - Custom callable rules, registry, text/JSON reporting, tests, documentation, and
   implementation specifications.

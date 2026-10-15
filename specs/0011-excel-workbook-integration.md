@@ -1,6 +1,6 @@
 # 0011 — Excel workbook integration
 
-**Status:** Proposed
+**Status:** Reader implemented (initial); report writer and CLI proposed
 
 ## Problem statement
 
@@ -62,8 +62,9 @@ Proposed CLI extension to 0007: `--format xlsx --sheet NAME --header-row N` and
 Row labels default to the worksheet row number (1-based, as Excel displays it)
 and are unique unless a `row_key` column is configured. Headers are matched
 exactly after documented whitespace trimming; duplicate headers are an error.
-Cell values map as follows: numeric cells to `Decimal` via their stored text
-where available, never through binary float rounding; blank cells to `None`;
+Cell values map as follows: numeric cells to `Decimal` from the shortest round-trip
+representation of the value openpyxl parsed (`Decimal(repr(x))`, so `0.1` is
+`Decimal('0.1')`, never the binary expansion); blank cells to `None`;
 error cells (`#N/A`, `#DIV/0!`) to a distinct error marker that rules treat as
 an evaluation error, not a null; dates to `datetime.date` or timezone-naive
 `datetime` with the workbook epoch (1900 or 1904) honored. The report workbook
@@ -95,20 +96,24 @@ pass. Reports never include full rows beyond the bounded diagnostic fields.
 
 ## Implementation milestones
 
-1. Freeze cell-to-value conversion table and error marker. 2. `read_workbook`
-with header and mapping handling plus row-number labels. 3. Contract tests from
-0004. 4. `write_report_xlsx`. 5. CLI flags in 0007. 6. Decide whether totals-row
+1. Freeze cell-to-value conversion table and error marker (complete).
+2. `read_workbook` with header handling, `max_row`, and row-number labels
+(complete). 3. Contract tests from 0004 (partial: reader tests cover alignment,
+missing column, non-mutation, and pandas parity; the shared suite is not yet
+parameterized over this adapter). 4. `write_report_xlsx`. 5. CLI flags in 0007. 6. Decide whether totals-row
 and hidden-row handling need explicit options. 7. Add a `Diagnostics` sheet once
 0005 defines structured failing observations.
 
 ## Open questions
 
 - Should hidden rows and columns be read, skipped, or an error by default?
-  Proposed: read them and record their presence in report metadata.
-- How is the end of data detected when a totals row follows? Proposed: an
-  explicit `max_row`/`stop_at` option, never a heuristic.
+  Current: read them (the read-only openpyxl mode does not expose visibility);
+  recording their presence in report metadata is not implemented.
+- How is the end of data detected when a totals row follows? Implemented as an
+  explicit `max_row` option; only fully blank trailing rows are dropped.
 - Is `data_only=True` acceptable when a workbook was last saved by a tool that
-  does not cache formula values? Proposed: yes, failing loudly per cell.
+  does not cache formula values? Implemented: yes; the first uncached formula cell is
+  an input error naming the cell.
 
 ## Acceptance criteria
 

@@ -47,6 +47,22 @@ Ordered; mirrors the [roadmap](roadmap.md). Move items to an entry when done.
 
 ## Entries
 
+### 2026-10-15 — Excel reader implemented (spec 0011 milestones 1-2)
+- **Author:** Claude Code (Joshua Lutkemuller's session)
+- **Branch / PR:** `docs/spec-0011-excel` (not pushed, no PR yet)
+- **Done:** `src/finassert/excel.py` with `read_workbook`, `WorkbookSource`,
+  `ExcelError`; `excel` extra and openpyxl in dev group; 10 tests in
+  `tests/integration/test_excel_reader.py`. ruff, mypy, and pytest (75 passed)
+  clean.
+- **Not done / partial:** `write_report_xlsx`, CLI flags, hidden-row reporting,
+  shared 0004 adapter contract suite not yet run over this adapter. `uv.lock`
+  also lost some platform markers when re-locked; review before merging.
+- **Decisions made:** Hidden rows are read; `sheet` is required; numeric cells
+  become `Decimal(repr(x))`; midnight datetimes become `date`.
+- **Open questions / blockers:** Package rename from `docs/` branch name; PR.
+- **Verify with:** `uv run pytest -q && uv run mypy && uv run ruff check`
+- **Next step:** Milestone 4, `write_report_xlsx`, or the 0004 contract suite.
+
 ### 2026-10-15 — Spec 0011 reviewed against code
 - **Author:** Claude Code (Joshua Lutkemuller's session)
 - **Branch / PR:** `docs/spec-0011-excel` (initial commit `93ca479`)
