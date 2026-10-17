@@ -136,6 +136,9 @@ def _scalar(value: Any) -> str:
         return str(value)
     if isinstance(value, str):
         return json.dumps(value)
+    if isinstance(value, Mapping):
+        # Scope records contain text keys/values and are valid YAML flow mappings.
+        return "{" + ", ".join(f"{_scalar(k)}: {_scalar(v)}" for k, v in value.items()) + "}"
     raise TypeError(f"cannot write {type(value).__name__} to a policy")
 
 

@@ -34,8 +34,10 @@ def workspace(tmp_path: Path) -> Workspace:
 
 def test_catalog_and_templates_are_described() -> None:
     assert [rule["name"] for rule in list_rules()["rules"]] == [
+        "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "forecast_coverage",
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",

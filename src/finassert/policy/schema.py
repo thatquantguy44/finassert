@@ -306,6 +306,28 @@ def _parameter_value(
     path: PolicyPath,
     issues: _Issues,
 ) -> Any:
+    if parameter.kind is ParameterKind.TEXT:
+        if not isinstance(value, str) or not value.strip():
+            issues.add(path, f"'{parameter.name}' must be nonempty text.")
+            return _INVALID
+        return value
+    if parameter.kind is ParameterKind.RECORDS:
+        if (
+            not isinstance(value, list)
+            or not value
+            or not all(
+                isinstance(item, dict)
+                and item
+                and all(
+                    isinstance(key, str) and key.strip() and isinstance(cell, str) and cell.strip()
+                    for key, cell in item.items()
+                )
+                for item in value
+            )
+        ):
+            issues.add(path, f"'{parameter.name}' must be a nonempty list of text mappings.")
+            return _INVALID
+        return [dict(item) for item in value]
     if parameter.kind is ParameterKind.COLUMN:
         if not isinstance(value, str) or not value.strip():
             issues.add(path, f"'{parameter.name}' must be a column name written as text.")

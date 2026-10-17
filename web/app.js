@@ -192,6 +192,8 @@
         initial[key] = Array.isArray(value) ? value.map(String) : [String(value)];
       } else if (parameter && parameter.kind === "number") {
         initial[key] = remember(key, value);
+      } else if (parameter && parameter.kind === "records") {
+        initial[key] = JSON.stringify(value, null, 2);
       } else {
         initial[key] = String(value);
       }
@@ -315,6 +317,12 @@
         element("legend", { text: parameter.label + (parameter.required ? " (required)" : "") }),
         ...(boxes.length ? boxes : [element("p", { className: "hint", text: "Open a data file to choose columns." })]),
       ]);
+    } else if (parameter.kind === "records") {
+      control = element("textarea", { id, rows: "5", value });
+      control.addEventListener("input", () => set(control.value));
+    } else if (parameter.kind === "text") {
+      control = element("input", { id, type: "text", value });
+      control.addEventListener("input", () => set(control.value));
     } else if (parameter.kind === "integer") {
       control = element("input", { id, type: "number", min: String(parameter.minimum ?? 0), step: "1", value });
       control.addEventListener("input", () => set(control.value));
@@ -391,6 +399,13 @@
           }
         } else if (parameter.kind === "columns") {
           entry[parameter.name] = [...value];
+        } else if (parameter.kind === "records") {
+          try {
+            entry[parameter.name] = JSON.parse(value);
+          } catch {
+            // Keep invalid text so policy validation can identify its exact key.
+            entry[parameter.name] = value;
+          }
         } else if (parameter.kind === "number") {
           const text = String(value).trim();
           if (text) entry[parameter.name] = numberValue(check, parameter.name, text);

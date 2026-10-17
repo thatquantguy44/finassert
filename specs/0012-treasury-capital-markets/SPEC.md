@@ -1,7 +1,8 @@
 # 0012 — Treasury and capital markets validation
 
-**Status:** Proposed; specification only. No new rule, service, integration, or
-automatic update capability is implemented by this document.
+**Status:** R-02 cash continuity and R-03 weekly coverage implemented (initial)
+on this branch; the remaining rules, consumer service and update automation
+remain proposed. Proposal issue: [#13](https://github.com/thatquantguy44/finassert/issues/13).
 **Updated:** 2026-10-17
 **Implementation plan:** [PLAN.md](PLAN.md)
 **Progress ledger:** [TASKS.md](TASKS.md)
@@ -140,7 +141,7 @@ The adapter must report unmatched keys, never perform a silent inner join.
 
 ## Rule inventory and semantics
 
-All new names below are proposed public IDs, not current exports. Each rule must
+R-02 and R-03 are public exports; the other new names below remain proposed IDs. Each rule must
 state its input mapping, applicable grain, units, signs, null/empty behavior,
 tolerance basis, and inappropriate uses in its catalog entry before shipping.
 
@@ -254,22 +255,47 @@ of cash, principal, interest, and collateral checks, not a new pricing engine.
 
 Factories remain keyword-only immutable configurations and evaluate through
 `check`. New rules use existing `ValidationResult`/`ValidationReport` and outcome
-enums. No new core report status is introduced. Proposed factory shape:
+enums. No new core report status is introduced. Initial public factory shape:
 
 ```python
-# Proposed API; not executable against the current package.
+# expected_scope is supplied independently of the observed file.
 cash_continuity(
-    opening_cash="opening_cash", closing_cash="closing_cash",
-    period_start="period_start", period_end="period_end",
+    opening_cash="opening_cash",
+    closing_cash="closing_cash",
+    period_start="period_start",
+    period_end="period_end",
     group_by=["forecast_as_of", "entity_id", "scenario_id"],
-    currency="currency", row_key="row_id",
+    currency="currency",
+    expected_scope=[
+        {
+            "forecast_as_of": "2026-10-01",
+            "entity_id": "Alpha",
+            "scenario_id": "base",
+            "currency": "USD",
+        }
+    ],
+    first_period="2026-10-05",
+    row_key="row_id",
     tolerance=Tolerance(absolute=Decimal("0.01")),
 )
 ```
 
-The pack supplies shared expected scope/period configuration to coverage and
-continuity. Factory signatures for all rules must be finalized in the API
-proposal before exports are added. Column names must remain configurable.
+The shared weekly arguments are now finalized: `period_start`, `period_end`,
+`group_by`, `currency`, `expected_scope`, and `first_period` are required.
+`expected_scope` is a nonempty sequence of text mappings naming exactly the
+physical group and currency columns; it is copied into immutable tuples.
+`periods=13`, `row_key=None`, `severity="error"`, and `max_violations=20` are
+optional. Currency is mandatory and uses explicit uppercase three-letter codes.
+Dates are ISO YYYY-MM-DD text, including the first anchor. The expected schedule
+is capped at 100,000 rows. Explicit row IDs must be unique nonempty text.
+
+`forecast_coverage` takes those shared arguments. `cash_continuity` additionally
+requires `opening_cash` and `closing_cash`, with `tolerance=0` and
+`null_policy="fail"` (only `fail`/`skip` supported). It validates coverage
+independently rather than relying on a prior engine result. All cash cells,
+including first opening and last closing, require finite numeric values.
+Other rule signatures remain proposed. Policy kinds `text` and `records` are
+additive; records round-trip through YAML/JSON and the browser editor.
 
 - Valid, complete inputs breaching a financial limit produce `failed`.
 - Invalid mappings/configuration are rejected before evaluation. Missing

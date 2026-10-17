@@ -11,8 +11,10 @@ CSV = "ticker,weight,market_value\nAAA,0.40,100\nBBB,0.60,-5\n"
 def test_catalog_lists_built_in_rules() -> None:
     names = [item["name"] for item in json.loads(web.catalog())["rules"]]
     assert names == [
+        "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "forecast_coverage",
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",

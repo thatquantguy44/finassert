@@ -231,8 +231,10 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
     assert cli.main(["rules", "--json"]) == cli.EXIT_PASSED
     catalog = json.loads(capsys.readouterr().out)
     assert [rule["name"] for rule in catalog["rules"]] == [
+        "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "forecast_coverage",
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",

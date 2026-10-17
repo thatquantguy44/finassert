@@ -7,6 +7,10 @@ and intends to use Semantic Versioning after the public API stabilizes.
 
 ### Added
 
+- Weekly treasury `forecast_coverage` and `cash_continuity` rules with explicit
+  expected scope, required currency isolation, bounded diagnostics, policy and
+  browser editing support, and synthetic 13-week cash/facility fixtures.
+
 - Dependency-free core validation engine and structured reports.
 - Portfolio weight-sum and nonnegative-value rules.
 - Decimal-aware absolute and relative tolerance utility.
