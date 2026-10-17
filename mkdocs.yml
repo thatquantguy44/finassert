@@ -24,6 +24,7 @@ nav:
       - Portfolio validation: examples/portfolio-validation.md
       - Multi-portfolio holdings: examples/multi-portfolio-holdings.md
       - Cash reconciliation: examples/cash-reconciliation.md
+      - Treasury forecasts: examples/treasury-forecast.md
       - NAV reconciliation: examples/nav-reconciliation.md
       - Market values and returns: examples/valuation-and-returns.md
       - Exposure and position limits: examples/exposure-limits.md

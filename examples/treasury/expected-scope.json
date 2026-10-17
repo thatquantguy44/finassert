@@ -1,0 +1,98 @@
+[
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Alpha",
+    "currency": "USD",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Alpha",
+    "currency": "USD",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Alpha",
+    "currency": "EUR",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Alpha",
+    "currency": "EUR",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Beta",
+    "currency": "USD",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Beta",
+    "currency": "USD",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Beta",
+    "currency": "EUR",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-01",
+    "entity_id": "Beta",
+    "currency": "EUR",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Alpha",
+    "currency": "USD",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Alpha",
+    "currency": "USD",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Alpha",
+    "currency": "EUR",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Alpha",
+    "currency": "EUR",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Beta",
+    "currency": "USD",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Beta",
+    "currency": "USD",
+    "scenario_id": "downside"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Beta",
+    "currency": "EUR",
+    "scenario_id": "base"
+  },
+  {
+    "forecast_as_of": "2026-10-02",
+    "entity_id": "Beta",
+    "currency": "EUR",
+    "scenario_id": "downside"
+  }
+]

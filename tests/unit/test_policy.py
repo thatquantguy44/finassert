@@ -302,8 +302,10 @@ def test_catalog_rejects_collisions_and_unknown_names() -> None:
 def test_every_built_in_rule_is_fully_documented() -> None:
     catalog = default_catalog()
     assert catalog.names() == (
+        "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "forecast_coverage",
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",

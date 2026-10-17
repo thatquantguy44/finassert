@@ -38,14 +38,22 @@ from finassert.rules.integrity import (
 from finassert.rules.portfolio import WeightsSumToOneRule, weights_sum_to_one
 from finassert.rules.positions import PositionRollForwardRule, SellSign, position_rolls_forward
 from finassert.rules.returns import ReturnUnit, SimpleReturnReconcilesRule, simple_return_reconciles
+from finassert.rules.treasury import (
+    CashContinuityRule,
+    ForecastCoverageRule,
+    cash_continuity,
+    forecast_coverage,
+)
 from finassert.rules.valuation import MarketValueReconcilesRule, market_value_reconciles
 
 __all__ = [
+    "CashContinuityRule",
     "CashGrain",
     "CashReconciliationRule",
     "DriftWithinBandRule",
     "ExposureLimitRule",
     "ExposureMeasure",
+    "ForecastCoverageRule",
     "FunctionRule",
     "InRangeRule",
     "MarketValueReconcilesRule",
@@ -65,9 +73,11 @@ __all__ = [
     "WeightsMatchMarketValuesRule",
     "WeightsSumToOneRule",
     "aggregate_values",
+    "cash_continuity",
     "cash_reconciles",
     "custom_rule",
     "drift_within_band",
+    "forecast_coverage",
     "gross_within_limit",
     "in_range",
     "market_value_reconciles",

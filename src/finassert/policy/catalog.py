@@ -15,8 +15,10 @@ from finassert.rules import (
     ReturnUnit,
     SellSign,
     TurnoverSides,
+    cash_continuity,
     cash_reconciles,
     drift_within_band,
+    forecast_coverage,
     gross_within_limit,
     in_range,
     market_value_reconciles,
@@ -43,6 +45,8 @@ class ParameterKind(StrEnum):
     CHOICE = "choice"
     INTEGER = "integer"
     NUMBER = "number"
+    TEXT = "text"
+    RECORDS = "records"
 
 
 @dataclass(frozen=True, slots=True)
@@ -322,7 +326,88 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_drift_within_band_spec())
     catalog.register(_turnover_within_limit_spec())
     catalog.register(_position_rolls_forward_spec())
+    catalog.register(_treasury_spec(continuity=False))
+    catalog.register(_treasury_spec(continuity=True))
     return catalog
+
+
+def _treasury_spec(*, continuity: bool) -> RuleFactorySpec:
+    name = "cash_continuity" if continuity else "forecast_coverage"
+    parameters = [
+        _amount_column("period_start", "Week start", "Inclusive ISO YYYY-MM-DD week start."),
+        _amount_column("period_end", "Week end", "Exclusive ISO week end, seven days later."),
+        replace(
+            _GROUP_BY,
+            required=True,
+            description="Series columns including vintage/entity/scenario; currency is separate.",
+        ),
+        replace(
+            _CURRENCY,
+            required=True,
+            description="Mandatory explicit currency column; never inferred or converted.",
+        ),
+        ParameterSpec(
+            "expected_scope",
+            ParameterKind.RECORDS,
+            "Expected series",
+            "Text mappings naming exactly the group and currency columns, including absent series.",
+            required=True,
+        ),
+        ParameterSpec(
+            "first_period",
+            ParameterKind.TEXT,
+            "First week",
+            "Explicit ISO YYYY-MM-DD first week start; no weekday inference.",
+            required=True,
+        ),
+        ParameterSpec(
+            "periods",
+            ParameterKind.INTEGER,
+            "Weeks",
+            "Consecutive calendar weeks; expected schedule capped at 100,000 rows.",
+            default=13,
+            minimum=1,
+        ),
+        _amount_column(
+            "row_key",
+            "Row identity",
+            "Unique nonempty text labels; leave unused for native labels.",
+            required=False,
+        ),
+    ]
+    if continuity:
+        parameters.extend(
+            [
+                _amount_column(
+                    "opening_cash", "Opening cash", "Opening balance in currency major units."
+                ),
+                _amount_column(
+                    "closing_cash", "Closing cash", "Closing balance in the same units."
+                ),
+                _reconcile_tolerance("Inclusive allowance between opening and prior closing cash."),
+                _RECONCILE_NULLS,
+            ]
+        )
+    parameters.extend([_SEVERITY, _MAX_GROUPS])
+    return RuleFactorySpec(
+        name=name,
+        rule_id=f"treasury.{name}",
+        title="Cash connects between weeks"
+        if continuity
+        else "Forecast covers every expected week",
+        summary=(
+            "Compares opening to prior closing cash on complete unique weekly series."
+            if continuity
+            else "Requires one row per expected group, currency and calendar week."
+        ),
+        rationale="Missing periods and disconnected balances can conceal treasury shortfalls.",
+        inappropriate_when=(
+            "The schedule is not weekly, scope is inferred from observed rows, "
+            "balances change perimeter, or currencies require conversion."
+        ),
+        parameters=tuple(parameters),
+        factory=cash_continuity if continuity else forecast_coverage,
+    )
 
 
 _RECONCILE_NULLS = ParameterSpec(

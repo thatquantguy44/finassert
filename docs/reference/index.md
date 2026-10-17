@@ -46,6 +46,14 @@
 - `required_fields(*, columns, max_violations=20)` checks that the named
   columns are never blank.
 - `custom_rule(rule_id, name, evaluator, ...)`
+- `forecast_coverage(*, period_start, period_end, group_by, currency,
+  expected_scope, first_period, periods=13, row_key=None, severity="error",
+  max_violations=20)` requires all explicitly expected weekly buckets.
+- `cash_continuity(*, opening_cash, closing_cash, period_start, period_end,
+  group_by, currency, expected_scope, first_period, periods=13, row_key=None,
+  tolerance=0, null_policy="fail", severity="error", max_violations=20)` compares
+  opening to prior closing only after independently verifying full coverage.
+  See [treasury forecasts](../examples/treasury-forecast.md) for contracts and limits.
 - `Tolerance(absolute=0, relative=0)`
 
 ## Excel

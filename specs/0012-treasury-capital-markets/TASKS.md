@@ -4,8 +4,9 @@
 **Updated:** 2026-10-17
 **Spec:** [SPEC.md](SPEC.md) · **Plan:** [PLAN.md](PLAN.md)
 
-Implementation tasks: **0 of 16 done**. Writing this specification is not
-implementation completion. All unassigned work below has owner `unassigned`.
+Implementation tasks: **1 of 16 done**. U-02–U-04 are implemented on this branch
+and awaiting full CI/review. U-01–U-04 are assigned to the implementation work
+in PR #12; other work remains unassigned.
 
 ## Ledger protocol
 
@@ -17,10 +18,10 @@ test coverage. Amend the specification with intentional contract changes.
 
 | ID | Repository | Task | Dependencies | Acceptance | State |
 | --- | --- | --- | --- | --- | --- |
-| U-01 | finassert | Open proposal issue; finalize treasury IDs, API signatures, prerequisite and currency contracts | — | AC-07–09 | todo |
-| U-02 | finassert | Add synthetic forecast/facility fixtures, expected scope and explicit assumptions | U-01 | AC-01–05 | todo |
-| U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | todo |
-| U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | todo |
+| U-01 | finassert | Open proposal issue; finalize treasury IDs, API signatures, prerequisite and currency contracts | — | AC-07–09 | done |
+| U-02 | finassert | Add synthetic forecast/facility fixtures, expected scope and explicit assumptions | U-01 | AC-01–05 | in-progress |
+| U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | in-progress |
+| U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | in-progress |
 | U-05 | finassert | Implement minimum available-cash buffer | U-02 | AC-04, AC-07 | todo |
 | U-06 | finassert | Implement facility identity, capacity, continuity and maturity behavior | U-03 | AC-05, AC-07 | todo |
 | U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | todo |
@@ -56,8 +57,19 @@ candidates, not implicitly included implementation commitments in U-09.
 
 ## Completion evidence
 
-No implementation evidence yet. Add actual PRs/commits and commands/results here
-as tasks complete. Do not copy proposed commands into this section as if run.
+- Proposal issue: [#13](https://github.com/thatquantguy44/finassert/issues/13).
+  Implementation: [draft PR #12](https://github.com/thatquantguy44/finassert/pull/12).
+- U-01: finalized required expected scope, ISO week anchor, mandatory currency,
+  immutable configuration, diagnostic caps, and fail/error/skip distinctions.
+- U-02–U-04: added 208-row synthetic cash/facility schedules, six failure recipes,
+  public coverage/continuity rules, policy/catalog/browser support and tests.
+- Focused unit/policy/property tests passed (134); example integration tests
+  passed (10), covering Python/CLI/browser-bridge parity and HTML export.
+- Ruff lint, mypy, strict MkDocs, wheel/sdist build, browser build and Excel
+  build passed. The complete suite is not claimed green: an earlier sandboxed
+  run hit local-socket restrictions and an obsolete catalog expectation (now
+  updated); the permission-enabled full rerun was interrupted. CI/review remain
+  outstanding. No hosted/browser end-to-end smoke run is claimed.
 
 ## Document migration protocol
 
@@ -72,3 +84,5 @@ independently editable integration specifications.
 
 - 2026-10-17: Drafted upstream scope, implementation plan, and deferred consumer
   handoff in finassert at the user's direction. No integration or rule added.
+- 2026-10-17: Implemented initial coverage and continuity plus fixtures/tests;
+  buffer/capacity rules and all QuantMeridian work remain deferred.
