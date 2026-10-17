@@ -1,47 +1,86 @@
+<div align="center">
+
 # finassert
 
 **Financial invariants, tested like code.**
 
-[![Python](https://img.shields.io/badge/python-3.11%2B-3776AB.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-pre--alpha-lightgrey.svg)](CHANGELOG.md)
+Deterministic checks for the financial relationships your data must satisfy.
 
-Financial datasets can be structurally valid while remaining economically
-inconsistent. `finassert` provides small, deterministic rules for detecting
-those inconsistencies and producing diagnostics that both people and automation
-can inspect.
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square)](https://www.python.org/)
+[![MIT license](https://img.shields.io/badge/License-MIT-168B78?style=flat-square)](LICENSE)
+[![Pre-alpha](https://img.shields.io/badge/Status-Pre--alpha-D6A04A?style=flat-square)](CHANGELOG.md)
 
-- Finance-native invariants with explicit assumptions.
-- Immutable, JSON-compatible results with stable rule identifiers.
-- Decimal-aware, inclusive absolute and relative tolerances.
-- No pandas, NumPy, database, or configuration dependency in the core package.
-- Rules are composable Python objects; datasets are never normalized or mutated.
-- Checks can also be written as YAML policies and run from a command line or a
-  browser app, so people who do not write Python can use them.
+**[Get started](#quick-start)** · **[Choose a workflow](#choose-your-workflow)** · **[Explore checks](#explore-the-checks)** · **[Treasury walkthrough](#try-a-13-week-cash-forecast)**
 
-> **Project status:** usable foundation under active development. The API may
-> change before 1.0; no PyPI release or hosted documentation is claimed.
+</div>
 
-## Installation
+![finassert: bring your data, define checks, inspect the evidence. Illustrative cash-continuity exception: opening 100 versus prior closing 110, difference -10.](docs/assets/readme-hero.svg)
 
-From a checkout, install the complete development environment with
-[uv](https://docs.astral.sh/uv/):
+A file can have the right columns and still contain the wrong numbers.
+finassert checks relationships such as **weights adding to 100%**, **cash
+reconciling**, **positions rolling forward**, and **forecast weeks connecting**.
+Each result explains what was checked, what was observed, and where it broke.
+
+| Finance-native | Reproducible | Fits your workflow |
+| :--- | :--- | :--- |
+| Explicit equations, signs, groups, and assumptions. | Decimal-aware tolerances and stable rule identifiers. | Python, YAML policies, CLI, browser, and assistant tools. |
+| No inferred FX or institutional limits. | Inspectable JSON and readable HTML reports. | No pandas, NumPy, or database dependency in the core. |
+
+> **Project status:** pre-alpha, under active development. APIs may change before
+> 1.0. Install from a checkout or an exact source revision; no published PyPI
+> release or hosted documentation is claimed.
+
+## Choose your workflow
+
+| You want to… | Start here | What you get |
+| :--- | :--- | :--- |
+| **Check a file without writing code** | [Browser guide](docs/browser-app.md) | File preview, check settings, downloadable reports and policies. |
+| **Validate data in Python** | [Quick start](#quick-start) | Composable rules for mappings, row records, or pandas DataFrames. |
+| **Gate a pipeline or scheduled job** | [CLI and policies](docs/command-line.md) | Versioned policies, JSON artifacts, and distinct exit codes. |
+| **Review a treasury forecast** | [13-week walkthrough](#try-a-13-week-cash-forecast) | Schedule coverage and cash continuity by series and currency. |
+| **Use an AI assistant** | [Assistant tool server](docs/assistant.md) | The same checks through MCP, within folders you allow. |
+| **Work inside Excel** | [Excel add-in](docs/excel-add-in.md) | An initial task pane; real-Excel verification remains outstanding. |
+
+## Quick start
+
+### 1. Install from the repository
+
+Requires **Python 3.11+** and [uv](https://docs.astral.sh/uv/).
 
 ```bash
+git clone https://github.com/thatquantguy44/finassert.git
+cd finassert
 uv sync --all-extras --dev
 ```
 
-For an application that only needs mapping and row-record inputs:
+This installs the checkout with optional interfaces and development tools.
+
+<details>
+<summary><strong>Install only what your application needs</strong></summary>
+
+From a local checkout, use an editable core install:
 
 ```bash
-uv add finassert
+python -m pip install -e .
 ```
 
-Install `finassert[pandas]` when pandas DataFrames are required, and
-`finassert[cli]` for the command line with YAML policies. Until a release
-is published, install from a checkout or a pinned source revision.
+| Extra | Adds |
+| :--- | :--- |
+| `pandas` | pandas DataFrame support |
+| `cli` | YAML policies for the command line |
+| `parquet` | Parquet input through pyarrow |
+| `assistant` | The MCP assistant tool server |
 
-## Quick start
+For example, `python -m pip install -e ".[cli,pandas]"`.
+CSV, JSON, and Excel `.xlsx` readers need no extra parser dependency.
+For reproducible deployments, pin an exact source commit or verified built
+artifact rather than following a floating branch.
+
+</details>
+
+### 2. Run your first check
+
+Save this as `quickstart.py` and run `uv run python quickstart.py`:
 
 ```python
 import finassert as fa
@@ -58,38 +97,76 @@ report = fa.check(
         fa.non_negative(column="market_value"),
     ],
 )
-
 print(report.summary())
-if not report.passed:
-    raise RuntimeError("Financial validation failed")
 ```
-
-Output:
 
 ```text
 finassert PASS: 2 passed, 0 failed, 0 errors, 0 skipped
 ```
 
-A failed allocation explains the observed value and remains machine-readable:
+<details>
+<summary><strong>See a failed check and inspect its evidence</strong></summary>
 
 ```python
+import finassert as fa
+
 report = fa.check({"weight": [0.40, 0.50]}, [fa.weights_sum_to_one()])
-print(report.summary())
-print(report.results[0].observed)  # 0.9
+result = report.results[0]
+
+print(result.rule_id)  # portfolio.weights_sum_to_one
+print(result.observed)  # 0.9
+print(result.expected)  # 1
+print(result.outcome)  # failed
 ```
 
-```text
-finassert FAIL: 0 passed, 1 failed, 0 errors, 0 skipped
-- [error] portfolio.weights_sum_to_one: Weight total 0.9 is not within tolerance of 1.
+Results retain rule identity, outcome, severity, observed and expected values,
+tolerance, and diagnostic metadata. Use `report.to_dict()` for a JSON-compatible
+representation. Decimal amounts serialize as strings.
+
+</details>
+
+### 3. Create a report you can share
+
+```bash
+uv run finassert check \
+  --config examples/policy.yml \
+  --input examples/positions.csv \
+  --output report.json \
+  --html report.html
 ```
 
-## Without writing Python
+Open `report.html`. **This sample intentionally fails one check** on a negative
+market value and exits with code `1`; that is the expected result. The HTML
+explains the exception and the JSON contains the corresponding report artifact.
 
-Describe the checks in a policy file:
+## Prefer a visual workflow?
+
+Build the browser app from your checkout:
+
+```bash
+uv run python scripts/build_web.py
+```
+
+Open **`dist/web/finassert.html`**, then:
+
+1. **Choose your data** — preview a CSV, JSON file, or Excel workbook.
+2. **Choose your checks** — open a policy, start from a template, or add checks.
+3. **Review the results** — download HTML, JSON, and the exact policy that ran.
+
+Validation runs in your browser; your dataset is not uploaded. At startup,
+the app downloads its pinned Python runtime and YAML reader from a CDN. After
+startup it makes no network requests. See the [browser guide](docs/browser-app.md)
+for privacy details and self-hosting options.
+
+<details>
+<summary><strong>Write a policy instead of Python</strong></summary>
 
 ```yaml
 version: 1
-name: Daily positions
+name: Long-only positions
+assumptions:
+  - Weights are fractions of 1, not percentages.
+  - Market values must be nonnegative for this long-only file.
 rules:
   - rule: weights_sum_to_one
     column: weight
@@ -98,66 +175,132 @@ rules:
     column: market_value
 ```
 
-Then run them against a CSV export and get a report anyone can read (try it with
-`examples/policy.yml` and `examples/positions.csv`):
+Column names must match your file. Quote tolerances to preserve exact decimal
+intent. Unknown settings and invalid policies are reported, never silently
+corrected.
 
 ```bash
-finassert check --config policy.yml --input positions.csv --html report.html
+uv run finassert rules
+uv run finassert templates
+uv run finassert init --template long-only-holdings --output policy.yml
 ```
 
-Exit codes separate passes (`0`), failed checks (`1`), checks that could not
-run (`2`), invalid policies (`3`), and unreadable files (`4`), so the same
-command gates CI jobs and ETL steps. `finassert rules` describes every check in
-plain language, and `finassert init --template long-only-holdings` writes a
-starter policy, with its assumptions, for you to adapt.
+[Read the policy guide →](docs/command-line.md)
 
-For people who prefer not to use a terminal, `python scripts/build_web.py`
-produces a single HTML file that runs the same checks entirely inside the
-browser: choose a file, pick checks from a list, and download the report and the
-policy. The data never leaves the computer. See
-[policies and the command line](docs/command-line.md) and the
-[browser app](docs/browser-app.md).
+</details>
 
-AI assistants such as Claude can run the same checks through the
-[assistant tool server](docs/assistant.md) (`finassert[assistant]`), which
-reads only the folders you allow.
+## Try a 13-week cash forecast
 
-## Errors and failures
+Check **208 synthetic rows across 16 independent series**: two entities,
+currencies, scenarios, and forecast vintages, each with thirteen weekly periods.
 
-Evaluation errors (for example, a missing configured column) are a separate
-outcome and never count as passes. Set `raise_on_error=True` to fail immediately
-with `RuleEvaluationError`; otherwise the engine records the error and continues.
+```bash
+uv run finassert check \
+  --config examples/treasury/policy.yml \
+  --input examples/treasury/cash-forecast.csv \
+  --html treasury-report.html
+```
 
-## Capabilities
+| Check | The question it answers |
+| :--- | :--- |
+| `treasury.forecast_coverage` | Does every expected series contain exactly one row for every week? |
+| `treasury.cash_continuity` | Does each week's opening cash match the prior week's closing cash? |
 
-| Available now | Designed and deferred |
-|---|---|
-| Weight (per portfolio), nonnegative, duplicate, required-field, cash, NAV, market-value, return, exposure, position-limit, range, weight-consistency, drift, turnover, position roll-forward, weekly forecast coverage and cash continuity rules | Collateral, financing, liquidity-buffer and facility-capacity rules |
-| Mappings, row records, and pandas DataFrames | Polars, SQL, streaming, distributed execution |
-| Decimal-aware tolerance handling | Typed currencies, FX providers, financial units |
-| Typed column, grouping, and aggregation contracts | Public grouped accounting rules |
-| Text, JSON, and self-contained HTML reports | Excel add-in verified in real Excel (an initial task pane exists) |
-| Assistant tool server (MCP) for AI assistants | |
-| Starter policy templates with stated assumptions, matched to your file's column names | |
-| YAML/JSON policies, CLI, and in-browser app | More templates as rules are added |
-| CSV, JSON, Excel (.xlsx), and Parquet input files | |
-| Callable custom rules and an explicit registry | Plugin discovery and rule version negotiation |
+The sample passes both checks. Scope is declared independently of the data, so
+an entirely absent entity or currency is detected. Cash continuity refuses to
+bridge a missing or duplicate week. Currencies stay separate.
 
-Negative weights are not rejected: short positions may be legitimate. Apply
-`non_negative` only to a field whose financial meaning requires it. Null handling
-is explicit (`"fail"`, `"ignore"`, or `"skip"`) and defaults to failure.
+<details>
+<summary><strong>Explore failure cases and what comes next</strong></summary>
 
-## Architecture
+The [fixture guide](examples/treasury/README.md) and
+[failure recipes](examples/treasury/failure-cases.json) cover missing weeks,
+missing series, duplicate weeks, and disconnected cash balances. Each recipe
+identifies the rows to change and the expected outcome.
 
-The dependency-free engine executes `Rule` objects in caller-provided order.
-Each returns a `ValidationResult`; the engine aggregates them into a
-`ValidationReport`. Built-in rules consume a minimal column-source contract, so
-optional dataframe integrations remain outside the core import path.
+These checks validate the supplied schedule. They do not establish forecast
+accuracy or liquidity sufficiency. Compose the existing
+[`cash_reconciles` rule](docs/examples/cash-reconciliation.md) for the
+within-week cash-flow identity.
 
-See [architecture](docs/architecture.md), [rule development](docs/rule-development.md),
-and the [implementation specifications](specs/README.md).
+**Planned next:** minimum cash buffers and facility capacity, followed by
+forecast-versus-actual checks and financing schedules. QuantMeridian integration
+is designed but remains deferred.
 
-## Development
+[Treasury guide →](docs/examples/treasury-forecast.md) ·
+[Specification and plan →](specs/0012-treasury-capital-markets/SPEC.md)
+
+</details>
+
+## Explore the checks
+
+| Workflow | Available checks | Walkthrough |
+| :--- | :--- | :--- |
+| **Portfolio integrity** | Weight totals, required fields, duplicates, nonnegative values | [Portfolio validation](docs/examples/portfolio-validation.md) |
+| **Accounting** | Cash and NAV reconciliation with explicit grouping and signs | [Cash](docs/examples/cash-reconciliation.md) · [NAV](docs/examples/nav-reconciliation.md) |
+| **Valuation and returns** | Quantity × price × multiplier, simple return reconciliation | [Valuation and returns](docs/examples/valuation-and-returns.md) |
+| **Exposure and limits** | Gross, net, position, and numeric-range checks | [Exposure limits](docs/examples/exposure-limits.md) |
+| **Rebalancing** | Weights versus market values, target drift, turnover | [Rebalancing](docs/examples/rebalancing.md) |
+| **Position lifecycle** | Opening quantity, buys, sells, adjustments, and closing quantity | [Position roll-forward](docs/examples/position-rollforward.md) |
+| **Treasury schedules** | Expected weekly coverage and cash continuity | [Treasury forecasts](docs/examples/treasury-forecast.md) |
+
+**Inputs:** mappings, row records, and optional pandas DataFrames; files in CSV,
+JSON, Excel `.xlsx`/`.xlsm`, and optional Parquet. The browser supports CSV, JSON,
+and Excel; Parquet requires the CLI.
+
+**Outputs:** text summaries, JSON artifacts, and self-contained HTML reports.
+Rules do not normalize or mutate your input data.
+
+## Understand the result
+
+| Outcome | Meaning |
+| :--- | :--- |
+| **Passed** | The configured relationship holds for the evaluated data. |
+| **Failed** | A check found a violation; severity determines whether it blocks the report. |
+| **Error** | A check could not run, for example because a configured column is missing. Always blocks. |
+| **Skipped** | A check was not evaluated under its explicit skip policy. |
+
+An empty rule set or skipped checks can produce a passing core report. If a
+workflow requires particular checks, enforce their coverage before treating a
+dataset as validated. Warning and info failures remain visible even when they
+do not block the default report. Use `--fail-on warning` for a stricter CLI gate.
+
+Negative weights and balances can be legitimate. Apply nonnegative rules only
+where financial meaning requires it. Null handling is explicit and rule-specific;
+the default is failure. Limits, FX conversion, and sign conventions are explicit.
+
+<details>
+<summary><strong>CLI exit codes for automation</strong></summary>
+
+| Code | Meaning |
+| :--- | :--- |
+| `0` | No blocking result at the configured threshold; may include skips or warnings. |
+| `1` | At least one financial check failed at the blocking threshold. |
+| `2` | At least one check could not run; takes precedence over `1`. |
+| `3` | Invalid command, invalid policy, or unreadable policy. |
+| `4` | Unreadable input or an output report could not be written. |
+
+Use `raise_on_error=True` in Python to raise `RuleEvaluationError` immediately
+instead of recording an evaluation error and continuing.
+
+</details>
+
+## Build on finassert
+
+The dependency-free engine runs `Rule` objects in caller-provided order. Each
+returns a `ValidationResult`; the engine aggregates a `ValidationReport`.
+Optional dataframe and interface dependencies stay outside the core import path.
+
+| Reference | Use it to… |
+| :--- | :--- |
+| [API reference](docs/reference/index.md) | Find factories, contracts, tolerances, and report types. |
+| [Architecture](docs/architecture.md) | Understand the engine and adapter boundaries. |
+| [Rule development](docs/rule-development.md) | Add a check with explicit financial semantics. |
+| [Specifications](specs/README.md) | Review implemented and proposed contracts. |
+| [Roadmap](docs/roadmap.md) | Follow adapter, financing, units, and interface work. |
+
+<details>
+<summary><strong>Contributor checks</strong></summary>
 
 ```bash
 uv run pytest
@@ -166,21 +309,21 @@ uv run ruff format --check .
 uv run mypy src/finassert
 uv run mkdocs build --strict
 uv build
-uv run python scripts/build_web.py
+uv run python scripts/verify_dist.py dist
 ```
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Security
-issues follow the private process in [SECURITY.md](SECURITY.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before substantial changes. It covers
+financial-semantics proposals, synthetic test data, and commit identity rules.
+Security reports follow [SECURITY.md](SECURITY.md).
 
-## Roadmap
+</details>
 
-The next milestones are the adapter and diagnostic contract described in
-[specification 0004](specs/0004-dataframe-adapters.md), catalog rules whose
-financial semantics can be stated without institutional assumptions, and the
-remaining [non-technical interface](specs/0011-non-technical-interfaces.md)
-work: more templates as rules are added, and integration inside Excel. The
-full sequence appears in the [roadmap](docs/roadmap.md).
+---
 
-## License
+<div align="center">
 
-Licensed under the [MIT License](LICENSE).
+**Bring your data. Define your checks. Inspect the evidence.**
+
+[Getting started](docs/getting-started.md) · [Report an issue](https://github.com/thatquantguy44/finassert/issues) · [MIT License](LICENSE) · [Back to top](#finassert)
+
+</div>
