@@ -5,7 +5,7 @@
 
 ## Current state
 
-- **Branch:** `feature/bounded-diagnostic-memory`, based on merged PR #17 (`5ec9959`).
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18), based on merged PR #17 (`5ec9959`).
 - **Latest delivered work:** Count every failure while retaining bounded diagnostic
   samples throughout built-in scalar evaluation.
 - **Evidence:** 2,144 tests pass, including 1,322 complete scalar-reference
@@ -19,7 +19,7 @@
 
 ### 2026-11-13 — Bounded diagnostic memory during scalar evaluation
 
-- **Branch:** `feature/bounded-diagnostic-memory`, from merged PR #17 (`5ec9959`).
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18), from merged PR #17 (`5ec9959`).
 - **Done:** Added a private count-and-prefix sample; applied it to arithmetic,
   scalar weights, shared row/group evaluators, integrity, and nested exposure /
   alignment diagnostics. Stable turnover top-five selection replaces a full

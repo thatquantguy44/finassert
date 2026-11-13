@@ -17,7 +17,7 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `feature/bounded-diagnostic-memory`.
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18).
 - **Last recorded main merge:** PR #17, seven-priority delivery (`5ec9959`).
 - **Delivery:** Spec 0010 now bounds diagnostic retention during scalar evaluation;
   all failures are counted and complete reference reports are preserved. Dense
@@ -54,7 +54,7 @@ rewrite old entries (append a correction instead).
 
 ### 2026-11-13 — Bound diagnostic memory during evaluation (spec 0010)
 
-- **Branch:** `feature/bounded-diagnostic-memory`, from merged PR #17 (`5ec9959`).
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18), from merged PR #17 (`5ec9959`).
 - **Done:** Built-in arithmetic, weights, shared row/group, integrity, exposure,
   and alignment evaluators now count every failure with bounded example samples.
   Existing outcomes, messages, row identity/order, totals, truncation, numerical
