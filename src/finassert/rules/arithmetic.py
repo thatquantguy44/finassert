@@ -9,6 +9,7 @@ from typing import Any
 from finassert.adapters._column import extract_column, extract_columns, is_missing
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._helpers import is_blank, precise_sum
 from finassert.rules.base import NullPolicy
 
@@ -28,52 +29,56 @@ class NonNegativeRule:
     def evaluate(self, data: Any) -> ValidationResult:
         """Evaluate values against ``-absolute_tolerance`` inclusively."""
         values, labels = extract_column(data, self.column)
-        missing_rows = [labels[index] for index, value in enumerate(values) if is_missing(value)]
+        missing_rows: Sample[Any] = Sample(self.max_violations)
+        if self.null_policy is NullPolicy.SKIP:
+            for label, value in zip(labels, values, strict=True):
+                if is_missing(value):
+                    missing_rows.add(label)
         if missing_rows and self.null_policy is NullPolicy.SKIP:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the configured column contains missing values.",
                 metadata={
-                    "missing_rows": missing_rows[: self.max_violations],
-                    "missing_row_count": len(missing_rows),
+                    "missing_rows": missing_rows.examples,
+                    "missing_row_count": missing_rows.count,
                 },
             )
-        violations: list[dict[str, Any]] = []
-        invalid_rows: list[Any] = []
+        violations: Sample[dict[str, Any]] = Sample(self.max_violations)
+        invalid_rows: Sample[Any] = Sample(self.max_violations)
         checked = 0
         for label, value in zip(labels, values, strict=True):
             if is_missing(value):
                 if self.null_policy is NullPolicy.FAIL:
-                    invalid_rows.append(label)
+                    invalid_rows.add(label)
                 continue
             if not is_finite(value):
-                invalid_rows.append(label)
+                invalid_rows.add(label)
                 continue
             checked += 1
             threshold = _negative_absolute(self.tolerance.absolute, value)
             if value < threshold:
-                violations.append({"row": label, "value": value})
+                violations.add({"row": label, "value": value})
         failed = bool(violations or invalid_rows)
         if failed:
             message = (
-                f"Column {self.column!r} has {len(violations)} value(s) below the allowed "
-                f"minimum and {len(invalid_rows)} missing/non-finite value(s)."
+                f"Column {self.column!r} has {violations.count} value(s) below the allowed "
+                f"minimum and {invalid_rows.count} missing/non-finite value(s)."
             )
         else:
             message = f"All {checked} checked value(s) in {self.column!r} are nonnegative."
         return self._result(
             Outcome.FAILED if failed else Outcome.PASSED,
             message,
-            observed=len(violations),
+            observed=violations.count,
             expected=0,
             metadata={
                 "column": self.column,
                 "checked_count": checked,
-                "violation_count": len(violations),
-                "violations": violations[: self.max_violations],
-                "violations_truncated": len(violations) > self.max_violations,
-                "invalid_rows": invalid_rows[: self.max_violations],
-                "invalid_row_count": len(invalid_rows),
+                "violation_count": violations.count,
+                "violations": violations.examples,
+                "violations_truncated": violations.count > self.max_violations,
+                "invalid_rows": invalid_rows.examples,
+                "invalid_row_count": invalid_rows.count,
             },
         )
 
@@ -163,15 +168,19 @@ class InRangeRule:
         """Evaluate every value against the limits, widened by the tolerance."""
         columns, labels = extract_columns(data, [self.column], row_key=self.row_key)
         values = columns[self.column]
-        blank_rows = [labels[i] for i, value in enumerate(values) if is_blank(value)]
+        blank_rows: Sample[Any] = Sample(self.max_violations)
+        if self.null_policy is NullPolicy.SKIP:
+            for label, value in zip(labels, values, strict=True):
+                if is_blank(value):
+                    blank_rows.add(label)
         if blank_rows and self.null_policy is NullPolicy.SKIP:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the configured column contains blank values.",
                 metadata={
                     "column": self.column,
-                    "missing_rows": blank_rows[: self.max_violations],
-                    "missing_row_count": len(blank_rows),
+                    "missing_rows": blank_rows.examples,
+                    "missing_row_count": blank_rows.count,
                 },
             )
         low = (
@@ -180,47 +189,47 @@ class InRangeRule:
         high = (
             None if self.maximum is None else precise_sum([self.maximum, self.tolerance.absolute])
         )
-        violations: list[dict[str, Any]] = []
-        invalid_rows: list[Any] = []
+        violations: Sample[dict[str, Any]] = Sample(self.max_violations)
+        invalid_rows: Sample[Any] = Sample(self.max_violations)
         checked = 0
         for label, value in zip(labels, values, strict=True):
             if is_blank(value):
                 if self.null_policy is NullPolicy.FAIL:
-                    invalid_rows.append(label)
+                    invalid_rows.add(label)
                 continue
             if not is_finite(value):
-                invalid_rows.append(label)
+                invalid_rows.add(label)
                 continue
             checked += 1
             if high is not None and value > high:
                 assert self.maximum is not None
-                violations.append(self._violation(label, value, "above_maximum", self.maximum))
+                violations.add(self._violation(label, value, "above_maximum", self.maximum))
             elif low is not None and value < low:
                 assert self.minimum is not None
-                violations.append(self._violation(label, value, "below_minimum", self.minimum))
+                violations.add(self._violation(label, value, "below_minimum", self.minimum))
         failed = bool(violations or invalid_rows)
         if failed:
             message = (
-                f"Column {self.column!r} has {len(violations)} value(s) outside the allowed "
-                f"range and {len(invalid_rows)} blank or non-numeric value(s)."
+                f"Column {self.column!r} has {violations.count} value(s) outside the allowed "
+                f"range and {invalid_rows.count} blank or non-numeric value(s)."
             )
         else:
             message = f"All {checked} checked value(s) in {self.column!r} are within range."
         return self._result(
             Outcome.FAILED if failed else Outcome.PASSED,
             message,
-            observed=len(violations),
+            observed=violations.count,
             expected=0,
             metadata={
                 "column": self.column,
                 "minimum": self.minimum,
                 "maximum": self.maximum,
                 "checked_count": checked,
-                "violation_count": len(violations),
-                "violations": violations[: self.max_violations],
-                "violations_truncated": len(violations) > self.max_violations,
-                "invalid_rows": invalid_rows[: self.max_violations],
-                "invalid_row_count": len(invalid_rows),
+                "violation_count": violations.count,
+                "violations": violations.examples,
+                "violations_truncated": violations.count > self.max_violations,
+                "invalid_rows": invalid_rows.examples,
+                "invalid_row_count": invalid_rows.count,
             },
         )
 

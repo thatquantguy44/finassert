@@ -11,6 +11,7 @@ from finassert.adapters.contracts import ColumnMapping, GroupKey
 from finassert.core.exceptions import GroupAggregationError, InvalidDataError
 from finassert.core.models import Outcome, ValidationResult
 from finassert.numerical import Numeric, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._helpers import is_blank
 from finassert.rules.base import NullPolicy
 from finassert.rules.grouped import aggregate_ordered, order_value
@@ -49,19 +50,16 @@ class Collected:
 
     Attributes:
         groups: Groups in order of first appearance.
-        unusable_rows: Rows, in file order, with blank required values
+        unusable_rows: Count and bounded sample, in file order, of blank required values
             (``blank``) or non-numeric values or ordering values (``invalid``).
         row_count: Number of rows read.
     """
 
     groups: list[Group]
-    unusable_rows: list[dict[str, Any]]
+    unusable_rows: Sample[dict[str, Any]]
     row_count: int
-
-    @property
-    def has_blanks(self) -> bool:
-        """Return whether any unusable row has a blank value."""
-        return any(item.get("blank") for item in self.unusable_rows)
+    has_blanks: bool
+    has_invalid: bool
 
 
 def collect_groups(
@@ -70,6 +68,7 @@ def collect_groups(
     semantics: Sequence[str],
     *,
     blank_allowed: Collection[str] = (),
+    max_violations: int = 20,
 ) -> Collected:
     """Read the mapped columns and partition rows by the mapping's group keys.
 
@@ -91,7 +90,9 @@ def collect_groups(
     columns, labels = extract_columns(data, names, row_key=mapping.row_key)
 
     groups: dict[tuple[Any, ...], Group] = {}
-    unusable_rows: list[dict[str, Any]] = []
+    unusable_rows: Sample[dict[str, Any]] = Sample(max_violations)
+    has_blanks = False
+    has_invalid = False
     for position, label in enumerate(labels):
         key = tuple(columns[group_key.column][position] for group_key in mapping.group_keys)
         if any(is_blank(value) for value in key):
@@ -125,7 +126,9 @@ def collect_groups(
                 entry["blank"] = missing
             if invalid:
                 entry["invalid"] = invalid
-            unusable_rows.append(entry)
+            unusable_rows.add(entry)
+            has_blanks = has_blanks or bool(missing)
+            has_invalid = has_invalid or bool(invalid)
             continue
 
         group = groups.get(key)
@@ -147,6 +150,8 @@ def collect_groups(
         groups=list(groups.values()),
         unusable_rows=unusable_rows,
         row_count=len(labels),
+        has_blanks=has_blanks,
+        has_invalid=has_invalid,
     )
 
 
@@ -217,7 +222,13 @@ def evaluate_groups(
     values make the result fail, or skip it when ``null_policy`` is ``skip`` and
     only blanks are present.
     """
-    collected = collect_groups(data, rule.mapping, semantics, blank_allowed=blank_allowed)
+    collected = collect_groups(
+        data,
+        rule.mapping,
+        semantics,
+        blank_allowed=blank_allowed,
+        max_violations=rule.max_violations,
+    )
     context = {
         **description,
         "group_keys": [key.name for key in rule.mapping.group_keys],
@@ -230,37 +241,36 @@ def evaluate_groups(
             {**context, "group_count": 0},
         )
     unusable = collected.unusable_rows
-    only_blanks = all("invalid" not in item for item in unusable)
+    only_blanks = not collected.has_invalid
     if collected.has_blanks and only_blanks and rule.null_policy is NullPolicy.SKIP:
         # Skipping covers blanks only: a non-numeric value is corrupt data and
         # must fail even when other rows are blank.
-        blank = [item for item in unusable if item.get("blank")]
         return rule._grouped_result(
             Outcome.SKIPPED,
-            f"Skipped because {len(blank)} row(s) have blank values.",
-            {**context, "blank_rows": blank[: rule.max_violations], "blank_row_count": len(blank)},
+            f"Skipped because {unusable.count} row(s) have blank values.",
+            {**context, "blank_rows": unusable.examples, "blank_row_count": unusable.count},
         )
     if unusable:
         return rule._grouped_result(
             Outcome.FAILED,
-            f"{len(unusable)} row(s) have blank or non-numeric values, so their groups "
+            f"{unusable.count} row(s) have blank or non-numeric values, so their groups "
             f"{wording.unusable}.",
             {
                 **context,
-                "unusable_row_count": len(unusable),
-                "unusable_rows": unusable[: rule.max_violations],
-                "unusable_rows_truncated": len(unusable) > rule.max_violations,
+                "unusable_row_count": unusable.count,
+                "unusable_rows": unusable.examples,
+                "unusable_rows_truncated": unusable.count > rule.max_violations,
             },
         )
 
-    failed: list[dict[str, Any]] = []
+    failed: Sample[dict[str, Any]] = Sample(rule.max_violations)
     for group in collected.groups:
         try:
             failure = check(group)
         except GroupAggregationError as exc:
             failure = {"reason": "inconsistent_rows", "detail": str(exc)}
         if failure is not None:
-            failed.append(
+            failed.add(
                 {
                     "group": group.identity,
                     **failure,
@@ -274,7 +284,7 @@ def evaluate_groups(
     noun = "group" if grouped else "file"
     if failed:
         message = (
-            f"{len(failed)} of {count} {noun}(s) {wording.fails}."
+            f"{failed.count} of {count} {noun}(s) {wording.fails}."
             if grouped
             else f"The file {wording.file_fails}."
         )
@@ -290,11 +300,11 @@ def evaluate_groups(
         {
             **context,
             "group_count": count,
-            "failed_group_count": len(failed),
-            "failed_groups": failed[: rule.max_violations],
-            "failed_groups_truncated": len(failed) > rule.max_violations,
+            "failed_group_count": failed.count,
+            "failed_groups": failed.examples,
+            "failed_groups_truncated": failed.count > rule.max_violations,
         },
-        observed=len(failed),
+        observed=failed.count,
         expected=0,
     )
 

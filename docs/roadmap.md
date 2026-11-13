@@ -21,8 +21,10 @@ Remaining project work:
    the [spike](design/excel-integration.md) in real Excel next.
 4. Extend the initial typed units and direct FX contracts only for demonstrated
    use cases; providers and conversion paths remain deferred.
-5. Use retained scalar benchmarks under spec 0010 before selecting any bounded
-   allocation, vectorization, or concurrency work. No optimized batch API is public.
+5. Bounded diagnostic sampling under spec 0010 now counts all failures while
+   retaining capped examples during evaluation. Use the updated scalar profiles
+   before selecting shared-read, vectorization, or concurrency work. No optimized
+   batch API is public.
 
 Polars, distributed execution, hosted services, generated rules, interactive
 dashboards, and live currency conversion remain explicitly deferred.

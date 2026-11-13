@@ -14,6 +14,7 @@ from typing import Any
 
 from finassert.adapters._column import extract_columns
 from finassert.core.models import Outcome, Severity, ValidationResult
+from finassert.rules._diagnostics import Sample
 from finassert.rules._grouping import _MAX_ROWS_LISTED
 from finassert.rules._helpers import is_blank
 from finassert.rules.base import NullPolicy
@@ -81,66 +82,73 @@ class NoDuplicatesRule:
         if not labels:
             return _result(self, Outcome.SKIPPED, "The file has no rows to check.", {})
 
-        seen: dict[tuple[Any, ...], list[Any]] = {}
-        blank_rows: list[Any] = []
-        unhashable_rows: list[Any] = []
+        seen: dict[tuple[Any, ...], Sample[Any]] = {}
+        blank_rows: Sample[Any] = Sample(self.max_violations)
+        unhashable_rows: Sample[Any] = Sample(self.max_violations)
         for position, label in enumerate(labels):
             key = tuple(values[column][position] for column in self.columns)
             if any(is_blank(value) for value in key):
-                blank_rows.append(label)
+                blank_rows.add(label)
                 continue
             try:
-                seen.setdefault(key, []).append(label)
+                rows = seen.get(key)
+                if rows is None:
+                    rows = Sample(_MAX_ROWS_LISTED)
+                    seen[key] = rows
+                rows.add(label)
             except TypeError:
-                unhashable_rows.append(label)
+                unhashable_rows.add(label)
 
         base = {"columns": list(self.columns), "row_count": len(labels)}
         if blank_rows and self.null_policy is NullPolicy.SKIP:
             return _result(
                 self,
                 Outcome.SKIPPED,
-                f"Skipped because {len(blank_rows)} row(s) have a blank key.",
+                f"Skipped because {blank_rows.count} row(s) have a blank key.",
                 {
                     **base,
-                    "blank_rows": blank_rows[: self.max_violations],
-                    "blank_row_count": len(blank_rows),
+                    "blank_rows": blank_rows.examples,
+                    "blank_row_count": blank_rows.count,
                 },
             )
-        duplicates = [
-            {
-                "key": dict(zip(self.columns, key, strict=True)),
-                "count": len(rows),
-                "rows": rows[:_MAX_ROWS_LISTED],
-            }
-            for key, rows in seen.items()
-            if len(rows) > 1
-        ]
+        duplicates: Sample[dict[str, Any]] = Sample(self.max_violations)
+        duplicate_row_count = 0
+        for key, rows in seen.items():
+            if rows.count > 1:
+                duplicate_row_count += rows.count
+                duplicates.add(
+                    {
+                        "key": dict(zip(self.columns, key, strict=True)),
+                        "count": rows.count,
+                        "rows": rows.examples,
+                    }
+                )
         blanks_fail = bool(blank_rows) and self.null_policy is NullPolicy.FAIL
         failed = bool(duplicates or unhashable_rows or blanks_fail)
         metadata: dict[str, Any] = {
             **base,
-            "checked_count": sum(len(rows) for rows in seen.values()),
-            "duplicate_key_count": len(duplicates),
-            "duplicate_row_count": sum(item["count"] for item in duplicates),
-            "duplicates": duplicates[: self.max_violations],
-            "duplicates_truncated": len(duplicates) > self.max_violations,
+            "checked_count": sum(rows.count for rows in seen.values()),
+            "duplicate_key_count": duplicates.count,
+            "duplicate_row_count": duplicate_row_count,
+            "duplicates": duplicates.examples,
+            "duplicates_truncated": duplicates.count > self.max_violations,
         }
         if blank_rows:
-            metadata["blank_row_count"] = len(blank_rows)
+            metadata["blank_row_count"] = blank_rows.count
             if blanks_fail:
-                metadata["blank_rows"] = blank_rows[: self.max_violations]
+                metadata["blank_rows"] = blank_rows.examples
         if unhashable_rows:
-            metadata["unusable_rows"] = unhashable_rows[: self.max_violations]
-            metadata["unusable_row_count"] = len(unhashable_rows)
+            metadata["unusable_rows"] = unhashable_rows.examples
+            metadata["unusable_row_count"] = unhashable_rows.count
         what = "/".join(self.columns)
         unit = "combination(s)" if len(self.columns) > 1 else "value(s)"
         parts = []
         if duplicates:
-            parts.append(f"{len(duplicates)} {what} {unit} appear on more than one row")
+            parts.append(f"{duplicates.count} {what} {unit} appear on more than one row")
         if blanks_fail:
-            parts.append(f"{len(blank_rows)} row(s) have a blank key")
+            parts.append(f"{blank_rows.count} row(s) have a blank key")
         if unhashable_rows:
-            parts.append(f"{len(unhashable_rows)} row(s) hold values that cannot be compared")
+            parts.append(f"{unhashable_rows.count} row(s) hold values that cannot be compared")
         message = (
             "; ".join(parts) + "."
             if failed
@@ -151,7 +159,7 @@ class NoDuplicatesRule:
             Outcome.FAILED if failed else Outcome.PASSED,
             message,
             metadata,
-            observed=len(duplicates),
+            observed=duplicates.count,
             expected=0,
         )
 
@@ -182,18 +190,17 @@ class RequiredFieldsRule:
             return _result(self, Outcome.SKIPPED, "The file has no rows to check.", {})
         blanks: list[dict[str, Any]] = []
         for column in self.columns:
-            rows = [
-                label
-                for label, value in zip(labels, values[column], strict=True)
-                if is_blank(value)
-            ]
+            rows = Sample[Any](self.max_violations)
+            for label, value in zip(labels, values[column], strict=True):
+                if is_blank(value):
+                    rows.add(label)
             if rows:
                 blanks.append(
                     {
                         "column": column,
-                        "blank_count": len(rows),
-                        "rows": rows[: self.max_violations],
-                        "rows_truncated": len(rows) > self.max_violations,
+                        "blank_count": rows.count,
+                        "rows": rows.examples,
+                        "rows_truncated": rows.truncated,
                     }
                 )
         total = sum(item["blank_count"] for item in blanks)

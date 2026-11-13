@@ -10,6 +10,7 @@ and review focus; it does not introduce a second definition.
 
 - [Public API](spec.md#public-api-design)
 - [Data contracts](spec.md#data-contracts)
+- [Bounded diagnostic evaluation](spec.md#bounded-diagnostic-evaluation)
 - [Failure semantics](spec.md#failure-semantics)
 - [Acceptance criteria](spec.md#acceptance-criteria)
 
@@ -32,4 +33,14 @@ reproduction command. Timings exclude input construction and instrumentation;
 tracemalloc and cProfile use separate calls. RSS includes the whole worker.
 Repeated and cross-adapter report fingerprints must match; no deadline or speedup
 assertion is part of correctness tests. The source digest includes every runtime
-Python module and the runner. Optimized execution remains proposed.
+Python module and the runner. Batch/vectorized execution remains proposed.
+
+## Bounded scalar evaluation evidence — 2026-11-13
+
+The [measurement comparison](artifacts/README.md#bounded-diagnostic-evaluation)
+retains all 48 optimized cases and a paired grouped timing check. All original
+report fingerprints match. The regression fixture in
+[tests/fixtures/bounded-diagnostics-reference.json](../../tests/fixtures/bounded-diagnostics-reference.json)
+was captured from the merged scalar baseline at `5ec9959`; it fingerprints both
+direct evaluation and normalized reports. No contract migration is needed because
+public behavior and serialization are preserved.

@@ -10,9 +10,10 @@ from typing import Any
 from finassert.adapters._column import extract_column, is_missing
 from finassert.adapters.contracts import ColumnMapping, FieldAggregation, GroupKey
 from finassert.core.models import Outcome, Severity, ValidationResult
-from finassert.numerical import Numeric, Tolerance, coerce_tolerance
+from finassert.numerical import Numeric, Tolerance, coerce_tolerance, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._grouping import Group, Wording, evaluate_groups
-from finassert.rules._helpers import finite_numeric_values, precise_sum
+from finassert.rules._helpers import precise_sum
 from finassert.rules.base import NullPolicy
 
 _WEIGHTS = Wording(
@@ -67,41 +68,50 @@ class WeightsSumToOneRule:
         if self.group_by:
             return self._evaluate_groups(data)
         values, labels = extract_column(data, self.column)
-        missing = [index for index, value in enumerate(values) if is_missing(value)]
+        missing: Sample[Any] = Sample(self.max_violations)
+        if self.null_policy is not NullPolicy.IGNORE:
+            for label, value in zip(labels, values, strict=True):
+                if is_missing(value):
+                    missing.add(label)
         if missing and self.null_policy is NullPolicy.SKIP:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the weight column contains missing values.",
                 metadata={
-                    "missing_rows": [labels[index] for index in missing[: self.max_violations]],
-                    "missing_row_count": len(missing),
+                    "missing_rows": missing.examples,
+                    "missing_row_count": missing.count,
                 },
             )
         if missing and self.null_policy is NullPolicy.FAIL:
             return self._result(
                 Outcome.FAILED,
-                f"Weight column contains {len(missing)} missing value(s).",
+                f"Weight column contains {missing.count} missing value(s).",
                 metadata={
-                    "missing_rows": [labels[index] for index in missing[: self.max_violations]],
-                    "missing_row_count": len(missing),
+                    "missing_rows": missing.examples,
+                    "missing_row_count": missing.count,
                 },
             )
-        skipped = set(missing)
-        usable = [value for index, value in enumerate(values) if index not in skipped]
-        usable_labels = [label for index, label in enumerate(labels) if index not in skipped]
-        if not usable:
+        numeric: list[Numeric] = []
+        invalid: Sample[tuple[int, Any]] = Sample(self.max_violations)
+        usable_count = 0
+        for label, value in zip(labels, values, strict=True):
+            if is_missing(value):
+                continue
+            if is_finite(value):
+                numeric.append(value)
+            else:
+                invalid.add((usable_count, label))
+            usable_count += 1
+        if not usable_count:
             return self._result(Outcome.FAILED, "No weights were available to sum.", observed=None)
-        numeric, invalid = finite_numeric_values(usable)
         if invalid:
             return self._result(
                 Outcome.FAILED,
-                f"Weight column contains {len(invalid)} non-numeric or non-finite value(s).",
+                f"Weight column contains {invalid.count} non-numeric or non-finite value(s).",
                 metadata={
-                    "invalid_positions": invalid[: self.max_violations],
-                    "invalid_rows": [
-                        usable_labels[position] for position in invalid[: self.max_violations]
-                    ],
-                    "invalid_row_count": len(invalid),
+                    "invalid_positions": [position for position, _ in invalid.examples],
+                    "invalid_rows": [label for _, label in invalid.examples],
+                    "invalid_row_count": invalid.count,
                 },
             )
         total = precise_sum(numeric)
