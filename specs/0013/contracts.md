@@ -22,6 +22,15 @@ and review focus; it does not introduce a second definition.
 - Error markers are distinct from nulls; Decimal report values and formula-like strings
   are written as text.
 
+## Migration note — 2026-11-13
+
+Formula detection now precedes trailing blank-row removal, so an uncached final
+formula cannot disappear. `ExcelError` is a dependency-free `CellError` marker;
+requesting its column through rule extraction raises an evaluation error naming
+the column and row. Direct `WorkbookSource.column` reads still expose the marker.
+Only selected columns are evaluated. Main's existing `parse_xlsx` and selected
+range APIs retain their documented error-text behavior for compatibility.
+
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.

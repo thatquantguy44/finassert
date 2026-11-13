@@ -89,6 +89,10 @@ Missing columns and unsupported containers error. Null observations follow each
 rule's policy. Group-level failures identify group keys; collection failures are
 evaluation errors, never passes.
 
+Explicit `CellError` markers from a column source raise evaluation errors with
+row/column context before null or financial policy is applied. This is distinct
+from ordinary non-numeric text, which follows the rule's invalid-value behavior.
+
 ## Implementation milestones
 
 1. Mapping/record extraction and pandas index preservation (complete). 2. Formal

@@ -13,19 +13,15 @@ from decimal import Decimal
 from typing import Any
 
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
+from finassert.core.models import CellError
 
 
 @dataclass(frozen=True, slots=True)
-class ExcelError:
+class ExcelError(CellError):
     """A worksheet error cell such as ``#N/A`` or ``#DIV/0!``.
 
-    Rules treat this as a non-numeric observation, never as a null.
+    Column extraction raises an evaluation error when a rule requests this cell.
     """
-
-    code: str
-
-    def __str__(self) -> str:
-        return self.code
 
 
 class WorkbookSource:
@@ -101,6 +97,8 @@ def read_workbook(
             f"formula cell {uncached} has no cached value; open and save the workbook in Excel"
         )
 
+    while data and all(_cell_value(cell) is None for cell in data[-1][1]):
+        data.pop()
     labels = [number for number, _ in data]
     columns = {name: [_convert(row[index]) for _, row in data] for index, name in headers.items()}
     return WorkbookSource(dict(zip(headers.values(), columns.values(), strict=True)), labels)
@@ -121,8 +119,6 @@ def _read_rows(worksheet: Any, header_row: int, max_row: int | None) -> list[tup
         worksheet.iter_rows(min_row=header_row, max_row=max_row), start=header_row
     ):
         rows.append((number, list(row)))
-    while len(rows) > 1 and all(_cell_value(cell) is None for cell in rows[-1][1]):
-        rows.pop()
     return rows
 
 

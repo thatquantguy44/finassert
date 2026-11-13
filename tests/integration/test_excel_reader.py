@@ -97,6 +97,38 @@ def test_formula_without_cached_value_is_error(tmp_path: Path) -> None:
         read_workbook(path, sheet="Positions")
 
 
+@pytest.mark.parametrize("prefix", [[], [[1]], [[None]]])
+def test_trailing_uncached_formula_cannot_disappear(
+    tmp_path: Path, prefix: list[list[object]]
+) -> None:
+    path = _make(tmp_path / "formula.xlsx", [["value"], *prefix, ["=1+1"]])
+    with pytest.raises(InvalidDataError, match=f"A{len(prefix) + 2}"):
+        read_workbook(path, sheet="Positions")
+
+
+@pytest.mark.parametrize("policy", ["fail", "ignore", "skip"])
+def test_excel_error_cell_is_an_evaluation_error(tmp_path: Path, policy: str) -> None:
+    path = _make(tmp_path / "error.xlsx", [["weight"], ["#DIV/0!"]])
+    source = read_workbook(path, sheet="Positions")
+    report = fa.check(source, [fa.weights_sum_to_one(null_policy=policy)])
+    assert report.results[0].outcome is fa.Outcome.ERROR
+    assert "#DIV/0!" in report.results[0].message
+    assert "2" in report.results[0].message
+    assert not report.passed
+
+
+def test_unselected_error_column_does_not_break_valid_check(tmp_path: Path) -> None:
+    path = _make(tmp_path / "error.xlsx", [["weight", "unused"], [1, "#N/A"]])
+    source = read_workbook(path, sheet="Positions")
+    assert fa.check(source, [fa.weights_sum_to_one()]).passed
+
+
+def test_max_row_excludes_formula_outside_selected_region(tmp_path: Path) -> None:
+    path = _make(tmp_path / "bounded.xlsx", [["weight"], [1], ["=1+1"]])
+    source = read_workbook(path, sheet="Positions", max_row=2)
+    assert source.column("weight") == ([Decimal(1)], [2])
+
+
 def test_file_not_modified(tmp_path: Path) -> None:
     path = _make(tmp_path / "w.xlsx", [["a"], [1]])
     before = path.read_bytes()

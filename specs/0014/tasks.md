@@ -2,7 +2,7 @@
 
 Complete these gates in order. Evidence belongs in [handoff.md](handoff.md).
 
-- [ ] 1. Fix trailing uncached formulas and Excel error-cell classification (0013).
+- [x] 1. Fix trailing uncached formulas and Excel error-cell classification (0013).
 - [ ] 2. Enforce column/label alignment and shared adapter contracts (0004/0009).
 - [ ] 3. Standardize bounded diagnostics and versioned strict JSON artifacts (0005).
 - [ ] 4. Publish cash and NAV reconciliation with explicit preconditions (0002).

@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 1: Excel formula and error-cell correctness
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Excel formula and error-cell correctness.
+- **Evidence:** 86 focused Excel tests, Ruff, and mypy passed; six regressions failed before the fix.
+- **Next step:** Gate 2: enforce adapter lengths and shared contracts.
+
 ### 2026-11-13 — Reconcile current main before implementation
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, draft PR #17; tracking issue #16.

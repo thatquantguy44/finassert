@@ -8,6 +8,16 @@ from enum import Enum, StrEnum
 from typing import Any
 
 
+@dataclass(frozen=True, slots=True)
+class CellError:
+    """An unreadable cell, distinct from a missing or non-numeric observation."""
+
+    code: str
+
+    def __str__(self) -> str:
+        return self.code
+
+
 class Outcome(StrEnum):
     """The outcome of one rule evaluation."""
 

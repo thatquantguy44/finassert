@@ -15,9 +15,9 @@ acceptance certification.
 
 ## Remaining work, in order
 
-- [ ] Detect uncached formulas before dropping trailing blank rows; review reproduced a
+- [x] Detect uncached formulas before dropping trailing blank rows; review reproduced a
   formula-only final row becoming empty input and passing non_negative.
-- [ ] Make Excel error cells yield the specified evaluation-error behavior instead of
+- [x] Make Excel error cells yield the specified evaluation-error behavior instead of
   ordinary rule failure.
 - [ ] Run the full shared 0004 adapter contract suite over WorkbookSource.
 - [ ] Add coverage for cached formulas, workbook epochs, hidden/merged regions, and
