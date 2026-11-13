@@ -23,7 +23,7 @@ test coverage. Amend the specification with intentional contract changes.
 | U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | in-progress |
 | U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | in-progress |
 | U-05 | finassert | Implement minimum available-cash buffer | U-02 | AC-04, AC-07 | done |
-| U-06 | finassert | Implement facility identity, capacity, continuity and maturity behavior | U-03 | AC-05, AC-07 | todo |
+| U-06 | finassert | Implement facility identity, capacity, continuity and maturity behavior | U-03 | AC-05, AC-07 | in-progress |
 | U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | todo |
 | U-08 | finassert | Implement paired forecast-error rule and matching/vintage example | U-07 | AC-06–09 | todo |
 | U-09 | finassert | Implement debt principal and issuance proceeds rules with final 0002 amendment | U-01, U-07 | AC-07–10 | todo |

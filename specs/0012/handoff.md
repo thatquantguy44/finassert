@@ -3,10 +3,19 @@
 ## Current state
 
 Cash continuity, weekly coverage and minimum available-cash buffer are implemented.
-PR #21 slice 4 is verified; next is facility identity/capacity, then continuity/maturity.
+PR #21 slice 4 is verified. Slice 5 identity/capacity internals are verified;
+continuity/maturity and public exports/catalog remain pending.
 Consumer integration remains proposed.
 
 ## Entries
+
+### 2026-11-13 — Slice 5a facility principal and headroom
+
+Added internal facility principal identity and effective-capacity checks, strict
+nonnegative components and complete-schedule prerequisites. Headroom remains
+negative on an overdraw. All-row balances and violations use bounded samples.
+73 focused facility/buffer tests, Ruff and mypy passed. No public factory/catalog
+promotion yet: continuity, maturity and full acceptance are the next commit.
 
 ### 2026-11-13 — Slice 4 available-cash buffer
 
