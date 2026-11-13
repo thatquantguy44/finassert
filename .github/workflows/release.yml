@@ -32,6 +32,10 @@ jobs:
           fi
       - name: Check package metadata renders on PyPI
         run: uvx twine check --strict dist/*
+      - name: Build and verify immutable identity/capability sidecars
+        run: |
+          uv run python scripts/release_bundle.py build dist
+          uv run python scripts/release_bundle.py verify dist
       - run: uv run python scripts/build_web.py --output dist/finassert-web.html
       - uses: actions/upload-artifact@v4
         with:

@@ -2,10 +2,10 @@
 
 ## Release bundle
 
-- [ ] Define producer/consumer identity and integrity contracts.
-- [ ] Implement deterministic sidecars and offline verification.
-- [ ] Test tampering, metadata, source parity and unsafe input cases.
-- [ ] Integrate existing verified release workflow and document commands.
+- [x] Define producer/consumer identity and integrity contracts.
+- [x] Implement deterministic sidecars and offline verification.
+- [x] Test tampering, metadata, source parity and unsafe input cases.
+- [x] Integrate existing verified release workflow and document commands.
 - [ ] Verify a real clean-source bundle and record evidence in handoff.md.
 
 ## Ordered six-slice delivery
