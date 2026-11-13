@@ -10,7 +10,9 @@ from itertools import product
 from pathlib import Path
 from typing import Any
 
-from finassert.policy import dump_policy, parse_policy
+from prepare import prepare_cash_rows
+
+from finassert.policy import dump_policy, get_template, parse_policy, treasury_pack_manifest
 
 ROOT = Path(__file__).resolve().parent
 
@@ -84,6 +86,7 @@ def main() -> None:
                 }
             )
             opening, drawn = closing, drawn + draw
+    cash = prepare_cash_rows(cash)
     write_csv(ROOT / "cash-forecast.csv", cash)
     write_csv(ROOT / "facilities.csv", facilities)
     (ROOT / "expected-scope.json").write_text(json.dumps(scope, indent=2) + "\n")
@@ -122,6 +125,24 @@ def main() -> None:
         }
     )
     (ROOT / "policy.yml").write_text(dump_policy(policy))
+    for name, template, scopes in (
+        ("cash-pack.yml", "treasury-cash-forecast", scope),
+        (
+            "facility-pack.yml",
+            "treasury-facility-schedule",
+            [{**s, "facility_id": "revolver"} for s in scope],
+        ),
+    ):
+        document = get_template(template).to_dict()["document"]
+        document["name"] = "Synthetic " + template
+        document["assumptions"][0] = (
+            "All amounts, limits, terms and scope in this example are synthetic."
+        )
+        for entry in document["rules"]:
+            if "expected_scope" in entry:
+                entry["expected_scope"] = scopes
+        (ROOT / name).write_text(dump_policy(parse_policy(document)))
+    (ROOT / "pack-manifest.json").write_text(json.dumps(treasury_pack_manifest(), indent=2) + "\n")
     cases = [
         {
             "name": "missing_week",
@@ -164,7 +185,7 @@ def main() -> None:
             "values": {"minimum_buffer": "1000.00"},
             "coverage": "passed",
             "continuity": "passed",
-            "future_buffer": "failed",
+            "buffer": "failed",
         },
         {
             "name": "facility_overdraw",
@@ -172,7 +193,7 @@ def main() -> None:
             "operation": "replace",
             "row_ids": ["facility-00-12"],
             "values": {"commitment": "160.00"},
-            "future_capacity": "failed",
+            "capacity": "failed",
         },
     ]
     (ROOT / "failure-cases.json").write_text(json.dumps(cases, indent=2) + "\n")

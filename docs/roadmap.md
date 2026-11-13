@@ -7,7 +7,22 @@ See the [units guide](financial-units.md), [CLI guide](command-line.md), and
 [master handoff](handoff.md). Each numbered spec has its own plan, tasks,
 contracts, roadmap, agent instructions, and handoff.
 
-Remaining project work:
+The six-slice upstream branch adds verified package/capability bundles, shared
+bounded property profiles, workbook visibility metadata, minimum cash buffers,
+facility controls and the versioned cash/funding pack. Full acceptance evidence
+is recorded in the [master handoff](handoff.md).
+
+Next engineering work:
+
+1. Implement paired forecast accuracy under specification 0012 U-08, with explicit
+   matching/vintage/cutoff, zero-actual and limit-combination contracts.
+2. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
+   conventions and extend 0002 before promoting new public financial rules.
+3. Review a real-Excel pilot and remaining adapter/grouped-rule requests based on
+   demonstrated inputs. Local QuantSmith installation/orchestration belongs in its
+   own repository and consumes the verified finassert bundle.
+
+Additional project work:
 
 1. Harden dataframe adapters and diagnostic row identity under specification
    0004 (grouped rules, the ordering column, and per-portfolio weights are in

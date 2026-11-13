@@ -33,6 +33,8 @@ jobs:
           enable-cache: true
       - run: uv sync --all-extras --dev
       - run: uv run pytest
+        env:
+          HYPOTHESIS_PROFILE: offline_ci
   quality:
     runs-on: ubuntu-latest
     steps:

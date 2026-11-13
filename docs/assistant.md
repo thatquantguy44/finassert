@@ -60,3 +60,9 @@ tolerances are never loosened, or checks dropped, without asking you.
   and an existing file is replaced only when `overwrite` is set.
 - Nothing is sent anywhere except back to the assistant you connected it to.
   What you share with that assistant is governed by its own terms.
+
+Treasury cash/funding pack v1 is available through template discovery, including
+its versioned manifest and explicit assumptions. `run_checks` uses the same
+policies and canonical bounded diagnostics/tolerances as Python and the CLI.
+See the [treasury example](examples/treasury-forecast.md) for preparation and the
+separate cash/facility datasets.

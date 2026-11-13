@@ -17,25 +17,17 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19).
-- **Last recorded main merge:** PR #18, bounded diagnostic memory (`28388d7`).
-- **Delivery:** All four multi-rule benchmark/shared-read items implemented under
-  spec 0010. Eligible built-in policies share at most one column within a check;
-  unsupported/custom/unit-aware cases retain scalar behavior.
-- **Evidence:** 3,484 tests and all complete benchmark report fingerprints match.
-  Fifty rules materialize once; peak memory is flat. Alternating timings show
-  5.0–7.2% gains in three workloads and neutral Decimal pandas. See the
-  [spec handoff](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/handoff.md)
-  and [measurements](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md#shared-column-reads).
-- **Open blockers:** None for these four items; broader work remains proposed.
+- **Branch:** `feature/six-slice-upstream-delivery`, from merged PR #19 (`a644bdb`).
+- **Delivery:** Six ordered slices authorized: release bundle, property coverage,
+  Excel hardening, cash buffer, facility capacity and treasury policy pack.
+- **Progress:** All six slices implemented and locally verified (3,624 tests). See the
+  [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
+- **Scope:** finassert only; no release/tag/publication or downstream application change.
 
 ## Next up
 
-1. Review the shared-read branch, retained measurements and scoped fallbacks.
-2. Use numeric-scan profiles before choosing more private kernels. Public batch
-   and concurrent APIs remain proposed.
-3. Select further catalog, redaction or workbook-visibility work from the
-   [project roadmap](roadmap.md) and local task files.
+1. Review draft PR #21 and its remote CI; keep it draft until approved.
+2. Next engineering scope: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
 
@@ -52,6 +44,27 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Six ordered upstream slices delivered
+
+- **Branch / PR:** `feature/six-slice-upstream-delivery`, [draft PR #21](https://github.com/thatquantguy44/finassert/pull/21), issue #20.
+- **Done:** Verified release bundle (0015), bounded property profiles (0009),
+  explicit workbook visibility/edge cases (0013), cash buffer, facility
+  capacity/continuity/maturity and versioned cash/funding pack (0012).
+- **Verify:** 3,624 tests passed; Ruff/format, mypy, strict MkDocs, browser/Excel
+  builds and isolated installed-wheel CLI/FX/workbook/treasury probes passed.
+- **Evidence:** Clean source `f0b9667`; [bundle hashes and commands](https://github.com/thatquantguy44/finassert/blob/feature/six-slice-upstream-delivery/specs/0015/artifacts/README.md).
+- **Scope:** No tag, package publication or downstream app change. PR review remains pending.
+- **Next:** Paired forecast accuracy (0012 U-08), then debt principal/issuance (U-09).
+
+### 2026-11-13 — Ordered six-slice upstream delivery started
+
+- **Branch:** `feature/six-slice-upstream-delivery`, issue #20.
+- **Baseline:** PRs #17–#19 are merged; their historical draft labels below describe
+  the earlier session, not current merge status.
+- **Plan:** Verified bundle (0015), properties (0009), Excel (0013), cash buffer,
+  facility schedule and policy pack (0012). Acceptance is pending for each slice.
+- **Next:** Complete slice 1; no downstream runtime or release publication is authorized.
 
 ### 2026-11-13 — Measure multi-rule policies and share bounded column reads
 

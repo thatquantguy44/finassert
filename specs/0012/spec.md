@@ -1,9 +1,9 @@
 # 0012 — Treasury and capital markets validation
 
-**Status:** R-02 cash continuity and R-03 weekly coverage implemented (initial)
+**Status:** R-02 cash continuity, R-03 weekly coverage, R-04 cash buffer and R-05 facility capacity implemented
 on this branch; the remaining rules, consumer service and update automation
 remain proposed. Proposal issue: [#13](https://github.com/thatquantguy44/finassert/issues/13).
-**Updated:** 2026-10-17
+**Updated:** 2026-11-13
 **Implementation plan:** [plan.md](plan.md)
 **Progress ledger:** [tasks.md](tasks.md)
 **Deferred consumer design:** [QuantMeridian integration](quantmeridian/SPEC.md)
@@ -141,7 +141,7 @@ The adapter must report unmatched keys, never perform a silent inner join.
 
 ## Rule inventory and semantics
 
-R-02 and R-03 are public exports; the other new names below remain proposed IDs. Each rule must
+R-02–R-05 are public exports; the other new names below remain proposed IDs. Each rule must
 state its input mapping, applicable grain, units, signs, null/empty behavior,
 tolerance basis, and inappropriate uses in its catalog entry before shipping.
 
@@ -236,6 +236,34 @@ require explicit `zero_actual="absolute_only"` with an absolute limit, or
 missing actuals as incomplete evaluation, not zero error. No MAPE aggregation
 or claim of predictive quality follows from identity checks alone.
 
+### Cash/funding pack v1
+
+`treasury.cash-funding` version 1 is a reviewed contract inventory exposed by
+`finassert.policy.treasury_pack_manifest()` / `policy_packs()`, CLI
+`templates --json`, MCP template discovery and release capability metadata.
+It names cash/facility templates, required rule IDs, optional rules (none),
+unit/sign assumptions and limitations. This inventory does not certify financial
+policy adequacy. Consumers review the full resolved policy/digest and require
+both datasets; ordinary engine pass/skip/error/severity behavior is unchanged.
+
+`treasury-cash-forecast` composes required fields, unique IDs and full weekly keys,
+nonnegative operating/financing magnitudes, coverage, cash identity, continuity
+and buffer. `treasury-facility-schedule` composes required fields, unique IDs and
+weekly keys, explicit facility coverage and capacity/continuity/maturity.
+Zero tolerance and fail-on-null are explicit; no business minimum is invented.
+Starter scope/dates are synthetic placeholders that require replacement. Column
+suggestions rename scope keys together with physical column mappings; they never
+infer scope values, limits or dates. Existing cash catalog gains its already
+supported row_key option so policies preserve stable cash-row identities.
+
+The synthetic `prepare.py` copies rows and derives combined operating/financing
+flows with Decimal; it refuses missing/invalid inputs. Original components and
+row_id remain visible. Policies assume those declared derivations are correct;
+cross-file linkage and first-opening actuals remain consumer-owned. MCP summaries
+retain canonical bounded diagnostics and tolerance; reports remain views of the
+same validation truth. Forecast error, debt/issuance and consumer work remain
+outside this pack.
+
 ### Following rule set
 
 | ID | Equation and scope | Required conventions and limits |
@@ -294,6 +322,27 @@ requires `opening_cash` and `closing_cash`, with `tolerance=0` and
 `null_policy="fail"` (only `fail`/`skip` supported). It validates coverage
 independently rather than relying on a prior engine result. All cash cells,
 including first opening and last closing, require finite numeric values.
+`minimum_cash_buffer` takes the same shared weekly arguments and requires
+`closing_cash`, `restricted_cash`, and `minimum_buffer` as distinct column names,
+plus `tolerance=0`, `null_policy="fail"` (fail/skip). Restricted cash and minimum
+are nonnegative; closing cash may be negative. Nonfinite/nonnumeric amounts always
+fail. Blank amounts may skip only when explicitly configured; the shipped pack
+uses fail. It validates coverage independently, yielding ERROR on ambiguity.
+Amounts are compared as Decimal without changing the global context. All actual
+shortfalls, including tolerated ones, have complete totals and bounded samples
+with observed/expected/difference/shortfall/within_tolerance and currency scope.
+An explicit `cash_shortfalls` diagnostic collection includes tolerated entries.
+`facility_capacity` uses the shared weekly arguments plus required columns
+`facility_id`, `opening_drawn`, `draws`, `repayments`, `closing_drawn`, `commitment`,
+`unavailable_amount` and `maturity_date`. `facility_id` is added to `group_by`
+before currency; expected_scope must include it. Do not repeat it in group_by.
+All six monetary components are strictly nonnegative and finite; amount tolerance
+(default zero) governs principal, continuity, capacity and maturity-zero comparisons.
+Blank amount fail/skip matches the buffer rule. Invalid/intraperiod maturity is
+ERROR; complete schedules are required independently. Bounded `facility_balances`
+diagnostics expose actual available commitment/headroom, without clamping, for
+all rows including passing rows; totals are complete. Per-row maturity dates are
+caller-supplied effective terms; legal validity and amendments are not inferred.
 Other rule signatures remain proposed. Policy kinds `text` and `records` are
 additive; records round-trip through YAML/JSON and the browser editor.
 

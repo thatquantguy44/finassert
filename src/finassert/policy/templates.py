@@ -398,6 +398,174 @@ _TEMPLATES += (
 )
 
 
+def _treasury_template(*, facility: bool) -> PolicyTemplate:
+    group = ["forecast_as_of", "entity_id", "scenario_id"]
+    scope = {
+        "forecast_as_of": "2026-10-01",
+        "entity_id": "Alpha",
+        "scenario_id": "base",
+        "currency": "USD",
+    }
+    series = [*group, "facility_id"] if facility else group
+    if facility:
+        scope["facility_id"] = "revolver"
+    common = dict(
+        period_start="period_start",
+        period_end="period_end",
+        group_by=series,
+        currency="currency",
+        expected_scope=[scope],
+        first_period="2026-10-05",
+        periods=13,
+        row_key="row_id",
+    )
+    keys = [*series, "currency", "period_start"]
+    amounts = (
+        [
+            "opening_drawn",
+            "draws",
+            "repayments",
+            "closing_drawn",
+            "commitment",
+            "unavailable_amount",
+        ]
+        if facility
+        else [
+            "opening_cash",
+            "receipts",
+            "payments",
+            "financing_inflows",
+            "financing_outflows",
+            "total_inflows",
+            "total_outflows",
+            "cash_adjustments",
+            "closing_cash",
+            "restricted_cash",
+            "minimum_buffer",
+        ]
+    )
+    required = ["row_id", *keys, "period_end", *amounts, *(["maturity_date"] if facility else [])]
+    rules: list[dict[str, Any]] = [
+        {"rule": "required_fields", "columns": required},
+        {"rule": "no_duplicates", "columns": ["row_id"]},
+        {"rule": "no_duplicates", "columns": keys},
+        {"rule": "forecast_coverage", **common},
+    ]
+    if facility:
+        rules.append(
+            {
+                "rule": "facility_capacity",
+                **common,
+                "group_by": group,
+                "facility_id": "facility_id",
+                **{name: name for name in amounts},
+                "maturity_date": "maturity_date",
+                "tolerance": "0",
+                "null_policy": "fail",
+            }
+        )
+    else:
+        rules.extend(
+            {"rule": "non_negative", "column": name}
+            for name in (
+                "receipts",
+                "payments",
+                "financing_inflows",
+                "financing_outflows",
+                "restricted_cash",
+                "minimum_buffer",
+            )
+        )
+        rules.extend(
+            [
+                {
+                    "rule": "cash_reconciles",
+                    "opening_cash": "opening_cash",
+                    "inflows": "total_inflows",
+                    "outflows": "total_outflows",
+                    "closing_cash": "closing_cash",
+                    "cash_pnl": "cash_adjustments",
+                    "outflow_sign": "positive",
+                    "group_by": [*group, "period_start"],
+                    "currency": "currency",
+                    "row_key": "row_id",
+                    "grain": "summary",
+                    "tolerance": "0",
+                    "null_policy": "fail",
+                },
+                {
+                    "rule": "cash_continuity",
+                    **common,
+                    "opening_cash": "opening_cash",
+                    "closing_cash": "closing_cash",
+                    "tolerance": "0",
+                    "null_policy": "fail",
+                },
+                {
+                    "rule": "minimum_cash_buffer",
+                    **common,
+                    "closing_cash": "closing_cash",
+                    "restricted_cash": "restricted_cash",
+                    "minimum_buffer": "minimum_buffer",
+                    "tolerance": "0",
+                    "null_policy": "fail",
+                },
+            ]
+        )
+    name = "treasury-facility-schedule" if facility else "treasury-cash-forecast"
+    return PolicyTemplate(
+        name=name,
+        title="Weekly facility schedule" if facility else "Weekly cash forecast",
+        summary="Treasury cash/funding pack v1: "
+        + (
+            "principal, capacity and maturity."
+            if facility
+            else "coverage, identity, continuity and available cash."
+        ),
+        adapt=(
+            "Replace synthetic expected_scope and first_period using independent approved scope.",
+            (
+                "Map physical column names, row identity and explicit currency; review "
+                "the weekly horizon."
+            ),
+            "Supply approved minimum/commitment columns and review zero amount tolerance.",
+            "Prepare total flows explicitly; do not double-count financing or restricted cash.",
+            "Check every required rule ran; skipped/error/absent checks mean incomplete coverage.",
+        ),
+        document=_freeze(
+            dict(
+                version=1,
+                name=name,
+                assumptions=[
+                    "Synthetic scope and dates are placeholders requiring review.",
+                    "One complete unique row per weekly series/currency, with exclusive week end.",
+                    "Amounts in currency major units; no conversion or intercompany netting.",
+                    (
+                        "Payments/repayments are positive magnitudes; financing is separate "
+                        "from operations."
+                    ),
+                    (
+                        "total_inflows = receipts + financing_inflows; total_outflows = "
+                        "payments + financing_outflows."
+                    ),
+                    (
+                        "Minimum buffers and effective commitment/reductions are caller "
+                        "supplied, not recommendations."
+                    ),
+                    (
+                        "Facility checks cover period ends; legal eligibility and intraperiod "
+                        "peaks are outside scope."
+                    ),
+                ],
+                rules=rules,
+            )
+        ),
+    )
+
+
+_TEMPLATES += (_treasury_template(facility=False), _treasury_template(facility=True))
+
+
 def policy_templates() -> tuple[PolicyTemplate, ...]:
     """Return the built-in templates, ordered by name."""
     return tuple(sorted(_TEMPLATES, key=lambda template: template.name))

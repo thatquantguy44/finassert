@@ -1,6 +1,6 @@
 # 0009 — Property-based testing
 
-**Status:** Implemented (initial)
+**Status:** Bounded shared strategies, financial identities and offline profiles implemented
 
 ## Problem statement
 
@@ -58,6 +58,10 @@ whose correctness does not depend on time.
 1. Decimal normalized-allocation property. 2. Shared strategies and tolerance
 properties. 3. Accounting identity and scaling properties. 4. Cross-adapter
 contract suite. 5. Unit/FX round trips after 0008.
+
+Profiles `offline_ci` (100 examples) and `offline_dev` (30 examples) disable
+network/state dependencies: deterministic generation, no example database and
+no timing deadlines. Set `HYPOTHESIS_PROFILE` to choose; CI uses `offline_ci`.
 
 ## Acceptance criteria
 

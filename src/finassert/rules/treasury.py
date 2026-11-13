@@ -6,10 +6,11 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
+from decimal import Decimal, localcontext
 from typing import Any, ClassVar
 
 from finassert.adapters._column import extract_columns
-from finassert.core.models import Outcome, Severity, ValidationResult
+from finassert.core.models import DiagnosticCollection, Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance, is_finite
 from finassert.rules._helpers import is_blank, precise_sum
 from finassert.rules.base import NullPolicy
@@ -398,6 +399,510 @@ def cash_continuity(
         row_key=row_key,
         opening_cash=opening_cash,
         closing_cash=closing_cash,
+        tolerance=coerce_tolerance(tolerance),
+        null_policy=NullPolicy(null_policy),
+        severity=Severity(severity),
+        max_violations=max_violations,
+    )
+
+
+def _amount_precision(values: Sequence[Decimal]) -> int:
+    # Retain all finite input digits and room for sums/products and relative bounds.
+    low = min(int(value.as_tuple().exponent) for value in values)
+    high = max(value.adjusted() for value in values)
+    return max(50, high - low + sum(len(value.as_tuple().digits) for value in values) + 5)
+
+
+def _amounts(
+    rule: Any,
+    columns: dict[str, list[Any]],
+    labels: list[Any],
+    names: Sequence[str],
+    nonnegative: Sequence[str],
+) -> tuple[_Violations, bool]:
+    invalid = _Violations(rule.max_violations)
+    nonblank = False
+    for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+        for name in names:
+            value = columns[name][i]
+            reason = None
+            if not is_finite(value):
+                blank = is_blank(value) and not isinstance(value, (int, float, Decimal))
+                nonblank |= not blank
+                reason = "blank" if blank else "non_finite_or_nonnumeric"
+            elif name in nonnegative and value < 0:
+                nonblank = True
+                reason = "negative_amount"
+            if reason:
+                invalid.add(row=labels[i], column=name, reason=reason)
+    return invalid, nonblank
+
+
+def _amount_result(
+    rule: Any,
+    outcome: Outcome,
+    context: dict[str, Any],
+    issues: _Violations,
+    message: str,
+    *,
+    diagnostics: tuple[DiagnosticCollection, ...] = (),
+) -> ValidationResult:
+    return ValidationResult(
+        rule_id=rule.rule_id,
+        rule_name=rule.name,
+        severity=rule.severity,
+        outcome=outcome,
+        message=message,
+        observed=issues.count,
+        expected=0,
+        tolerance=rule.tolerance.to_dict(),
+        metadata={**context, **issues.metadata()},
+        diagnostics=diagnostics,
+    )
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class MinimumCashBufferRule(_ScheduleRule):
+    """Compare closing less restricted cash with each row's explicit minimum."""
+
+    closing_cash: str
+    restricted_cash: str
+    minimum_buffer: str
+    tolerance: Tolerance = field(default_factory=Tolerance)
+    null_policy: NullPolicy = NullPolicy.FAIL
+    rule_id: ClassVar[str] = "treasury.minimum_cash_buffer"
+    name: ClassVar[str] = "Available cash meets the minimum buffer"
+
+    def __post_init__(self) -> None:
+        _ScheduleRule.__post_init__(self)
+        for name in (self.closing_cash, self.restricted_cash, self.minimum_buffer):
+            _column(name)
+        if len({self.closing_cash, self.restricted_cash, self.minimum_buffer}) != 3:
+            raise ValueError("cash amount columns must be distinct")
+        if not all(is_finite(v) for v in (self.tolerance.absolute, self.tolerance.relative)):
+            raise ValueError("tolerance components must be finite numeric amounts")
+        if self.null_policy not in (NullPolicy.FAIL, NullPolicy.SKIP):
+            raise ValueError("buffer null_policy must be 'fail' or 'skip'")
+
+    def evaluate(self, data: Any) -> ValidationResult:
+        """Check complete currency-isolated schedules and sample every actual shortfall."""
+        names = (self.closing_cash, self.restricted_cash, self.minimum_buffer)
+        columns, labels, _, issues = _scan(self, data, names)
+        context = {
+            **_context(self, len(labels)),
+            "equation": "available_cash = closing_cash - restricted_cash >= minimum_buffer",
+            "units": "currency_major_units",
+            "checked_count": 0,
+            "columns": dict(
+                zip(("closing_cash", "restricted_cash", "minimum_buffer"), names, strict=True)
+            ),
+        }
+        if issues.count:
+            return _amount_result(
+                self, Outcome.ERROR, context, issues, "Coverage prerequisites are not satisfied."
+            )
+        invalid, nonblank = _amounts(self, columns, labels, names, names[1:])
+        if invalid.count:
+            outcome = (
+                Outcome.SKIPPED
+                if not nonblank and self.null_policy is NullPolicy.SKIP
+                else Outcome.FAILED
+            )
+            return _amount_result(
+                self, outcome, context, invalid, "Cash amounts are missing or invalid."
+            )
+        shortfalls = _Violations(self.max_violations)
+        for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+            close, restricted, minimum = (Decimal(str(columns[name][i])) for name in names)
+            values = [
+                close,
+                restricted,
+                minimum,
+                Decimal(str(self.tolerance.absolute)),
+                Decimal(str(self.tolerance.relative)),
+            ]
+            with localcontext() as precision:
+                precision.prec = _amount_precision(values)
+                available = close - restricted
+                if available < minimum:
+                    allowed = self.tolerance.is_close(available, minimum)
+                    entry = dict(
+                        row=labels[i],
+                        group={key: columns[key][i] for key in self.schedule.keys},
+                        period_start=columns[self.period_start][i],
+                        observed=available,
+                        expected=minimum,
+                        difference=available - minimum,
+                        shortfall=minimum - available,
+                        within_tolerance=allowed,
+                    )
+                    shortfalls.add(**entry)
+                    if not allowed:
+                        issues.add(reason="cash_buffer_shortfall", **entry)
+        context.update(
+            checked_count=len(labels),
+            shortfall_count=shortfalls.count,
+            shortfalls=shortfalls.examples,
+            shortfalls_truncated=shortfalls.count > self.max_violations,
+        )
+        return _amount_result(
+            self,
+            Outcome.FAILED if issues.count else Outcome.PASSED,
+            context,
+            issues,
+            f"{issues.count} cash buffer breach(es).",
+            diagnostics=(
+                DiagnosticCollection(
+                    "cash_shortfalls",
+                    shortfalls.count,
+                    self.max_violations,
+                    tuple(shortfalls.examples),
+                ),
+            ),
+        )
+
+
+def minimum_cash_buffer(
+    *,
+    closing_cash: str,
+    restricted_cash: str,
+    minimum_buffer: str,
+    period_start: str,
+    period_end: str,
+    group_by: Sequence[str],
+    currency: str,
+    expected_scope: Sequence[Mapping[str, str]],
+    first_period: str,
+    periods: int = 13,
+    row_key: str | None = None,
+    tolerance: Numeric | Tolerance = 0,
+    null_policy: NullPolicy | str = NullPolicy.FAIL,
+    severity: Severity | str = Severity.ERROR,
+    max_violations: int = 20,
+) -> MinimumCashBufferRule:
+    """Require available cash to meet a caller-supplied per-row minimum.
+
+    Args:
+        closing_cash: Closing cash including restricted balances, in major units.
+        restricted_cash: Nonnegative restricted balance column; never added to liquidity.
+        minimum_buffer: Nonnegative required available cash column, with no business default.
+        period_start: Inclusive ISO YYYY-MM-DD weekly start column.
+        period_end: Exclusive ISO weekly end column, exactly seven days later.
+        group_by: Series columns, including vintage/entity/scenario as appropriate.
+        currency: Mandatory explicit currency column; no netting or conversion.
+        expected_scope: Independent complete series mappings, including currency.
+        first_period: Explicit ISO first week start.
+        periods: Consecutive weeks; expected schedule capped at 100,000 rows.
+        row_key: Optional unique nonempty text diagnostic identity column.
+        tolerance: Inclusive amount tolerance, zero by default.
+        null_policy: Fail or skip on blank amounts; invalid numerics always fail.
+        severity: Impact of a financial breach.
+        max_violations: Example cap, never a count/evaluation limit.
+
+    Missing/ambiguous coverage errors. Negative closing cash is allowed. Equality
+    passes. All shortfalls, including tolerated ones, are counted and sampled.
+    This measure excludes facilities and does not judge adequacy of the minimum.
+    """
+    return MinimumCashBufferRule(
+        schedule=_schedule(group_by, currency, expected_scope, first_period, periods),
+        period_start=period_start,
+        period_end=period_end,
+        row_key=row_key,
+        closing_cash=closing_cash,
+        restricted_cash=restricted_cash,
+        minimum_buffer=minimum_buffer,
+        tolerance=coerce_tolerance(tolerance),
+        null_policy=NullPolicy(null_policy),
+        severity=Severity(severity),
+        max_violations=max_violations,
+    )
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class FacilityCapacityRule(_ScheduleRule):
+    """Check period-end facility principal and effective capacity."""
+
+    facility_id: str
+    opening_drawn: str
+    draws: str
+    repayments: str
+    closing_drawn: str
+    commitment: str
+    unavailable_amount: str
+    maturity_date: str
+    tolerance: Tolerance = field(default_factory=Tolerance)
+    null_policy: NullPolicy = NullPolicy.FAIL
+    rule_id: ClassVar[str] = "treasury.facility_capacity"
+    name: ClassVar[str] = "Facility principal and capacity reconcile"
+
+    def __post_init__(self) -> None:
+        _ScheduleRule.__post_init__(self)
+        names = (*self._amount_columns(), self.maturity_date)
+        for name in names:
+            _column(name)
+        if len(set(names)) != len(names):
+            raise ValueError("facility amount columns must be distinct")
+        if self.facility_id not in self.schedule.keys[:-1]:
+            raise ValueError("facility_id must be part of the expected scope")
+        if self.null_policy not in (NullPolicy.FAIL, NullPolicy.SKIP):
+            raise ValueError("facility null_policy must be 'fail' or 'skip'")
+        if not all(is_finite(v) for v in (self.tolerance.absolute, self.tolerance.relative)):
+            raise ValueError("tolerance components must be finite numeric amounts")
+
+    def _amount_columns(self) -> tuple[str, ...]:
+        return (
+            self.opening_drawn,
+            self.draws,
+            self.repayments,
+            self.closing_drawn,
+            self.commitment,
+            self.unavailable_amount,
+        )
+
+    def evaluate(self, data: Any) -> ValidationResult:
+        """Validate complete schedules before checking every principal/capacity row."""
+        names = self._amount_columns()
+        columns, labels, buckets, issues = _scan(self, data, (*names, self.maturity_date))
+        context = {
+            **_context(self, len(labels)),
+            "checked_count": 0,
+            "units": "currency_major_units",
+            "facility_id": self.facility_id,
+            "equations": [
+                "closing_drawn = opening_drawn + draws - repayments",
+                "available_commitment = commitment - unavailable_amount",
+                "headroom = available_commitment - closing_drawn",
+            ],
+            "repayment_sign": "positive",
+            "capacity_scope": "period_end_only",
+        }
+        if issues.count:
+            return _amount_result(
+                self,
+                Outcome.ERROR,
+                context,
+                issues,
+                "Facility coverage prerequisites are not satisfied.",
+            )
+        maturities: dict[int, date] = {}
+        for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+            value = columns[self.maturity_date][i]
+            try:
+                maturity = _iso_date(value)
+                maturities[i] = maturity
+                start = _iso_date(columns[self.period_start][i])
+                end = _iso_date(columns[self.period_end][i])
+                if start < maturity < end:
+                    issues.add(
+                        reason="unsupported_intraperiod_maturity",
+                        row=labels[i],
+                        maturity_date=value,
+                        period_start=start.isoformat(),
+                        period_end=end.isoformat(),
+                    )
+            except ValueError:
+                issues.add(reason="invalid_maturity_date", row=labels[i])
+        if issues.count:
+            return _amount_result(
+                self,
+                Outcome.ERROR,
+                context,
+                issues,
+                "Maturity cannot be established from weekly data.",
+            )
+        invalid, nonblank = _amounts(self, columns, labels, names, names)
+        if invalid.count:
+            outcome = (
+                Outcome.SKIPPED
+                if not nonblank and self.null_policy is NullPolicy.SKIP
+                else Outcome.FAILED
+            )
+            return _amount_result(
+                self, outcome, context, invalid, "Facility amounts are missing or invalid."
+            )
+        balances = _Violations(self.max_violations)
+        for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+            values = [Decimal(str(columns[name][i])) for name in names]
+            with localcontext() as precision:
+                precision.prec = _amount_precision(
+                    [
+                        *values,
+                        Decimal(str(self.tolerance.absolute)),
+                        Decimal(str(self.tolerance.relative)),
+                    ]
+                )
+                opening, draws, repayments, closing, commitment, unavailable = values
+                expected = opening + draws - repayments
+                capacity = commitment - unavailable
+                entry = dict(
+                    row=labels[i],
+                    group={key: columns[key][i] for key in self.schedule.keys},
+                    period_start=columns[self.period_start][i],
+                )
+                if maturities[i] <= _iso_date(columns[self.period_start][i]):
+                    for value, reason in (
+                        (draws, "draw_after_maturity"),
+                        (closing, "balance_after_maturity"),
+                    ):
+                        if not self.tolerance.is_close(value, Decimal(0)):
+                            issues.add(
+                                **entry,
+                                reason=reason,
+                                observed=value,
+                                expected=Decimal(0),
+                                difference=value,
+                                maturity_date=maturities[i].isoformat(),
+                            )
+                balances.add(
+                    **entry,
+                    closing_drawn=closing,
+                    available_commitment=capacity,
+                    headroom=capacity - closing,
+                )
+                if not self.tolerance.is_close(closing, expected):
+                    issues.add(
+                        **entry,
+                        reason="principal_identity",
+                        observed=closing,
+                        expected=expected,
+                        difference=closing - expected,
+                    )
+                for actual, limit, reason in (
+                    (unavailable, commitment, "unavailable_exceeds_commitment"),
+                    (closing, capacity, "capacity_exceeded"),
+                ):
+                    if actual > limit and not self.tolerance.is_close(actual, limit):
+                        issues.add(
+                            **entry,
+                            reason=reason,
+                            observed=actual,
+                            expected=limit,
+                            difference=actual - limit,
+                            headroom=capacity - closing,
+                        )
+        comparisons = 0
+        for group in self.schedule.scope:
+            for previous, current in zip(
+                self.schedule.starts, self.schedule.starts[1:], strict=False
+            ):
+                prior, index = buckets[(*group, previous)][0], buckets[(*group, current)][0]
+                opening = Decimal(str(columns[self.opening_drawn][index]))
+                closing = Decimal(str(columns[self.closing_drawn][prior]))
+                comparisons += 1
+                with localcontext() as precision:
+                    precision.prec = _amount_precision(
+                        [
+                            opening,
+                            closing,
+                            Decimal(str(self.tolerance.absolute)),
+                            Decimal(str(self.tolerance.relative)),
+                        ]
+                    )
+                    if not self.tolerance.is_close(opening, closing):
+                        issues.add(
+                            reason="facility_discontinuity",
+                            row=labels[index],
+                            previous_row=labels[prior],
+                            period_start=current,
+                            group=dict(zip(self.schedule.keys, group, strict=True)),
+                            observed=opening,
+                            expected=closing,
+                            difference=opening - closing,
+                        )
+        context["continuity_checked_count"] = comparisons
+        context.update(
+            checked_count=len(labels),
+            balance_count=balances.count,
+            balances=balances.examples,
+            balances_truncated=balances.count > self.max_violations,
+        )
+        return _amount_result(
+            self,
+            Outcome.FAILED if issues.count else Outcome.PASSED,
+            context,
+            issues,
+            f"{issues.count} facility breach(es).",
+            diagnostics=(
+                DiagnosticCollection(
+                    "facility_balances",
+                    balances.count,
+                    self.max_violations,
+                    tuple(balances.examples),
+                ),
+            ),
+        )
+
+
+def facility_capacity(
+    *,
+    facility_id: str,
+    opening_drawn: str,
+    draws: str,
+    repayments: str,
+    closing_drawn: str,
+    commitment: str,
+    unavailable_amount: str,
+    maturity_date: str,
+    period_start: str,
+    period_end: str,
+    group_by: Sequence[str],
+    currency: str,
+    expected_scope: Sequence[Mapping[str, str]],
+    first_period: str,
+    periods: int = 13,
+    row_key: str | None = None,
+    tolerance: Numeric | Tolerance = 0,
+    null_policy: NullPolicy | str = NullPolicy.FAIL,
+    severity: Severity | str = Severity.ERROR,
+    max_violations: int = 20,
+) -> FacilityCapacityRule:
+    """Validate facility principal, effective capacity, continuity and maturity.
+
+    Args:
+        facility_id: Facility identity column, added to the series scope.
+        opening_drawn: Nonnegative opening principal column, currency major units.
+        draws: Nonnegative principal draw column in the same units.
+        repayments: Nonnegative principal repayment magnitudes column.
+        closing_drawn: Nonnegative closing principal column.
+        commitment: Effective nonnegative contractual capacity column for each period.
+        unavailable_amount: Nonnegative disjoint reduction, excluding drawn amounts.
+        maturity_date: Per-row ISO YYYY-MM-DD maturity column.
+        period_start: Inclusive ISO YYYY-MM-DD weekly start column.
+        period_end: Exclusive ISO week-end column, seven calendar days later.
+        group_by: Series columns excluding facility and currency; specify vintage/scenario.
+        currency: Mandatory explicit currency column; no netting or conversion.
+        expected_scope: Independent complete mappings of group_by, facility and currency.
+        first_period: Explicit ISO first week start.
+        periods: Consecutive weeks; expected schedule capped at 100,000 rows.
+        row_key: Optional unique nonempty text diagnostic identity column.
+        tolerance: Inclusive amount tolerance, zero by default; signs remain strict.
+        null_policy: Fail or skip blank amounts; invalid numerics always fail.
+        severity: Business impact of financial breaches.
+        max_violations: Maximum examples; all violations are still counted.
+
+    Missing/ambiguous schedules and invalid/intraperiod maturity produce ERROR.
+    Maturity at/before start requires no draws and zero closing principal within
+    explicit tolerance. Maturity at period end is assessed next period. Headroom
+    is never clamped. This checks period-end capacity, not intraperiod peaks,
+    legal availability, conditional draw eligibility or borrowing-base documents.
+    """
+    if isinstance(group_by, (str, bytes)):
+        raise ValueError("group_by must be a sequence of column names")
+    return FacilityCapacityRule(
+        schedule=_schedule(
+            (*group_by, facility_id), currency, expected_scope, first_period, periods
+        ),
+        period_start=period_start,
+        period_end=period_end,
+        row_key=row_key,
+        facility_id=facility_id,
+        opening_drawn=opening_drawn,
+        draws=draws,
+        repayments=repayments,
+        closing_drawn=closing_drawn,
+        commitment=commitment,
+        unavailable_amount=unavailable_amount,
+        maturity_date=maturity_date,
         tolerance=coerce_tolerance(tolerance),
         null_policy=NullPolicy(null_policy),
         severity=Severity(severity),

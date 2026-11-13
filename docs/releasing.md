@@ -74,3 +74,39 @@ Use trusted publishing, so no API token is stored anywhere:
 
 A published version cannot be replaced, only yanked, so publish a release
 candidate (`0.2.0rc1`) to TestPyPI first if the process is new to you.
+
+## Verified producer bundle
+
+From a clean committed checkout, build and run the installed-distribution checks,
+then generate and verify the identity sidecars:
+
+```bash
+uv build
+uv run python scripts/verify_dist.py dist
+uv run python scripts/release_bundle.py build dist
+uv run python scripts/release_bundle.py verify dist
+```
+
+The release workflow retains `release-manifest.json` and `SHA256SUMS` alongside
+the wheel/sdist. The manifest records exact Git identity, actual artifact byte
+hashes, matching packaged Python source, Requires-Python/extras, policy/artifact
+contract versions and a versioned canonical capability catalog. No wheel hashes
+itself; sidecars stay outside the packages. Verification executes no candidate
+code and accesses no network. The installed smoke test remains a separate step.
+
+A consumer can verify against an independently approved manifest digest:
+
+```bash
+uv run python scripts/release_bundle.py verify dist --manifest-sha256 APPROVED_SHA256
+```
+
+Checksums alone do not authenticate their producer. Approve/pin the manifest or
+artifact digest separately. `--allow-dirty` creates/inspects a development-only
+bundle with `source.dirty=true`; ordinary verification refuses promotion of it.
+Hashes identify exact artifacts; equivalent builds on different machines are not
+assumed to be byte-identical. This adds no release publication or downstream
+installer. QuantSmith owns its local environment/readiness controls.
+
+Capability schema 1 also embeds the versioned treasury pack manifest. Pack required
+rule references are checked against the bundled rule catalog. The digest covers
+both rules and pack assumptions, so consumers can retain the approved inventory.

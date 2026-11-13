@@ -32,6 +32,7 @@ from finassert.policy import (
     default_catalog,
     get_template,
     load_policy,
+    policy_packs,
     policy_templates,
 )
 from finassert.policy.issues import closest
@@ -67,7 +68,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if arguments.command == "rules":
             return _rules(json_output=arguments.json, stream=sys.stdout)
         if arguments.command == "templates":
-            return _templates(stream=sys.stdout)
+            return _templates(stream=sys.stdout, json_output=arguments.json)
         if arguments.command == "init":
             return _init(arguments)
         if arguments.command == "suggest":
@@ -124,6 +125,11 @@ def _parser() -> argparse.ArgumentParser:
         help="1-based worksheet header row; defaults to the first nonempty row",
     )
     check.add_argument(
+        "--hidden",
+        choices=("include", "reject"),
+        help="include hidden Excel cells (default), or reject hidden regions",
+    )
+    check.add_argument(
         "--max-row",
         type=int,
         metavar="N",
@@ -148,10 +154,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     rules.add_argument("--json", action="store_true", help="print the catalog as JSON")
 
-    commands.add_parser(
+    templates = commands.add_parser(
         "templates",
         help="list starter policies",
         description="List the starter policies 'finassert init' can write.",
+    )
+
+    templates.add_argument(
+        "--json", action="store_true", help="print templates and pack manifests as JSON"
     )
 
     init = commands.add_parser(
@@ -214,6 +224,7 @@ def _check(arguments: argparse.Namespace) -> int:
             sheet=arguments.sheet,
             header_row=arguments.header_row,
             max_row=arguments.max_row,
+            hidden=arguments.hidden,
         )
     except SheetError as exc:
         hint = "; pass one with --sheet NAME" if arguments.sheet is None and exc.sheets else ""
@@ -233,6 +244,7 @@ def _check(arguments: argparse.Namespace) -> int:
         input_sheet=arguments.sheet,
         input_header_row=arguments.header_row,
         input_max_row=arguments.max_row,
+        input_workbook_metadata=getattr(data, "workbook_metadata", None),
         generated_at=_generated_at(),
     )
 
@@ -302,7 +314,20 @@ def _rules(*, json_output: bool, stream: TextIO) -> int:
     return EXIT_PASSED
 
 
-def _templates(*, stream: TextIO) -> int:
+def _templates(*, stream: TextIO, json_output: bool = False) -> int:
+    if json_output:
+        print(
+            json.dumps(
+                {
+                    "templates": [t.to_dict() for t in policy_templates()],
+                    "packs": list(policy_packs()),
+                },
+                indent=2,
+                sort_keys=True,
+            ),
+            file=stream,
+        )
+        return EXIT_PASSED
     for template in policy_templates():
         print(f"{template.name}: {template.title}", file=stream)
         print(f"  {template.summary}", file=stream)

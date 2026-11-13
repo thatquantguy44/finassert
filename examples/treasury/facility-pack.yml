@@ -1,0 +1,46 @@
+# finassert policy
+version: 1
+name: "Synthetic treasury-facility-schedule"
+assumptions:
+  - "All amounts, limits, terms and scope in this example are synthetic."
+  - "One complete unique row per weekly series/currency, with exclusive week end."
+  - "Amounts in currency major units; no conversion or intercompany netting."
+  - "Payments/repayments are positive magnitudes; financing is separate from operations."
+  - "total_inflows = receipts + financing_inflows; total_outflows = payments + financing_outflows."
+  - "Minimum buffers and effective commitment/reductions are caller supplied, not recommendations."
+  - "Facility checks cover period ends; legal eligibility and intraperiod peaks are outside scope."
+rules:
+  - rule: required_fields
+    columns: ["row_id", "forecast_as_of", "entity_id", "scenario_id", "facility_id", "currency", "period_start", "period_end", "opening_drawn", "draws", "repayments", "closing_drawn", "commitment", "unavailable_amount", "maturity_date"]
+  - rule: no_duplicates
+    columns: ["row_id"]
+  - rule: no_duplicates
+    columns: ["forecast_as_of", "entity_id", "scenario_id", "facility_id", "currency", "period_start"]
+  - rule: forecast_coverage
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id", "facility_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+  - rule: facility_capacity
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base", "facility_id": "revolver"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside", "facility_id": "revolver"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+    facility_id: "facility_id"
+    opening_drawn: "opening_drawn"
+    draws: "draws"
+    repayments: "repayments"
+    closing_drawn: "closing_drawn"
+    commitment: "commitment"
+    unavailable_amount: "unavailable_amount"
+    maturity_date: "maturity_date"
+    tolerance: "0"
+    null_policy: "fail"

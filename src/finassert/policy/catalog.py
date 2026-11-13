@@ -18,10 +18,12 @@ from finassert.rules import (
     cash_continuity,
     cash_reconciles,
     drift_within_band,
+    facility_capacity,
     forecast_coverage,
     gross_within_limit,
     in_range,
     market_value_reconciles,
+    minimum_cash_buffer,
     nav_reconciles,
     net_within_limit,
     no_duplicates,
@@ -328,6 +330,8 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_position_rolls_forward_spec())
     catalog.register(_treasury_spec(continuity=False))
     catalog.register(_treasury_spec(continuity=True))
+    catalog.register(_buffer_spec())
+    catalog.register(_facility_spec())
     return catalog
 
 
@@ -625,6 +629,7 @@ def _cash_reconciles_spec() -> RuleFactorySpec:
                 "currency's units, for example 0.01."
             ),
             _RECONCILE_NULLS,
+            _ROW_KEY,
             _SEVERITY,
             _MAX_GROUPS,
         ),
@@ -1214,4 +1219,84 @@ def _position_rolls_forward_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=position_rolls_forward,
+    )
+
+
+def _buffer_spec() -> RuleFactorySpec:
+    shared = _treasury_spec(continuity=False).parameters[:-2]
+    return RuleFactorySpec(
+        name="minimum_cash_buffer",
+        rule_id="treasury.minimum_cash_buffer",
+        title="Available cash meets its minimum",
+        summary="Closing cash less restricted cash must meet each row's explicit minimum.",
+        rationale="Restricted funds cannot meet an unrestricted liquidity requirement.",
+        inappropriate_when=(
+            "Facilities are treated as cash, currencies need conversion, or limits are unspecified."
+        ),
+        parameters=(
+            *shared,
+            _amount_column(
+                "closing_cash", "Closing cash", "Cash including restricted balances, major units."
+            ),
+            _amount_column(
+                "restricted_cash",
+                "Restricted cash",
+                "Nonnegative restricted cash in the same units.",
+            ),
+            _amount_column(
+                "minimum_buffer",
+                "Minimum available cash",
+                "Nonnegative caller-owned minimum column.",
+            ),
+            _reconcile_tolerance("Inclusive shortfall allowance; zero by default."),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=minimum_cash_buffer,
+    )
+
+
+def _facility_spec() -> RuleFactorySpec:
+    shared = _treasury_spec(continuity=False).parameters[:-2]
+    return RuleFactorySpec(
+        name="facility_capacity",
+        rule_id="treasury.facility_capacity",
+        title="Facility principal and capacity reconcile",
+        summary="Check principal, capacity, continuity and maturity per facility.",
+        rationale="A balanced cash forecast may exceed usable funding or retain matured debt.",
+        inappropriate_when=(
+            "Intraperiod usage or maturity, conditional eligibility, legal availability "
+            "or a borrowing base must be established."
+        ),
+        parameters=(
+            *shared,
+            _amount_column(
+                "facility_id",
+                "Facility identity",
+                "Facility key added to group_by; include it in expected_scope.",
+            ),
+            *(
+                _amount_column(name, name.replace("_", " ").title(), description)
+                for name, description in (
+                    ("opening_drawn", "Nonnegative opening principal, major units."),
+                    ("draws", "Nonnegative new principal draws."),
+                    ("repayments", "Nonnegative repayment magnitudes."),
+                    ("closing_drawn", "Nonnegative closing principal."),
+                    ("commitment", "Nonnegative effective contractual commitment."),
+                    (
+                        "unavailable_amount",
+                        "Nonnegative disjoint reduction excluding drawn amounts.",
+                    ),
+                    ("maturity_date", "ISO YYYY-MM-DD maturity; intraperiod maturity errors."),
+                )
+            ),
+            _reconcile_tolerance(
+                "Inclusive amount allowance; zero by default, signs remain strict."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=facility_capacity,
     )

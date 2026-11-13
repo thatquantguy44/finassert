@@ -35,6 +35,7 @@ from finassert.policy import (
     get_template,
     load_policy,
     parse_policy_text,
+    policy_packs,
     policy_templates,
 )
 from finassert.policy.suggest import TemplateFit, fit_template, suggest_templates
@@ -112,9 +113,10 @@ def list_rules() -> dict[str, Any]:
 def list_templates() -> dict[str, Any]:
     """Describe the starter policies, including their YAML text."""
     return {
+        "packs": list(policy_packs()),
         "templates": [
             {**template.to_dict(), "yaml": template.to_yaml()} for template in policy_templates()
-        ]
+        ],
     }
 
 
@@ -231,6 +233,7 @@ def check_data(
         input_locator=str(location),
         input_format=input_format_for(location),
         input_sheet=sheet,
+        input_workbook_metadata=getattr(data, "workbook_metadata", None),
     )
     code = exit_code(report)
     result: dict[str, Any] = {
@@ -302,6 +305,8 @@ def _summarise(result: dict[str, Any], described: dict[str, Any]) -> dict[str, A
         "observed": result["observed"],
         "expected": result["expected"],
         "details": details,
+        "tolerance": result["tolerance"],
+        "diagnostics": result.get("diagnostics", []),
     }
 
 

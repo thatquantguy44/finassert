@@ -13,13 +13,13 @@ acceptance certification.
 
 ## Remaining work, in order
 
-- [ ] Create shared bounded financial-numeric, grouped-record, null, and duplicate-label
+- [x] Create shared bounded financial-numeric, grouped-record, null, and duplicate-label
   strategies.
-- [ ] Add exact tolerance-boundary and scaling properties.
-- [ ] Add cash/NAV identity properties as 0002 is promoted.
+- [x] Add exact tolerance-boundary and scaling properties.
+- [x] Add cash/NAV identity properties as 0002 is promoted.
 - [x] Add cross-adapter equivalence properties with 0004 and Excel header/row-label
   properties with 0013.
-- [ ] Define explicit offline Hypothesis profiles and retain named regressions for fixed
+- [x] Define explicit offline Hypothesis profiles and retain named regressions for fixed
   defects.
 - [x] Add unit/FX round trips after 0008.
 

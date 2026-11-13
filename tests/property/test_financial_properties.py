@@ -5,6 +5,8 @@ from hypothesis import strategies as st
 
 import finassert as fa
 
+from .strategies import cash_ledgers, fund_values
+
 
 @given(
     st.lists(
@@ -25,33 +27,6 @@ def test_normalized_decimal_allocations_sum_to_one(weights: list[Decimal]) -> No
     )
 
     assert report.passed
-
-
-_amounts = st.decimals(min_value=-10_000, max_value=10_000, places=2)
-
-
-@st.composite
-def cash_ledgers(draw: st.DrawFn) -> dict[str, list[object]]:
-    """Transaction rows for several portfolios whose balances roll forward."""
-    rows: dict[str, list[object]] = {
-        key: [] for key in ("portfolio", "seq", "open", "in", "out", "close")
-    }
-    for portfolio in range(draw(st.integers(min_value=1, max_value=4))):
-        balance = draw(_amounts)
-        for seq in range(draw(st.integers(min_value=1, max_value=5))):
-            inflow, outflow = draw(_amounts.map(abs)), draw(_amounts.map(abs))
-            closing = balance + inflow - outflow
-            for key, value in (
-                ("portfolio", f"P{portfolio}"),
-                ("seq", seq),
-                ("open", balance),
-                ("in", inflow),
-                ("out", outflow),
-                ("close", closing),
-            ):
-                rows[key].append(value)
-            balance = closing
-    return rows
 
 
 def _cash_rule() -> fa.Rule:
@@ -92,13 +67,7 @@ def test_breaking_one_balance_fails_exactly_that_portfolio(
     assert [group["group"] for group in result.metadata["failed_groups"]] == [{"portfolio": broken}]
 
 
-@given(
-    st.dictionaries(
-        st.sampled_from(["F1", "F2", "F3"]),
-        st.lists(_amounts, min_size=1, max_size=6),
-        min_size=1,
-    )
-)
+@given(fund_values)
 def test_nav_equal_to_the_sum_of_market_values_reconciles(
     funds: dict[str, list[Decimal]],
 ) -> None:

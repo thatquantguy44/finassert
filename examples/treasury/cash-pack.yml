@@ -1,0 +1,79 @@
+# finassert policy
+version: 1
+name: "Synthetic treasury-cash-forecast"
+assumptions:
+  - "All amounts, limits, terms and scope in this example are synthetic."
+  - "One complete unique row per weekly series/currency, with exclusive week end."
+  - "Amounts in currency major units; no conversion or intercompany netting."
+  - "Payments/repayments are positive magnitudes; financing is separate from operations."
+  - "total_inflows = receipts + financing_inflows; total_outflows = payments + financing_outflows."
+  - "Minimum buffers and effective commitment/reductions are caller supplied, not recommendations."
+  - "Facility checks cover period ends; legal eligibility and intraperiod peaks are outside scope."
+rules:
+  - rule: required_fields
+    columns: ["row_id", "forecast_as_of", "entity_id", "scenario_id", "currency", "period_start", "period_end", "opening_cash", "receipts", "payments", "financing_inflows", "financing_outflows", "total_inflows", "total_outflows", "cash_adjustments", "closing_cash", "restricted_cash", "minimum_buffer"]
+  - rule: no_duplicates
+    columns: ["row_id"]
+  - rule: no_duplicates
+    columns: ["forecast_as_of", "entity_id", "scenario_id", "currency", "period_start"]
+  - rule: forecast_coverage
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+  - rule: non_negative
+    column: "receipts"
+  - rule: non_negative
+    column: "payments"
+  - rule: non_negative
+    column: "financing_inflows"
+  - rule: non_negative
+    column: "financing_outflows"
+  - rule: non_negative
+    column: "restricted_cash"
+  - rule: non_negative
+    column: "minimum_buffer"
+  - rule: cash_reconciles
+    opening_cash: "opening_cash"
+    inflows: "total_inflows"
+    outflows: "total_outflows"
+    closing_cash: "closing_cash"
+    cash_pnl: "cash_adjustments"
+    outflow_sign: "positive"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id", "period_start"]
+    currency: "currency"
+    row_key: "row_id"
+    grain: "summary"
+    tolerance: "0"
+    null_policy: "fail"
+  - rule: cash_continuity
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+    opening_cash: "opening_cash"
+    closing_cash: "closing_cash"
+    tolerance: "0"
+    null_policy: "fail"
+  - rule: minimum_cash_buffer
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+    closing_cash: "closing_cash"
+    restricted_cash: "restricted_cash"
+    minimum_buffer: "minimum_buffer"
+    tolerance: "0"
+    null_policy: "fail"

@@ -5,12 +5,12 @@
 
 ## Current milestone
 
-Implemented (initial). See [tasks.md](tasks.md) for known gaps.
+Shared bounded strategies, identities/scaling and deterministic offline profiles
+are implemented; see [tasks.md](tasks.md) and [handoff.md](handoff.md).
 
 ## Next milestone
 
-Create shared bounded financial-numeric, grouped-record, null, and duplicate-label
-strategies.
+Extend properties with each new financial contract; keep shared generators bounded.
 
 ## Following milestones
 

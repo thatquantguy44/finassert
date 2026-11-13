@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -24,6 +25,7 @@ def build_artifact(
     input_sheet: str | None = None,
     input_header_row: int | None = None,
     input_max_row: int | None = None,
+    input_workbook_metadata: dict[str, Any] | None = None,
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Wrap a report with the context needed to audit or reproduce it.
@@ -36,6 +38,7 @@ def build_artifact(
         input_sheet: Worksheet read from a workbook input, if any.
         input_header_row: Explicit worksheet header row supplied by the caller.
         input_max_row: Inclusive worksheet row bound supplied by the caller.
+        input_workbook_metadata: Optional selected-region visibility metadata.
         generated_at: Timestamp to record; defaults to the current UTC time.
     """
     moment = generated_at or datetime.now(UTC)
@@ -48,7 +51,12 @@ def build_artifact(
         "generated_at": moment.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "policy": None if policy is None else policy.describe(),
         "input": _input_context(
-            input_locator, input_format, input_sheet, input_header_row, input_max_row
+            input_locator,
+            input_format,
+            input_sheet,
+            input_header_row,
+            input_max_row,
+            input_workbook_metadata,
         ),
         "report": report.to_dict(),
     }
@@ -65,6 +73,7 @@ def _input_context(
     sheet: str | None,
     header_row: int | None,
     max_row: int | None,
+    workbook_metadata: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     if (
         locator is None
@@ -72,6 +81,7 @@ def _input_context(
         and sheet is None
         and header_row is None
         and max_row is None
+        and workbook_metadata is None
     ):
         return None
     context: dict[str, Any] = {"locator": locator, "format": input_format}
@@ -81,4 +91,6 @@ def _input_context(
         context["header_row"] = header_row
     if max_row is not None:
         context["max_row"] = max_row
+    if workbook_metadata is not None:
+        context["workbook"] = copy.deepcopy(workbook_metadata)
     return context
