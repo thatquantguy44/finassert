@@ -1,6 +1,6 @@
 # 0015 — Verified upstream release bundles
 
-**Status:** Implemented; full branch verification in progress
+**Status:** Implemented and locally verified; draft PR review pending
 
 ## Problem statement
 

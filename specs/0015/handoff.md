@@ -3,11 +3,22 @@
 ## Current state
 
 Branch: feature/six-slice-upstream-delivery. Baseline: merged PR #19 (a644bdb).
-All six slices are implemented; full repository/distribution verification is in progress.
+All six slices and local acceptance checks are complete. Draft PR #21 is ready
+for review; remote CI status is recorded on the PR.
 Proposal: https://github.com/thatquantguy44/finassert/issues/20.
-Next: full checks, real clean-source bundle, then push updated draft PR #21.
+Next: review the draft PR; paired forecast accuracy is the next engineering slice.
 
 ## Entries
+
+### 2026-11-13 — Six-slice local acceptance complete
+
+All six slices were implemented in order on feature/six-slice-upstream-delivery.
+Full suite: 3,624 passed. Ruff, format (281 files), mypy (62 modules), strict
+MkDocs, browser and Excel builds passed. Built clean source f0b9667 and verified
+wheel/sdist, capability/pack sidecars, approved manifest hash and isolated
+installed CLI/FX/workbook/treasury workflows. See [the exact bundle receipt](artifacts/README.md).
+Draft PR #21 remains for review; no release, tag or downstream change occurred.
+Next engineering scope is 0012 U-08, then U-09.
 
 ### 2026-11-13 — Slice 1 verified producer bundle
 

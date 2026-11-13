@@ -20,15 +20,14 @@ rewrite old entries (append a correction instead).
 - **Branch:** `feature/six-slice-upstream-delivery`, from merged PR #19 (`a644bdb`).
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
-- **Progress:** All six implementation slices delivered; full branch verification in progress. See the
+- **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
 
 ## Next up
 
-1. Finish full repository and clean installed-bundle verification.
-2. Push the ordered commits to draft PR #21 for review.
-3. Next engineering scope: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
+1. Review draft PR #21 and its remote CI; keep it draft until approved.
+2. Next engineering scope: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
 
@@ -45,6 +44,18 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Six ordered upstream slices delivered
+
+- **Branch / PR:** `feature/six-slice-upstream-delivery`, [draft PR #21](https://github.com/thatquantguy44/finassert/pull/21), issue #20.
+- **Done:** Verified release bundle (0015), bounded property profiles (0009),
+  explicit workbook visibility/edge cases (0013), cash buffer, facility
+  capacity/continuity/maturity and versioned cash/funding pack (0012).
+- **Verify:** 3,624 tests passed; Ruff/format, mypy, strict MkDocs, browser/Excel
+  builds and isolated installed-wheel CLI/FX/workbook/treasury probes passed.
+- **Evidence:** Clean source `f0b9667`; [bundle hashes and commands](https://github.com/thatquantguy44/finassert/blob/feature/six-slice-upstream-delivery/specs/0015/artifacts/README.md).
+- **Scope:** No tag, package publication or downstream app change. PR review remains pending.
+- **Next:** Paired forecast accuracy (0012 U-08), then debt principal/issuance (U-09).
 
 ### 2026-11-13 — Ordered six-slice upstream delivery started
 

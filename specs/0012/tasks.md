@@ -4,10 +4,10 @@
 **Updated:** 2026-11-13
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
 
-Implementation tasks: **7 of 16 done**. U-01–U-04 are merged baseline work;
+Implementation tasks: **8 of 16 done**. U-01–U-04 are merged baseline work;
 U-05–U-07 are implemented by Codex on behalf of the repository owner in PR #21.
-Full branch/distribution verification is in progress; external PR review is pending.
-U-08–U-10 and all downstream Q tasks remain open.
+Full branch/distribution verification passed; external PR review is pending.
+U-08–U-09 and all downstream Q tasks remain open.
 
 ## Ledger protocol
 
@@ -28,7 +28,7 @@ test coverage. Amend the specification with intentional contract changes.
 | U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | done |
 | U-08 | finassert | Implement paired forecast-error rule and matching/vintage example | U-07 | AC-06–09 | todo |
 | U-09 | finassert | Implement debt principal and issuance proceeds rules with final 0002 amendment | U-01, U-07 | AC-07–10 | todo |
-| U-10 | finassert | Verify distributions; record immutable source and pack artifacts for consumers | U-07 | AC-08–09 | todo |
+| U-10 | finassert | Verify distributions; record immutable source and pack artifacts for consumers | U-07 | AC-08–09 | done |
 | Q-01 | QuantMeridian later | Migrate staged consumer spec, reinspect active repository and assign current paths/spec number | This specification exists; migration timing chosen by owner | AC-13 | todo |
 | Q-02 | QuantMeridian later | Implement service/Node proxy contracts, exact initial pin and strict coverage wrapper | Q-01; existing cash rule available | AC-11 | todo |
 | Q-03 | QuantMeridian later | Add treasury mapping/upload and exception UI, DATAOPS readiness and report export | Q-02, U-07, U-10 | AC-01–05, AC-11 | todo |
@@ -57,6 +57,12 @@ candidates, not implicitly included implementation commitments in U-09.
 | AC-13 | Q-01, Q-05 | No downstream change now; explicit document move and generated-Core verification later |
 
 ## Completion evidence
+
+- Final PR #21 local acceptance: 3,624 tests, Ruff/format, mypy, strict docs,
+  browser/Excel builds and isolated installed-wheel probes passed.
+- U-10: clean f0b9667 bundle contains exact source/artifact/capability/pack
+  identity. [Receipt and commands](../0015/artifacts/README.md). Independent
+  manifest pin verification passed; no release/tag/package publication occurred.
 
 - U-02–U-04 correction: these are merged baseline implementations; PRs #17–#19
   subsequently passed the full suite and Python 3.11–3.13 CI. Historical partial

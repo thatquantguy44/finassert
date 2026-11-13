@@ -67,7 +67,7 @@ cross-spec dependencies, and overall priorities in the
 
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
 | [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
-| [0015 Verified upstream release bundles](0015/spec.md) | Implemented; six-slice verification in progress |
+| [0015 Verified upstream release bundles](0015/spec.md) | Implemented and locally verified; draft PR review pending |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

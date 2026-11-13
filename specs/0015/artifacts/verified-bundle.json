@@ -1,0 +1,41 @@
+{
+  "artifacts": [
+    {
+      "filename": "finassert-0.1.0-py3-none-any.whl",
+      "sha256": "2c67b67dca06c302bf57424ff6ce3648f98a1e8678904c8e9562c4b241f22a5e",
+      "size_bytes": 159182
+    },
+    {
+      "filename": "finassert-0.1.0.tar.gz",
+      "sha256": "6fe3665c58bc08009ff51d96c07a80a8fd27ba4d2b87832a04630f46a60b4517",
+      "size_bytes": 448337
+    }
+  ],
+  "capabilities_sha256": "f241c153bc7ea174f137535da5db2c29b27cfeb899fe5cea82bc8c48240dd84d",
+  "package": {
+    "extras": [
+      "assistant",
+      "cli",
+      "excel",
+      "pandas",
+      "parquet",
+      "yaml"
+    ],
+    "name": "finassert",
+    "requires_python": ">=3.11",
+    "version": "0.1.0"
+  },
+  "package_source_sha256": "d81f6949f40d63398fd5a669a038d4480027c7cbdc7cc0fb459a3c7dea9a9850",
+  "packs": [
+    {
+      "pack_id": "treasury.cash-funding",
+      "version": 1
+    }
+  ],
+  "release_manifest_sha256": "3960c205bfc35327ebf896be79b708bafcea33574773d511aa1e111812d94ade",
+  "source": {
+    "commit": "f0b96672c878f565f3657db84631126254a39c44",
+    "dirty": false,
+    "repository": "https://github.com/thatquantguy44/finassert"
+  }
+}

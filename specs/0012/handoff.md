@@ -4,11 +4,19 @@
 
 Cash continuity, weekly coverage and minimum available-cash buffer are implemented.
 PR #21 slices 4–5 are verified, including facility continuity/maturity and
-public exports/catalog. Slice 6 pack/interface checks pass; full repository and distribution verification
-is in progress. External PR review and downstream work remain pending.
+public exports/catalog. All six slices and full repository/distribution checks pass. External PR review and downstream work remain pending.
 Consumer integration remains proposed.
 
 ## Entries
+
+### 2026-11-13 — Cash/funding pack acceptance and immutable handoff
+
+Full suite: 3,624 passed; lint, formatting, types, strict docs, browser/Excel
+builds and isolated installed-package checks passed. Clean source f0b9667 bundle
+records exact Python/artifact/capability/pack identity; [receipt](../0015/artifacts/README.md).
+U-01–07 and U-10 are delivered upstream; PR #21 remains draft for review.
+U-08 paired forecast accuracy and U-09 debt/issuance are next. No consumer,
+release/tag or publishing action was taken.
 
 ### 2026-11-13 — Slice 6 versioned cash/funding pack
 
