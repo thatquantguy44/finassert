@@ -11,6 +11,12 @@ test that does that: the pane has a **Diagnostics for testers** section that run
 it and produces a report. Until it has been done the add-in should be treated as a
 prototype.
 
+The next delivery is scoped in
+[spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
+explicit source binding, stale-result handling, diagnostic navigation, explicit
+date interpretation and a real Mac correction/rerun/export test. These changes
+are proposed; the behavior described below remains the current prototype.
+
 ## What it does
 
 1. **Use the selected cells.** Select the cells that hold your data, with the column

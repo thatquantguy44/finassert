@@ -14,11 +14,15 @@ is recorded in the [master handoff](handoff.md).
 
 Next engineering work:
 
-1. Implement paired forecast accuracy under specification 0012 U-08, with explicit
+1. Build the Mac-first Excel validate → navigate → correct → rerun workflow under
+   [specification 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md).
+   Explicit source binding, stale-result handling, diagnostic navigation and date
+   interpretation are proposed; real Excel acceptance is required for completion.
+2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
-2. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
+3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
    conventions and extend 0002 before promoting new public financial rules.
-3. Review a real-Excel pilot and remaining adapter/grouped-rule requests based on
+4. Extend platform pilots and remaining adapter/grouped-rule requests based on
    demonstrated inputs. Local QuantSmith installation/orchestration belongs in its
    own repository and consumes the verified finassert bundle.
 
@@ -31,9 +35,9 @@ Additional project work:
    exposure rules that need classification data or notional. Cash and NAV
    reconciliation, market values, simple returns, and gross, net, and position
    limits are available now.
-3. Add policy templates as rules are added, and integration inside Excel
-   (specification 0011): an initial task pane exists ([add-in](excel-add-in.md)); run
-   the [spike](design/excel-integration.md) in real Excel next.
+3. Add policy templates as rules are added. The initial task pane under 0011
+   ([add-in](excel-add-in.md)) is the baseline for 0016's scoped workflow; its
+   [real-host runbook](design/excel-spike.md) supplies the first Mac acceptance gate.
 4. Extend the initial typed units and direct FX contracts only for demonstrated
    use cases; providers and conversion paths remain deferred.
 5. Spec 0010 provides bounded diagnostic sampling and private one-column sharing

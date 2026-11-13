@@ -40,7 +40,7 @@ required. Do not imply that scaffolding means implementation is complete.
 ## Creating a spec
 
 Copy [_template/](_template/spec.md) to the next unused numbered directory
-(currently `0016`). Replace the template prompts, set an explicit status, and add
+(currently `0017`). Replace the template prompts, set an explicit status, and add
 the spec to the catalog below. Numbers are permanent and are not reused. Keep
 draft planning and unresolved questions explicit instead of inventing completion.
 
@@ -64,10 +64,10 @@ cross-spec dependencies, and overall priorities in the
 | [0010 Performance and batch validation](0010/spec.md) | Scalar/multi-rule benchmarks, bounded diagnostics and private shared reads; batch APIs proposed |
 | [0011 Non-technical interfaces](0011/spec.md) | Milestones 1–6 implemented (initial); Excel files supported |
 | [0012 Treasury and capital markets](0012/spec.md) | Cash/funding pack implemented; later rules and consumer work proposed |
-
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
 | [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
-| [0015 Verified upstream release bundles](0015/spec.md) | Implemented and locally verified; draft PR review pending |
+| [0015 Verified upstream release bundles](0015/spec.md) | Implemented and verified; PR #21 merged |
+| [0016 Excel add-in validation workflow](0016/spec.md) | Proposed; Mac-first source binding, freshness, navigation and real-host acceptance |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.
