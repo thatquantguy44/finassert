@@ -14,6 +14,7 @@ from typing import Any
 from finassert._files import write_atomic
 from finassert._version import __version__
 from finassert.policy.catalog import default_catalog
+from finassert.policy.packs import policy_packs
 from finassert.policy.schema import SUPPORTED_VERSIONS
 from finassert.reporting.artifact import ARTIFACT_SCHEMA_VERSION
 
@@ -183,7 +184,11 @@ def build_release_bundle(
         raise ValueError("wheel/sdist/producer package metadata disagree")
     if wheel_code != sdist_code or wheel_code != producer:
         raise ValueError("wheel/sdist Python source differs from the producer tree")
-    capabilities = {"schema_version": 1, **default_catalog().to_dict()}
+    capabilities = {
+        "schema_version": 1,
+        **default_catalog().to_dict(),
+        "packs": list(policy_packs()),
+    }
     manifest = {
         "schema_version": 1,
         "source": source,
@@ -269,9 +274,10 @@ def _verify_release_bundle(
     capabilities = manifest["capabilities"]
     if (
         not isinstance(capabilities, dict)
-        or set(capabilities) != {"schema_version", "rules"}
+        or set(capabilities) != {"schema_version", "rules", "packs"}
         or capabilities["schema_version"] != 1
         or not isinstance(capabilities["rules"], list)
+        or not isinstance(capabilities["packs"], list)
     ):
         raise ValueError("invalid capabilities schema")
     ids = [item["rule_id"] for item in capabilities["rules"]]
@@ -281,6 +287,30 @@ def _verify_release_bundle(
         or _sha(_json(capabilities).encode()) != manifest["capabilities_sha256"]
     ):
         raise ValueError("capabilities identity mismatch")
+    pack_ids = set()
+    for pack in capabilities["packs"]:
+        if (
+            not isinstance(pack, dict)
+            or pack.get("schema_version") != 1
+            or type(pack.get("version")) is not int
+            or pack["version"] < 1
+            or pack.get("policy_schema_version") != 1
+            or not isinstance(pack.get("pack_id"), str)
+            or pack["pack_id"] in pack_ids
+            or not isinstance(pack.get("datasets"), dict)
+            or not pack["datasets"]
+        ):
+            raise ValueError("invalid capability pack manifest")
+        pack_ids.add(pack["pack_id"])
+        for dataset in pack["datasets"].values():
+            if (
+                not isinstance(dataset, dict)
+                or set(dataset) != {"template", "required_rules"}
+                or not isinstance(dataset["template"], str)
+                or not isinstance(dataset["required_rules"], list)
+                or any(rule_id not in ids for rule_id in dataset["required_rules"])
+            ):
+                raise ValueError("pack references unsupported capabilities")
     paths = _distributions(directory)
     entries = manifest["artifacts"]
     if (

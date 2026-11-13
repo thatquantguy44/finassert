@@ -295,6 +295,12 @@ def _walk(
                     visit(value)
                 elif mapping.get(value):
                     entry[key] = mapping[value]
+            elif kind is ParameterKind.RECORDS and key == "expected_scope" and mapping is not None:
+                # Scope keys are physical columns; values remain independently supplied terms.
+                entry[key] = [
+                    {mapping.get(name) or name: term for name, term in record.items()}
+                    for record in value
+                ]
             elif kind is ParameterKind.COLUMNS and isinstance(value, list):
                 for position, item in enumerate(value):
                     if mapping is None:

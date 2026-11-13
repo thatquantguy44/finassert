@@ -3,9 +3,9 @@
 ## Current state
 
 Branch: feature/six-slice-upstream-delivery. Baseline: merged PR #19 (a644bdb).
-Slices 1–5 are complete; slice 6 remains pending.
+All six slices are implemented; full repository/distribution verification is in progress.
 Proposal: https://github.com/thatquantguy44/finassert/issues/20.
-Next: slice 6, versioned treasury pack and parity.
+Next: full checks, real clean-source bundle, then push updated draft PR #21.
 
 ## Entries
 

@@ -19,3 +19,12 @@ are nonnegative. Missing/duplicate periods and invalid/intraperiod maturity erro
 Maturity at/before period start requires zero draw/closing within explicit amount
 tolerance; maturity at the final end does not invent a subsequent period.
 Headroom is never clamped. Earlier coverage/continuity APIs remain unchanged.
+
+## Cash/funding pack v1 — 2026-11-13
+
+Two ordinary policies and a versioned manifest now compose shipped checks; no new
+core status or dependency engine is introduced. Required/optional inventory and
+assumptions appear in discovery and release identity. Scope values and limits
+remain independently reviewed inputs. Cash policy catalog now exposes existing
+row_key support; column adaptation renames expected-scope keys without changing
+values. MCP adds bounded canonical diagnostics and tolerance to each summary.

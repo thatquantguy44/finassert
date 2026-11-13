@@ -144,3 +144,25 @@ def test_duplicate_manifest_keys_are_refused(bundle: Path) -> None:
     path.write_text('{"schema_version":1,' + path.read_text()[1:])
     with pytest.raises(ValueError, match="duplicate manifest key"):
         verify_release_bundle(bundle)
+
+
+@pytest.mark.parametrize("change", ["unknown_rule", "version", "duplicate"])
+def test_pack_contract_is_validated_even_when_digests_are_recomputed(bundle, change):
+    manifest = build(bundle)
+    pack = manifest["capabilities"]["packs"][0]
+    if change == "unknown_rule":
+        pack["datasets"]["cash"]["required_rules"].append("unshipped.rule")
+    elif change == "version":
+        pack["version"] = "1"
+    else:
+        manifest["capabilities"]["packs"].append(pack)
+
+    def canonical(value):
+        return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
+
+    manifest["capabilities_sha256"] = hashlib.sha256(
+        canonical(manifest["capabilities"])
+    ).hexdigest()
+    (bundle / "release-manifest.json").write_bytes(canonical(manifest))
+    with pytest.raises(ValueError, match="pack"):
+        verify_release_bundle(bundle)

@@ -1,6 +1,6 @@
 # 0015 — Verified upstream release bundles
 
-**Status:** Implementation authorized; acceptance pending
+**Status:** Implemented; full branch verification in progress
 
 ## Problem statement
 
@@ -35,7 +35,7 @@ sidecars after existing installed-distribution smoke checks.
 
 ## Public API design
 
-Proposed finassert.release helpers build/verify a version-1 manifest. A script
+`finassert.release` helpers build/verify a version-1 manifest. A script
 supports build and verify operations; build reads the actual Git revision and
 rejects dirty source unless explicitly marked non-promotable. No runtime API
 fetches or installs packages. Existing catalog and policy/report contracts are
@@ -45,7 +45,7 @@ reused, not duplicated as financial equations.
 
 Manifest version 1 includes source repository/full commit/dirty flag, distribution
 name/version/Requires-Python/extras, package Python-source SHA-256, contract
-versions, the canonical catalog snapshot/digest and exact wheel/sdist filenames,
+versions, the canonical rule catalog and versioned pack snapshot/digest and exact wheel/sdist filenames,
 byte sizes and SHA-256. Filenames are plain basenames; duplicate/path-traversing
 entries, symlinks, missing/extra distributions and unsupported versions are errors.
 A caller may supply an independently approved manifest SHA-256. Checksums prove

@@ -106,3 +106,7 @@ bundle with `source.dirty=true`; ordinary verification refuses promotion of it.
 Hashes identify exact artifacts; equivalent builds on different machines are not
 assumed to be byte-identical. This adds no release publication or downstream
 installer. QuantSmith owns its local environment/readiness controls.
+
+Capability schema 1 also embeds the versioned treasury pack manifest. Pack required
+rule references are checked against the bundled rule catalog. The digest covers
+both rules and pack assumptions, so consumers can retain the approved inventory.

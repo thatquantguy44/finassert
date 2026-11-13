@@ -16,9 +16,9 @@ finassert check --config examples/treasury/policy.yml \
 
 The policy passes both checks. `examples/treasury/failure-cases.json` describes
 small reproducible mutations: missing week, missing whole series, duplicate
-week, disconnected cash, and future liquidity/capacity failures. The integration
-tests apply these recipes. The matching `facilities.csv` is synthetic input for
-later facility controls; this policy does not evaluate it. Regenerate the files
+week, disconnected cash, and liquidity/capacity failures. The integration
+tests apply these recipes. The matching `facilities.csv` is checked by the separate
+`facility-pack.yml`; the legacy two-check policy does not evaluate it. Regenerate the files
 with `python examples/treasury/generate.py` after installing this checkout.
 
 ## Python API
@@ -129,3 +129,40 @@ week errors. Maturity at period end is assessed at the next start, if supplied.
 Diagnostics preserve negative headroom and both row identities for a discontinuity.
 This checks period-end capacity; intraperiod peaks and legal eligibility need their
 own inputs and review.
+
+## Versioned cash/funding pack
+
+Use `examples/treasury/cash-pack.yml` with `cash-forecast.csv` and
+`examples/treasury/facility-pack.yml` with `facilities.csv`. Both pass. Cash checks
+include required fields, unique IDs/weekly keys, positive operating/financing
+flows, coverage, within-week cash identity, continuity and minimum available cash.
+The facility policy checks required fields, unique IDs/weekly keys, explicit
+coverage, principal, effective capacity, continuity and maturity.
+
+```bash
+finassert init --template treasury-cash-forecast --output my-cash-policy.yml
+finassert templates --json
+finassert check --config examples/treasury/cash-pack.yml \
+  --input examples/treasury/cash-forecast.csv --html cash.html --xlsx cash.xlsx
+finassert check --config examples/treasury/facility-pack.yml \
+  --input examples/treasury/facilities.csv --html facilities.html
+```
+
+Templates contain synthetic scope/date placeholders, require caller-supplied
+minimum/commitment columns and use zero default amount tolerance. Replace the
+placeholders and review the full resolved policy before relying on it.
+`examples/treasury/prepare.py` copies input rows and explicitly constructs
+`total_inflows = receipts + financing_inflows` and
+`total_outflows = payments + financing_outflows` with Decimal. Original IDs and
+flow columns remain visible; no absent values become zero. Policy checks assume
+these declared derivations are correct. Consumer mapping owns cross-file facility
+flow linkage and initial-opening actual tie-outs.
+
+`finassert.policy.treasury_pack_manifest()` exposes pack `treasury.cash-funding`
+version 1 with required rule inventory, no optional checks, and unit/sign and
+applicability assumptions. CLI `templates --json`, MCP template discovery and
+release capability sidecars expose the same manifest. Required checks must be
+present and evaluated; skipped/error/absent checks mean incomplete coverage.
+Core outcome and severity semantics stay unchanged. MCP summaries retain the
+canonical bounded diagnostics and tolerance; JSON, HTML and Excel render the same
+results. These checks do not establish forecast accuracy or policy adequacy.

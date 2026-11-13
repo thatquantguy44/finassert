@@ -63,11 +63,11 @@ cross-spec dependencies, and overall priorities in the
 | [0009 Property-based testing](0009/spec.md) | Implemented (initial) |
 | [0010 Performance and batch validation](0010/spec.md) | Scalar/multi-rule benchmarks, bounded diagnostics and private shared reads; batch APIs proposed |
 | [0011 Non-technical interfaces](0011/spec.md) | Milestones 1–6 implemented (initial); Excel files supported |
-| [0012 Treasury and capital markets](0012/spec.md) | Proposed; upstream rules and deferred QuantMeridian handoff |
+| [0012 Treasury and capital markets](0012/spec.md) | Cash/funding pack implemented; later rules and consumer work proposed |
 
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
 | [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
-| [0015 Verified upstream release bundles](0015/spec.md) | Implementation authorized; six-slice delivery in progress |
+| [0015 Verified upstream release bundles](0015/spec.md) | Implemented; six-slice verification in progress |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

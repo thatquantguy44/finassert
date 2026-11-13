@@ -629,6 +629,7 @@ def _cash_reconciles_spec() -> RuleFactorySpec:
                 "currency's units, for example 0.01."
             ),
             _RECONCILE_NULLS,
+            _ROW_KEY,
             _SEVERITY,
             _MAX_GROUPS,
         ),

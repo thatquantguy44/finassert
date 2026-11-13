@@ -1,12 +1,13 @@
 # Tasks — treasury rules and deferred QuantMeridian integration
 
-**Status:** Proposed implementation backlog; specification prepared.
-**Updated:** 2026-10-17
+**Status:** Cash/funding pack implemented on PR #21; later rules and consumer work remain proposed.
+**Updated:** 2026-11-13
 **Spec:** [spec.md](spec.md) · **Plan:** [plan.md](plan.md)
 
-Implementation tasks: **1 of 16 done**. U-02–U-04 are implemented on this branch
-and awaiting full CI/review. U-01–U-04 are assigned to the implementation work
-in PR #12; other work remains unassigned.
+Implementation tasks: **7 of 16 done**. U-01–U-04 are merged baseline work;
+U-05–U-07 are implemented by Codex on behalf of the repository owner in PR #21.
+Full branch/distribution verification is in progress; external PR review is pending.
+U-08–U-10 and all downstream Q tasks remain open.
 
 ## Ledger protocol
 
@@ -19,12 +20,12 @@ test coverage. Amend the specification with intentional contract changes.
 | ID | Repository | Task | Dependencies | Acceptance | State |
 | --- | --- | --- | --- | --- | --- |
 | U-01 | finassert | Open proposal issue; finalize treasury IDs, API signatures, prerequisite and currency contracts | — | AC-07–09 | done |
-| U-02 | finassert | Add synthetic forecast/facility fixtures, expected scope and explicit assumptions | U-01 | AC-01–05 | in-progress |
-| U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | in-progress |
-| U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | in-progress |
+| U-02 | finassert | Add synthetic forecast/facility fixtures, expected scope and explicit assumptions | U-01 | AC-01–05 | done |
+| U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | done |
+| U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | done |
 | U-05 | finassert | Implement minimum available-cash buffer | U-02 | AC-04, AC-07 | done |
 | U-06 | finassert | Implement facility identity, capacity, continuity and maturity behavior | U-03 | AC-05, AC-07 | done |
-| U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | todo |
+| U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | done |
 | U-08 | finassert | Implement paired forecast-error rule and matching/vintage example | U-07 | AC-06–09 | todo |
 | U-09 | finassert | Implement debt principal and issuance proceeds rules with final 0002 amendment | U-01, U-07 | AC-07–10 | todo |
 | U-10 | finassert | Verify distributions; record immutable source and pack artifacts for consumers | U-07 | AC-08–09 | todo |
@@ -56,6 +57,15 @@ candidates, not implicitly included implementation commitments in U-09.
 | AC-13 | Q-01, Q-05 | No downstream change now; explicit document move and generated-Core verification later |
 
 ## Completion evidence
+
+- U-02–U-04 correction: these are merged baseline implementations; PRs #17–#19
+  subsequently passed the full suite and Python 3.11–3.13 CI. Historical partial
+  evidence below describes the original development run.
+- U-07 (PR #21): version-1 pack manifest, two immutable templates, explicit exact
+  Decimal combined-flow preparation, strict cash row_key catalog support and scope
+  column adaptation. Python/CLI/MCP/JSON/HTML/XLSX parity and fixture regeneration
+  passed; 139 affected interface/release tests and 76 pack/template tests passed.
+  Full branch checks and real installed-wheel verification follow this commit.
 
 - U-06 (PR #21): public facility capacity factory/catalog, principal and capacity,
   independent complete facility/currency scope, adjacent principal continuity and

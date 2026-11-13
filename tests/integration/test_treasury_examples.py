@@ -85,14 +85,16 @@ def test_failure_recipes(case):
         report = load_policy(EXAMPLES / "policy.yml").check(data)
         assert report.results[0].outcome.value == case["coverage"]
         assert report.results[1].outcome.value == case["continuity"]
-    if "future_buffer" in case:
-        assert any(r["closing_cash"] - r["restricted_cash"] < r["minimum_buffer"] for r in data)
-    if "future_capacity" in case:
-        assert any(r["closing_drawn"] > r["commitment"] - r["unavailable_amount"] for r in data)
+    if "buffer" in case:
+        observed = load_policy(EXAMPLES / "cash-pack.yml").check(data).results[-1]
+        assert observed.outcome.value == case["buffer"]
+    if "capacity" in case:
+        observed = load_policy(EXAMPLES / "facility-pack.yml").check(data).results[-1]
+        assert observed.outcome.value == case["capacity"]
 
 
 def test_fixtures_regenerate_identically():
-    paths = [*EXAMPLES.glob("*.csv"), *EXAMPLES.glob("*.json"), EXAMPLES / "policy.yml"]
+    paths = [*EXAMPLES.glob("*.csv"), *EXAMPLES.glob("*.json"), *EXAMPLES.glob("*.yml")]
     before = {p: p.read_bytes() for p in paths}
     subprocess.run([sys.executable, str(EXAMPLES / "generate.py")], check=True, timeout=30)
     assert before == {p: p.read_bytes() for p in paths}

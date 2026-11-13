@@ -15,6 +15,6 @@
 - [x] 3. Excel input hardening (0013).
 - [x] 4. Minimum cash buffer (0012 U-05).
 - [x] 5. Facility capacity, continuity and maturity (0012 U-06).
-- [ ] 6. Treasury policy pack and interface parity (0012 U-07).
+- [x] 6. Treasury policy pack and interface parity (0012 U-07).
 
 Check only with acceptance evidence; the owning specs define each later contract.

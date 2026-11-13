@@ -131,7 +131,7 @@ def _check_installed_wheel(wheel: Path, version: str) -> list[str]:
             **run,  # type: ignore[call-overload]
         )
         if probe.returncode != 0:
-            problems.append(f"installed units/FX/workbook workflow failed: {probe.stderr}")
+            problems.append(f"installed units/FX/workbook/treasury workflow failed: {probe.stderr}")
     return problems
 
 
@@ -162,6 +162,25 @@ book.save('installed-input.xlsx')
 book.close()
 assert fa.check(read_workbook('installed-input.xlsx', sheet='Positions'),
                 [fa.weights_sum_to_one()]).passed
+from finassert.policy import get_template, treasury_pack_manifest
+assert treasury_pack_manifest()['version'] == 1
+assert get_template('treasury-cash-forecast').policy().rules
+assert get_template('treasury-facility-schedule').policy().rules
+schedule = dict(period_start='start', period_end='end', group_by=[], currency='ccy',
+                first_period='2026-10-05', periods=1, row_key='id')
+rows = [dict(id='one', ccy='USD', facility='R', start='2026-10-05', end='2026-10-12',
+             close=100, restricted=10, minimum=90, opening_drawn=0, draws=10,
+             repayments=0, closing_drawn=10, commitment=10, unavailable=0, maturity='2028-01-01')]
+cash = fa.minimum_cash_buffer(closing_cash='close', restricted_cash='restricted',
+                              minimum_buffer='minimum', expected_scope=[{'ccy': 'USD'}], **schedule)
+facility = fa.facility_capacity(facility_id='facility', opening_drawn='opening_drawn',
+                               draws='draws',
+                               repayments='repayments', closing_drawn='closing_drawn',
+                               commitment='commitment', unavailable_amount='unavailable',
+                               maturity_date='maturity',
+                               expected_scope=[{'facility': 'R', 'ccy': 'USD'}],
+                               **schedule)
+assert fa.check(rows, [cash, facility], raise_on_error=True).passed
 """
 
 

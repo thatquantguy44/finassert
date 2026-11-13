@@ -142,6 +142,12 @@ def test_cli_workbook_region_json_and_xlsx_outputs(tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stderr
     artifact = json.loads((tmp_path / "report.json").read_text())
+    assert artifact["input"].pop("workbook") == {
+        "hidden_region_policy": "include",
+        "sheet_state": "visible",
+        "hidden_rows": {"count": 0, "examples": [], "truncated": False},
+        "hidden_columns": {"count": 0, "examples": [], "truncated": False},
+    }
     assert artifact["input"] == {
         "locator": source.name,
         "format": "xlsx",

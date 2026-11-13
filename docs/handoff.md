@@ -20,14 +20,15 @@ rewrite old entries (append a correction instead).
 - **Branch:** `feature/six-slice-upstream-delivery`, from merged PR #19 (`a644bdb`).
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
-- **Progress:** Slice 1 in progress; remaining slices pending. See the
+- **Progress:** All six implementation slices delivered; full branch verification in progress. See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
 
 ## Next up
 
-1. Complete verified producer bundle and its installed/tampering checks.
-2. Execute slices 2–6 in order, using each owning spec and recording acceptance.
+1. Finish full repository and clean installed-bundle verification.
+2. Push the ordered commits to draft PR #21 for review.
+3. Next engineering scope: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
 

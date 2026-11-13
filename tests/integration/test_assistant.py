@@ -37,10 +37,12 @@ def test_catalog_and_templates_are_described() -> None:
         "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "facility_capacity",
         "forecast_coverage",
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",
+        "minimum_cash_buffer",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
@@ -64,6 +66,8 @@ def test_catalog_and_templates_are_described() -> None:
         "position-valuation",
         "return-reconciliation",
         "target-allocation",
+        "treasury-cash-forecast",
+        "treasury-facility-schedule",
     ]
     assert by_name["long-only-holdings"]["yaml"].startswith("# Long-only holdings file")
     assert all(template["document"]["assumptions"] for template in templates)

@@ -1,13 +1,13 @@
 # Implementation plan — treasury and capital markets
 
-**Status:** Proposed; no implementation started.
-**Updated:** 2026-10-17
+**Status:** Cash/funding pack implemented; later forecast-error/capital-markets and consumer slices remain planned.
+**Updated:** 2026-11-13
 **Requirements:** [spec.md](spec.md)
 **Ledger:** [tasks.md](tasks.md)
 
 ## Repository boundaries
 
-All current changes are documentation in finassert. General financial checks
+Current implementation is confined to finassert. General financial checks
 belong in this repository. The [QuantMeridian staging document](quantmeridian/SPEC.md)
 describes future consumer work and must not introduce FastAPI, Node, hosted
 services, application authorization, or deployment credentials into finassert.
@@ -107,10 +107,9 @@ uv build
 uv run python scripts/verify_dist.py dist
 ```
 
-For this specification-only delivery, check local Markdown links, requirement
-and task coverage, synthetic arithmetic stated in documents, whitespace, and
-remote changed-file scope. Runtime tests are not evidence for unimplemented
-capabilities and need not be added for this documentation change.
+The cash/funding implementation requires runtime, distribution and interface
+checks above. Deferred capabilities remain unimplemented regardless of baseline
+test results; downstream application work is not part of this delivery.
 
 ## Risks and treatment
 

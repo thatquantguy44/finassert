@@ -4,10 +4,22 @@
 
 Cash continuity, weekly coverage and minimum available-cash buffer are implemented.
 PR #21 slices 4–5 are verified, including facility continuity/maturity and
-public exports/catalog. Next: slice 6, versioned treasury pack and interface parity.
+public exports/catalog. Slice 6 pack/interface checks pass; full repository and distribution verification
+is in progress. External PR review and downstream work remain pending.
 Consumer integration remains proposed.
 
 ## Entries
+
+### 2026-11-13 — Slice 6 versioned cash/funding pack
+
+Added treasury.cash-funding v1 manifest, two immutable templates and generated
+cash/facility policies. Explicit Decimal preparation preserves original IDs/flows
+and refuses missing or invalid components. Required-check inventory, assumptions
+and applicability appear in CLI/MCP discovery and release capabilities. Cash
+row_key catalog support and expected-scope key adaptation preserve mapping parity.
+MCP adds canonical bounded diagnostics/tolerances; Python/CLI/JSON/HTML/XLSX and
+real MCP stdio checks pass. 139 affected interface/release tests and 76 focused
+pack/template tests passed. Full branch/distribution checks are next; draft PR #21.
 
 ### 2026-11-13 — Slice 5b facility continuity and maturity
 
