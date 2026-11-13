@@ -309,6 +309,7 @@ def test_every_built_in_rule_is_fully_documented() -> None:
         "gross_within_limit",
         "in_range",
         "market_value_reconciles",
+        "minimum_cash_buffer",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",

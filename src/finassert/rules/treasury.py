@@ -6,10 +6,11 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
+from decimal import Decimal, localcontext
 from typing import Any, ClassVar
 
 from finassert.adapters._column import extract_columns
-from finassert.core.models import Outcome, Severity, ValidationResult
+from finassert.core.models import DiagnosticCollection, Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance, is_finite
 from finassert.rules._helpers import is_blank, precise_sum
 from finassert.rules.base import NullPolicy
@@ -398,6 +399,218 @@ def cash_continuity(
         row_key=row_key,
         opening_cash=opening_cash,
         closing_cash=closing_cash,
+        tolerance=coerce_tolerance(tolerance),
+        null_policy=NullPolicy(null_policy),
+        severity=Severity(severity),
+        max_violations=max_violations,
+    )
+
+
+def _amount_precision(values: Sequence[Decimal]) -> int:
+    # Retain all finite input digits and room for sums/products and relative bounds.
+    low = min(int(value.as_tuple().exponent) for value in values)
+    high = max(value.adjusted() for value in values)
+    return max(50, high - low + sum(len(value.as_tuple().digits) for value in values) + 5)
+
+
+def _amounts(
+    rule: Any,
+    columns: dict[str, list[Any]],
+    labels: list[Any],
+    names: Sequence[str],
+    nonnegative: Sequence[str],
+) -> tuple[_Violations, bool]:
+    invalid = _Violations(rule.max_violations)
+    nonblank = False
+    for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+        for name in names:
+            value = columns[name][i]
+            reason = None
+            if not is_finite(value):
+                blank = is_blank(value) and not isinstance(value, (int, float, Decimal))
+                nonblank |= not blank
+                reason = "blank" if blank else "non_finite_or_nonnumeric"
+            elif name in nonnegative and value < 0:
+                nonblank = True
+                reason = "negative_amount"
+            if reason:
+                invalid.add(row=labels[i], column=name, reason=reason)
+    return invalid, nonblank
+
+
+def _amount_result(
+    rule: Any,
+    outcome: Outcome,
+    context: dict[str, Any],
+    issues: _Violations,
+    message: str,
+    *,
+    diagnostics: tuple[DiagnosticCollection, ...] = (),
+) -> ValidationResult:
+    return ValidationResult(
+        rule_id=rule.rule_id,
+        rule_name=rule.name,
+        severity=rule.severity,
+        outcome=outcome,
+        message=message,
+        observed=issues.count,
+        expected=0,
+        tolerance=rule.tolerance.to_dict(),
+        metadata={**context, **issues.metadata()},
+        diagnostics=diagnostics,
+    )
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class MinimumCashBufferRule(_ScheduleRule):
+    """Compare closing less restricted cash with each row's explicit minimum."""
+
+    closing_cash: str
+    restricted_cash: str
+    minimum_buffer: str
+    tolerance: Tolerance = field(default_factory=Tolerance)
+    null_policy: NullPolicy = NullPolicy.FAIL
+    rule_id: ClassVar[str] = "treasury.minimum_cash_buffer"
+    name: ClassVar[str] = "Available cash meets the minimum buffer"
+
+    def __post_init__(self) -> None:
+        _ScheduleRule.__post_init__(self)
+        for name in (self.closing_cash, self.restricted_cash, self.minimum_buffer):
+            _column(name)
+        if len({self.closing_cash, self.restricted_cash, self.minimum_buffer}) != 3:
+            raise ValueError("cash amount columns must be distinct")
+        if not all(is_finite(v) for v in (self.tolerance.absolute, self.tolerance.relative)):
+            raise ValueError("tolerance components must be finite numeric amounts")
+        if self.null_policy not in (NullPolicy.FAIL, NullPolicy.SKIP):
+            raise ValueError("buffer null_policy must be 'fail' or 'skip'")
+
+    def evaluate(self, data: Any) -> ValidationResult:
+        """Check complete currency-isolated schedules and sample every actual shortfall."""
+        names = (self.closing_cash, self.restricted_cash, self.minimum_buffer)
+        columns, labels, _, issues = _scan(self, data, names)
+        context = {
+            **_context(self, len(labels)),
+            "equation": "available_cash = closing_cash - restricted_cash >= minimum_buffer",
+            "units": "currency_major_units",
+            "checked_count": 0,
+            "columns": dict(
+                zip(("closing_cash", "restricted_cash", "minimum_buffer"), names, strict=True)
+            ),
+        }
+        if issues.count:
+            return _amount_result(
+                self, Outcome.ERROR, context, issues, "Coverage prerequisites are not satisfied."
+            )
+        invalid, nonblank = _amounts(self, columns, labels, names, names[1:])
+        if invalid.count:
+            outcome = (
+                Outcome.SKIPPED
+                if not nonblank and self.null_policy is NullPolicy.SKIP
+                else Outcome.FAILED
+            )
+            return _amount_result(
+                self, outcome, context, invalid, "Cash amounts are missing or invalid."
+            )
+        shortfalls = _Violations(self.max_violations)
+        for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+            close, restricted, minimum = (Decimal(str(columns[name][i])) for name in names)
+            values = [
+                close,
+                restricted,
+                minimum,
+                Decimal(str(self.tolerance.absolute)),
+                Decimal(str(self.tolerance.relative)),
+            ]
+            with localcontext() as precision:
+                precision.prec = _amount_precision(values)
+                available = close - restricted
+                if available < minimum:
+                    allowed = self.tolerance.is_close(available, minimum)
+                    entry = dict(
+                        row=labels[i],
+                        group={key: columns[key][i] for key in self.schedule.keys},
+                        period_start=columns[self.period_start][i],
+                        observed=available,
+                        expected=minimum,
+                        difference=available - minimum,
+                        shortfall=minimum - available,
+                        within_tolerance=allowed,
+                    )
+                    shortfalls.add(**entry)
+                    if not allowed:
+                        issues.add(reason="cash_buffer_shortfall", **entry)
+        context.update(
+            checked_count=len(labels),
+            shortfall_count=shortfalls.count,
+            shortfalls=shortfalls.examples,
+            shortfalls_truncated=shortfalls.count > self.max_violations,
+        )
+        return _amount_result(
+            self,
+            Outcome.FAILED if issues.count else Outcome.PASSED,
+            context,
+            issues,
+            f"{issues.count} cash buffer breach(es).",
+            diagnostics=(
+                DiagnosticCollection(
+                    "cash_shortfalls",
+                    shortfalls.count,
+                    self.max_violations,
+                    tuple(shortfalls.examples),
+                ),
+            ),
+        )
+
+
+def minimum_cash_buffer(
+    *,
+    closing_cash: str,
+    restricted_cash: str,
+    minimum_buffer: str,
+    period_start: str,
+    period_end: str,
+    group_by: Sequence[str],
+    currency: str,
+    expected_scope: Sequence[Mapping[str, str]],
+    first_period: str,
+    periods: int = 13,
+    row_key: str | None = None,
+    tolerance: Numeric | Tolerance = 0,
+    null_policy: NullPolicy | str = NullPolicy.FAIL,
+    severity: Severity | str = Severity.ERROR,
+    max_violations: int = 20,
+) -> MinimumCashBufferRule:
+    """Require available cash to meet a caller-supplied per-row minimum.
+
+    Args:
+        closing_cash: Closing cash including restricted balances, in major units.
+        restricted_cash: Nonnegative restricted balance column; never added to liquidity.
+        minimum_buffer: Nonnegative required available cash column, with no business default.
+        period_start: Inclusive ISO YYYY-MM-DD weekly start column.
+        period_end: Exclusive ISO weekly end column, exactly seven days later.
+        group_by: Series columns, including vintage/entity/scenario as appropriate.
+        currency: Mandatory explicit currency column; no netting or conversion.
+        expected_scope: Independent complete series mappings, including currency.
+        first_period: Explicit ISO first week start.
+        periods: Consecutive weeks; expected schedule capped at 100,000 rows.
+        row_key: Optional unique nonempty text diagnostic identity column.
+        tolerance: Inclusive amount tolerance, zero by default.
+        null_policy: Fail or skip on blank amounts; invalid numerics always fail.
+        severity: Impact of a financial breach.
+        max_violations: Example cap, never a count/evaluation limit.
+
+    Missing/ambiguous coverage errors. Negative closing cash is allowed. Equality
+    passes. All shortfalls, including tolerated ones, are counted and sampled.
+    This measure excludes facilities and does not judge adequacy of the minimum.
+    """
+    return MinimumCashBufferRule(
+        schedule=_schedule(group_by, currency, expected_scope, first_period, periods),
+        period_start=period_start,
+        period_end=period_end,
+        row_key=row_key,
+        closing_cash=closing_cash,
+        restricted_cash=restricted_cash,
+        minimum_buffer=minimum_buffer,
         tolerance=coerce_tolerance(tolerance),
         null_policy=NullPolicy(null_policy),
         severity=Severity(severity),

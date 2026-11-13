@@ -41,8 +41,10 @@ from finassert.rules.returns import ReturnUnit, SimpleReturnReconcilesRule, simp
 from finassert.rules.treasury import (
     CashContinuityRule,
     ForecastCoverageRule,
+    MinimumCashBufferRule,
     cash_continuity,
     forecast_coverage,
+    minimum_cash_buffer,
 )
 from finassert.rules.valuation import MarketValueReconcilesRule, market_value_reconciles
 
@@ -57,6 +59,7 @@ __all__ = [
     "FunctionRule",
     "InRangeRule",
     "MarketValueReconcilesRule",
+    "MinimumCashBufferRule",
     "NavReconciliationRule",
     "NoDuplicatesRule",
     "NonNegativeRule",
@@ -81,6 +84,7 @@ __all__ = [
     "gross_within_limit",
     "in_range",
     "market_value_reconciles",
+    "minimum_cash_buffer",
     "nav_reconciles",
     "net_within_limit",
     "no_duplicates",

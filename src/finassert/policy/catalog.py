@@ -22,6 +22,7 @@ from finassert.rules import (
     gross_within_limit,
     in_range,
     market_value_reconciles,
+    minimum_cash_buffer,
     nav_reconciles,
     net_within_limit,
     no_duplicates,
@@ -328,6 +329,7 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_position_rolls_forward_spec())
     catalog.register(_treasury_spec(continuity=False))
     catalog.register(_treasury_spec(continuity=True))
+    catalog.register(_buffer_spec())
     return catalog
 
 
@@ -1214,4 +1216,39 @@ def _position_rolls_forward_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=position_rolls_forward,
+    )
+
+
+def _buffer_spec() -> RuleFactorySpec:
+    shared = _treasury_spec(continuity=False).parameters[:-2]
+    return RuleFactorySpec(
+        name="minimum_cash_buffer",
+        rule_id="treasury.minimum_cash_buffer",
+        title="Available cash meets its minimum",
+        summary="Closing cash less restricted cash must meet each row's explicit minimum.",
+        rationale="Restricted funds cannot meet an unrestricted liquidity requirement.",
+        inappropriate_when=(
+            "Facilities are treated as cash, currencies need conversion, or limits are unspecified."
+        ),
+        parameters=(
+            *shared,
+            _amount_column(
+                "closing_cash", "Closing cash", "Cash including restricted balances, major units."
+            ),
+            _amount_column(
+                "restricted_cash",
+                "Restricted cash",
+                "Nonnegative restricted cash in the same units.",
+            ),
+            _amount_column(
+                "minimum_buffer",
+                "Minimum available cash",
+                "Nonnegative caller-owned minimum column.",
+            ),
+            _reconcile_tolerance("Inclusive shortfall allowance; zero by default."),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=minimum_cash_buffer,
     )

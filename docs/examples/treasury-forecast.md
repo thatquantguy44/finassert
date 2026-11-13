@@ -101,3 +101,14 @@ A skipped required check is incomplete evaluation even though the default core
 report can pass skips. Applications must enforce their required check coverage.
 Liquidity buffers, facility-capacity rules, accuracy measures and QuantMeridian
 integration remain deferred.
+
+## Available-cash buffer
+
+Add `fa.minimum_cash_buffer(closing_cash="closing", restricted_cash="restricted",
+minimum_buffer="minimum", **schedule)` to require closing less restricted cash
+to meet a caller-supplied nonnegative per-row minimum. The three amount columns
+are required; negative closing cash is allowed. Equality passes. Default tolerance
+is zero; configured amount tolerance may permit a shortfall, which remains visible
+in the `cash_shortfalls` diagnostics. Missing or duplicate periods error. Currency
+scopes never offset; undrawn facilities are excluded. A passing result checks the
+configured threshold and does not establish its business adequacy.

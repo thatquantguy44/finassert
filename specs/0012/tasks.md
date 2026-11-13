@@ -22,7 +22,7 @@ test coverage. Amend the specification with intentional contract changes.
 | U-02 | finassert | Add synthetic forecast/facility fixtures, expected scope and explicit assumptions | U-01 | AC-01–05 | in-progress |
 | U-03 | finassert | Implement coverage and period validation, including wholly absent series | U-02 | AC-03, AC-07 | in-progress |
 | U-04 | finassert | Implement continuity with prior/current row diagnostics | U-03 | AC-02, AC-07 | in-progress |
-| U-05 | finassert | Implement minimum available-cash buffer | U-02 | AC-04, AC-07 | todo |
+| U-05 | finassert | Implement minimum available-cash buffer | U-02 | AC-04, AC-07 | done |
 | U-06 | finassert | Implement facility identity, capacity, continuity and maturity behavior | U-03 | AC-05, AC-07 | todo |
 | U-07 | finassert | Publish cash pack: existing cash identity mapping, catalogs, policies, examples and interfaces | U-04–06 | AC-01, AC-08–09 | todo |
 | U-08 | finassert | Implement paired forecast-error rule and matching/vintage example | U-07 | AC-06–09 | todo |
@@ -56,6 +56,11 @@ candidates, not implicitly included implementation commitments in U-09.
 | AC-13 | Q-01, Q-05 | No downstream change now; explicit document move and generated-Core verification later |
 
 ## Completion evidence
+
+- U-05 (PR #21): minimum_cash_buffer with independent coverage validation,
+  required currency scope, finite/nonnegative components, fail/skip nulls,
+  Decimal precision, complete counts and bounded tolerated-shortfall diagnostics.
+  162 focused buffer/treasury/policy/property tests, Ruff and mypy passed.
 
 - Proposal issue: [#13](https://github.com/thatquantguy44/finassert/issues/13).
   Implementation: [draft PR #12](https://github.com/thatquantguy44/finassert/pull/12).
