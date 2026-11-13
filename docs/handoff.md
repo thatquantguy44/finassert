@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 4: Verified public cash and NAV reconciliation across adapters
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Verified public cash and NAV reconciliation across adapters.
+- **Evidence:** 117 accounting, financial property, and shared-adapter tests passed, including sign, currency, valuation-date, materiality, ordering, and signed-liability cases.
+- **Next step:** Gate 5: Excel report writer and CLI workbook workflow.
+
 ### 2026-11-13 — Gate 3: Bounded structured diagnostics and strict versioned artifacts
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).

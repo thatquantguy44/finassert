@@ -111,6 +111,64 @@ def test_group_failure_has_identity_and_cap(source: Builder) -> None:
     assert result.metadata["failed_groups_truncated"]
 
 
+def test_cash_sign_date_currency_and_materiality_contract(source: Builder) -> None:
+    columns = {
+        "id": ["usd-today", "usd-next", "eur-today", "eur-next"],
+        "book": ["A"] * 4,
+        "asof": ["2026-11-13", "2026-11-14"] * 2,
+        "ccy": ["USD", "USD", "EUR", "EUR"],
+        "open": [Decimal("100")] * 4,
+        "in": [Decimal("10")] * 4,
+        "out": [Decimal("5")] * 4,
+        "close": [Decimal("105.01")] * 4,
+    }
+
+    def rule(sign: str) -> fa.Rule:
+        return fa.cash_reconciles(
+            outflow_sign=sign,
+            opening_cash="open",
+            inflows="in",
+            outflows="out",
+            closing_cash="close",
+            group_by=["book", "asof"],
+            currency="ccy",
+            row_key="id",
+            tolerance=Decimal("0.01"),
+        )
+
+    assert fa.check(source(columns), [rule("positive")]).passed
+    negative = {**columns, "out": [Decimal("-5")] * 4}
+    assert fa.check(source(negative), [rule("negative")]).passed
+    broken = {**columns, "close": [Decimal("105.01")] * 3 + [Decimal("105.02")]}
+    result = fa.check(source(broken), [rule("positive")]).results[0]
+    assert result.metadata["failed_group_count"] == 1
+    observation = result.diagnostics[0].observations[0]
+    assert observation["group"] == {"book": "A", "asof": "2026-11-14", "currency": "EUR"}
+    assert observation["rows"] == ["eur-next"]
+
+
+def test_nav_signed_liabilities_and_currency_partitioning(source: Builder) -> None:
+    columns = {
+        "id": ["usd-asset", "usd-liability", "eur-asset", "eur-liability"],
+        "book": ["A"] * 4,
+        "ccy": ["USD", "USD", "EUR", "EUR"],
+        "mv": [Decimal("100"), Decimal("-20"), Decimal("200"), Decimal("-20")],
+        "nav": [Decimal("80"), None, Decimal("180"), None],
+    }
+    rule = fa.nav_reconciles(
+        market_value="mv", nav="nav", group_by=["book"], currency="ccy", row_key="id"
+    )
+    assert fa.check(source(columns), [rule]).passed
+    # Equal and opposite breaks remain visible in separate currencies.
+    broken = {**columns, "nav": [Decimal("81"), None, Decimal("179"), None]}
+    result = fa.check(source(broken), [rule]).results[0]
+    assert result.metadata["failed_group_count"] == 2
+    assert [item["group"]["currency"] for item in result.diagnostics[0].observations] == [
+        "USD",
+        "EUR",
+    ]
+
+
 @pytest.mark.parametrize("values,labels", [([1], []), ([], [0]), ([1], [0, 1])])
 def test_malformed_column_source_cannot_pass(values: list[Any], labels: list[Any]) -> None:
     class BrokenSource:

@@ -3,11 +3,18 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Bounded structured diagnostics and strict versioned artifacts.
-- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
-- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
+- **Latest delivered work:** Verified public cash and NAV reconciliation across adapters.
+- **Evidence:** 117 accounting, financial property, and shared-adapter tests passed, including sign, currency, valuation-date, materiality, ordering, and signed-liability cases.
+- **Next step:** Gate 5: Excel report writer and CLI workbook workflow.
 
 ## Entries
+
+### 2026-11-13 — Gate 4: Verified public cash and NAV reconciliation across adapters
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Verified public cash and NAV reconciliation across adapters.
+- **Evidence:** 117 accounting, financial property, and shared-adapter tests passed, including sign, currency, valuation-date, materiality, ordering, and signed-liability cases.
+- **Next step:** Gate 5: Excel report writer and CLI workbook workflow.
 
 ### 2026-11-13 — Gate 3: Bounded structured diagnostics and strict versioned artifacts
 
