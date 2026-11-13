@@ -5,6 +5,18 @@ financial-semantics changes. A rule proposal should state the invariant, units,
 sign convention, null policy, tolerance basis, failure diagnostics, and cases in
 which the rule is inappropriate.
 
+## Specification workspaces
+
+Create each spec in its own permanent four-digit directory, `specs/NNNN/`, with
+`spec.md`, `plan.md`, `tasks.md`, `roadmap.md`, `AGENTS.md`, `contracts.md`, and
+`handoff.md`. Start from `specs/_template/` and update the
+[spec catalog](specs/README.md). Additional decision records or artifacts belong
+inside that spec's folder.
+
+Keep requirements canonical in `spec.md`; use the companion files for execution,
+contract references, and evidence. Update local tasks and handoffs as work
+progresses, and record cross-spec decisions in the master handoff.
+
 ## Development
 
 Install [uv](https://docs.astral.sh/uv/), then run:

@@ -33,7 +33,10 @@ class NonNegativeRule:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the configured column contains missing values.",
-                metadata={"missing_rows": missing_rows},
+                metadata={
+                    "missing_rows": missing_rows[: self.max_violations],
+                    "missing_row_count": len(missing_rows),
+                },
             )
         violations: list[dict[str, Any]] = []
         invalid_rows: list[Any] = []
@@ -70,6 +73,7 @@ class NonNegativeRule:
                 "violations": violations[: self.max_violations],
                 "violations_truncated": len(violations) > self.max_violations,
                 "invalid_rows": invalid_rows[: self.max_violations],
+                "invalid_row_count": len(invalid_rows),
             },
         )
 
@@ -164,7 +168,11 @@ class InRangeRule:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the configured column contains blank values.",
-                metadata={"column": self.column, "missing_rows": blank_rows},
+                metadata={
+                    "column": self.column,
+                    "missing_rows": blank_rows[: self.max_violations],
+                    "missing_row_count": len(blank_rows),
+                },
             )
         low = (
             None if self.minimum is None else precise_sum([self.minimum, -self.tolerance.absolute])
@@ -212,6 +220,7 @@ class InRangeRule:
                 "violations": violations[: self.max_violations],
                 "violations_truncated": len(violations) > self.max_violations,
                 "invalid_rows": invalid_rows[: self.max_violations],
+                "invalid_row_count": len(invalid_rows),
             },
         )
 

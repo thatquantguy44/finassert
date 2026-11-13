@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+import math
 from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 from typing import Any
+
+
+@dataclass(frozen=True, slots=True)
+class CellError:
+    """An unreadable cell, distinct from a missing or non-numeric observation."""
+
+    code: str
+
+    def __str__(self) -> str:
+        return self.code
 
 
 class Outcome(StrEnum):
@@ -39,6 +50,37 @@ _RANKS = {"error": 2, "warning": 1, "info": 0}
 
 
 @dataclass(frozen=True, slots=True)
+class DiagnosticCollection:
+    """A bounded set of row or group observations with a complete total count."""
+
+    kind: str
+    count: int
+    limit: int
+    observations: tuple[dict[str, Any], ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.count < len(self.observations) or self.limit < len(self.observations):
+            raise ValueError("diagnostic count and limit must cover listed observations")
+        if self.count < 0 or self.limit < 0:
+            raise ValueError("diagnostic count and limit must be nonnegative")
+
+    @property
+    def truncated(self) -> bool:
+        """Return whether some observations were omitted."""
+        return self.count > len(self.observations)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a strict-JSON-compatible diagnostic collection."""
+        return {
+            "kind": self.kind,
+            "count": self.count,
+            "limit": self.limit,
+            "observations": _json_value(self.observations),
+            "truncated": self.truncated,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ValidationResult:
     """Immutable result of evaluating one rule."""
 
@@ -51,6 +93,7 @@ class ValidationResult:
     expected: Any = None
     tolerance: Any = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    diagnostics: tuple[DiagnosticCollection, ...] = ()
 
     @property
     def passed(self) -> bool:
@@ -91,6 +134,7 @@ class ValidationResult:
             "expected": _json_value(self.expected),
             "tolerance": _json_value(self.tolerance),
             "metadata": _json_value(self.metadata),
+            "diagnostics": [item.to_dict() for item in self.diagnostics],
         }
 
 
@@ -174,7 +218,12 @@ def _json_value(value: Any) -> Any:
     if isinstance(value, Decimal):
         return str(value)
     if isinstance(value, Enum):
-        return value.value
+        return _json_value(value.value)
+    serializer = getattr(value, "to_dict", None)
+    if getattr(value, "_finassert_serializable", False) is True and callable(serializer):
+        return _json_value(serializer())
+    if isinstance(value, float) and not math.isfinite(value):
+        return "NaN" if math.isnan(value) else "Infinity" if value > 0 else "-Infinity"
     if isinstance(value, dict):
         return {str(key): _json_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):

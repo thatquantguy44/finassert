@@ -7,16 +7,16 @@ import tempfile
 from pathlib import Path
 
 
-def write_atomic(path: Path, text: str) -> None:
+def write_atomic(path: Path, text: str | bytes) -> None:
     """Write ``text`` to ``path`` so readers see the old file or the new one, never part.
 
     The new file gets the mode a plain write would give it, or keeps the mode of
     the file it replaces.
     """
     directory = path.parent if str(path.parent) else Path(".")
+    payload = text.encode("utf-8") if isinstance(text, str) else text
     with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
+        "wb",
         dir=directory,
         prefix=f".{path.name}.",
         suffix=".tmp",
@@ -24,7 +24,7 @@ def write_atomic(path: Path, text: str) -> None:
     ) as handle:
         temporary = Path(handle.name)
         try:
-            handle.write(text)
+            handle.write(payload)
             handle.flush()
             os.fsync(handle.fileno())
             # Temporary files are owner-only; give the report the mode a plain

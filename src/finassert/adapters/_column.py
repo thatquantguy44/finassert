@@ -7,13 +7,25 @@ from decimal import Decimal
 from typing import Any
 
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
+from finassert.core.models import CellError
 from finassert.core.protocols import ColumnSource
 
 
 def extract_column(data: Any, name: str) -> tuple[list[Any], list[Any]]:
     """Extract a named column and stable row labels from supported inputs."""
     if isinstance(data, ColumnSource):
-        return data.column(name)
+        values, labels = data.column(name)
+        if len(values) != len(labels):
+            raise InvalidDataError(
+                f"column {name!r} has {len(values)} values but {len(labels)} row labels"
+            )
+        for position, value in enumerate(values):
+            if isinstance(value, CellError):
+                label = labels[position] if position < len(labels) else position
+                raise InvalidDataError(
+                    f"column {name!r}, row {label!r} contains a cell error: {value}"
+                )
+        return values, labels
     if isinstance(data, Mapping):
         if name not in data:
             raise ColumnNotFoundError(name, [str(key) for key in data])

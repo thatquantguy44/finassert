@@ -1,5 +1,14 @@
 # Roadmap
 
+The seven-priority delivery now provides corrected workbook input, shared
+adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report
+output, typed quantities/direct FX, and retained scalar performance evidence.
+See the [units guide](financial-units.md), [CLI guide](command-line.md), and
+[master handoff](handoff.md). Each numbered spec has its own plan, tasks,
+contracts, roadmap, agent instructions, and handoff.
+
+Remaining project work:
+
 1. Harden dataframe adapters and diagnostic row identity under specification
    0004 (grouped rules, the ordering column, and per-portfolio weights are in
    place), and add grouped variants of the remaining rules.
@@ -10,8 +19,10 @@
 3. Add policy templates as rules are added, and integration inside Excel
    (specification 0011): an initial task pane exists ([add-in](excel-add-in.md)); run
    the [spike](design/excel-integration.md) in real Excel next.
-4. Introduce typed financial units and explicit FX provenance.
-5. Benchmark batch execution before selecting vectorization or concurrency work.
+4. Extend the initial typed units and direct FX contracts only for demonstrated
+   use cases; providers and conversion paths remain deferred.
+5. Use retained scalar benchmarks under spec 0010 before selecting any bounded
+   allocation, vectorization, or concurrency work. No optimized batch API is public.
 
 Polars, distributed execution, hosted services, generated rules, interactive
 dashboards, and live currency conversion remain explicitly deferred.

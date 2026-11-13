@@ -72,13 +72,19 @@ class WeightsSumToOneRule:
             return self._result(
                 Outcome.SKIPPED,
                 "Skipped because the weight column contains missing values.",
-                metadata={"missing_rows": [labels[index] for index in missing]},
+                metadata={
+                    "missing_rows": [labels[index] for index in missing[: self.max_violations]],
+                    "missing_row_count": len(missing),
+                },
             )
         if missing and self.null_policy is NullPolicy.FAIL:
             return self._result(
                 Outcome.FAILED,
                 f"Weight column contains {len(missing)} missing value(s).",
-                metadata={"missing_rows": [labels[index] for index in missing]},
+                metadata={
+                    "missing_rows": [labels[index] for index in missing[: self.max_violations]],
+                    "missing_row_count": len(missing),
+                },
             )
         skipped = set(missing)
         usable = [value for index, value in enumerate(values) if index not in skipped]
@@ -91,8 +97,11 @@ class WeightsSumToOneRule:
                 Outcome.FAILED,
                 f"Weight column contains {len(invalid)} non-numeric or non-finite value(s).",
                 metadata={
-                    "invalid_positions": invalid,
-                    "invalid_rows": [usable_labels[position] for position in invalid],
+                    "invalid_positions": invalid[: self.max_violations],
+                    "invalid_rows": [
+                        usable_labels[position] for position in invalid[: self.max_violations]
+                    ],
+                    "invalid_row_count": len(invalid),
                 },
             )
         total = precise_sum(numeric)

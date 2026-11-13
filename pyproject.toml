@@ -24,6 +24,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
+excel = ["openpyxl>=3.1.5"]
 pandas = ["pandas>=2.1"]
 yaml = ["PyYAML>=6.0"]
 cli = ["PyYAML>=6.0"]
@@ -67,6 +68,8 @@ include = [
   "/web",
   "/README.md",
   "/CHANGELOG.md",
+  "/AGENTS.md",
+  "/CONTRIBUTING.md",
   "/LICENSE",
   "/pyproject.toml",
   "/mkdocs.yml",
@@ -106,3 +109,7 @@ ignore_missing_imports = true
 
 [tool.uv]
 default-groups = ["dev"]
+
+[[tool.mypy.overrides]]
+module = ["openpyxl", "openpyxl.*"]
+ignore_missing_imports = true

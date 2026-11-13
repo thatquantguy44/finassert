@@ -238,7 +238,7 @@ def evaluate_groups(
         return rule._grouped_result(
             Outcome.SKIPPED,
             f"Skipped because {len(blank)} row(s) have blank values.",
-            {**context, "blank_rows": blank[: rule.max_violations]},
+            {**context, "blank_rows": blank[: rule.max_violations], "blank_row_count": len(blank)},
         )
     if unusable:
         return rule._grouped_result(
@@ -266,6 +266,7 @@ def evaluate_groups(
                     **failure,
                     "row_count": len(group.rows),
                     "rows": group.rows[:_MAX_ROWS_LISTED],
+                    "rows_truncated": len(group.rows) > _MAX_ROWS_LISTED,
                 }
             )
     count = len(collected.groups)

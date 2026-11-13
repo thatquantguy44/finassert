@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-11-13T00:00:00Z",
+  "input": {
+    "format": "json",
+    "locator": "synthetic.json"
+  },
+  "policy": null,
+  "report": {
+    "blocking_failures": 2,
+    "counts_by_outcome": {
+      "error": 1,
+      "failed": 1,
+      "passed": 1,
+      "skipped": 1
+    },
+    "counts_by_severity": {
+      "error": 4,
+      "info": 0,
+      "warning": 0
+    },
+    "passed": false,
+    "results": [
+      {
+        "blocking": false,
+        "diagnostics": [],
+        "expected": "1",
+        "message": "Weight total 1.0000 is within tolerance of 1.",
+        "metadata": {
+          "column": "weight",
+          "observation_count": 1
+        },
+        "observed": "1.0000",
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "portfolio.weights_sum_to_one",
+        "rule_name": "Portfolio weights sum to one",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      },
+      {
+        "blocking": true,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "invalid_rows",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          },
+          {
+            "count": 1,
+            "kind": "violations",
+            "limit": 20,
+            "observations": [
+              {
+                "row": 0,
+                "value": -1
+              }
+            ],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "Column 'v' has 1 value(s) below the allowed minimum and 0 missing/non-finite value(s).",
+        "metadata": {
+          "checked_count": 1,
+          "column": "v",
+          "invalid_row_count": 0,
+          "invalid_rows": [],
+          "violation_count": 1,
+          "violations": [
+            {
+              "row": 0,
+              "value": -1
+            }
+          ],
+          "violations_truncated": false
+        },
+        "observed": 1,
+        "outcome": "failed",
+        "passed": false,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      },
+      {
+        "blocking": true,
+        "diagnostics": [],
+        "expected": null,
+        "message": "Evaluation error: ColumnNotFoundError: column 'absent' was not found; available columns: 'weight', 'v', 'blank'",
+        "metadata": {
+          "exception_type": "ColumnNotFoundError"
+        },
+        "observed": null,
+        "outcome": "error",
+        "passed": false,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": null
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 1,
+            "kind": "missing_rows",
+            "limit": 20,
+            "observations": [
+              {
+                "row": 0
+              }
+            ],
+            "truncated": false
+          }
+        ],
+        "expected": 1,
+        "message": "Skipped because the weight column contains missing values.",
+        "metadata": {
+          "missing_row_count": 1,
+          "missing_rows": [
+            0
+          ]
+        },
+        "observed": null,
+        "outcome": "skipped",
+        "passed": false,
+        "rule_id": "portfolio.weights_sum_to_one",
+        "rule_name": "Portfolio weights sum to one",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 1e-08,
+          "relative": 0
+        }
+      }
+    ],
+    "warnings": 0
+  },
+  "schema_version": 1,
+  "tool": {
+    "name": "finassert",
+    "version": "0.1.0"
+  }
+}

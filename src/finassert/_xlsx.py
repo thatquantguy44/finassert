@@ -64,17 +64,29 @@ def sheet_names(data: bytes) -> tuple[str, ...]:
         return tuple(name for name, _ in _sheets(archive))
 
 
-def read_sheet(data: bytes, sheet: str | None = None) -> Sheet:
+def read_sheet(
+    data: bytes,
+    sheet: str | None = None,
+    *,
+    header_row: int | None = None,
+    max_row: int | None = None,
+) -> Sheet:
     """Read one worksheet's values.
 
     Args:
         data: The ``.xlsx`` file contents.
         sheet: Worksheet name. Required when the workbook has several sheets.
+        header_row: Optional first worksheet row to read, using 1-based numbers.
+        max_row: Optional last worksheet row to read, inclusive.
 
     Raises:
         InvalidDataError: If the file is not a readable workbook, the sheet is
             ambiguous or missing, or a formula has no saved result.
     """
+    if header_row is not None and (type(header_row) is not int or header_row < 1):
+        raise InvalidDataError("header_row must be a positive integer")
+    if max_row is not None and (type(max_row) is not int or max_row <= (header_row or 0)):
+        raise InvalidDataError("max_row must be greater than the selected header row")
     with _open(data) as archive:
         sheets = _sheets(archive)
         names = tuple(name for name, _ in sheets)
@@ -100,6 +112,10 @@ def read_sheet(data: bytes, sheet: str | None = None) -> Sheet:
     for row in root.iter(f"{_MAIN}row"):
         number = int(row.get("r") or last_row + 1)
         last_row = number
+        if header_row is not None and number < header_row:
+            continue
+        if max_row is not None and number > max_row:
+            continue
         values: dict[int, Any] = {}
         last_column = -1
         for cell in row.iter(f"{_MAIN}c"):
