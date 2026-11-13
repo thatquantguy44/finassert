@@ -112,3 +112,20 @@ is zero; configured amount tolerance may permit a shortfall, which remains visib
 in the `cash_shortfalls` diagnostics. Missing or duplicate periods error. Currency
 scopes never offset; undrawn facilities are excluded. A passing result checks the
 configured threshold and does not establish its business adequacy.
+
+## Facility controls
+
+`fa.facility_capacity` requires `facility_id`, `opening_drawn`, `draws`, `repayments`,
+`closing_drawn`, `commitment`, `unavailable_amount` and `maturity_date` column names,
+plus the weekly schedule arguments. Include facility identity in `expected_scope`;
+keep it separate from `group_by`. All monetary components are nonnegative and in
+currency major units. Repayments use positive magnitudes.
+
+The rule checks principal identity, available commitment less closing principal,
+and prior-closing/current-opening continuity. Each facility/currency stays separate.
+Missing/duplicate periods error. Maturity at/before the period start requires zero
+draws and closing drawn within configured tolerance; maturity strictly inside the
+week errors. Maturity at period end is assessed at the next start, if supplied.
+Diagnostics preserve negative headroom and both row identities for a discontinuity.
+This checks period-end capacity; intraperiod peaks and legal eligibility need their
+own inputs and review.

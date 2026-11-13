@@ -40,9 +40,11 @@ from finassert.rules.positions import PositionRollForwardRule, SellSign, positio
 from finassert.rules.returns import ReturnUnit, SimpleReturnReconcilesRule, simple_return_reconciles
 from finassert.rules.treasury import (
     CashContinuityRule,
+    FacilityCapacityRule,
     ForecastCoverageRule,
     MinimumCashBufferRule,
     cash_continuity,
+    facility_capacity,
     forecast_coverage,
     minimum_cash_buffer,
 )
@@ -55,6 +57,7 @@ __all__ = [
     "DriftWithinBandRule",
     "ExposureLimitRule",
     "ExposureMeasure",
+    "FacilityCapacityRule",
     "ForecastCoverageRule",
     "FunctionRule",
     "InRangeRule",
@@ -80,6 +83,7 @@ __all__ = [
     "cash_reconciles",
     "custom_rule",
     "drift_within_band",
+    "facility_capacity",
     "forecast_coverage",
     "gross_within_limit",
     "in_range",

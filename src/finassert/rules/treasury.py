@@ -629,6 +629,7 @@ class FacilityCapacityRule(_ScheduleRule):
     closing_drawn: str
     commitment: str
     unavailable_amount: str
+    maturity_date: str
     tolerance: Tolerance = field(default_factory=Tolerance)
     null_policy: NullPolicy = NullPolicy.FAIL
     rule_id: ClassVar[str] = "treasury.facility_capacity"
@@ -636,7 +637,7 @@ class FacilityCapacityRule(_ScheduleRule):
 
     def __post_init__(self) -> None:
         _ScheduleRule.__post_init__(self)
-        names = self._amount_columns()
+        names = (*self._amount_columns(), self.maturity_date)
         for name in names:
             _column(name)
         if len(set(names)) != len(names):
@@ -661,7 +662,7 @@ class FacilityCapacityRule(_ScheduleRule):
     def evaluate(self, data: Any) -> ValidationResult:
         """Validate complete schedules before checking every principal/capacity row."""
         names = self._amount_columns()
-        columns, labels, _, issues = _scan(self, data, names)
+        columns, labels, buckets, issues = _scan(self, data, (*names, self.maturity_date))
         context = {
             **_context(self, len(labels)),
             "checked_count": 0,
@@ -682,6 +683,32 @@ class FacilityCapacityRule(_ScheduleRule):
                 context,
                 issues,
                 "Facility coverage prerequisites are not satisfied.",
+            )
+        maturities: dict[int, date] = {}
+        for i in sorted(range(len(labels)), key=lambda i: repr(labels[i])):
+            value = columns[self.maturity_date][i]
+            try:
+                maturity = _iso_date(value)
+                maturities[i] = maturity
+                start = _iso_date(columns[self.period_start][i])
+                end = _iso_date(columns[self.period_end][i])
+                if start < maturity < end:
+                    issues.add(
+                        reason="unsupported_intraperiod_maturity",
+                        row=labels[i],
+                        maturity_date=value,
+                        period_start=start.isoformat(),
+                        period_end=end.isoformat(),
+                    )
+            except ValueError:
+                issues.add(reason="invalid_maturity_date", row=labels[i])
+        if issues.count:
+            return _amount_result(
+                self,
+                Outcome.ERROR,
+                context,
+                issues,
+                "Maturity cannot be established from weekly data.",
             )
         invalid, nonblank = _amounts(self, columns, labels, names, names)
         if invalid.count:
@@ -712,6 +739,20 @@ class FacilityCapacityRule(_ScheduleRule):
                     group={key: columns[key][i] for key in self.schedule.keys},
                     period_start=columns[self.period_start][i],
                 )
+                if maturities[i] <= _iso_date(columns[self.period_start][i]):
+                    for value, reason in (
+                        (draws, "draw_after_maturity"),
+                        (closing, "balance_after_maturity"),
+                    ):
+                        if not self.tolerance.is_close(value, Decimal(0)):
+                            issues.add(
+                                **entry,
+                                reason=reason,
+                                observed=value,
+                                expected=Decimal(0),
+                                difference=value,
+                                maturity_date=maturities[i].isoformat(),
+                            )
                 balances.add(
                     **entry,
                     closing_drawn=closing,
@@ -739,6 +780,36 @@ class FacilityCapacityRule(_ScheduleRule):
                             difference=actual - limit,
                             headroom=capacity - closing,
                         )
+        comparisons = 0
+        for group in self.schedule.scope:
+            for previous, current in zip(
+                self.schedule.starts, self.schedule.starts[1:], strict=False
+            ):
+                prior, index = buckets[(*group, previous)][0], buckets[(*group, current)][0]
+                opening = Decimal(str(columns[self.opening_drawn][index]))
+                closing = Decimal(str(columns[self.closing_drawn][prior]))
+                comparisons += 1
+                with localcontext() as precision:
+                    precision.prec = _amount_precision(
+                        [
+                            opening,
+                            closing,
+                            Decimal(str(self.tolerance.absolute)),
+                            Decimal(str(self.tolerance.relative)),
+                        ]
+                    )
+                    if not self.tolerance.is_close(opening, closing):
+                        issues.add(
+                            reason="facility_discontinuity",
+                            row=labels[index],
+                            previous_row=labels[prior],
+                            period_start=current,
+                            group=dict(zip(self.schedule.keys, group, strict=True)),
+                            observed=opening,
+                            expected=closing,
+                            difference=opening - closing,
+                        )
+        context["continuity_checked_count"] = comparisons
         context.update(
             checked_count=len(labels),
             balance_count=balances.count,
@@ -760,3 +831,80 @@ class FacilityCapacityRule(_ScheduleRule):
                 ),
             ),
         )
+
+
+def facility_capacity(
+    *,
+    facility_id: str,
+    opening_drawn: str,
+    draws: str,
+    repayments: str,
+    closing_drawn: str,
+    commitment: str,
+    unavailable_amount: str,
+    maturity_date: str,
+    period_start: str,
+    period_end: str,
+    group_by: Sequence[str],
+    currency: str,
+    expected_scope: Sequence[Mapping[str, str]],
+    first_period: str,
+    periods: int = 13,
+    row_key: str | None = None,
+    tolerance: Numeric | Tolerance = 0,
+    null_policy: NullPolicy | str = NullPolicy.FAIL,
+    severity: Severity | str = Severity.ERROR,
+    max_violations: int = 20,
+) -> FacilityCapacityRule:
+    """Validate facility principal, effective capacity, continuity and maturity.
+
+    Args:
+        facility_id: Facility identity column, added to the series scope.
+        opening_drawn: Nonnegative opening principal column, currency major units.
+        draws: Nonnegative principal draw column in the same units.
+        repayments: Nonnegative principal repayment magnitudes column.
+        closing_drawn: Nonnegative closing principal column.
+        commitment: Effective nonnegative contractual capacity column for each period.
+        unavailable_amount: Nonnegative disjoint reduction, excluding drawn amounts.
+        maturity_date: Per-row ISO YYYY-MM-DD maturity column.
+        period_start: Inclusive ISO YYYY-MM-DD weekly start column.
+        period_end: Exclusive ISO week-end column, seven calendar days later.
+        group_by: Series columns excluding facility and currency; specify vintage/scenario.
+        currency: Mandatory explicit currency column; no netting or conversion.
+        expected_scope: Independent complete mappings of group_by, facility and currency.
+        first_period: Explicit ISO first week start.
+        periods: Consecutive weeks; expected schedule capped at 100,000 rows.
+        row_key: Optional unique nonempty text diagnostic identity column.
+        tolerance: Inclusive amount tolerance, zero by default; signs remain strict.
+        null_policy: Fail or skip blank amounts; invalid numerics always fail.
+        severity: Business impact of financial breaches.
+        max_violations: Maximum examples; all violations are still counted.
+
+    Missing/ambiguous schedules and invalid/intraperiod maturity produce ERROR.
+    Maturity at/before start requires no draws and zero closing principal within
+    explicit tolerance. Maturity at period end is assessed next period. Headroom
+    is never clamped. This checks period-end capacity, not intraperiod peaks,
+    legal availability, conditional draw eligibility or borrowing-base documents.
+    """
+    if isinstance(group_by, (str, bytes)):
+        raise ValueError("group_by must be a sequence of column names")
+    return FacilityCapacityRule(
+        schedule=_schedule(
+            (*group_by, facility_id), currency, expected_scope, first_period, periods
+        ),
+        period_start=period_start,
+        period_end=period_end,
+        row_key=row_key,
+        facility_id=facility_id,
+        opening_drawn=opening_drawn,
+        draws=draws,
+        repayments=repayments,
+        closing_drawn=closing_drawn,
+        commitment=commitment,
+        unavailable_amount=unavailable_amount,
+        maturity_date=maturity_date,
+        tolerance=coerce_tolerance(tolerance),
+        null_policy=NullPolicy(null_policy),
+        severity=Severity(severity),
+        max_violations=max_violations,
+    )

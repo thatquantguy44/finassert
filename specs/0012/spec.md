@@ -1,6 +1,6 @@
 # 0012 — Treasury and capital markets validation
 
-**Status:** R-02 cash continuity, R-03 weekly coverage and R-04 cash buffer implemented
+**Status:** R-02 cash continuity, R-03 weekly coverage, R-04 cash buffer and R-05 facility capacity implemented
 on this branch; the remaining rules, consumer service and update automation
 remain proposed. Proposal issue: [#13](https://github.com/thatquantguy44/finassert/issues/13).
 **Updated:** 2026-10-17
@@ -141,7 +141,7 @@ The adapter must report unmatched keys, never perform a silent inner join.
 
 ## Rule inventory and semantics
 
-R-02–R-04 are public exports; the other new names below remain proposed IDs. Each rule must
+R-02–R-05 are public exports; the other new names below remain proposed IDs. Each rule must
 state its input mapping, applicable grain, units, signs, null/empty behavior,
 tolerance basis, and inappropriate uses in its catalog entry before shipping.
 
@@ -304,6 +304,17 @@ Amounts are compared as Decimal without changing the global context. All actual
 shortfalls, including tolerated ones, have complete totals and bounded samples
 with observed/expected/difference/shortfall/within_tolerance and currency scope.
 An explicit `cash_shortfalls` diagnostic collection includes tolerated entries.
+`facility_capacity` uses the shared weekly arguments plus required columns
+`facility_id`, `opening_drawn`, `draws`, `repayments`, `closing_drawn`, `commitment`,
+`unavailable_amount` and `maturity_date`. `facility_id` is added to `group_by`
+before currency; expected_scope must include it. Do not repeat it in group_by.
+All six monetary components are strictly nonnegative and finite; amount tolerance
+(default zero) governs principal, continuity, capacity and maturity-zero comparisons.
+Blank amount fail/skip matches the buffer rule. Invalid/intraperiod maturity is
+ERROR; complete schedules are required independently. Bounded `facility_balances`
+diagnostics expose actual available commitment/headroom, without clamping, for
+all rows including passing rows; totals are complete. Per-row maturity dates are
+caller-supplied effective terms; legal validity and amendments are not inferred.
 Other rule signatures remain proposed. Policy kinds `text` and `records` are
 additive; records round-trip through YAML/JSON and the browser editor.
 

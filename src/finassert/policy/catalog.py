@@ -18,6 +18,7 @@ from finassert.rules import (
     cash_continuity,
     cash_reconciles,
     drift_within_band,
+    facility_capacity,
     forecast_coverage,
     gross_within_limit,
     in_range,
@@ -330,6 +331,7 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_treasury_spec(continuity=False))
     catalog.register(_treasury_spec(continuity=True))
     catalog.register(_buffer_spec())
+    catalog.register(_facility_spec())
     return catalog
 
 
@@ -1251,4 +1253,49 @@ def _buffer_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=minimum_cash_buffer,
+    )
+
+
+def _facility_spec() -> RuleFactorySpec:
+    shared = _treasury_spec(continuity=False).parameters[:-2]
+    return RuleFactorySpec(
+        name="facility_capacity",
+        rule_id="treasury.facility_capacity",
+        title="Facility principal and capacity reconcile",
+        summary="Check principal, capacity, continuity and maturity per facility.",
+        rationale="A balanced cash forecast may exceed usable funding or retain matured debt.",
+        inappropriate_when=(
+            "Intraperiod usage or maturity, conditional eligibility, legal availability "
+            "or a borrowing base must be established."
+        ),
+        parameters=(
+            *shared,
+            _amount_column(
+                "facility_id",
+                "Facility identity",
+                "Facility key added to group_by; include it in expected_scope.",
+            ),
+            *(
+                _amount_column(name, name.replace("_", " ").title(), description)
+                for name, description in (
+                    ("opening_drawn", "Nonnegative opening principal, major units."),
+                    ("draws", "Nonnegative new principal draws."),
+                    ("repayments", "Nonnegative repayment magnitudes."),
+                    ("closing_drawn", "Nonnegative closing principal."),
+                    ("commitment", "Nonnegative effective contractual commitment."),
+                    (
+                        "unavailable_amount",
+                        "Nonnegative disjoint reduction excluding drawn amounts.",
+                    ),
+                    ("maturity_date", "ISO YYYY-MM-DD maturity; intraperiod maturity errors."),
+                )
+            ),
+            _reconcile_tolerance(
+                "Inclusive amount allowance; zero by default, signs remain strict."
+            ),
+            _RECONCILE_NULLS,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=facility_capacity,
     )

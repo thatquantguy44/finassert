@@ -3,11 +3,20 @@
 ## Current state
 
 Cash continuity, weekly coverage and minimum available-cash buffer are implemented.
-PR #21 slice 4 is verified. Slice 5 identity/capacity internals are verified;
-continuity/maturity and public exports/catalog remain pending.
+PR #21 slices 4–5 are verified, including facility continuity/maturity and
+public exports/catalog. Next: slice 6, versioned treasury pack and interface parity.
 Consumer integration remains proposed.
 
 ## Entries
+
+### 2026-11-13 — Slice 5b facility continuity and maturity
+
+Promoted public immutable facility_capacity factory, exports and strict catalog
+parameters. Adjacent balances name current/prior rows and respect isolated facility
+and currency scopes. Invalid/intraperiod maturity errors; matured draws/closing
+principal fail, final-end maturity does not infer a later period. Bounded headroom
+remains unclamped. Added generated schedules/localized breaks. 236 focused tests,
+Ruff and mypy passed; draft PR #21. Next is the versioned policy pack.
 
 ### 2026-11-13 — Slice 5a facility principal and headroom
 

@@ -305,6 +305,7 @@ def test_every_built_in_rule_is_fully_documented() -> None:
         "cash_continuity",
         "cash_reconciles",
         "drift_within_band",
+        "facility_capacity",
         "forecast_coverage",
         "gross_within_limit",
         "in_range",
