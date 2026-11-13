@@ -1,6 +1,6 @@
 # 0016 — Excel add-in validation workflow
 
-**Status:** Proposed; scoped, implementation not started.
+**Status:** E-01 in progress; the live workflow and real-host acceptance remain proposed.
 **Updated:** 2026-11-13
 **Owner:** finassert. Mac desktop is the first real-host acceptance target.
 
@@ -263,9 +263,16 @@ Excel, refined after E-01. This is a scope estimate, not a delivery date.
 
 ## Open questions
 
-E-01 must record the available Mac Excel version, verify the complete stable API
-matrix and determine whether reliable host date detection is available. The
-defined user-choice fallback avoids making automatic detection a dependency.
+E-01's [stable API audit](api-matrix.md) confirms the proposed 1.9 floor and the
+explicit date-choice fallback. The existing prototype's support declaration is
+corrected from 1.4 to 1.7 because its sheet writer uses getRangeByIndexes; this
+does not promote the proposed workflow. The new diagnostic reads calculation
+metadata and checks event-member availability without changing settings.
+
+Installed Mac Excel 16.115 was identified, but its Developer Add-ins entry for
+finassert was disabled. Actual Office.js capability answers, calculation behavior,
+startup/read timings and a successful native read/run remain unobserved. See
+[baseline evidence](artifacts/README.md); E-01 is incomplete.
 Exact read widths and performance targets are measured there, then recorded
 before claiming support. Further pilot platforms are optional until selected.
 No unanswered product preference blocks the initial scoped implementation.

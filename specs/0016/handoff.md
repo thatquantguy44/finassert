@@ -2,18 +2,45 @@
 
 ## Current state
 
-- **Status:** Scoped proposal; runtime implementation and real-host acceptance pending.
-- **Branch:** docs/spec-0016-excel-validation-workflow, based on main at 8d96fdc.
-- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22), open for
-  review against main. Runtime implementation remains pending.
-- **Delivered:** Required seven-file workspace and manual acceptance checklist;
-  six ordered implementation tasks with requirement/acceptance coverage. All
-  documentation checks passed; the scope is ready for implementation review.
-- **Open evidence:** Real Mac version/capabilities, install baseline and timings;
-  see E-01. No real-Excel result is claimed.
-- **Next step:** E-01: proposal issue, stale-result regression and Mac host baseline.
+- **Status:** E-01 in progress; native baseline incomplete. E-02–E-06 pending.
+- **Branch:** feature/excel-host-baseline from refreshed main at 3b5a014.
+- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
+- **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23).
+- **Delivered:** Three stale-result reproductions, passing controls, stable API
+  audit, read-only metadata probe and manifest floor/version corrections.
+- **Open evidence:** Native pane is disabled in Excel's Developer Add-ins list.
+  Installed version and served build hashes are recorded; actual Office.js
+  capabilities/calculation and startup/read timings remain unobserved.
+- **Next step:** Resolve native loading; complete the synthetic E-01 read/run and
+  diagnostic capture in [baseline evidence](artifacts/README.md), then E-02.
 
 ## Entries
+
+### 2026-11-13 — E-01 engineering baseline started
+
+- **Baseline:** Refreshed origin/main to 3b5a014, merged scope PR #22; created
+  feature/excel-host-baseline and opened issue #23.
+- **Done:** Added real-pane/Pyodide browser regressions for stale Run, changed
+  source export and tolerance-edit export, tracked as strict expected failures
+  pending E-03. Added passing financial/invalid-policy controls, unsupported 1.9
+  and calculation-state probe cases; wired the browser suite into CI.
+- **API findings:** [Matrix](api-matrix.md) confirms proposed 1.9 and explicit
+  date fallback. Corrected prototype manifest/diagnostic minimum to 1.7 for
+  getRangeByIndexes. Read-only probe observes calculation and event members;
+  it does not implement freshness. Manifest deployment version is independent
+  from the package to satisfy the validator's minimum 1.0 requirement.
+- **Native findings:** Installed Excel 16.115 (16.115.26110837), macOS 26.5.1.
+  Existing HTTPS/sideload route serves the exact unmodified main baseline.
+  finassert is listed but disabled under Developer Add-ins; pane loading failed.
+  No real Office.js capability/timing or successful read/run is claimed. No
+  settings/trust, existing server/manifest or user workbook data was changed.
+- **Verification:** 3,624 tests passed, nine browser tests skipped in the ordinary
+  suite and run separately (six pass, three strict expected failures). Existing
+  CDN and bundled/offline Excel smoke flows passed. Ruff/format, mypy and isolated
+  installed-distribution verification, strict MkDocs and Microsoft's corrected
+  manifest validation passed. See artifacts for reproduction.
+- **Remaining:** E-01 native baseline and measurement-based estimate; E-02–E-06
+  and all acceptance criteria remain incomplete. Resolve the disabled add-in entry.
 
 ### 2026-11-13 — Scope committed, pushed and opened for review
 

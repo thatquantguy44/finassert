@@ -231,7 +231,7 @@
     info.contextPlatform = Office.context.platform;
     info.userAgent = navigator.userAgent;
     info.sets = {};
-    for (const v of ["1.1", "1.2", "1.3", "1.4", "1.5", "1.7", "1.9"]) {
+    for (const v of ["1.1", "1.2", "1.3", "1.4", "1.5", "1.7", "1.8", "1.9"]) {
       try { info.sets[v] = Office.context.requirements.isSetSupported("ExcelApi", v); } catch (error) { info.sets[v] = null; }
     }
     return info;
@@ -259,8 +259,33 @@
       detail: `${info.host || "?"} on ${info.platform || info.contextPlatform || "?"}, version ${info.version || "?"}; loaded via: ${how}` });
     await run("Excel API support", async () => {
       const missing = Object.entries(info.sets).filter(([, ok]) => !ok).map(([v]) => v);
-      return { ok: info.sets["1.4"] === true, detail: `ExcelApi sets supported: ${Object.entries(info.sets).filter(([, ok]) => ok).map(([v]) => v).join(", ") || "none"}` +
-        (missing.length ? `; not supported: ${missing.join(", ")}` : "") + " (the add-in needs 1.4)" };
+      return { ok: info.sets["1.7"] === true, detail: `ExcelApi sets supported: ${Object.entries(info.sets).filter(([, ok]) => ok).map(([v]) => v).join(", ") || "none"}` +
+        (missing.length ? `; not supported: ${missing.join(", ")}` : "") + " (the current add-in needs 1.7 for sheet writes)" };
+    });
+    await run("planned workflow API baseline", async () => {
+      // This reads host metadata only. E-02/E-03 own the actual workflow guards.
+      if (info.sets["1.9"] !== true) {
+        return { ok: false, detail: "Spec 0016 needs ExcelApi 1.9; the current prototype uses 1.7. Calculation-state probe skipped." };
+      }
+      const baseline = await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        context.application.load(["calculationMode", "calculationState"]);
+        await context.sync();
+        return {
+          calculationMode: context.application.calculationMode,
+          calculationState: context.application.calculationState,
+          worksheetEvents: Object.fromEntries(["onChanged", "onCalculated", "onFormatChanged"].map(
+            (name) => [name, Boolean(sheet[name] && typeof sheet[name].add === "function")]
+          )),
+          dateSystem: "not detected; explicit user choice is required in E-02",
+          currentDatePayload: "date1904 omitted; reader defaults to 1900",
+        };
+      });
+      info.workflowBaseline = baseline;
+      const readable = ["Automatic", "AutomaticExceptTables", "Manual"].includes(baseline.calculationMode) &&
+        ["Done", "Pending", "Calculating"].includes(baseline.calculationState);
+      return { ok: readable && Object.values(baseline.worksheetEvents).every(Boolean),
+        detail: JSON.stringify(baseline) + " (read-only probe; no calculation setting changed)" };
     });
     await run("engine start-up", async () => {
       const ms = app().readyMs();

@@ -1,0 +1,57 @@
+{
+  "acceptance": "E-01 incomplete; E-06 not run",
+  "blocker": "Developer Add-ins lists finassert as disabled. The task pane could not be opened; actual host diagnostics and timings remain pending.",
+  "build": {
+    "icon-32.png": {
+      "sha256": "ef81f477b8d8fc8367ee9f96283ae9d351950c6e072b3a89359b3c47b7027f7b",
+      "size_bytes": 104
+    },
+    "icon-64.png": {
+      "sha256": "69debeb7c6ae558e845ee88b07fa88702d9961b9267cb2ada06767400db7bb54",
+      "size_bytes": 146
+    },
+    "manifest.xml": {
+      "sha256": "10ee95cefb081e460599ae7bf9556cb0cc0915e6132a1ca278ea8285a2f57d4c",
+      "size_bytes": 948
+    },
+    "taskpane.html": {
+      "sha256": "4d7e001b4ad622c64150681a860e5c511b92d386294f7c10e91a1d3b33ba63a4",
+      "size_bytes": 253532
+    }
+  },
+  "build_kind": "unmodified main baseline before diagnostic changes",
+  "installed_application": {
+    "build": "16.115.26110837",
+    "evidence_kind": "installed app Info.plist",
+    "name": "Microsoft Excel",
+    "version": "16.115"
+  },
+  "observations": {
+    "developer_addin_enabled": false,
+    "developer_addin_listed": "finassert",
+    "empty_workbook_created": true,
+    "existing_certificate_or_server_changed": false,
+    "native_addin_opened": false,
+    "served_taskpane_matches_fresh_baseline_build": true,
+    "server_https_read_with_existing_ca_pin": "passed"
+  },
+  "operating_system": {
+    "build": "25F80",
+    "name": "macOS",
+    "version": "26.5.1"
+  },
+  "real_office_js": {
+    "calculation_mode": null,
+    "calculation_state": null,
+    "date_system": null,
+    "read_ms": null,
+    "requirement_sets": null,
+    "startup_ms": null,
+    "status": "not_observed"
+  },
+  "schema_version": 1,
+  "slice": "E-01",
+  "source_commit": "3b5a014394054d173e7be7cb29578848a3937981",
+  "spec": "0016",
+  "tracking_issue": 23
+}

@@ -1,6 +1,6 @@
 # 0016 — Excel add-in validation workflow: plan
 
-**Status:** Proposed; documentation scope only.
+**Status:** E-01 in progress; later workflow tasks remain proposed.
 
 ## Approach
 
@@ -20,8 +20,9 @@ ship an intermediate UI that labels unverified snapshots Current.
 | E-06 | Complete real Mac workflow, 50,000-row measurements, parity/input-integrity evidence, regression suite and user documentation | 2 days |
 
 The 8–12-day aggregate is a planning range for one engineer. E-01 refines it;
-access to a real Excel installation can affect elapsed time. No runtime changes
-or real-host results are implied by this plan.
+access to a real Excel installation can affect elapsed time. The disabled local
+Developer Add-ins entry blocks E-01's native read/run measurements; the remaining
+8–12-day estimate is not refined from stand-in timings.
 
 ## Dependencies and affected areas
 
@@ -43,8 +44,9 @@ artifact contract with implementation. File-reader changes require 0013 review.
 
 This scope was inspected at ab24d76. PR #21 is now merged; the scope branch has
 been fast-forwarded onto main at 8d96fdc. The scope PR adds documentation only.
-Before runtime work, refresh the integrated baseline; no stacked PR dependency
-remains from the original six-slice delivery.
+E-01 refreshed onto main at 3b5a014 (merged scope PR #22) on branch
+feature/excel-host-baseline. No stacked PR dependency remains from the original
+six-slice delivery. See [API findings](api-matrix.md) and [baseline](artifacts/README.md).
 
 ## Implementation decisions to retain
 
@@ -79,6 +81,9 @@ PYTHONPATH="$PWD/src" uv run --with playwright==1.55.0 python \
 
 Also build with --bundle-pyodide download (or a verified local distribution) and
 run smoke_excel.py with --serve. Retain the existing fully offline browser audit.
+Run tests/browser/test_excel_freshness.py with FINASSERT_EXCEL_PAGE pointing to
+that bundled taskpane.html and Playwright 1.55.0 available. Its three strict
+expected failures track issue #23 until E-03; unrelated harness failures must fail.
 Network/runtime setup is described in the existing build scripts; secrets and
 workbook contents do not belong in logs or committed evidence.
 

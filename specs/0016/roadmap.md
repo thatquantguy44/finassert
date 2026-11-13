@@ -3,8 +3,9 @@
 ## Current milestone
 
 Proposed Mac-first validate → navigate → correct → stale → rerun → export loop.
-Scope and ordered tasks are defined; implementation and real-host acceptance are
-pending. Start with E-01 in [tasks.md](tasks.md).
+E-01 is in progress: regression reproductions, stable API audit and a read-only
+host diagnostic are delivered on feature/excel-host-baseline. Native pane loading
+is unresolved; complete the real Mac baseline in [tasks.md](tasks.md) before E-02.
 
 ## Next milestone
 

@@ -1,6 +1,6 @@
 # 0016 — Excel add-in validation workflow: tasks
 
-**Status:** Scope prepared; all implementation tasks pending.
+**Status:** E-01 started; native host loading remains unresolved. E-02–E-06 pending.
 
 ## Scoping delivery
 
@@ -23,6 +23,15 @@ without skipping its dependencies. Check completion only with recorded evidence.
   add a regression reproducing stale data/policy results; record real Mac version,
   install route, capability/requirement matrix, calculation behavior and date
   fallback. Attach baseline diagnostics; refine the estimate and host support floor.
+  - [x] Open [implementation issue #23](https://github.com/thatquantguy44/finassert/issues/23).
+  - [x] Reproduce stale Run, changed-source export and edited-policy export with
+    strict expected-failure browser tests, plus passing financial controls.
+  - [x] Audit stable APIs; correct the prototype floor to 1.7 and add a read-only
+    diagnostic for the proposed 1.9 workflow. See [API matrix](api-matrix.md).
+  - [x] Record installed Mac version, existing HTTPS/sideload route, baseline build
+    identity and the disabled Developer Add-ins finding in [evidence](artifacts/README.md).
+  - [ ] Open the native pane, capture actual capabilities/calculation/timings and
+    complete a synthetic read/run; refine the estimate from those measurements.
 - [ ] **E-02 — Source binding and dates** (R-01/04, AC-01/05): one table/range picker,
   exact geometry/identity, table totals exclusion, hidden/filtered inclusion,
   pre-read size guard, malformed/empty regions and explicit 1900/1904 choice.

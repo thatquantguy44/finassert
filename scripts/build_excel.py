@@ -26,18 +26,20 @@ import build_web  # noqa: E402
 import bundle_pyodide  # noqa: E402
 
 ADD_IN_ID = uuid.uuid5(uuid.NAMESPACE_URL, "https://github.com/thatquantguy44/finassert#excel")
+# Office's manifest validator requires >= 1.0. This deployment version is separate
+# from the Python package/runtime version displayed in the task pane.
+ADD_IN_VERSION = "1.0.0.0"
 SUPPORT_URL = "https://github.com/thatquantguy44/finassert"
 
 
-def manifest(base_url: str, version: str) -> str:
+def manifest(base_url: str) -> str:
     """Return the add-in manifest for a task pane served from ``base_url``."""
-    parts = [*version.split("."), "0", "0", "0", "0"][:4]
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:type="TaskPaneApp">
   <Id>{ADD_IN_ID}</Id>
-  <Version>{".".join(parts)}</Version>
+  <Version>{ADD_IN_VERSION}</Version>
   <ProviderName>finassert</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="finassert"/>
@@ -48,6 +50,11 @@ def manifest(base_url: str, version: str) -> str:
   <Hosts>
     <Host Name="Workbook"/>
   </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.7">
+      <Set Name="ExcelApi" MinVersion="1.7"/>
+    </Sets>
+  </Requirements>
   <DefaultSettings>
     <SourceLocation DefaultValue={quoteattr(base_url + "taskpane.html")}/>
   </DefaultSettings>
@@ -120,9 +127,7 @@ def main(argv: list[str] | None = None) -> int:
     (output / "taskpane.html").write_text(
         build_web.build(pyodide_url, excel=True), encoding="utf-8"
     )
-    (output / "manifest.xml").write_text(
-        manifest(arguments.base_url, build_web.package_version()), encoding="utf-8"
-    )
+    (output / "manifest.xml").write_text(manifest(arguments.base_url), encoding="utf-8")
     for size in (32, 64):
         (output / f"icon-{size}.png").write_bytes(icon(size))
     print(f"wrote the Excel add-in to {output} (serve it at {arguments.base_url})")

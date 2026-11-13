@@ -59,7 +59,8 @@ Each line is `PASS`, `FAIL`, or `INFO`:
 
 | Step | Passes when | If it fails |
 |---|---|---|
-| Excel API support | ExcelApi 1.4 is supported (the add-in uses `getItemOrNullObject`, `getUsedRangeOrNullObject`, and `getIntersectionOrNullObject`) | Add a `<Requirements>` block to the manifest naming the lowest set that works, and say which platforms drop out. |
+| Excel API support | ExcelApi 1.7 is supported; sheet writes use `getRangeByIndexes` (the null-object methods need 1.4) | The manifest declares 1.7; record an unsupported host without claiming compatibility. |
+| planned workflow API baseline | ExcelApi 1.9 supports reading calculation state; edit/calculation/format event members are present | Record the failure for spec 0016. This probe reads metadata only and does not implement freshness or date selection. |
 | engine start-up | the engine is ready in under 120 s | The pane may be too heavy for that platform: use the offline build, then the thin-service fallback. |
 | security policy | no content-security-policy violations | Office's task-pane host does not honour the page's policy, or blocks one of its sources: send the violation text. |
 | network use | requests go only to the page's own origin, `appsforoffice.microsoft.com`, and (unless bundled) `cdn.jsdelivr.net`, and none after the engine is ready | Something is calling out that should not: send the origins. |

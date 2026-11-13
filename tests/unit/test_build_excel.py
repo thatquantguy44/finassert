@@ -57,26 +57,32 @@ def test_the_plain_browser_app_has_no_excel_code_and_loads_nothing_from_microsof
 def test_the_manifest_names_the_task_pane_and_asks_for_the_permission_it_needs() -> None:
     builder = load("build_excel")
 
-    root = ElementTree.fromstring(builder.manifest("https://example.com/finassert/", "0.1.0"))
+    root = ElementTree.fromstring(builder.manifest("https://example.com/finassert/"))
 
     ns = {"o": "http://schemas.microsoft.com/office/appforoffice/1.1"}
     assert root.tag == "{http://schemas.microsoft.com/office/appforoffice/1.1}OfficeApp"
-    assert root.find("o:Version", ns).text == "0.1.0.0"  # type: ignore[union-attr]
+    # The deployment version meets Office's >=1.0 constraint independently of
+    # the package's prerelease version; the pane retains its real package version.
+    assert root.find("o:Version", ns).text == "1.0.0.0"  # type: ignore[union-attr]
     assert root.find("o:Permissions", ns).text == "ReadWriteDocument"  # type: ignore[union-attr]
     assert root.find("o:Hosts/o:Host", ns).get("Name") == "Workbook"  # type: ignore[union-attr]
+    requirement = root.find("o:Requirements/o:Sets/o:Set", ns)
+    assert requirement is not None
+    # getRangeByIndexes is used for sheet writes and requires ExcelApi 1.7.
+    assert requirement.attrib == {"Name": "ExcelApi", "MinVersion": "1.7"}
     source = root.find("o:DefaultSettings/o:SourceLocation", ns)
     assert source is not None and source.get("DefaultValue") == (
         "https://example.com/finassert/taskpane.html"
     )
     assert root.find("o:Id", ns).text == str(builder.ADD_IN_ID)  # type: ignore[union-attr]
     # The add-in keeps one identity across builds.
-    assert builder.manifest("https://a.example/", "0.1.0").count(str(builder.ADD_IN_ID)) == 1
+    assert builder.manifest("https://a.example/").count(str(builder.ADD_IN_ID)) == 1
 
 
 def test_manifest_values_are_escaped() -> None:
     builder = load("build_excel")
 
-    text = builder.manifest('https://example.com/a"b&c/', "0.1.0")
+    text = builder.manifest('https://example.com/a"b&c/')
 
     ElementTree.fromstring(text)  # still well-formed
     assert "&amp;" in text
