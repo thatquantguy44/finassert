@@ -1,25 +1,11 @@
-# 0013 — Excel workbook integration: roadmap
-
-[Spec](spec.md) · [Plan](plan.md) · [Tasks](tasks.md) · [Roadmap](roadmap.md) ·
-[Contracts](contracts.md) · [Handoff](handoff.md) · [Agent instructions](AGENTS.md)
+# 0013 — Roadmap
 
 ## Current milestone
 
-Reader implemented (initial); report writer and CLI proposed. See [tasks.md](tasks.md)
-for known gaps.
+Workbook correctness, shared contracts, atomic XLSX reports, and CLI extensions implemented.
 
-## Next milestone
+## Next and deferred work
 
-Detect uncached formulas before dropping trailing blank rows; review reproduced a
-formula-only final row becoming empty input and passing non_negative.
+Visibility metadata and additional hidden-region options remain proposed.
 
-## Following milestones
-
-Follow the remaining task order in [tasks.md](tasks.md) and the approach in
-[plan.md](plan.md). Cross-spec sequencing belongs to the [project
-roadmap](../../docs/roadmap.md).
-
-## Deferred scope
-
-See [explicit deferred work](spec.md#explicit-deferred-work). A local roadmap does not
-promote deferred work into an implemented capability.
+See [tasks.md](tasks.md), [plan.md](plan.md), and the [project roadmap](../../docs/roadmap.md).

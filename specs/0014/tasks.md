@@ -8,7 +8,7 @@ Complete these gates in order. Evidence belongs in [handoff.md](handoff.md).
 - [x] 4. Publish cash and NAV reconciliation with explicit preconditions (0002).
 - [x] 5. Ship XLSX report output and strict JSON/CSV/XLSX CLI workflows (0006/0007/0013).
 - [x] 6. Ship typed money/ratio units and direct FX with provenance (0008).
-- [ ] 7. Retain reproducible runtime and peak-memory benchmark baselines (0010).
+- [x] 7. Retain reproducible runtime and peak-memory benchmark baselines (0010).
 
 Branch foundation: preserve the preceding Excel reader commits and numbered-spec
 documentation migration. Keep the PR in draft while any gate remains open.

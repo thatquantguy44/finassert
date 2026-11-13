@@ -9,10 +9,8 @@ from finassert.units import BasisPoints, FxRate, Money, MoneySource
 import finassert as fa
 
 as_of = datetime(2026, 11, 13, 12, tzinfo=UTC)
-rate = FxRate("EUR", "USD", "1.08", as_of,
-              source="approved-close", identifier="close-1")
-converted = rate.convert(Money("50.00", "EUR"),
-                         at=as_of, max_age=timedelta(hours=24))
+rate = FxRate("EUR", "USD", "1.08", as_of, source="approved-close", identifier="close-1")
+converted = rate.convert(Money("50.00", "EUR"), at=as_of, max_age=timedelta(hours=24))
 assert converted == Money("54.0000", "USD")
 assert Money("100", "USD").scale(BasisPoints(50)) == Money("0.5", "USD")
 

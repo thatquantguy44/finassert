@@ -16,6 +16,8 @@ built files. It checks that:
 - the wheel installs into a fresh virtual environment, outside the source tree,
   and the installed `finassert` command runs the sample policy and fails the one
   check the documentation says it fails;
+- the installed units/FX, homogeneous MoneySource, workbook reader, and XLSX
+  report writer work together, while importing their APIs does not import openpyxl;
 - on a tag build, the tag is exactly `v` plus the version.
 
 The release workflow also runs `twine check --strict`, so the README renders on

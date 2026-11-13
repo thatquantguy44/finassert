@@ -18,28 +18,21 @@ rewrite old entries (append a correction instead).
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`
-- **Last recorded merge:** PR #3 grouped DataFrame contracts
-- **Active work:** [Seven-priority delivery](https://github.com/thatquantguy44/finassert/blob/main/specs/0014/spec.md), starting with Excel reader correctness
-  under [0013](https://github.com/thatquantguy44/finassert/blob/main/specs/0013/spec.md),
-  adapter contracts under [0004](https://github.com/thatquantguy44/finassert/blob/main/specs/0004/spec.md),
-  and diagnostics under [0005](https://github.com/thatquantguy44/finassert/blob/main/specs/0005/spec.md).
-- **Open blockers / gaps:** Known formula/error-cell, adapter length-validation,
-  and diagnostic gaps are recorded in the corresponding spec task files.
+- **Last recorded main merge:** PR #15, README refresh (`a3f0a3e`).
+- **Delivery:** All seven gates in spec 0014 have implementation/evidence;
+  final regression suite passed 807 tests. Draft [PR #17](https://github.com/thatquantguy44/finassert/pull/17)
+  tracks the complete branch. Package and remote CI verification are recorded
+  in the newest entries.
+- **Open blockers:** None for the seven implementation gates. Broader proposed
+  work remains explicitly unchecked in the owning spec task files.
 
 ## Next up
 
-Immediate corrective work precedes the feature sequence in the
-[roadmap](roadmap.md). Move items to an entry when done.
-
-1. Fix uncached trailing formulas and Excel error-cell outcomes (spec 0011).
-2. Enforce adapter value/label lengths and shared adapter tests (spec 0004), then
-   stabilize bounded diagnostics, row identity, and strict JSON (spec 0005).
-3. Cash and NAV reconciliation rules with documented sign and materiality
-   conventions.
-4. Excel report output, stable CLI/JSON artifacts, and optional YAML policy
-   configuration.
-5. Typed financial units and explicit FX provenance.
-6. Benchmark batch execution before choosing vectorization or concurrency.
+1. Review draft PR #17; no merge or release was performed.
+2. Use the retained spec 0010 profiles before choosing bounded-allocation or
+   vectorization work. Batch/concurrent APIs remain proposed.
+3. Select further catalog, redaction, or workbook-visibility work from the
+   [project roadmap](roadmap.md) and local task files.
 
 ## Entry template
 
@@ -56,6 +49,31 @@ Immediate corrective work precedes the feature sequence in the
 ```
 
 ## Entries
+
+### 2026-11-13 — Seven priorities delivered and locally verified
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17); issue #16.
+- **Done:** All seven ordered gates have implementation and evidence. Retained
+  48-case scalar timing/memory/CPU profiles, source digest, and repeat/adapter
+  fingerprints. Preserved existing main features and numbered-spec history.
+- **Compatibility review:** Explicit custom diagnostic collections survive
+  normalization; arbitrary objects retain string fallback unless explicitly
+  marked as supported financial values. Added regressions for both behaviors.
+- **Verification:** 807 tests passed. Ruff lint/format, mypy (57 modules), strict
+  documentation, 783 local links/anchors, author policy (57 history records),
+  whitespace, source digest, wheel/sdist build, and fresh-environment installed
+  CLI/unit/FX/workbook workflows passed.
+- **Not done:** No merge or release. Broader proposed catalog, redaction,
+  visibility, and optimization work remains in owning spec tasks. Remote CI is
+  checked against the pushed final head on the draft PR.
+- **Next step:** Review draft PR #17 and its CI results.
+
+### 2026-11-13 — Gate 7: Retained reproducible scalar timing, memory, and CPU profiles
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Retained reproducible scalar timing, memory, and CPU profiles.
+- **Evidence:** 48 cases across three sizes, two numeric domains, two adapters, and four populations retained; repeated/cross-adapter fingerprints and the delivered-source digest match; benchmark smoke test passed.
+- **Next step:** Finish final regression, package, and draft PR verification.
 
 ### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
 

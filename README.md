@@ -40,6 +40,8 @@ Each result explains what was checked, what was observed, and where it broke.
 | **Review a treasury forecast** | [13-week walkthrough](#try-a-13-week-cash-forecast) | Schedule coverage and cash continuity by series and currency. |
 | **Use an AI assistant** | [Assistant tool server](docs/assistant.md) | The same checks through MCP, within folders you allow. |
 | **Work inside Excel** | [Excel add-in](docs/excel-add-in.md) | An initial task pane; real-Excel verification remains outstanding. |
+| **Export an Excel review workbook** | [CLI and workbook reports](docs/command-line.md) | Atomic Summary, Results, and bounded Diagnostics sheets. |
+| **Validate typed currencies and FX** | [Financial units](docs/financial-units.md) | Explicit quantities, rate-age checks, and retained provenance. |
 
 ## Quick start
 
@@ -68,6 +70,7 @@ python -m pip install -e .
 | :--- | :--- |
 | `pandas` | pandas DataFrame support |
 | `cli` | YAML policies for the command line |
+| `excel` | Excel report output and the optional `read_workbook` Python API |
 | `parquet` | Parquet input through pyarrow |
 | `assistant` | The MCP assistant tool server |
 

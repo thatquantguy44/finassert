@@ -97,13 +97,14 @@ pass. Reports never include full rows beyond the bounded diagnostic fields.
 
 ## Implementation milestones
 
-1. Freeze cell-to-value conversion table and error marker (complete).
-2. `read_workbook` with header handling, `max_row`, and row-number labels
-(complete). 3. Contract tests from 0004 (partial: reader tests cover alignment,
-missing column, non-mutation, and pandas parity; the shared suite is not yet
-parameterized over this adapter). 4. `write_report_xlsx`. 5. CLI flags in 0007. 6. Decide whether totals-row
-and hidden-row handling need explicit options. 7. Add a `Diagnostics` sheet once
-0005 defines structured failing observations.
+1. Cell conversion table and distinct error marker (complete).
+2. Reader, header selection, explicit row bound, and row labels (complete).
+3. Shared 0004 contracts and generated adapter equivalence (complete).
+4. Atomic `write_report_xlsx` with literal strings/Decimals (complete).
+5. CLI worksheet-region and report flags (complete).
+6. Additional hidden-region options and visibility metadata (proposed); totals
+   are excluded through an explicit row bound.
+7. Structured bounded Diagnostics sheet under 0005 (complete).
 
 ## Open questions
 

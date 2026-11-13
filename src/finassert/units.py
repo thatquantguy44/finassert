@@ -65,6 +65,7 @@ def _utc(value: datetime) -> datetime:
 
 @dataclass(frozen=True, slots=True, init=False)
 class _Quantity:
+    _finassert_serializable: ClassVar[bool] = True
     amount: Decimal
     currency: str
     provenance: tuple[FxRate, ...] = field(default=(), compare=False)
@@ -141,6 +142,7 @@ class Notional(_Quantity):
 
 @dataclass(frozen=True, slots=True, init=False)
 class _Ratio:
+    _finassert_serializable: ClassVar[bool] = True
     value: Decimal
     denominator: ClassVar[Decimal] = Decimal(1)
 
@@ -208,6 +210,7 @@ Q = TypeVar("Q", bound=_Quantity)
 class FxRate:
     """A positive direct rate: one base unit equals ``rate`` quote units."""
 
+    _finassert_serializable: ClassVar[bool] = True
     base: str
     quote: str
     rate: Decimal

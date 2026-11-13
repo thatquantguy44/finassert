@@ -1,6 +1,6 @@
 # 0010 — Performance and batch validation
 
-**Status:** Proposed
+**Status:** Reproducible scalar baseline implemented; optimized batch APIs proposed
 
 ## Problem statement
 
@@ -38,6 +38,16 @@ and `check_batch`. They remain private until benchmarks show a real need and the
 result contract matches ordinary `check`.
 
 ## Data contracts
+
+The initial corpus lives in `scripts/benchmark_validation.py`; retained evidence
+and methodology live in this workspace's `artifacts/` directory. Each case runs
+in a fresh process, with separate first/warm timing, tracemalloc, and cProfile
+runs. Input construction is excluded from validation timing. Peak RSS describes
+the entire worker, while tracemalloc describes validation allocations only.
+The artifact records environment, revision/dirty state, exact source digest,
+dataset shape, numeric domain, group skew, and repeated result fingerprints.
+Mapping/pandas fingerprints must match for each corpus variant. Benchmark
+runner memory/RSS collection currently targets macOS and Linux.
 
 Execution plans declare required columns, grouping, reducibility, numeric domain,
 and estimated materialization. Partial aggregate states must define associative

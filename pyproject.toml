@@ -68,6 +68,8 @@ include = [
   "/web",
   "/README.md",
   "/CHANGELOG.md",
+  "/AGENTS.md",
+  "/CONTRIBUTING.md",
   "/LICENSE",
   "/pyproject.toml",
   "/mkdocs.yml",

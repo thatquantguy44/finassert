@@ -7,12 +7,42 @@ and intends to use Semantic Versioning after the public API stabilizes.
 
 ### Changed
 
+- Built-in results now include bounded structured diagnostic collections with
+  complete counts and explicit limits. Non-finite floats serialize as text,
+  and explicit artifact timestamps must be timezone-aware. Existing metadata
+  and artifact schema version 1 remain available.
 - Organized specifications into numbered workspaces with dedicated spec, plan,
   tasks, roadmap, agent instructions, contracts, and handoff files; added a
-  reusable template for future specs. Existing specification requirements are
-  unchanged.
+  reusable template for future specs. The layout migration preserves requirements;
+  subsequent contract amendments are recorded in their owning specs.
+
+- **Behavior change:** `ValidationReport.passed` and `finassert check` no longer
+  fail for a failed check of `warning` or `info` severity. Checks default to
+  `error`, so existing policies behave as before; a check that could not run
+  still fails the run at any severity.
+- The private grouped cash-reconciliation prototype is replaced by the public
+  `accounting.cash_reconciles` rule.
+- Grouped rules treat spaces-only text as blank, read the ordering column only
+  when first/last balances need it, and never let `null_policy: skip` hide
+  non-numeric values. Date ties in transaction rows now say to use a unique
+  sequence number or timestamp.
+- Excel input treats blank text cells as empty and numeric text as numbers,
+  like CSV; sheet selection problems exit with code 3 and suggest `--sheet`.
+- Missing-column errors list the available columns and suggest the closest one.
+- Weight-sum results for non-numeric weights also report `invalid_rows` using
+  the dataset's row labels.
 
 ### Added
+
+- Shared contract tests across mappings, records, pandas, TableSource, and
+  workbook inputs; malformed value/label lengths cannot silently pass.
+- Atomic `write_report_xlsx` output with literal Decimal/formula-like text,
+  structured Diagnostics, and CLI `--xlsx`, `--header-row`, and `--max-row` flags.
+- Opt-in immutable money/price/notional and ratio units, direct FX with explicit
+  freshness/direction checks, and MoneySource provenance in validation artifacts.
+- Reproducible scalar benchmark corpus with isolated timing, peak memory,
+  CPU profiles, and retained reference-result fingerprints.
+
 
 - Weekly treasury `forecast_coverage` and `cash_continuity` rules with explicit
   expected scope, required currency isolation, bounded diagnostics, policy and
@@ -115,20 +145,11 @@ and intends to use Semantic Versioning after the public API stabilizes.
   fail the report or the exit code; `finassert check --fail-on warning|info`
   raises the threshold. Reports count `warnings` and `blocking_failures`.
 
-### Changed
+### Fixed
 
-- **Behavior change:** `ValidationReport.passed` and `finassert check` no longer
-  fail for a failed check of `warning` or `info` severity. Checks default to
-  `error`, so existing policies behave as before; a check that could not run
-  still fails the run at any severity.
-- The private grouped cash-reconciliation prototype is replaced by the public
-  `accounting.cash_reconciles` rule.
-- Grouped rules treat spaces-only text as blank, read the ordering column only
-  when first/last balances need it, and never let `null_policy: skip` hide
-  non-numeric values. Date ties in transaction rows now say to use a unique
-  sequence number or timestamp.
-- Excel input treats blank text cells as empty and numeric text as numbers,
-  like CSV; sheet selection problems exit with code 3 and suggest `--sheet`.
-- Missing-column errors list the available columns and suggest the closest one.
-- Weight-sum results for non-numeric weights also report `invalid_rows` using
-  the dataset's row labels.
+- Uncached formulas in trailing workbook rows no longer disappear during
+  blank-row trimming; selected Excel error markers raise evaluation errors.
+- Missing/invalid weight diagnostics honor the configured cap and retain
+  original row labels. Arbitrary custom metadata keeps string fallback behavior.
+- CLI report paths cannot overwrite input/policy files, and JSON inputs reject
+  nonstandard NaN/infinity constants.

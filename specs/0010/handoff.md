@@ -5,16 +5,19 @@
 
 ## Current state
 
-- Status: Proposed.
-- Implementation/reference areas:
-  [src/finassert/core/engine.py](../../src/finassert/core/engine.py),
-  [src/finassert/adapters](../../src/finassert/adapters),
-  [src/finassert/rules](../../src/finassert/rules).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Create a reproducible synthetic corpus and scalar baselines recording
-  hardware, software, shape, dtypes, and group skew.
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Retained reproducible scalar timing, memory, and CPU profiles.
+- **Evidence:** 48 cases across three sizes, two numeric domains, two adapters, and four populations retained; repeated/cross-adapter fingerprints and the delivered-source digest match; benchmark smoke test passed.
+- **Next step:** Finish final regression, package, and draft PR verification.
 
 ## Entries
+
+### 2026-11-13 — Gate 7: Retained reproducible scalar timing, memory, and CPU profiles
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Retained reproducible scalar timing, memory, and CPU profiles.
+- **Evidence:** 48 cases across three sizes, two numeric domains, two adapters, and four populations retained; repeated/cross-adapter fingerprints and the delivered-source digest match; benchmark smoke test passed.
+- **Next step:** Finish final regression, package, and draft PR verification.
 
 ### 2026-11-13 — Numbered spec workspace created
 

@@ -16,7 +16,7 @@ and review focus; it does not introduce a second definition.
 ## Review focus
 
 - Rule execution order and result order match; each rule executes once.
-- Failures, errors, and skips remain distinct; severity does not change truth.
+- Failures, errors, and skips remain distinct. Evaluation errors always block; warning/info failures follow main's severity threshold.
 - The engine does not coerce, normalize, or mutate caller data.
 
 Unresolved implementation gaps and contract decisions are tracked in

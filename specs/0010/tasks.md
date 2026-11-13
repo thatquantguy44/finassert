@@ -8,14 +8,14 @@ acceptance certification.
 
 ## Existing baseline
 
-No runtime implementation is claimed; the capability remains proposed.
+A scalar corpus, isolated measurements, profiles, and a retained 48-case baseline are implemented. Optimized batch APIs remain proposed.
 
 ## Remaining work, in order
 
-- [ ] Create a reproducible synthetic corpus and scalar baselines recording hardware,
+- [x] Create a reproducible synthetic corpus and scalar baselines recording hardware,
   software, shape, dtypes, and group skew.
-- [ ] Measure cold/warm runtime and peak memory for allocation and nonnegative rules.
-- [ ] Profile materialization and diagnostic allocation before selecting optimization
+- [x] Measure cold/warm runtime and peak memory for allocation and nonnegative rules.
+- [x] Profile materialization and diagnostic allocation before selecting optimization
   work.
 - [ ] Prototype vector kernels or shared column reads only if measurements justify them.
 - [ ] Require reference-result parity and deterministic reduction before any batch or

@@ -1,9 +1,6 @@
 # 0014 — Seven-priority delivery: roadmap
 
-- **Current:** Branch foundation and gate 1, Excel correctness.
-- **Next:** Adapter contracts, then diagnostics/artifact stability.
-- **Following:** Cash/NAV rules, workbook/CLI delivery, typed units/direct FX.
-- **Final:** Measured scalar performance baselines and full verification.
-
-See [tasks.md](tasks.md) for completion and the [project roadmap](../../docs/roadmap.md)
-for longer-term scope.
+All seven implementation gates and local/package verification are complete;
+see [handoff.md](handoff.md) for evidence. The branch remains in draft PR #17
+for review and CI. No merge or release was performed. Broader deferred work
+remains in the owning spec tasks and [project roadmap](../../docs/roadmap.md).

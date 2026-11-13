@@ -1,25 +1,11 @@
-# 0004 — DataFrame adapters: roadmap
-
-[Spec](spec.md) · [Plan](plan.md) · [Tasks](tasks.md) · [Roadmap](roadmap.md) ·
-[Contracts](contracts.md) · [Handoff](handoff.md) · [Agent instructions](AGENTS.md)
+# 0004 — Roadmap
 
 ## Current milestone
 
-pandas, mapping, and grouped aggregation contracts implemented; Polars proposed. See
-[tasks.md](tasks.md) for known gaps.
+Shared extraction/row-identity contracts verified across six input forms; public ordering retained.
 
-## Next milestone
+## Next and deferred work
 
-Reject unequal value/label lengths from ColumnSource before evaluating a rule; review
-reproduced a weight-rule PASS for values=[1], labels=[].
+Extend adapter coverage only when new supported containers are introduced. Polars remains deferred.
 
-## Following milestones
-
-Follow the remaining task order in [tasks.md](tasks.md) and the approach in
-[plan.md](plan.md). Cross-spec sequencing belongs to the [project
-roadmap](../../docs/roadmap.md).
-
-## Deferred scope
-
-See [explicit deferred work](spec.md#explicit-deferred-work). A local roadmap does not
-promote deferred work into an implemented capability.
+See [tasks.md](tasks.md), [plan.md](plan.md), and the [project roadmap](../../docs/roadmap.md).

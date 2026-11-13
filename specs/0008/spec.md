@@ -34,8 +34,7 @@ no global FX table exists.
 ```python
 usd = Money(Decimal("100"), "USD")
 rate = FxRate("EUR", "USD", Decimal("1.08"), as_of, source="approved-close")
-converted = rate.convert(Money(Decimal("50"), "EUR"), at=valuation_time,
-                         max_age=timedelta(days=1))
+converted = rate.convert(Money(Decimal("50"), "EUR"), at=valuation_time, max_age=timedelta(days=1))
 ```
 
 Rules either require homogeneous currency or accept a caller-provided converter

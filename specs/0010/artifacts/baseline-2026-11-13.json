@@ -1,0 +1,4744 @@
+{
+  "benchmark_schema_version": 1,
+  "environment": {
+    "implementation": "CPython",
+    "logical_cpus": 15,
+    "machine": "arm64",
+    "packages": {
+      "finassert": "0.1.0",
+      "openpyxl": "3.1.5",
+      "pandas": "3.0.6"
+    },
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.17"
+  },
+  "generated_at": "2026-11-13T08:16:30.963671+00:00",
+  "method": {
+    "adapters": [
+      "mapping",
+      "pandas"
+    ],
+    "diagnostic_limit": 20,
+    "fresh_process_per_case": true,
+    "memory_and_cpu_profile_separate_from_timings": true,
+    "rss_scope": "whole worker including imports and corpus; tracemalloc scope is validation only",
+    "seed": "deterministic formulas and PYTHONHASHSEED=0",
+    "sizes": [
+      1000,
+      10000,
+      100000
+    ],
+    "timings_exclude_input_construction": true,
+    "warm_repeats": 3
+  },
+  "results": [
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.0003073750121984631,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 1.7417012713849545e-05,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 31129600,
+      "report_fingerprint": "60bf45587d128ad061c2c0b6ec78beee6010ea07d44c846db2379c0a730f1929",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0012328340000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4206000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001203667,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.6251e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000705667,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.00014690000000000002
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.0005270990000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000209933
+        },
+        {
+          "calls": 1002,
+          "cumulative_seconds": 0.000259461,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00018059300000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00022716700000000002,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 7.650300000000001e-05
+        },
+        {
+          "calls": 6023,
+          "cumulative_seconds": 0.00018213700000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00016097100000000001
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000150664,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.00012553800000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000127958,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 2.8340000000000003e-06
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.000113665,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 3.2418e-05
+        },
+        {
+          "calls": 1001,
+          "cumulative_seconds": 8.041500000000001e-05,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 5.6717000000000006e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 5.1083000000000005e-05,
+          "function": "src/finassert/rules/portfolio.py:90:<listcomp>",
+          "self_seconds": 5.1083000000000005e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 68575,
+      "warm_median_seconds": 0.00028729200130328536,
+      "warm_validation_seconds": [
+        0.00027658301405608654,
+        0.00030162499751895666,
+        0.00028729200130328536
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.0033252499997615814,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.3977894579875283,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 100401152,
+      "report_fingerprint": "60bf45587d128ad061c2c0b6ec78beee6010ea07d44c846db2379c0a730f1929",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001303291,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4335e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00124875,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.2164e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0006882920000000001,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.000142645
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000510562,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00019910400000000002
+        },
+        {
+          "calls": 1002,
+          "cumulative_seconds": 0.000255661,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.000176388
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00022595900000000002,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 7.518000000000001e-05
+        },
+        {
+          "calls": 6059,
+          "cumulative_seconds": 0.000190749,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.000162497
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000150779,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000125745
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000132917,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 2.0000000000000003e-06
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.000118084,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 3.0425e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000109542,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 1.7070000000000001e-06
+        },
+        {
+          "calls": 1001,
+          "cumulative_seconds": 8.6576e-05,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 6.2909e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 93223,
+      "warm_median_seconds": 0.0004356660065241158,
+      "warm_validation_seconds": [
+        0.0003979580069426447,
+        0.0004356660065241158,
+        0.00047933400492183864
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10
+      },
+      "first_validation_seconds": 0.00034658401273190975,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 7.970898877829313e-05,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 31326208,
+      "report_fingerprint": "7a1d8fa0a7a0367974c52f79c5edb0942937bce9177feaa790c85c808759f75a",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0017365420000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.6082e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0016915830000000002,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.00037218500000000003
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000635611,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000270297
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000412426,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000356597
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00030269000000000004,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00021286200000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00029554200000000004,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.00010120100000000001
+        },
+        {
+          "calls": 7023,
+          "cumulative_seconds": 0.000237368,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.000208826
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00012195000000000001,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 9.424300000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 4.0583e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 9.415e-06
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 3.0327000000000003e-05,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 3.0327000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 2.8292000000000003e-05,
+          "function": "typing.py:2009:__instancecheck__",
+          "self_seconds": 4.4600000000000005e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 2.8208e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.4707000000000002e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 43964,
+      "warm_median_seconds": 0.0003232500166632235,
+      "warm_validation_seconds": [
+        0.0003232500166632235,
+        0.0003012919914908707,
+        0.00033795798663049936
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10
+      },
+      "first_validation_seconds": 0.0007553330215159804,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.20590458399965428,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 100679680,
+      "report_fingerprint": "7a1d8fa0a7a0367974c52f79c5edb0942937bce9177feaa790c85c808759f75a",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002156917,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 2.1708000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002029125,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000413144
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.0007065620000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000309561
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.0004901440000000001,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000435885
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00033153100000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00024134500000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000279875,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 9.1192e-05
+        },
+        {
+          "calls": 7059,
+          "cumulative_seconds": 0.000249815,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.000212899
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00015879200000000002,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.459e-06
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00015837500000000001,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.000129404
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00011566600000000001,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 7.583e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 9.3041e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4337:__getitem__",
+          "self_seconds": 6.749e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 8.366700000000001e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4968:_get_item",
+          "self_seconds": 2.583e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 68556,
+      "warm_median_seconds": 0.0004239169938955456,
+      "warm_validation_seconds": [
+        0.0004468749975785613,
+        0.0004239169938955456,
+        0.0004213330103084445
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.0004305840120650828,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.00010195901268161833,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 31457280,
+      "report_fingerprint": "2e127e3397a5b126f4f6cc23147b0601b68b2092d0cec3156e5e006737cb15b8",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001693,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 2.4916e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0016359170000000002,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000446197
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000582914,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000242238
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000333784,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000282143
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000283267,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00019928
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000224958,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 7.7087e-05
+        },
+        {
+          "calls": 7033,
+          "cumulative_seconds": 0.000219117,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.000193742
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00010934700000000001,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 8.286400000000001e-05
+        },
+        {
+          "calls": 1003,
+          "cumulative_seconds": 4.4921000000000006e-05,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 4.4921000000000006e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.5708000000000004e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 7.667000000000001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.1333e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.5788000000000002e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 2.9486000000000002e-05,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 2.9486000000000002e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 234934,
+      "warm_median_seconds": 0.0004056250036228448,
+      "warm_validation_seconds": [
+        0.0003724579873960465,
+        0.0004599170060828328,
+        0.0004056250036228448
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.0007957500056363642,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18002425000304356,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 101416960,
+      "report_fingerprint": "2e127e3397a5b126f4f6cc23147b0601b68b2092d0cec3156e5e006737cb15b8",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001805792,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 2.2459000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001726083,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.00043254500000000005
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000579318,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00023999600000000002
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000357786,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.00030257600000000004
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00028244500000000004,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.000198015
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000235958,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 7.618e-05
+        },
+        {
+          "calls": 7069,
+          "cumulative_seconds": 0.000230274,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00019769
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00012541600000000002,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.2070000000000002e-06
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000110153,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 8.4663e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 8.6958e-05,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 6.416e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 6.6625e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4337:__getitem__",
+          "self_seconds": 6.0840000000000005e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 5.8042000000000004e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4968:_get_item",
+          "self_seconds": 2.6250000000000003e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 259526,
+      "warm_median_seconds": 0.0004983749822713435,
+      "warm_validation_seconds": [
+        0.0005688329983968288,
+        0.0004983749822713435,
+        0.0004978750075679272
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.001108291995478794,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.00013600001693703234,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 31752192,
+      "report_fingerprint": "89fc282e17ec19c5a3434b8f7845fa26079f299de22e3304a8fed7ec6dc1a444",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.008201833,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.2458e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.008162167,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.5e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.008160667,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 2.1792e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.008138459,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 4.4125e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.006316584,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.003763639
+        },
+        {
+          "calls": 1405,
+          "cumulative_seconds": 0.002251452,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.00036881
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0017652890000000002,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 6.571200000000001e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001448498,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.0193e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.0014224790000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000565933
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001382624,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 3.5041000000000006e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001347583,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 4.1954000000000005e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.001070839,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.000525354
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 216080,
+      "warm_median_seconds": 0.0010414590069558471,
+      "warm_validation_seconds": [
+        0.0010607919830363244,
+        0.0010414590069558471,
+        0.0010215830116067082
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.0015057920245453715,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.19819604200893082,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 101793792,
+      "report_fingerprint": "89fc282e17ec19c5a3434b8f7845fa26079f299de22e3304a8fed7ec6dc1a444",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005653167000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.0416e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005576584000000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.542e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0055750420000000005,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 2.0708000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005554125,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 3.6204e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0039137500000000006,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.001330328
+        },
+        {
+          "calls": 1405,
+          "cumulative_seconds": 0.0018611950000000002,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.000317886
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0015932960000000001,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 5.7222e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001198789,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.8240000000000006e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.001181397,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000485581
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001116503,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.2170000000000005e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001074333,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 5.0629000000000006e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000922501,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.00043208700000000005
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 294732,
+      "warm_median_seconds": 0.0012333749909885228,
+      "warm_validation_seconds": [
+        0.0014912089973222464,
+        0.0012214159942232072,
+        0.0012333749909885228
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.001236417010659352,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.0002936249948106706,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 31358976,
+      "report_fingerprint": "b991c47d201d26cf8bc89f62ca748df1307c526e51991747eba23467ae302397",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0015640410000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 3.4376000000000004e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0015081250000000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.0584e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000651041,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.000154023
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000457683,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000213551
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000454375,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.00011551700000000001
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00033885800000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000280818
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000240666,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 5.208e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000234292,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 5.7511000000000006e-05
+        },
+        {
+          "calls": 1002,
+          "cumulative_seconds": 0.000182057,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.000132053
+        },
+        {
+          "calls": 1001,
+          "cumulative_seconds": 0.00017678100000000001,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 9.1593e-05
+        },
+        {
+          "calls": 5022,
+          "cumulative_seconds": 0.00016676,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00013951
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 8.518800000000001e-05,
+          "function": "src/finassert/rules/_helpers.py:62:_decimal",
+          "self_seconds": 6.236800000000001e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 68641,
+      "warm_median_seconds": 0.00031579198548570275,
+      "warm_validation_seconds": [
+        0.00033879102556966245,
+        0.00030045901075936854,
+        0.00031579198548570275
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.0006175000162329525,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18452295800670981,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 101203968,
+      "report_fingerprint": "b991c47d201d26cf8bc89f62ca748df1307c526e51991747eba23467ae302397",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001428875,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4125000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001350084,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.3707000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000624042,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.00014118
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00043895800000000003,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000199165
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0002905,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 7.7772e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000212728,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000164737
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00021270900000000003,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 2.251e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00020970800000000002,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 4.6292e-05
+        },
+        {
+          "calls": 5058,
+          "cumulative_seconds": 0.00017886800000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.000147243
+        },
+        {
+          "calls": 1002,
+          "cumulative_seconds": 0.000173091,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.000122177
+        },
+        {
+          "calls": 1001,
+          "cumulative_seconds": 0.00016341600000000002,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 7.972200000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000119333,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 1.957e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 69289,
+      "warm_median_seconds": 0.0004182920092716813,
+      "warm_validation_seconds": [
+        0.00042579101864248514,
+        0.00038400001358240843,
+        0.0004182920092716813
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10
+      },
+      "first_validation_seconds": 0.00042816699715331197,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.00011258298764005303,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 31375360,
+      "report_fingerprint": "bac8fd0c9caff86d0aa4a1bfe3349457976239e8acae75de0f303127575edb30",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001648542,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.2336e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001606042,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000312386
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000456027,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00021579200000000002
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.00044774100000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.00035131100000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000293334,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 8.5029e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000265109,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.00021601200000000002
+        },
+        {
+          "calls": 7023,
+          "cumulative_seconds": 0.00021083200000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00018554000000000002
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000179347,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.000129517
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 4.7246e-05,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 4.7246e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.55e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 7.001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 2.9541e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.1415e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 2.7334000000000003e-05,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 2.7334000000000003e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 44068,
+      "warm_median_seconds": 0.0003861250006593764,
+      "warm_validation_seconds": [
+        0.00038487499114125967,
+        0.0003861250006593764,
+        0.00042237501475028694
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10
+      },
+      "first_validation_seconds": 0.0011938750103581697,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.2377505419717636,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 101269504,
+      "report_fingerprint": "bac8fd0c9caff86d0aa4a1bfe3349457976239e8acae75de0f303127575edb30",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001871042,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.6001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0017840830000000001,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000321487
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.0004962450000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.000232935
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.00046957600000000003,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.00036903900000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000298292,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 8.052000000000001e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00027033900000000003,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.000219723
+        },
+        {
+          "calls": 7059,
+          "cumulative_seconds": 0.00022940500000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00019649
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00019808800000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00013341400000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000138583,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.042e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00010012500000000001,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 6.457e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 8.1167e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4337:__getitem__",
+          "self_seconds": 7.0420000000000005e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 7.175000000000001e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4968:_get_item",
+          "self_seconds": 2.916e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 44660,
+      "warm_median_seconds": 0.0006130419787950814,
+      "warm_validation_seconds": [
+        0.0006240000075194985,
+        0.0006130419787950814,
+        0.0005149590142536908
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.0006466250051744282,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.0002076669770758599,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 31703040,
+      "report_fingerprint": "d6f9cfcc128671377dc31f15b80646282fa870eeeec6be9910d299fd2fb123d8",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001927709,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 2.5124000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0018675410000000001,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000435672
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000485691,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000387439
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00047781,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00022018500000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000342708,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.000102749
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000266385,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.00021678700000000002
+        },
+        {
+          "calls": 7033,
+          "cumulative_seconds": 0.00022136400000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00018948900000000001
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00019309900000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00014159800000000002
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 4.9632e-05,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 4.9632e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 4.6083000000000006e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 1.1375e-05
+        },
+        {
+          "calls": 1003,
+          "cumulative_seconds": 4.4611000000000004e-05,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 4.4611000000000004e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.3833e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.7416e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 235038,
+      "warm_median_seconds": 0.0005366249824874103,
+      "warm_validation_seconds": [
+        0.0005366249824874103,
+        0.0007722500013187528,
+        0.0004649170150514692
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.0007745410257484764,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18462404198362492,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 101236736,
+      "report_fingerprint": "d6f9cfcc128671377dc31f15b80646282fa870eeeec6be9910d299fd2fb123d8",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0022947080000000003,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 2.8333e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002194334,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.000486814
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000549978,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.000445674
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00052528,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00025525600000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00035041600000000004,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 9.8973e-05
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.00032022100000000004,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.00023925600000000003
+        },
+        {
+          "calls": 7069,
+          "cumulative_seconds": 0.00026704,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.00023112300000000002
+        },
+        {
+          "calls": 1000,
+          "cumulative_seconds": 0.000202653,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.00014759200000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00015187500000000002,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.251e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00010962500000000001,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 7.0420000000000005e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 8.9542e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4337:__getitem__",
+          "self_seconds": 6.877e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 7.9833e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4968:_get_item",
+          "self_seconds": 2.916e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 235630,
+      "warm_median_seconds": 0.000538584019523114,
+      "warm_validation_seconds": [
+        0.000538584019523114,
+        0.0005411670135799795,
+        0.0005149169883225113
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.0011984170123469085,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.0002984999737236649,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 31866880,
+      "report_fingerprint": "1f68fb372bec20a9b52c344a841286a008b60f8a31b3c142ecd219b16488d8e3",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005055333,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.0332e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005026208,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.2080000000000001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005025,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 1.6083000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005008542,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 2.6294000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.003642667,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.001311866
+        },
+        {
+          "calls": 1304,
+          "cumulative_seconds": 0.001454706,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.00021035200000000002
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001331416,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 4.4695000000000005e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.001023824,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.000445512
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0010151720000000002,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 3.2512e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0009597850000000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 2.6945e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.000950738,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00044946600000000004
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0009328400000000001,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 3.3415000000000004e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 216080,
+      "warm_median_seconds": 0.0011031670146621764,
+      "warm_validation_seconds": [
+        0.0011306249944027513,
+        0.00106916599906981,
+        0.0011031670146621764
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.0017429169965907931,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.1749724999826867,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 101695488,
+      "report_fingerprint": "1f68fb372bec20a9b52c344a841286a008b60f8a31b3c142ecd219b16488d8e3",
+      "rows": 1000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.006378583,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.1623e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.006293542,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.125e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0062914170000000005,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 1.9125e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00627175,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 3.8207e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.004837625,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.00164101
+        },
+        {
+          "calls": 1304,
+          "cumulative_seconds": 0.0017211090000000002,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.00027240900000000004
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001384585,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 4.8379000000000006e-05
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.0013080910000000002,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.0005631620000000001
+        },
+        {
+          "calls": 2000,
+          "cumulative_seconds": 0.001092712,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00052105
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.001062037,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 3.4498e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.0010046620000000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 2.8032000000000002e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.00097663,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 4.7873e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 270732,
+      "warm_median_seconds": 0.0013330829970072955,
+      "warm_validation_seconds": [
+        0.0013330829970072955,
+        0.001249916007509455,
+        0.0014717500016558915
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.002642249979544431,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 2.5582994567230344e-05,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 32866304,
+      "report_fingerprint": "a98335e04435bb0db0cea4b0f418947b54847fe85ab783cd3a76c8b217221c65",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014401750000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 7.0418e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014302834,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 4.7625000000000006e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.008207375000000001,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.0019165170000000002
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.005960681000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002523497
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.003070792,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.001008302
+        },
+        {
+          "calls": 10002,
+          "cumulative_seconds": 0.0028210270000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001968796
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.00206249,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.001722027
+        },
+        {
+          "calls": 60023,
+          "cumulative_seconds": 0.0019046240000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0018355410000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00164575,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 2.2624000000000002e-05
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.00148075,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.00040407
+        },
+        {
+          "calls": 10001,
+          "cumulative_seconds": 0.0010754290000000001,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 0.000773386
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00063625,
+          "function": "src/finassert/rules/portfolio.py:91:<listcomp>",
+          "self_seconds": 0.00063625
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 729535,
+      "warm_median_seconds": 0.002871292002964765,
+      "warm_validation_seconds": [
+        0.0026189159834757447,
+        0.002871292002964765,
+        0.00304191600298509
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.0030477500113192946,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18140137501177378,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 102891520,
+      "report_fingerprint": "a98335e04435bb0db0cea4b0f418947b54847fe85ab783cd3a76c8b217221c65",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.011166,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 6.9664e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.01103425,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.9832000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.006413417,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.0013823330000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0047377470000000005,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.0018824100000000002
+        },
+        {
+          "calls": 10002,
+          "cumulative_seconds": 0.0023350510000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.0015980940000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0022929170000000002,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.0007389390000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0015539780000000001,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0013199960000000001
+        },
+        {
+          "calls": 60059,
+          "cumulative_seconds": 0.001525953,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0014906610000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00133675,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 4.2070000000000005e-06
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.0011721260000000001,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.00031022
+        },
+        {
+          "calls": 10001,
+          "cumulative_seconds": 0.000860781,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 0.000619011
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00035729200000000005,
+          "function": "src/finassert/rules/portfolio.py:90:<listcomp>",
+          "self_seconds": 0.00035729200000000005
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 970183,
+      "warm_median_seconds": 0.0026389169797766954,
+      "warm_validation_seconds": [
+        0.0031258329981938004,
+        0.0026389169797766954,
+        0.002578915999038145
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100
+      },
+      "first_validation_seconds": 0.0029270839877426624,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.0006368749891407788,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 32735232,
+      "report_fingerprint": "679cb46c50404c5031579443fb1ad72a3ddc618312f36e3b527156451cc1f6db",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015649292000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 4.3917e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015570083,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.0036151900000000003
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.006151526,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002505251
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.0036924490000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0031559080000000002
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0030052670000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.002104387
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0022435420000000003,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.0007418290000000001
+        },
+        {
+          "calls": 70033,
+          "cumulative_seconds": 0.002110119,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.002066577
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0012333790000000002,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.0009391470000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.00030999900000000004,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.00030999900000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00011087500000000001,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 6.4416e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 4.3292000000000005e-05,
+          "function": "typing.py:2009:__instancecheck__",
+          "self_seconds": 4.958000000000001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.4541e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.7544e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 493341,
+      "warm_median_seconds": 0.0030037499964237213,
+      "warm_validation_seconds": [
+        0.0027637500024866313,
+        0.0030037499964237213,
+        0.0033309169812127948
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100
+      },
+      "first_validation_seconds": 0.003283083002315834,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.19488475000252947,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 102744064,
+      "report_fingerprint": "679cb46c50404c5031579443fb1ad72a3ddc618312f36e3b527156451cc1f6db",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014279208000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 9.0499e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014105875,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.0030693680000000003
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.005510847,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.0022069750000000003
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.003468571,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.002935261
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0027717840000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001980514
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002383708,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.000765307
+        },
+        {
+          "calls": 70069,
+          "cumulative_seconds": 0.001888771,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.001855686
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.001028786,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.0007733000000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.000262636,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.000262636
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00024395900000000003,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.5e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00020475000000000002,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 6.750000000000001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 9.1292e-05,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/frame.py:4337:__getitem__",
+          "self_seconds": 7.291e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 733933,
+      "warm_median_seconds": 0.003110749996267259,
+      "warm_validation_seconds": [
+        0.0030601670150645077,
+        0.003451625001616776,
+        0.003110749996267259
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10000
+      },
+      "first_validation_seconds": 0.004518375004408881,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.0005932080093771219,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 36306944,
+      "report_fingerprint": "98042b209482918342452d189390dd06a230bd884d3628a9c7a95ed2176c2945",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015573708,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.00013854
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015396208000000002,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.0038279980000000004
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.00535099,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002267919
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.0038280920000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.00328436
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0029156250000000002,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.0009722070000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0025425580000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.0017928500000000001
+        },
+        {
+          "calls": 70033,
+          "cumulative_seconds": 0.0018549200000000001,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0018231290000000002
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.001030695,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.000787089
+        },
+        {
+          "calls": 10003,
+          "cumulative_seconds": 0.00027831000000000004,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.00027831000000000004
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.000257888,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.000257888
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 9.558300000000001e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 6.1124e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.8125000000000005e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.9539e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 2399255,
+      "warm_median_seconds": 0.0036076660035178065,
+      "warm_validation_seconds": [
+        0.0036076660035178065,
+        0.00345708301756531,
+        0.0037254589842632413
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10000
+      },
+      "first_validation_seconds": 0.003969707991927862,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.21912829199573025,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 108019712,
+      "report_fingerprint": "98042b209482918342452d189390dd06a230bd884d3628a9c7a95ed2176c2945",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015014584000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.000150249
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014775958,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.003862341
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.005312175000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002232237
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.00332795,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.002837174
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.002553877,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001754991
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002188333,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.0007140810000000001
+        },
+        {
+          "calls": 70069,
+          "cumulative_seconds": 0.0018433020000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.001806761
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.001024064,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.000775436
+        },
+        {
+          "calls": 10003,
+          "cumulative_seconds": 0.000275472,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.000275472
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.00026355000000000004,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.00026355000000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000249042,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.251e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00020629100000000002,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 8.206e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 2639847,
+      "warm_median_seconds": 0.004030207986943424,
+      "warm_validation_seconds": [
+        0.004030207986943424,
+        0.0042790840088855475,
+        0.003509999980451539
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.010552041989285499,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.0010015839943662286,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 35487744,
+      "report_fingerprint": "2340df608b5c4cb3ece84822f82c1d326712a90cdb443e8230356c297c4d05dc",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.052913334000000006,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.7334e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.052854959,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.542e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.052852417000000006,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.00017825000000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.052673667,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 8.4586e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.040894709,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.015587606
+        },
+        {
+          "calls": 10405,
+          "cumulative_seconds": 0.020051718,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.002391868
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.014873186000000002,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.005391899
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.011673499,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 7.4719e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.011290127,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 5.2374000000000004e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.011203164,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.3992e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.011159172,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 6.9131e-05
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.010492433,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.004662989
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 1005256,
+      "warm_median_seconds": 0.010290000005625188,
+      "warm_validation_seconds": [
+        0.010290000005625188,
+        0.010385542002040893,
+        0.009255834011128172
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.013820041000144556,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.20620887499535456,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 107659264,
+      "report_fingerprint": "2340df608b5c4cb3ece84822f82c1d326712a90cdb443e8230356c297c4d05dc",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0475165,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4333000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.047413667,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.7920000000000002e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.047411875000000006,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 7.883300000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.047332667,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000118207
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.037729583000000004,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.013389908
+        },
+        {
+          "calls": 10405,
+          "cumulative_seconds": 0.017524851,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.0023491690000000003
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.012148121000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.0049185470000000005
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.009905935000000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.004477682
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009468711000000001,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 7.3374e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009096129000000001,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.5996000000000005e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009008336,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.038e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.008967956000000001,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 7.628600000000001e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 1784912,
+      "warm_median_seconds": 0.00924783298978582,
+      "warm_validation_seconds": [
+        0.00924783298978582,
+        0.009161833004327491,
+        0.011011875001713634
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.003114666003966704,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 3.762499545700848e-05,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 33062912,
+      "report_fingerprint": "b0d5de19c414f993a3fe065997e4a9ada7b1d92a50f5a5bc1a07b2a45ec14665",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.011747209000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 5.1375e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.011673791000000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.9376e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0058095410000000005,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.001370609
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0041512730000000005,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.001916202
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002824458,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.000770357
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0022096250000000002,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 8.793e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0021991660000000002,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 0.000513116
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.002054101,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0015944580000000002
+        },
+        {
+          "calls": 10001,
+          "cumulative_seconds": 0.0016860500000000001,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 0.0008155840000000001
+        },
+        {
+          "calls": 10002,
+          "cumulative_seconds": 0.0016363670000000001,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001176018
+        },
+        {
+          "calls": 50022,
+          "cumulative_seconds": 0.0013293410000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0013016750000000002
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0008704660000000001,
+          "function": "src/finassert/rules/_helpers.py:62:_decimal",
+          "self_seconds": 0.000648296
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 729602,
+      "warm_median_seconds": 0.003154167003231123,
+      "warm_validation_seconds": [
+        0.003154167003231123,
+        0.0027854579966515303,
+        0.0032122090051416308
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.002871374977985397,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18957733298884705,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 101367808,
+      "report_fingerprint": "b0d5de19c414f993a3fe065997e4a9ada7b1d92a50f5a5bc1a07b2a45ec14665",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.012599125000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 5.6708000000000007e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.012470667000000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 3.0834e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.006448084000000001,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.0015021860000000002
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.004626644,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002154304
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002782708,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.0007538270000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0022561250000000003,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 1.1792e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002242708,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 0.000506134
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.002028881,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0015774290000000002
+        },
+        {
+          "calls": 10002,
+          "cumulative_seconds": 0.0018323710000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001321041
+        },
+        {
+          "calls": 10001,
+          "cumulative_seconds": 0.001736574,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 0.0008027430000000001
+        },
+        {
+          "calls": 50058,
+          "cumulative_seconds": 0.0014200360000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0013824100000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0009338310000000001,
+          "function": "src/finassert/rules/_helpers.py:62:_decimal",
+          "self_seconds": 0.000701426
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 730250,
+      "warm_median_seconds": 0.00272529199719429,
+      "warm_validation_seconds": [
+        0.003099541994743049,
+        0.00272529199719429,
+        0.0026050839805975556
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100
+      },
+      "first_validation_seconds": 0.004467874998226762,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.001287082995986566,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 33570816,
+      "report_fingerprint": "07a49986570939203ab67729998795dce9831a6d86ac71b4f22e2210c20eb5d1",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015361875,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 4.9916e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015274041,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.0029575160000000003
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.004491417,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002122192
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.004397311,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0034658280000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002795042,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.000775796
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0025349250000000004,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.002054226
+        },
+        {
+          "calls": 70033,
+          "cumulative_seconds": 0.0018389130000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0018115800000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.001755079,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001245837
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.00046450600000000006,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.00046450600000000006
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.000263524,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.000263524
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 8.7e-05,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 5.6417000000000006e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 3.6917e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 1.9164e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 493445,
+      "warm_median_seconds": 0.0036885000008624047,
+      "warm_validation_seconds": [
+        0.0036885000008624047,
+        0.0034814589889720082,
+        0.0038046670088078827
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100
+      },
+      "first_validation_seconds": 0.004219916998408735,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.19981733299209736,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 102612992,
+      "report_fingerprint": "07a49986570939203ab67729998795dce9831a6d86ac71b4f22e2210c20eb5d1",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.017148917,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 5.9417000000000004e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.016992875,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.0031345220000000003
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.004979486,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.003957363
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.004797465,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002317214
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.003405125,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.000987903
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0026318,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.002135179
+        },
+        {
+          "calls": 70069,
+          "cumulative_seconds": 0.0019979570000000003,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0018914980000000001
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0018319640000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001298247
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.0005204960000000001,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.0005204960000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00043616700000000005,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 3.3750000000000003e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00031995900000000003,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 2.1334000000000003e-05
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.000297255,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.000297255
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 494037,
+      "warm_median_seconds": 0.004155916976742446,
+      "warm_validation_seconds": [
+        0.00436791600077413,
+        0.003956708998885006,
+        0.004155916976742446
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10000
+      },
+      "first_validation_seconds": 0.005302500008838251,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.0009749589953571558,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 37421056,
+      "report_fingerprint": "c4abc62abf4d19cae631713b3123696f2fc021f6526521ebb94de35a01aad394",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.020535041,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.00019266700000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.020293583,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.004912688
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.005578688,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.004379565
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.005222193,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002452259
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00376325,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.001036274
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.003095289,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.002568697
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.002082272,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001530141
+        },
+        {
+          "calls": 70033,
+          "cumulative_seconds": 0.0020098570000000003,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0019820230000000003
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.000682796,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.000682796
+        },
+        {
+          "calls": 10003,
+          "cumulative_seconds": 0.000332745,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.000332745
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.00030427000000000004,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.00030427000000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00010375,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 7.3124e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 2399359,
+      "warm_median_seconds": 0.004177916998742148,
+      "warm_validation_seconds": [
+        0.004177916998742148,
+        0.004106208973098546,
+        0.004528624995145947
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 10000
+      },
+      "first_validation_seconds": 0.00460683400160633,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.1894809169752989,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 106545152,
+      "report_fingerprint": "c4abc62abf4d19cae631713b3123696f2fc021f6526521ebb94de35a01aad394",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018916292,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.00016900200000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018648500000000002,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.004343437
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.004998354,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.0039721420000000006
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0049308500000000005,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.002314089
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0034603750000000003,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.000982733
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.002744287,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.002246277
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.0019945790000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.001467163
+        },
+        {
+          "calls": 70069,
+          "cumulative_seconds": 0.0019300130000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.0018865980000000002
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.0005181610000000001,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.0005181610000000001
+        },
+        {
+          "calls": 10003,
+          "cumulative_seconds": 0.000340588,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.000340588
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00029775,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 3.125e-06
+        },
+        {
+          "calls": 10000,
+          "cumulative_seconds": 0.000276521,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.000276521
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 2399951,
+      "warm_median_seconds": 0.004482582997297868,
+      "warm_validation_seconds": [
+        0.004718167008832097,
+        0.004164292011409998,
+        0.004482582997297868
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.008873332990333438,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.001823583006625995,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 36290560,
+      "report_fingerprint": "16ae7221f9dd4e7f67e283217d24ee2faecd87b7f9e1a595e09c4a40445837c9",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.048626042,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4458000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.048575708,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.958e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.048573750000000006,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 8.0333e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.048493125000000005,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 8.170700000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.037999792000000004,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.013635919000000002
+        },
+        {
+          "calls": 10304,
+          "cumulative_seconds": 0.015505629000000002,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.001924226
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.011251180000000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.00465602
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.010878856000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.005162472
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.010394666,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 0.000103496
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009738124,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 6.137900000000001e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009634623,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 5.521e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009579413,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 0.00010053500000000001
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 1005256,
+      "warm_median_seconds": 0.008969666989287362,
+      "warm_validation_seconds": [
+        0.009099917020648718,
+        0.008882499998435378,
+        0.008969666989287362
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.012290999991819263,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.1821563330013305,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 107331584,
+      "report_fingerprint": "16ae7221f9dd4e7f67e283217d24ee2faecd87b7f9e1a595e09c4a40445837c9",
+      "rows": 10000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.064764292,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.425e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.06466229200000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.5e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.06465979200000001,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.000122459
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.064535458,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000136081
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.054066416000000006,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.019557933
+        },
+        {
+          "calls": 10304,
+          "cumulative_seconds": 0.019627959,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.0023669140000000003
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.015038956000000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.00644455
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.012917995000000002,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.00574115
+        },
+        {
+          "calls": 20000,
+          "cumulative_seconds": 0.010684248,
+          "function": "src/finassert/rules/_grouping.py:97:<genexpr>",
+          "self_seconds": 0.0027355870000000003
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.01031746,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 0.000132043
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009858047,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.4004e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.009779290000000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.1537000000000006e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 1544912,
+      "warm_median_seconds": 0.013514375023078173,
+      "warm_validation_seconds": [
+        0.013530334021197632,
+        0.013000125007238239,
+        0.013514375023078173
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.0320083329861518,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 9.091701940633357e-05,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 48070656,
+      "report_fingerprint": "08c99eec1cf07d1803ce88e30c3d47c215f045269e5af29dca47c9231be3dbb0",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.16608166700000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.001007
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.165040916,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 0.000524625
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.09424425,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.021076071000000002
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.070027668,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.027469268
+        },
+        {
+          "calls": 100002,
+          "cumulative_seconds": 0.035210962000000005,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.024825163
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.034181541,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.010883757
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.025369625000000003,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 1.5126e-05
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.023867833,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.005015135
+        },
+        {
+          "calls": 600023,
+          "cumulative_seconds": 0.023661838,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.023617421000000003
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.023297784000000002,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.020030310000000003
+        },
+        {
+          "calls": 100001,
+          "cumulative_seconds": 0.018851238000000003,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 0.013252401
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.005597250000000001,
+          "function": "src/finassert/rules/portfolio.py:90:<listcomp>",
+          "self_seconds": 0.005597250000000001
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 7196959,
+      "warm_median_seconds": 0.03215266700135544,
+      "warm_validation_seconds": [
+        0.032993000000715256,
+        0.03215266700135544,
+        0.030538874998455867
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.030441041017184034,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.29888241700246,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 125812736,
+      "report_fingerprint": "08c99eec1cf07d1803ce88e30c3d47c215f045269e5af29dca47c9231be3dbb0",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.13897525000000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0007909600000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.138065708,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 5.0124e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.08069225000000001,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.017374796
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.060308953000000005,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.024194433
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.031640708000000003,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.010566467000000001
+        },
+        {
+          "calls": 100002,
+          "cumulative_seconds": 0.029528865,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.020648853
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.021074241,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.018143950000000002
+        },
+        {
+          "calls": 600059,
+          "cumulative_seconds": 0.018498863,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.018394072
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0154505,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 1.3708000000000002e-05
+        },
+        {
+          "calls": 3,
+          "cumulative_seconds": 0.013847209000000001,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.0034666420000000002
+        },
+        {
+          "calls": 100001,
+          "cumulative_seconds": 0.010378984,
+          "function": "src/finassert/rules/_helpers.py:27:<genexpr>",
+          "self_seconds": 0.007580843
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.004470667,
+          "function": "src/finassert/rules/portfolio.py:91:<listcomp>",
+          "self_seconds": 0.004470667
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9597607,
+      "warm_median_seconds": 0.03225662501063198,
+      "warm_validation_seconds": [
+        0.03225662501063198,
+        0.033443499996792525,
+        0.027582165988860652
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.03221012497670017,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.007452791003743187,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 50249728,
+      "report_fingerprint": "2163b070977947a72fe00ffc28ca3d3a03bbaea173e0da0c3b01b35e0b93fb04",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.14812312500000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.000276042
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.147804542,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.031969695
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.056337816000000006,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.022968362000000003
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.038632251,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.033074529000000005
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.027711369000000003,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.019532738
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.027351583000000002,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.009054070000000001
+        },
+        {
+          "calls": 700033,
+          "cumulative_seconds": 0.019238049,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.019206049000000003
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.011015874,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.008402474
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.0028053270000000003,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.0028053270000000003
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000675042,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 0.000640334
+        },
+        {
+          "calls": 1003,
+          "cumulative_seconds": 0.000109463,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.000109463
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 4.1500000000000006e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 2.1126e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 4986934,
+      "warm_median_seconds": 0.034159000002546236,
+      "warm_validation_seconds": [
+        0.03303241601679474,
+        0.034429083025315776,
+        0.034159000002546236
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.043479165993630886,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.21589374999166466,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 132628480,
+      "report_fingerprint": "2163b070977947a72fe00ffc28ca3d3a03bbaea173e0da0c3b01b35e0b93fb04",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.150327375,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.000529501
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.149704541,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.033906249
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.057873263,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.023993841000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.037160771,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.031564078
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.028174805,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.019716949
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.024796167,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.008147380000000001
+        },
+        {
+          "calls": 700069,
+          "cumulative_seconds": 0.019523641,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.01948464
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.011248021,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.008554671
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.002978877,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.002978877
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00126025,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.209e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001210583,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 1.2375000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000625917,
+          "function": ".venv/lib/python3.11/site-packages/pandas/core/base.py:892:tolist",
+          "self_seconds": 3.334e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 7387526,
+      "warm_median_seconds": 0.035868915991159156,
+      "warm_validation_seconds": [
+        0.035868915991159156,
+        0.03486683400114998,
+        0.0376662919879891
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100000
+      },
+      "first_validation_seconds": 0.03855679201660678,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.006294583989074454,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 92553216,
+      "report_fingerprint": "e3e13cd1f442a0ee902ee45290e9fa5f5297f3f909416dbd9f66a7558fb8d762",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.19148575,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0024950000000000003
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.188946375,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.047862628000000004
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.06658623000000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.02859961
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.048292545000000006,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.042438305
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.031867405,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.022949715000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.030605375,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.010065802
+        },
+        {
+          "calls": 700033,
+          "cumulative_seconds": 0.020981359,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.020940109000000002
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.011788196,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.008907523
+        },
+        {
+          "calls": 100003,
+          "cumulative_seconds": 0.0032473890000000003,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.0032473890000000003
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.002836331,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.002836331
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.001092209,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 0.001047001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 4.2792e-05,
+          "function": "src/finassert/core/diagnostics.py:23:normalize_diagnostics",
+          "self_seconds": 2.3629e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 23995064,
+      "warm_median_seconds": 0.03789979199063964,
+      "warm_validation_seconds": [
+        0.03659241599962115,
+        0.04534133299603127,
+        0.03789979199063964
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100000
+      },
+      "first_validation_seconds": 0.03865191602380946,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.18931295798392966,
+      "numeric_domain": "float",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 169918464,
+      "report_fingerprint": "e3e13cd1f442a0ee902ee45290e9fa5f5297f3f909416dbd9f66a7558fb8d762",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.167035708,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0023357490000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.16459475,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.041389287000000004
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.055436664000000004,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.023056871000000003
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.041146419000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.035396305
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.031372875,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.010545046
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.026714589,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.018680755
+        },
+        {
+          "calls": 700069,
+          "cumulative_seconds": 0.019329268,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.019286975
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.010807103,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.008220095
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.002757729,
+          "function": "~:0:<built-in method math.isfinite>",
+          "self_seconds": 0.002757729
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.002737291,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 3.3740000000000002e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.00268525,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 1.4918e-05
+        },
+        {
+          "calls": 100003,
+          "cumulative_seconds": 0.002521399,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.002521399
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 26395656,
+      "warm_median_seconds": 0.03803458300535567,
+      "warm_validation_seconds": [
+        0.03713445900939405,
+        0.03803458300535567,
+        0.03817295900080353
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.08885112500865944,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.0084497089846991,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 67960832,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.445007125,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.2083000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.444965792,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.209e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.44496358300000005,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.00044350000000000005
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.444519875,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.00024900000000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.36529616600000003,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.132151082
+        },
+        {
+          "calls": 100405,
+          "cumulative_seconds": 0.16239420000000002,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.021272162
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.11480683900000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.046563204000000004
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.09877293300000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.044014111
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.07896096000000001,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 6.7345e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.07861862800000001,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 5.2584000000000003e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.07853220400000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.7123e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.078485081,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 0.00021358300000000002
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586504,
+      "warm_median_seconds": 0.0908061660011299,
+      "warm_validation_seconds": [
+        0.08816149999620393,
+        0.0908061660011299,
+        0.09154508300707676
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.09161654202034697,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.19345429199165665,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 166281216,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.481181167,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4959e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.48107895800000006,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 2.1240000000000003e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.481076834,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.0006008340000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.48047554200000003,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000648996
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.40348441700000004,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.145079402
+        },
+        {
+          "calls": 100405,
+          "cumulative_seconds": 0.168772258,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.022677735
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.119397871,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.048389131
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.10651864000000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.047334027
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.078206176,
+          "function": "src/finassert/rules/_grouping.py:97:<genexpr>",
+          "self_seconds": 0.018419819
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.076327006,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 8.025500000000001e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.07597954900000001,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.5456e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.075902879,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.2798000000000006e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 17377264,
+      "warm_median_seconds": 0.0888207080133725,
+      "warm_validation_seconds": [
+        0.09098345800885,
+        0.08790370801580139,
+        0.0888207080133725
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.02817929198499769,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 9.920899174176157e-05,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 51003392,
+      "report_fingerprint": "6e0957df3afa23ae18869451c0692bfe13d8c4bf1d0d5d545928c0866fb8e2b7",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.11824745900000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0006197910000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.11760220800000001,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 4.4958000000000006e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.058813292,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.014089077
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.042204787,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.019558819
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.029565166,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.008093503
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.021471663000000002,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.016909821000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.021205208,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 9.749000000000001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.021193667000000003,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 0.004909852
+        },
+        {
+          "calls": 100002,
+          "cumulative_seconds": 0.016730479,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.011990446
+        },
+        {
+          "calls": 100001,
+          "cumulative_seconds": 0.016283815,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 0.0078116850000000005
+        },
+        {
+          "calls": 500022,
+          "cumulative_seconds": 0.012974826,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.012944451000000001
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.008472130000000001,
+          "function": "src/finassert/rules/_helpers.py:62:_decimal",
+          "self_seconds": 0.006277114
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 7197027,
+      "warm_median_seconds": 0.02864620799664408,
+      "warm_validation_seconds": [
+        0.02864620799664408,
+        0.026867292006500065,
+        0.03082604199880734
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "allocation",
+      "columns": 1,
+      "diagnostic_counts": {},
+      "first_validation_seconds": 0.027185042010387406,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.19708712500869296,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 119963648,
+      "report_fingerprint": "6e0957df3afa23ae18869451c0692bfe13d8c4bf1d0d5d545928c0866fb8e2b7",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.163277375,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0007512090000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.1624025,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 4.5167e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.07354150000000001,
+          "function": "src/finassert/rules/_helpers.py:13:finite_numeric_values",
+          "self_seconds": 0.017728635
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.052797382000000004,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.024973620000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.049696584,
+          "function": "src/finassert/rules/portfolio.py:70:<listcomp>",
+          "self_seconds": 0.013884140000000001
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.035812444,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.029132493000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.027535166000000003,
+          "function": "src/finassert/rules/_helpers.py:25:precise_sum",
+          "self_seconds": 1.0459000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.027523083,
+          "function": "~:0:<built-in method builtins.sum>",
+          "self_seconds": 0.0059291560000000005
+        },
+        {
+          "calls": 100001,
+          "cumulative_seconds": 0.021593927000000002,
+          "function": "src/finassert/rules/_helpers.py:28:<genexpr>",
+          "self_seconds": 0.010614691
+        },
+        {
+          "calls": 100002,
+          "cumulative_seconds": 0.02048066,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.015042993000000001
+        },
+        {
+          "calls": 500058,
+          "cumulative_seconds": 0.016457285000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.016412828
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.010979236,
+          "function": "src/finassert/rules/_helpers.py:62:_decimal",
+          "self_seconds": 0.008340687000000001
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 7197675,
+      "warm_median_seconds": 0.025593957980163395,
+      "warm_validation_seconds": [
+        0.025593957980163395,
+        0.024914082983741537,
+        0.028577416989719495
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.03984916702029295,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.009526290989015251,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 59260928,
+      "report_fingerprint": "42eebc851398bd1f917c1c95a9cfd050de8812491cadd94ea7d41138715a2358",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.159735459,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.00038666700000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.159304167,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.030801019000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.046891848,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.037576077
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.046409123000000004,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.022021443
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.029601125000000002,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.007853896
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.026528565,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.021683975
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.018426601,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.013456570000000001
+        },
+        {
+          "calls": 700033,
+          "cumulative_seconds": 0.018031262000000003,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.017996554
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.004522989000000001,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.004522989000000001
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.002575595,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.002575595
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000714208,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 0.000676542
+        },
+        {
+          "calls": 1003,
+          "cumulative_seconds": 9.4009e-05,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 9.4009e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 4987038,
+      "warm_median_seconds": 0.03724270800012164,
+      "warm_validation_seconds": [
+        0.037662083021132275,
+        0.03724270800012164,
+        0.03610020800260827
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_sparse",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 1000
+      },
+      "first_validation_seconds": 0.038056707999203354,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.19005608299630694,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 128466944,
+      "report_fingerprint": "42eebc851398bd1f917c1c95a9cfd050de8812491cadd94ea7d41138715a2358",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.155730917,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.00038058600000000003
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.155255833,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.030140559
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.045918456,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.021940091000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.045074362,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.035907241
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.028041958000000002,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.007757728
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.025514228,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.020819294000000002
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.018176494,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.013204873
+        },
+        {
+          "calls": 700069,
+          "cumulative_seconds": 0.017694343,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.017660509
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.004383236,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.004383236
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.002597588,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.002597588
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000765375,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.29e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0007259170000000001,
+          "function": "src/finassert/adapters/_column.py:111:_extract_pandas",
+          "self_seconds": 8.333000000000001e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 4987630,
+      "warm_median_seconds": 0.03544737497577444,
+      "warm_validation_seconds": [
+        0.03691716701723635,
+        0.0347839159949217,
+        0.03544737497577444
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100000
+      },
+      "first_validation_seconds": 0.04427754200878553,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.008590708021074533,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 96305152,
+      "report_fingerprint": "95abffb1fc211d6f1ff97f2d1a83f45eaac3374fa33ed929241a8a5745dff71c",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.20332612500000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.0025577910000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.200717209,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.050075115
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.054009113000000004,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.026106109000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.052964329000000004,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.042578415
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.032818167,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.009143251
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.030629774000000002,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.02517194
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.021107383,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.015478292000000001
+        },
+        {
+          "calls": 700033,
+          "cumulative_seconds": 0.020100523000000002,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.020026023
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.005184788,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.005184788
+        },
+        {
+          "calls": 100003,
+          "cumulative_seconds": 0.003080376,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.003080376
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.003063104,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.003063104
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0008036250000000001,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 0.000722834
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 23995168,
+      "warm_median_seconds": 0.042503667005803436,
+      "warm_validation_seconds": [
+        0.042503667005803436,
+        0.04134712502127513,
+        0.04475037500378676
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "nonnegative_dense",
+      "columns": 1,
+      "diagnostic_counts": {
+        "invalid_rows": 0,
+        "violations": 100000
+      },
+      "first_validation_seconds": 0.050809791981009766,
+      "group_count": 1,
+      "group_skew": null,
+      "input_construction_seconds": 0.24617929200758226,
+      "numeric_domain": "decimal",
+      "outcome": "failed",
+      "process_peak_rss_bytes": 162119680,
+      "report_fingerprint": "95abffb1fc211d6f1ff97f2d1a83f45eaac3374fa33ed929241a8a5745dff71c",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.24778308300000002,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 0.004061875
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.24356670800000002,
+          "function": "src/finassert/rules/arithmetic.py:28:evaluate",
+          "self_seconds": 0.061074901
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.06488934,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.031013008
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.063125891,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.051374173
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.039871291,
+          "function": "src/finassert/rules/arithmetic.py:31:<listcomp>",
+          "self_seconds": 0.011798981
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.038371371,
+          "function": "src/finassert/rules/arithmetic.py:102:_negative_absolute",
+          "self_seconds": 0.031652135000000005
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.025907252000000002,
+          "function": "src/finassert/numerical/tolerance.py:73:_is_finite",
+          "self_seconds": 0.019441492
+        },
+        {
+          "calls": 700069,
+          "cumulative_seconds": 0.023170322,
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "self_seconds": 0.023137236000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.006161862000000001,
+          "function": "~:0:<method 'is_nan' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.006161862000000001
+        },
+        {
+          "calls": 100000,
+          "cumulative_seconds": 0.0036129010000000004,
+          "function": "~:0:<method 'is_finite' of 'decimal.Decimal' objects>",
+          "self_seconds": 0.0036129010000000004
+        },
+        {
+          "calls": 100003,
+          "cumulative_seconds": 0.003516307,
+          "function": "~:0:<method 'append' of 'list' objects>",
+          "self_seconds": 0.003516307
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.000776375,
+          "function": "src/finassert/adapters/_column.py:14:extract_column",
+          "self_seconds": 2.5410000000000003e-06
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 23995760,
+      "warm_median_seconds": 0.05684741699951701,
+      "warm_validation_seconds": [
+        0.05525508298887871,
+        0.06205233299988322,
+        0.05684741699951701
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.09960775001673028,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.018923374998848885,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 75366400,
+      "report_fingerprint": "dc81dc8a75edfc046b6da1ea4a70e49a38c301976de1a42e4850aeeb9189080b",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.6090230000000001,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.6459e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.608958584,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 4.001e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.608954583,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.000584167
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.608369958,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000345208
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.523921375,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.19389303600000002
+        },
+        {
+          "calls": 100304,
+          "cumulative_seconds": 0.192131467,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.024361414
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.159105626,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.059603225
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.11929288800000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.057124944000000004
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.111634387,
+          "function": "src/finassert/rules/_grouping.py:97:<genexpr>",
+          "self_seconds": 0.022030447
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.08695725900000001,
+          "function": "src/finassert/adapters/_column.py:88:is_missing",
+          "self_seconds": 0.061311500000000005
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.084075166,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 8.3051e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08365333400000001,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 5.1664000000000005e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586504,
+      "warm_median_seconds": 0.0945234170067124,
+      "warm_validation_seconds": [
+        0.09343362500658259,
+        0.11518729099771008,
+        0.0945234170067124
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.1048103750217706,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "input_construction_seconds": 0.2802107080060523,
+      "numeric_domain": "decimal",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 167575552,
+      "report_fingerprint": "dc81dc8a75edfc046b6da1ea4a70e49a38c301976de1a42e4850aeeb9189080b",
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.516398334,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.3251e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.516304125,
+          "function": "src/finassert/rules/portfolio.py:65:evaluate",
+          "self_seconds": 1.958e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.516302167,
+          "function": "src/finassert/rules/portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.000651
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.515651042,
+          "function": "src/finassert/rules/_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.0005797090000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.43717754200000003,
+          "function": "src/finassert/rules/_grouping.py:67:collect_groups",
+          "self_seconds": 0.15915915800000002
+        },
+        {
+          "calls": 100304,
+          "cumulative_seconds": 0.155778942,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.019742387
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.12288915700000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.051514960000000005
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.105146075,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.049618772000000005
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.08481645800000001,
+          "function": "src/finassert/rules/_grouping.py:97:<genexpr>",
+          "self_seconds": 0.020685605000000003
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.077878916,
+          "function": "src/finassert/rules/portfolio.py:132:check",
+          "self_seconds": 8.2871e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.077474212,
+          "function": "src/finassert/rules/_grouping.py:37:aggregate",
+          "self_seconds": 4.2294000000000005e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.07739799500000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 3.9907e-05
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 14977264,
+      "warm_median_seconds": 0.09579208301147446,
+      "warm_validation_seconds": [
+        0.10128216701559722,
+        0.09579208301147446,
+        0.09282558300765231
+      ]
+    }
+  ],
+  "revision": "b19954951e292bbdd58d6a6a37cc5013e9a0d76f",
+  "source_sha256": "169889e0de9cd1aa813b95a60d21dc5f007522ea3c04abd698e6ef29f5707a8d",
+  "working_tree_dirty": true
+}

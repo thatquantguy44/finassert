@@ -24,3 +24,12 @@ and review focus; it does not introduce a second definition.
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.
+
+## Retained measurement contract — 2026-11-13
+
+[artifacts/README.md](artifacts/README.md) documents the 48-case baseline and exact
+reproduction command. Timings exclude input construction and instrumentation;
+tracemalloc and cProfile use separate calls. RSS includes the whole worker.
+Repeated and cross-adapter report fingerprints must match; no deadline or speedup
+assertion is part of correctness tests. The source digest includes every runtime
+Python module and the runner. Optimized execution remains proposed.

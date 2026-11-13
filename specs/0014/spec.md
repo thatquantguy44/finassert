@@ -1,6 +1,6 @@
 # 0014 — Seven-priority delivery
 
-**Status:** In progress; tracking workspace, not a new runtime API
+**Status:** Seven implementation gates delivered and locally/package verified; draft PR #17
 
 ## Scope
 

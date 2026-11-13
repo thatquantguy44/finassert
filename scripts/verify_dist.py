@@ -34,6 +34,9 @@ REQUIRED_IN_SDIST = (
     "src/finassert/py.typed",
     "web/index.html",
     "scripts/build_web.py",
+    "src/finassert/units.py",
+    "src/finassert/reporting/xlsx.py",
+    "AGENTS.md",
 )
 
 
@@ -89,7 +92,7 @@ def _check_installed_wheel(wheel: Path, version: str) -> list[str]:
         bin_dir = environment / ("Scripts" if sys.platform == "win32" else "bin")
         python = bin_dir / "python"
         subprocess.run(
-            [str(python), "-m", "pip", "install", "--quiet", f"{wheel}[cli]"], check=True
+            [str(python), "-m", "pip", "install", "--quiet", f"{wheel}[cli,excel]"], check=True
         )
         # Run from a directory without the source tree so the installed copy is used.
         run = {"cwd": scratch, "capture_output": True, "text": True}
@@ -123,7 +126,43 @@ def _check_installed_wheel(wheel: Path, version: str) -> list[str]:
         templates = subprocess.run([str(command), "templates"], **run)  # type: ignore[call-overload]
         if templates.returncode != 0 or "cash-reconciliation" not in templates.stdout:
             problems.append("the installed command cannot list templates")
+        probe = subprocess.run(
+            [str(python), "-c", _FEATURE_PROBE],
+            **run,  # type: ignore[call-overload]
+        )
+        if probe.returncode != 0:
+            problems.append(f"installed units/FX/workbook workflow failed: {probe.stderr}")
     return problems
+
+
+_FEATURE_PROBE = """
+import sys
+from datetime import UTC, datetime, timedelta
+import finassert as fa
+from finassert.units import FxRate, Money, MoneySource
+from finassert.excel import read_workbook, write_report_xlsx
+assert 'openpyxl' not in sys.modules
+stamp = datetime(2026, 11, 13, tzinfo=UTC)
+rate = FxRate('EUR', 'USD', '1.08', stamp, source='installed-smoke')
+money = rate.convert(Money('50.00', 'EUR'), at=stamp, max_age=timedelta(0))
+source = MoneySource({'amount': [money]}, columns=['amount'], currency='USD')
+report = fa.check(source, [fa.non_negative(column='amount')])
+assert report.passed
+assert report.results[0].metadata['financial_units']['fx_rates'][0]['source'] == 'installed-smoke'
+write_report_xlsx(report, 'installed-report.xlsx')
+from openpyxl import Workbook, load_workbook
+book = load_workbook('installed-report.xlsx')
+assert book.sheetnames == ['Summary', 'Results', 'Diagnostics']
+book.close()
+book = Workbook()
+book.active.title = 'Positions'
+book.active.append(['weight'])
+book.active.append([1])
+book.save('installed-input.xlsx')
+book.close()
+assert fa.check(read_workbook('installed-input.xlsx', sheet='Positions'),
+                [fa.weights_sum_to_one()]).passed
+"""
 
 
 def _finish(problems: list[str]) -> int:

@@ -61,12 +61,12 @@ cross-spec dependencies, and overall priorities in the
 | [0007 CLI and pipeline integration](0007/spec.md) | Implemented (initial) |
 | [0008 Financial units and currencies](0008/spec.md) | Money/ratio units, direct FX, and adapter integration implemented (initial) |
 | [0009 Property-based testing](0009/spec.md) | Implemented (initial) |
-| [0010 Performance and batch validation](0010/spec.md) | Proposed |
+| [0010 Performance and batch validation](0010/spec.md) | Scalar benchmarks initial; batch optimization proposed |
 | [0011 Non-technical interfaces](0011/spec.md) | Milestones 1–6 implemented (initial); Excel files supported |
 | [0012 Treasury and capital markets](0012/spec.md) | Proposed; upstream rules and deferred QuantMeridian handoff |
 
-| [0013 Excel workbook files](0013/spec.md) | Reader initial; correctness and writer work in progress |
-| [0014 Seven-priority delivery](0014/spec.md) | In progress; ordered integration tracker |
+| [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
+| [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; draft PR #17 |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

@@ -3,11 +3,36 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Typed quantities, explicit direct FX, and retained provenance.
-- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
-- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
+- **Delivery:** Seven gates complete; 807 tests and all local/package checks passed.
+- **PR:** Draft #17; no merge or release.
+- **Next step:** Review the pushed PR and CI results.
 
 ## Entries
+
+### 2026-11-13 — Seven priorities delivered and locally verified
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17); issue #16.
+- **Done:** All seven ordered gates have implementation and evidence. Retained
+  48-case scalar timing/memory/CPU profiles, source digest, and repeat/adapter
+  fingerprints. Preserved existing main features and numbered-spec history.
+- **Compatibility review:** Explicit custom diagnostic collections survive
+  normalization; arbitrary objects retain string fallback unless explicitly
+  marked as supported financial values. Added regressions for both behaviors.
+- **Verification:** 807 tests passed. Ruff lint/format, mypy (57 modules), strict
+  documentation, 783 local links/anchors, author policy (57 history records),
+  whitespace, source digest, wheel/sdist build, and fresh-environment installed
+  CLI/unit/FX/workbook workflows passed.
+- **Not done:** No merge or release. Broader proposed catalog, redaction,
+  visibility, and optimization work remains in owning spec tasks. Remote CI is
+  checked against the pushed final head on the draft PR.
+- **Next step:** Review draft PR #17 and its CI results.
+
+### 2026-11-13 — Gate 7: Retained reproducible scalar timing, memory, and CPU profiles
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Retained reproducible scalar timing, memory, and CPU profiles.
+- **Evidence:** 48 cases across three sizes, two numeric domains, two adapters, and four populations retained; repeated/cross-adapter fingerprints and the delivered-source digest match; benchmark smoke test passed.
+- **Next step:** Finish final regression, package, and draft PR verification.
 
 ### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
 

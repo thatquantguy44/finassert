@@ -29,7 +29,11 @@ def normalize_diagnostics(result: ValidationResult, limit: int) -> ValidationRes
     if type(limit) is not int or limit < 0:
         raise ValueError("max_violations must be a nonnegative integer")
     metadata = dict(result.metadata)
-    collections: list[DiagnosticCollection] = []
+    collections = [
+        replace(item, limit=min(item.limit, limit), observations=item.observations[:limit])
+        for item in result.diagnostics
+    ]
+    supplied = {item.kind for item in collections}
     for kind, count_key in _COUNTS.items():
         entries = metadata.get(kind)
         if not isinstance(entries, list):
@@ -42,7 +46,8 @@ def normalize_diagnostics(result: ValidationResult, limit: int) -> ValidationRes
         observations: tuple[dict[str, Any], ...] = tuple(
             dict(entry) if isinstance(entry, dict) else {"row": entry} for entry in bounded
         )
-        collections.append(DiagnosticCollection(kind, count, limit, observations))
+        if kind not in supplied:
+            collections.append(DiagnosticCollection(kind, count, limit, observations))
     # Filtered positions are legacy aliases of invalid_rows, not a second population.
     if isinstance(metadata.get("invalid_positions"), list):
         metadata["invalid_positions"] = metadata["invalid_positions"][:limit]

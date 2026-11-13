@@ -96,6 +96,48 @@ def test_invalid_diagnostic_totals_are_rejected() -> None:
         DiagnosticCollection("rows", 0, 1, ({"row": 1},))
 
 
+def test_arbitrary_objects_still_stringify_without_calling_incidental_methods() -> None:
+    class Arbitrary:
+        def to_dict(self) -> None:
+            raise AssertionError("not an explicitly supported financial value")
+
+        def __str__(self) -> str:
+            return "arbitrary"
+
+    result = ValidationResult(
+        "test.custom",
+        "Custom",
+        fa.Outcome.PASSED,
+        fa.Severity.INFO,
+        "ok",
+        metadata={"object": Arbitrary()},
+    )
+    assert result.to_dict()["metadata"] == {"object": "arbitrary"}
+
+
+def test_explicit_custom_diagnostics_are_preserved_and_bounded() -> None:
+    class Custom:
+        rule_id = "test.custom"
+        name = "Custom"
+        severity = fa.Severity.ERROR
+        max_violations = 1
+
+        def evaluate(self, data: object) -> ValidationResult:
+            return ValidationResult(
+                self.rule_id,
+                self.name,
+                fa.Outcome.FAILED,
+                self.severity,
+                "bad",
+                diagnostics=(
+                    DiagnosticCollection("custom_rows", 3, 3, ({"row": 1}, {"row": 2}, {"row": 3})),
+                ),
+            )
+
+    result = fa.check({}, [Custom()]).results[0]
+    assert result.diagnostics == (DiagnosticCollection("custom_rows", 3, 1, ({"row": 1},)),)
+
+
 def test_artifact_and_text_match_reviewable_all_outcome_fixtures() -> None:
     report = fa.check(
         {"weight": [Decimal("1.0000")], "v": [-1], "blank": [None]},
