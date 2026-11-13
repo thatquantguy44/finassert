@@ -49,3 +49,12 @@ NaN/infinity constants; existing Python observations still serialize as text.
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.
+
+## Region migration note — 2026-11-13
+
+Hidden inputs remain included by default. `hidden="reject"` / CLI `--hidden reject`
+refuses hidden selected inputs. Visibility counts and capped examples are exposed
+on both file sources and recorded in additive `input.workbook` context. Existing
+worksheet row labels, explicit totals bounds, formula caches and epochs remain
+unchanged. Merged headers and uncached header formulas now fail before evaluation
+instead of accepting an ambiguous or missing name. No recalculation or skipping.

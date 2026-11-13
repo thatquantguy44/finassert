@@ -321,7 +321,14 @@ def test_excel_input_with_sheet_choice(workspace: Path) -> None:
     )
     assert result.returncode == cli.EXIT_FAILED, result.stderr
     artifact = json.loads((workspace / "report.json").read_text(encoding="utf-8"))
-    assert artifact["input"] == {"locator": "book.xlsx", "format": "xlsx", "sheet": "Positions"}
+    context = artifact["input"]
+    assert context.pop("workbook") == {
+        "hidden_region_policy": "include",
+        "sheet_state": "visible",
+        "hidden_rows": {"count": 0, "examples": [], "truncated": False},
+        "hidden_columns": {"count": 0, "examples": [], "truncated": False},
+    }
+    assert context == {"locator": "book.xlsx", "format": "xlsx", "sheet": "Positions"}
     violations = artifact["report"]["results"][1]["metadata"]["violations"]
     assert violations == [{"row": 3, "value": -1}]
 

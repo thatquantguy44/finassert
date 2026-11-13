@@ -293,3 +293,9 @@ html = to_html(report, policy=policy, input_locator="positions.csv")
 Organizations can expose their own rules to policies by registering a
 `RuleFactorySpec` in a `RuleCatalog` and passing `catalog=` to
 `load_policy`. Policies can never name a factory the caller did not register.
+
+For workbook inputs, `--hidden include` retains hidden cells (the default), while
+`--hidden reject` refuses hidden selected sheets, rows or named columns. JSON
+artifacts record `input.workbook` visibility counts and up to 20 examples. Use
+`--header-row` and `--max-row` to bound the region and exclude totals explicitly.
+Merged header ranges are rejected; unmerge them into explicit column names.

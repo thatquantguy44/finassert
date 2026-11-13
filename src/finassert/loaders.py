@@ -9,6 +9,7 @@ non-numeric rather than silently rescaling it.
 
 from __future__ import annotations
 
+import copy
 import csv
 import io
 import json
@@ -19,6 +20,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
+from finassert._workbook_region import workbook_region
 from finassert._xlsx import SheetError, column_letter, read_sheet
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
 
@@ -52,13 +54,21 @@ class TableSource:
         columns: dict[str, list[Any]],
         labels: list[Any],
         notes: Sequence[str] = (),
+        *,
+        workbook_metadata: dict[str, Any] | None = None,
     ) -> None:
         for name, values in columns.items():
             if len(values) != len(labels):
                 raise InvalidDataError(f"column {name!r} does not match the row count")
         self._columns = columns
         self._labels = labels
+        self._workbook_metadata = copy.deepcopy(workbook_metadata)
         self.notes: tuple[str, ...] = tuple(notes)
+
+    @property
+    def workbook_metadata(self) -> dict[str, Any] | None:
+        """Return detached worksheet visibility metadata, if read from Excel."""
+        return copy.deepcopy(self._workbook_metadata)
 
     @property
     def column_names(self) -> tuple[str, ...]:
@@ -167,6 +177,7 @@ def parse_xlsx(
     sheet: str | None = None,
     header_row: int | None = None,
     max_row: int | None = None,
+    hidden: str = "include",
 ) -> TableSource:
     """Read one worksheet of an Excel ``.xlsx`` workbook.
 
@@ -182,6 +193,7 @@ def parse_xlsx(
         sheet: Worksheet name; required when the workbook has several sheets.
         header_row: Explicit 1-based header row; otherwise use the first nonempty row.
         max_row: Optional last worksheet row to include, inclusive.
+        hidden: Include hidden selected cells (default), or reject them.
 
     Raises:
         InvalidDataError: If the workbook, sheet, or headers cannot be read,
@@ -203,6 +215,14 @@ def parse_xlsx(
         if name in headers.values():
             raise InvalidDataError(f"header {name!r} appears more than once")
         headers[position] = name
+    metadata = workbook_region(
+        data,
+        sheet=worksheet.name,
+        header_row=actual_header,
+        max_row=max_row or worksheet.rows[-1][0],
+        columns=set(headers),
+        hidden=hidden,
+    )
     columns: dict[str, list[Any]] = {name: [] for name in headers.values()}
     labels: list[int] = []
     for row_number, cells in worksheet.rows[1:]:
@@ -217,7 +237,7 @@ def parse_xlsx(
             # Numbers stored as text read as numbers, exactly as in a CSV file.
             columns[name].append(parse_cell(value) if isinstance(value, str) else value)
         labels.append(row_number)
-    return TableSource(columns, labels)
+    return TableSource(columns, labels, workbook_metadata=metadata)
 
 
 def read_parquet(path: str | PathLike[str]) -> TableSource:
@@ -280,6 +300,7 @@ def load_input(
     sheet: str | None = None,
     header_row: int | None = None,
     max_row: int | None = None,
+    hidden: str | None = None,
 ) -> Any:
     """Read a CSV, JSON, Excel, or Parquet input file for validation.
 
@@ -290,6 +311,7 @@ def load_input(
         sheet: Worksheet to read from an Excel workbook.
         header_row: Optional explicit 1-based Excel header row.
         max_row: Optional last Excel worksheet row to include.
+        hidden: Explicit Excel hidden-region policy (include or reject).
 
     Raises:
         InvalidDataError: If the format is unknown, a sheet is given for a
@@ -306,9 +328,15 @@ def load_input(
         raise SheetError("a sheet can only be chosen for Excel (.xlsx) input", ())
     if (header_row is not None or max_row is not None) and resolved != "xlsx":
         raise SheetError("header_row and max_row are only available for Excel (.xlsx) input", ())
+    if hidden is not None and resolved != "xlsx":
+        raise SheetError("hidden is only available for Excel (.xlsx) input", ())
     if resolved == "xlsx":
         return parse_xlsx(
-            location.read_bytes(), sheet=sheet, header_row=header_row, max_row=max_row
+            location.read_bytes(),
+            sheet=sheet,
+            header_row=header_row,
+            max_row=max_row,
+            hidden=hidden or "include",
         )
     if resolved == "parquet":
         return read_parquet(location)

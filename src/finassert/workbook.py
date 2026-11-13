@@ -6,12 +6,14 @@ workbook is read. Workbooks are opened for reading only and never modified.
 
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import os
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
+from finassert._workbook_region import workbook_region
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
 from finassert.core.models import CellError
 
@@ -30,12 +32,24 @@ class WorkbookSource:
     Row labels are 1-based worksheet row numbers, as Excel displays them.
     """
 
-    def __init__(self, columns: dict[str, list[Any]], labels: list[int]) -> None:
+    def __init__(
+        self,
+        columns: dict[str, list[Any]],
+        labels: list[int],
+        *,
+        workbook_metadata: dict[str, Any] | None = None,
+    ) -> None:
         for name, values in columns.items():
             if len(values) != len(labels):
                 raise InvalidDataError(f"column {name!r} does not match the row count")
         self._columns = columns
         self._labels = labels
+        self._workbook_metadata = copy.deepcopy(workbook_metadata)
+
+    @property
+    def workbook_metadata(self) -> dict[str, Any] | None:
+        """Return a detached visibility description of the selected region."""
+        return copy.deepcopy(self._workbook_metadata)
 
     @property
     def headers(self) -> tuple[str, ...]:
@@ -55,6 +69,7 @@ def read_workbook(
     sheet: str,
     header_row: int = 1,
     max_row: int | None = None,
+    hidden: str = "include",
 ) -> WorkbookSource:
     """Read a worksheet into a ``ColumnSource`` without modifying the file.
 
@@ -69,14 +84,17 @@ def read_workbook(
         sheet: Worksheet name; required so the choice is never implicit.
         header_row: 1-based row containing column headers.
         max_row: Optional last 1-based row to read, for data followed by totals.
+        hidden: Include hidden cells (default), or reject hidden selected regions.
 
     Raises:
         InvalidDataError: Unreadable file, missing sheet, bad header row, empty
             or duplicate headers, or a formula cell without a cached value.
     """
-    if header_row < 1:
+    if hidden not in {"include", "reject"}:
+        raise InvalidDataError("hidden must be 'include' or 'reject'")
+    if type(header_row) is not int or header_row < 1:
         raise InvalidDataError("header_row must be at least 1")
-    if max_row is not None and max_row <= header_row:
+    if max_row is not None and (type(max_row) is not int or max_row <= header_row):
         raise InvalidDataError("max_row must be greater than header_row")
     try:
         import openpyxl
@@ -90,6 +108,15 @@ def read_workbook(
         if sheet not in values_book.sheetnames:
             raise InvalidDataError(f"sheet {sheet!r} not found")
         rows = _read_rows(values_book[sheet], header_row, max_row)
+        header_formula = _uncached_formulas(
+            openpyxl,
+            path,
+            sheet,
+            rows[:1],
+            dict.fromkeys(range(len(rows[0][1]) if rows else 0), "header"),
+        )
+        if header_formula:
+            raise InvalidDataError(f"formula cell {header_formula} has no cached value")
         headers = _headers(rows[0][1] if rows else [], header_row)
         data = rows[1:]
         uncached = _uncached_formulas(openpyxl, path, sheet, data, headers)
@@ -100,11 +127,23 @@ def read_workbook(
             f"formula cell {uncached} has no cached value; open and save the workbook in Excel"
         )
 
+    metadata = workbook_region(
+        path,
+        sheet=sheet,
+        header_row=header_row,
+        max_row=max_row or (rows[-1][0] if rows else header_row),
+        columns=set(headers),
+        hidden=hidden,
+    )
     while data and all(_cell_value(cell) is None for cell in data[-1][1]):
         data.pop()
     labels = [number for number, _ in data]
     columns = {name: [_convert(row[index]) for _, row in data] for index, name in headers.items()}
-    return WorkbookSource(dict(zip(headers.values(), columns.values(), strict=True)), labels)
+    return WorkbookSource(
+        dict(zip(headers.values(), columns.values(), strict=True)),
+        labels,
+        workbook_metadata=metadata,
+    )
 
 
 def _load(openpyxl: Any, path: str | os.PathLike[str], *, data_only: bool) -> Any:

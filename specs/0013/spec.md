@@ -54,6 +54,17 @@ report = fa.check(source, rules_built_with(mapping))
 write_report_xlsx(report, "validation.xlsx")
 ```
 
+Use `hidden="include"` (default) or `hidden="reject"` with `read_workbook`,
+`parse_xlsx` or `load_input`. Include retains every selected row/column; reject
+errors on a hidden selected sheet, row (including the header), or named column.
+Neither mode silently skips cells. `workbook_metadata` records sheet state and
+counts/examples/truncation of hidden selected rows/columns, capped at 20 examples.
+CLI `--hidden include|reject` applies the same policy and records that metadata
+in the additive artifact `input.workbook` field. Hidden rows outside explicit
+bounds and unnamed columns do not affect the selected region.
+Merged ranges intersecting the header row are rejected as ambiguous in both
+readers; no merged header filling is inferred.
+
 CLI extensions to 0007: `--format xlsx --sheet NAME --header-row N --max-row N`
 select the worksheet region. `--xlsx report.xlsx` writes the reviewer workbook;
 `--output report.json` retains the existing JSON artifact contract.
@@ -102,15 +113,14 @@ pass. Reports never include full rows beyond the bounded diagnostic fields.
 3. Shared 0004 contracts and generated adapter equivalence (complete).
 4. Atomic `write_report_xlsx` with literal strings/Decimals (complete).
 5. CLI worksheet-region and report flags (complete).
-6. Additional hidden-region options and visibility metadata (proposed); totals
+6. Explicit include/reject hidden-region policy and bounded visibility metadata (complete); totals
    are excluded through an explicit row bound.
 7. Structured bounded Diagnostics sheet under 0005 (complete).
 
 ## Open questions
 
-- Should hidden rows and columns be read, skipped, or an error by default?
-  Current: read them (the read-only openpyxl mode does not expose visibility);
-  recording their presence in report metadata is not implemented.
+- Hidden input policy is resolved as explicit include/reject; include remains
+  the compatibility default, with metadata retained in CLI artifacts.
 - How is the end of data detected when a totals row follows? Implemented as an
   explicit `max_row` option; only fully blank trailing rows are dropped.
 - Is `data_only=True` acceptable when a workbook was last saved by a tool that

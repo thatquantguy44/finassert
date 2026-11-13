@@ -124,6 +124,11 @@ def _parser() -> argparse.ArgumentParser:
         help="1-based worksheet header row; defaults to the first nonempty row",
     )
     check.add_argument(
+        "--hidden",
+        choices=("include", "reject"),
+        help="include hidden Excel cells (default), or reject hidden regions",
+    )
+    check.add_argument(
         "--max-row",
         type=int,
         metavar="N",
@@ -214,6 +219,7 @@ def _check(arguments: argparse.Namespace) -> int:
             sheet=arguments.sheet,
             header_row=arguments.header_row,
             max_row=arguments.max_row,
+            hidden=arguments.hidden,
         )
     except SheetError as exc:
         hint = "; pass one with --sheet NAME" if arguments.sheet is None and exc.sheets else ""
@@ -233,6 +239,7 @@ def _check(arguments: argparse.Namespace) -> int:
         input_sheet=arguments.sheet,
         input_header_row=arguments.header_row,
         input_max_row=arguments.max_row,
+        input_workbook_metadata=getattr(data, "workbook_metadata", None),
         generated_at=_generated_at(),
     )
 

@@ -3,9 +3,9 @@
 ## Current state
 
 Branch: feature/six-slice-upstream-delivery. Baseline: merged PR #19 (a644bdb).
-Slices 1–2 are complete; slices 3–6 remain pending.
+Slices 1–3 are complete; slices 4–6 remain pending.
 Proposal: https://github.com/thatquantguy44/finassert/issues/20.
-Next: slice 3, Excel visibility and edge cases.
+Next: slice 4, minimum available-cash buffer.
 
 ## Entries
 
