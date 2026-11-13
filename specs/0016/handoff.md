@@ -4,6 +4,8 @@
 
 - **Status:** E-01 in progress; native baseline incomplete. E-02–E-06 pending.
 - **Branch:** feature/excel-host-baseline from refreshed main at 3b5a014.
+- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
+  targeting main; E-01's native baseline is still incomplete.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23).
 - **Delivered:** Three stale-result reproductions, passing controls, stable API
@@ -15,6 +17,16 @@
   diagnostic capture in [baseline evidence](artifacts/README.md), then E-02.
 
 ## Entries
+
+### 2026-11-13 — E-01 draft PR published
+
+- **Commit / PR:** 950a03e, [draft PR #24](https://github.com/thatquantguy44/finassert/pull/24)
+  from feature/excel-host-baseline to main. Implementation was already committed
+  and pushed; publication adds the PR link to local/master handoffs.
+- **Verification:** Strict MkDocs and whitespace checks passed for these handoff
+  updates. Runtime evidence remains in the implementation entry below.
+- **Remaining:** Native add-in loading and actual capability/read/run measurements;
+  issue #23 stays open. The draft does not promote E-01 or later acceptance.
 
 ### 2026-11-13 — E-01 engineering baseline started
 

@@ -18,6 +18,8 @@ rewrite old entries (append a correction instead).
 ## Current state
 
 - **Branch:** `feature/excel-host-baseline`, based on integrated main `3b5a014`.
+- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
+  targeting main. E-01's native baseline remains incomplete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
@@ -53,6 +55,18 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Publish Excel E-01 draft PR
+
+- **Commit / PR:** 950a03e and [draft PR #24](https://github.com/thatquantguy44/finassert/pull/24),
+  from feature/excel-host-baseline to main. Verified the implementation commit was
+  already pushed; linked the draft in both handoffs.
+- **Scope:** E-01 regressions, API/diagnostic work, manifest corrections and native
+  baseline findings. The draft records the disabled add-in entry; it does not
+  close issue #23 or claim real-host acceptance.
+- **Verification:** Prior implementation evidence remains recorded below;
+  publication changes only handoff links. Strict MkDocs and whitespace passed.
+- **Next:** Resolve native loading and finish E-01's read/run measurements.
 
 ### 2026-11-13 — Start Excel E-01 baseline and regression slice
 
