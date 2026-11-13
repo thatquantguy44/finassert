@@ -20,6 +20,8 @@ Next engineering work:
    interpretation are proposed; real Excel acceptance is required for completion.
    E-01 has regression reproductions, an API audit and a diagnostic probe; finish
    the disabled native add-in loading baseline before E-02 source/date binding.
+   PR #24 is merged; feature/excel-source-binding-dates is prepared from main for
+   that next code slice, without promoting the outstanding native acceptance.
 2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
 3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the

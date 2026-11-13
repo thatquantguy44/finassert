@@ -3,9 +3,10 @@
 ## Current state
 
 - **Status:** E-01 in progress; native baseline incomplete. E-02–E-06 pending.
-- **Branch:** feature/excel-host-baseline from refreshed main at 3b5a014.
-- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
-  targeting main; E-01's native baseline is still incomplete.
+- **Branch:** feature/excel-source-binding-dates from refreshed main at 00ce4d9;
+  prepared for E-02, with no E-02 implementation yet.
+- **Implementation PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
+  is merged; E-01's native baseline is still incomplete.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23).
 - **Delivered:** Three stale-result reproductions, passing controls, stable API
@@ -17,6 +18,17 @@
   diagnostic capture in [baseline evidence](artifacts/README.md), then E-02.
 
 ## Entries
+
+### 2026-11-13 — Next branch prepared from merged main
+
+- **Branch:** feature/excel-source-binding-dates, created directly from main and
+  origin/main at 00ce4d9 after fetching merged PR #24.
+- **Next build:** E-02 source picker, explicit binding/geometry, table totals
+  exclusion, malformed/empty/oversized input rejection and required date choice.
+- **Status:** No runtime implementation or new host test in this preparation.
+  E-01 native evidence remains a prerequisite; all acceptance rows stay pending.
+- **Verification:** Matching branch/base SHA, strict MkDocs and whitespace checks.
+- **Next:** Resolve native loading and finish E-01, then build E-02 in order.
 
 ### 2026-11-13 — E-01 draft PR published
 

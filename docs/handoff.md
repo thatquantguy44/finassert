@@ -17,9 +17,10 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `feature/excel-host-baseline`, based on integrated main `3b5a014`.
-- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
-  targeting main. E-01's native baseline remains incomplete.
+- **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
+  `00ce4d9`. Prepared for E-02; no E-02 implementation has started.
+- **Implementation PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
+  is merged into main. E-01's native baseline remains incomplete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
@@ -55,6 +56,19 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Prepare the source-binding and dates branch
+
+- **Request:** Create the next branch off main and identify the next build slice.
+- **Done:** Fetched origin, fast-forwarded local main to 00ce4d9 (merged PR #24),
+  and created feature/excel-source-binding-dates directly from that commit.
+- **Next code slice:** Spec 0016 E-02: explicit table/range binding, exact source
+  identity/bounds, totals exclusion, input guards and required 1900/1904 choice.
+- **Gate:** E-01's native loading/capability/read/run evidence is still pending.
+  Branch preparation does not complete E-01 or start/promote E-02 acceptance.
+- **Verification:** Branch base equals origin/main; strict MkDocs and whitespace
+  checks passed for the handoff/roadmap update. No runtime behavior changed.
+- **Next:** Complete the native E-01 baseline, then implement E-02 in task order.
 
 ### 2026-11-13 — Publish Excel E-01 draft PR
 
