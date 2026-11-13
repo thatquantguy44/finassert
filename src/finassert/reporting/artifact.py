@@ -34,7 +34,10 @@ def build_artifact(
         input_sheet: Worksheet read from a workbook input, if any.
         generated_at: Timestamp to record; defaults to the current UTC time.
     """
-    moment = (generated_at or datetime.now(UTC)).astimezone(UTC)
+    moment = generated_at or datetime.now(UTC)
+    if moment.tzinfo is None or moment.utcoffset() is None:
+        raise ValueError("generated_at must be timezone-aware")
+    moment = moment.astimezone(UTC)
     return {
         "schema_version": ARTIFACT_SCHEMA_VERSION,
         "tool": {"name": "finassert", "version": __version__},
@@ -53,7 +56,7 @@ def artifact_to_json(artifact: dict[str, Any], *, indent: int | None = 2) -> str
 def _input_context(
     locator: str | None, input_format: str | None, sheet: str | None
 ) -> dict[str, Any] | None:
-    if locator is None and input_format is None:
+    if locator is None and input_format is None and sheet is None:
         return None
     context: dict[str, Any] = {"locator": locator, "format": input_format}
     if sheet is not None:

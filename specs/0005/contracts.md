@@ -22,3 +22,14 @@ and review focus; it does not introduce a second definition.
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.
+
+## Migration note — 2026-11-13
+
+Results gain an additive `diagnostics` field containing bounded collections with
+`kind`, `count`, `limit`, `observations`, and `truncated`. Legacy metadata is
+retained, with missing/invalid weight lists now honoring `max_violations`.
+Consumers should use source row labels rather than legacy filtered positions.
+NaN/infinite floats now serialize to explicit text rather than raising or
+emitting invalid JSON. Artifact schema 1 and main's severity-based blocking are
+preserved. Naive explicit artifact timestamps are rejected instead of assuming
+the host timezone. Redaction hooks remain a separate milestone.

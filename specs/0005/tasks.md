@@ -12,13 +12,13 @@ acceptance certification.
 
 ## Remaining work, in order
 
-- [ ] Define structured row/group observations with labels, total count, configured cap,
+- [x] Define structured row/group observations with labels, total count, configured cap,
   and truncation flag.
-- [ ] Cap missing-weight diagnostics and preserve source labels for invalid values.
-- [ ] Specify and implement JSON-safe treatment of non-finite observations and row
+- [x] Cap missing-weight diagnostics and preserve source labels for invalid values.
+- [x] Specify and implement JSON-safe treatment of non-finite observations and row
   labels; a NaN pandas index currently makes to_json raise.
-- [ ] Define a versioned artifact envelope and caller-supplied source context for 0007.
-- [ ] Add golden coverage for all outcomes, unusual metadata, truncation, and exception
+- [x] Define a versioned artifact envelope and caller-supplied source context for 0007.
+- [x] Add golden coverage for all outcomes, unusual metadata, truncation, and exception
   sanitization.
 - [ ] Design redaction hooks after the artifact and diagnostic contracts are settled.
 

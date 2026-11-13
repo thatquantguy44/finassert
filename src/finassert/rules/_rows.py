@@ -102,7 +102,7 @@ def evaluate_rows(
             return rule._row_result(
                 Outcome.SKIPPED,
                 f"Skipped because {len(unusable)} row(s) have blank values.",
-                {**context, "blank_rows": unusable[:limit]},
+                {**context, "blank_rows": unusable[:limit], "blank_row_count": len(unusable)},
             )
         return rule._row_result(
             Outcome.FAILED,

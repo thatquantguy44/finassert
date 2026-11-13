@@ -2,6 +2,7 @@
 
 from finassert._version import __version__
 from finassert.core import (
+    DiagnosticCollection,
     GroupAggregationError,
     GroupedRule,
     Outcome,
@@ -36,6 +37,7 @@ from finassert.rules import (
 )
 
 __all__ = [
+    "DiagnosticCollection",
     "GroupAggregationError",
     "GroupedRule",
     "NullPolicy",

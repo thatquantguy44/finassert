@@ -26,7 +26,7 @@ universal observability schema are not reporter responsibilities.
 
 Results are canonical; formatters are pure views. `to_dict` produces JSON-ready
 primitives and Decimal strings. Text prints an aggregate header and failed/error
-details. Future schema versions add a top-level `schema_version` without changing
+details. The artifact envelope carries a top-level `schema_version` without changing
 rule IDs.
 
 ## Public API design
@@ -45,6 +45,21 @@ and configuration digest supplied by the caller—not guessed by the library.
 Required fields are those in 0001. Row diagnostics contain label/value pairs,
 count, configured cap, and truncation flag. Metadata keys are strings; arbitrary
 objects stringify rather than make serialization fail.
+
+`check` attaches `ValidationResult.diagnostics`, a tuple of `DiagnosticCollection`
+objects for rules declaring `max_violations`. Each collection has `kind`, exact
+`count`, configured `limit`, bounded `observations`, and `truncated`. Kinds name
+the legacy metadata collection (for example `missing_rows`, `violations`, or
+`failed_groups`); scalar labels become `{"row": label}` observations. Counts are
+per collection, so a blank-column observation may describe several cells. Existing
+metadata keys remain available. Direct/custom results may supply collections
+explicitly; arbitrary custom metadata is not interpreted without an opt-in limit.
+
+Non-finite float values serialize as the explicit strings `NaN`, `Infinity`, or
+`-Infinity`, matching Decimal text behavior. They never become JSON numeric
+tokens or null. The version-1 artifact envelope already carries tool identity,
+UTC generation time, caller-supplied input context, and policy digest. Explicit
+generation timestamps must be timezone-aware. New diagnostic fields are additive.
 
 ## Financial and numerical edge cases
 
@@ -80,5 +95,5 @@ Consumes 0001 and 0003; adapter row identity comes from 0004; CLI artifacts use
 
 ## Explicit deferred work
 
-HTML, charts, localization, remote sinks, tracebacks, signing, encryption, and
-artifact retention policy are deferred.
+HTML is implemented initially on main. Charts, localization, remote sinks,
+tracebacks, signing, encryption, and artifact retention policy remain deferred.

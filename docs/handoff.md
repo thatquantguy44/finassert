@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 3: Bounded structured diagnostics and strict versioned artifacts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Bounded structured diagnostics and strict versioned artifacts.
+- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
+- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
+
 ### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).

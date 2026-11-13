@@ -10,7 +10,9 @@ Scope: Core validation engine. Relevant implementation areas:
 Preserve these review constraints:
 
 - Rule execution order and result order match; each rule executes once.
-- Failures, errors, and skips remain distinct; severity does not change truth.
+- Failures, errors, and skips remain distinct. Preserve main's severity-based
+  report blocking: evaluation errors always block; warning/info failures are
+  findings that do not block at the default threshold.
 - The engine does not coerce, normalize, or mutate caller data.
 
 Use [plan.md](plan.md) for the approach and its verification command. Update task

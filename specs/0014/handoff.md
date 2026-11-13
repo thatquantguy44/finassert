@@ -3,11 +3,18 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Adapter length enforcement and shared contracts.
-- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
-- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
+- **Latest delivered work:** Bounded structured diagnostics and strict versioned artifacts.
+- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
+- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
 
 ## Entries
+
+### 2026-11-13 — Gate 3: Bounded structured diagnostics and strict versioned artifacts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Bounded structured diagnostics and strict versioned artifacts.
+- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
+- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
 
 ### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
 

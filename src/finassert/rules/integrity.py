@@ -100,7 +100,11 @@ class NoDuplicatesRule:
                 self,
                 Outcome.SKIPPED,
                 f"Skipped because {len(blank_rows)} row(s) have a blank key.",
-                {**base, "blank_rows": blank_rows[: self.max_violations]},
+                {
+                    **base,
+                    "blank_rows": blank_rows[: self.max_violations],
+                    "blank_row_count": len(blank_rows),
+                },
             )
         duplicates = [
             {
@@ -127,6 +131,7 @@ class NoDuplicatesRule:
                 metadata["blank_rows"] = blank_rows[: self.max_violations]
         if unhashable_rows:
             metadata["unusable_rows"] = unhashable_rows[: self.max_violations]
+            metadata["unusable_row_count"] = len(unhashable_rows)
         what = "/".join(self.columns)
         unit = "combination(s)" if len(self.columns) > 1 else "value(s)"
         parts = []
@@ -196,6 +201,7 @@ class RequiredFieldsRule:
             "columns": list(self.columns),
             "row_count": len(labels),
             "blank_cell_count": total,
+            "blank_column_count": len(blanks),
             "blank_cells": blanks,
         }
         if not blanks:

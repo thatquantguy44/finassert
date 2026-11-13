@@ -5,17 +5,19 @@
 
 ## Current state
 
-- Status: Text and JSON-compatible models implemented (initial).
-- Implementation/reference areas:
-  [src/finassert/core/models.py](../../src/finassert/core/models.py),
-  [src/finassert/reporting](../../src/finassert/reporting),
-  [src/finassert/rules/portfolio.py](../../src/finassert/rules/portfolio.py),
-  [src/finassert/rules/arithmetic.py](../../src/finassert/rules/arithmetic.py).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Define structured row/group observations with labels, total count,
-  configured cap, and truncation flag.
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Bounded structured diagnostics and strict versioned artifacts.
+- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
+- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
 
 ## Entries
+
+### 2026-11-13 — Gate 3: Bounded structured diagnostics and strict versioned artifacts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Bounded structured diagnostics and strict versioned artifacts.
+- **Evidence:** 754 full-suite tests passed; the remaining MCP subprocess passed after repairing the macOS hidden flag on the editable-install path; Ruff and mypy passed.
+- **Next step:** Gate 4: verify existing public cash and NAV contracts across adapters.
 
 ### 2026-11-13 — Numbered spec workspace created
 

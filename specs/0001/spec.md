@@ -43,8 +43,10 @@ and result order are identical. A result with a mismatched identifier is an erro
 
 `ValidationResult` contains identifier, name, outcome, severity, message,
 observed, expected, tolerance, and metadata. `ValidationReport.results` is a
-tuple. `passed` is true only when every result is passed or skipped. An empty set
-passes vacuously.
+tuple. `passed` is true when no evaluation errored and no failed result blocks
+at the default error-severity threshold. Warning/info failures remain visible.
+An empty set passes vacuously. Results may carry bounded diagnostic collections
+as defined by 0005.
 
 ## Financial and numerical edge cases
 
@@ -54,8 +56,9 @@ conversion, dataframe copying, or null interpretation. Rules own those semantics
 ## Failure semantics
 
 A violated invariant is `failed`; inability to evaluate is `error`; a declared
-precondition that prevents evaluation is `skipped`. Errors never pass. Severity
-classifies impact but does not alter truth.
+precondition that prevents evaluation is `skipped`. Evaluation errors always
+block. Severity does not change a result's outcome; it controls whether a failed
+invariant blocks the aggregate report, as implemented on current main.
 
 ## Implementation milestones
 

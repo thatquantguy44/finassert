@@ -67,6 +67,7 @@ def test_cash_failure_names_the_group_rows_and_difference() -> None:
             "difference": -1,
             "row_count": 1,
             "rows": [1],
+            "rows_truncated": False,
         }
     ]
 
@@ -300,6 +301,7 @@ def test_nav_sums_signed_market_values_and_allows_nav_on_some_rows() -> None:
             "difference": -1,
             "row_count": 1,
             "rows": [3],
+            "rows_truncated": False,
         }
     ]
     assert only(holdings(nav=[100, None, 100, 7]), nav_rule()).passed

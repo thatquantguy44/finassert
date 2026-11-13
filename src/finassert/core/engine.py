@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
+from finassert.core.diagnostics import normalize_diagnostics
 from finassert.core.exceptions import RuleEvaluationError
 from finassert.core.models import Outcome, ValidationReport, ValidationResult
 from finassert.core.protocols import Rule
@@ -25,6 +26,9 @@ def check(data: Any, rules: Iterable[Rule], *, raise_on_error: bool = False) -> 
             result = rule.evaluate(data)
             if result.rule_id != rule.rule_id:
                 raise ValueError("rule returned a result with a different rule_id")
+            limit = getattr(rule, "max_violations", None)
+            if limit is not None:
+                result = normalize_diagnostics(result, limit)
             results.append(result)
         except Exception as exc:
             if raise_on_error:

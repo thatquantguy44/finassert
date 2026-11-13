@@ -1,0 +1,3 @@
+finassert FAIL: 1 passed, 1 failed, 1 errors, 1 skipped
+- [error] arithmetic.non_negative: Column 'v' has 1 value(s) below the allowed minimum and 0 missing/non-finite value(s).
+- [error] arithmetic.non_negative: Evaluation error: ColumnNotFoundError: column 'absent' was not found; available columns: 'weight', 'v', 'blank'
