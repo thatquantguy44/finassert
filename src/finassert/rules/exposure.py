@@ -16,6 +16,7 @@ from typing import Any
 from finassert.adapters.contracts import ColumnMapping, FieldAggregation
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._grouping import (
     Group,
     Wording,
@@ -216,22 +217,25 @@ class PositionLimitRule:
             if problem is not None:
                 return {"reason": problem, "base": base}
             limit = _scaled(self.maximum, base)
-            breaches = [
-                {
-                    "row": row,
-                    "value": value,
-                    "size": value if base is None else precise_quotient(absolute(value), base),
-                }
-                for row, value in zip(group.rows, group.values["value"], strict=True)
-                if absolute(value) > limit
-            ]
+            breaches: Sample[dict[str, Any]] = Sample(_MAX_BREACHES_LISTED)
+            for row, value in zip(group.rows, group.values["value"], strict=True):
+                if absolute(value) > limit:
+                    breaches.add(
+                        {
+                            "row": row,
+                            "value": value,
+                            "size": value
+                            if base is None
+                            else precise_quotient(absolute(value), base),
+                        }
+                    )
             if not breaches:
                 return None
             return {
                 "reason": "position_above_limit",
                 "maximum": self.maximum,
-                "breach_count": len(breaches),
-                "breaches": breaches[:_MAX_BREACHES_LISTED],
+                "breach_count": breaches.count,
+                "breaches": breaches.examples,
             }
 
         return evaluate_groups(

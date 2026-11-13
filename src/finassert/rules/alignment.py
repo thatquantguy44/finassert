@@ -17,11 +17,13 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
+from heapq import nlargest
 from typing import Any, ClassVar
 
 from finassert.adapters.contracts import ColumnMapping, FieldAggregation
 from finassert.core.models import Outcome, Severity, ValidationResult
 from finassert.numerical import Numeric, Tolerance, coerce_tolerance, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._grouping import (
     Group,
     Wording,
@@ -168,13 +170,13 @@ class WeightsMatchMarketValuesRule:
                 problem = "base_not_positive" if base <= 0 else None
             if problem is not None or base is None:
                 return {"reason": problem, "base": base}
-            mismatches = []
+            mismatches: Sample[dict[str, Any]] = Sample(_MAX_LISTED)
             for row, weight, value in zip(
                 group.rows, group.values["weight"], group.values["market_value"], strict=True
             ):
                 expected = precise_quotient(value, base)
                 if not self.tolerance.is_close(weight, expected):
-                    mismatches.append(
+                    mismatches.add(
                         {
                             "row": row,
                             "weight": weight,
@@ -187,8 +189,8 @@ class WeightsMatchMarketValuesRule:
             return {
                 "reason": "weights_do_not_match_values",
                 "base": base,
-                "mismatch_count": len(mismatches),
-                "mismatches": mismatches[:_MAX_LISTED],
+                "mismatch_count": mismatches.count,
+                "mismatches": mismatches.examples,
             }
 
         return evaluate_groups(
@@ -247,22 +249,28 @@ class DriftWithinBandRule:
         """Check every portfolio."""
 
         def check(group: Group) -> dict[str, Any] | None:
+            # Keep numerical operands in their original reduction order. Row
+            # detail is sampled separately after computing the complete total.
             drifts = [
-                (row, weight, target, absolute(precise_sum([weight, -target])))
-                for row, weight, target in zip(
+                absolute(precise_sum([weight, -target]))
+                for _, weight, target in zip(
                     group.rows, group.values["weight"], group.values["target_weight"], strict=True
                 )
             ]
-            total = precise_sum([drift for *_, drift in drifts])
-            breaches = (
-                []
-                if self.band is None
-                else [
-                    {"row": row, "weight": weight, "target": target, "drift": drift}
-                    for row, weight, target, drift in drifts
-                    if drift > self.band
-                ]
-            )
+            total = precise_sum(drifts)
+            breaches: Sample[dict[str, Any]] = Sample(_MAX_LISTED)
+            if self.band is not None:
+                for row, weight, target, drift in zip(
+                    group.rows,
+                    group.values["weight"],
+                    group.values["target_weight"],
+                    drifts,
+                    strict=True,
+                ):
+                    if drift > self.band:
+                        breaches.add(
+                            {"row": row, "weight": weight, "target": target, "drift": drift}
+                        )
             total_exceeded = self.total_limit is not None and total > self.total_limit
             if not breaches and not total_exceeded:
                 return None
@@ -273,8 +281,8 @@ class DriftWithinBandRule:
             if breaches:
                 failure.update(
                     band=self.band,
-                    breach_count=len(breaches),
-                    breaches=breaches[:_MAX_LISTED],
+                    breach_count=breaches.count,
+                    breaches=breaches.examples,
                 )
             if total_exceeded:
                 failure["total_limit"] = self.total_limit
@@ -341,19 +349,31 @@ class TurnoverWithinLimitRule:
 
         def check(group: Group) -> dict[str, Any] | None:
             changes = [
-                (row, weight, previous, absolute(precise_sum([weight, -previous])))
-                for row, weight, previous in zip(
+                absolute(precise_sum([weight, -previous]))
+                for _, weight, previous in zip(
                     group.rows,
                     group.values["weight"],
                     group.values["previous_weight"],
                     strict=True,
                 )
             ]
-            total = precise_sum([change for *_, change in changes])
+            total = precise_sum(changes)
             turnover = total / 2 if self.sides is TurnoverSides.ONE_WAY else total
             if turnover <= self.maximum:
                 return None
-            largest = sorted(changes, key=lambda item: item[3], reverse=True)[:5]
+            # nlargest preserves input order for equal changes, like the old
+            # stable sort, while retaining only five diagnostic tuples.
+            largest = nlargest(
+                5,
+                zip(
+                    group.rows,
+                    group.values["weight"],
+                    group.values["previous_weight"],
+                    changes,
+                    strict=True,
+                ),
+                key=lambda item: item[3],
+            )
             return {
                 "reason": "turnover_above_limit",
                 "observed": turnover,

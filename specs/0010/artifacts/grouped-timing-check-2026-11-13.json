@@ -1,0 +1,658 @@
+{
+  "bounded_source_sha256": "d09c2931e5f3da0be58e4759a26970915c30718e4229f37ab0a3ff76dfaaad7d",
+  "environment": {
+    "implementation": "CPython",
+    "logical_cpus": 15,
+    "machine": "arm64",
+    "packages": {
+      "finassert": "0.1.0",
+      "openpyxl": "3.1.5",
+      "pandas": "3.0.6"
+    },
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.17"
+  },
+  "generated_at": "2026-11-13T08:50:42.688256+00:00",
+  "method": "Three alternating-order pairs of isolated worker processes; 100000-row float mapping grouped_skew, nine warm repeats per worker; unchanged benchmark _worker, separate tracemalloc and cProfile calls.",
+  "reference_commit": "5ec995984037f26255ee10895b4d4bb37838a179",
+  "reference_source_sha256": "169889e0de9cd1aa813b95a60d21dc5f007522ea3c04abd698e6ef29f5707a8d",
+  "results": [
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.10436162500991486,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "reference",
+      "input_construction_seconds": 0.010865207994356751,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 70139904,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 1,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.46339804100000004,
+          "function": "engine.py:15:check",
+          "self_seconds": 1.4958000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.46335029200000005,
+          "function": "portfolio.py:65:evaluate",
+          "self_seconds": 2.25e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.463348042,
+          "function": "portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.000597334
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.46275020800000005,
+          "function": "_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000246957
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.380544833,
+          "function": "_grouping.py:67:collect_groups",
+          "self_seconds": 0.13809574800000002
+        },
+        {
+          "calls": 100405,
+          "cumulative_seconds": 0.168408789,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.022471354000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.119594079,
+          "function": "tolerance.py:64:is_finite",
+          "self_seconds": 0.048126779
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.101371269,
+          "function": "_helpers.py:66:is_blank",
+          "self_seconds": 0.046001666000000004
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08194375300000001,
+          "function": "portfolio.py:132:check",
+          "self_seconds": 8.5506e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.081539337,
+          "function": "_grouping.py:37:aggregate",
+          "self_seconds": 5.3870000000000004e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.081416545,
+          "function": "grouped.py:83:aggregate_ordered",
+          "self_seconds": 5.1460000000000005e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.081365085,
+          "function": "grouped.py:16:aggregate_values",
+          "self_seconds": 0.000281671
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586504,
+      "warm_median_seconds": 0.10036958297132514,
+      "warm_validation_seconds": [
+        0.11820595798781142,
+        0.11368858302012086,
+        0.09634212500532158,
+        0.10036958297132514,
+        0.1079707500175573,
+        0.0961727499961853,
+        0.0991140000114683,
+        0.09198162500979379,
+        0.1020649999845773
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.09315004199743271,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "bounded",
+      "input_construction_seconds": 0.0097112079965882,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 64372736,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 1,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.448227125,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.3875e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.448174583,
+          "function": "src/finassert/rules/portfolio.py:66:evaluate",
+          "self_seconds": 1.875e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.44817270800000003,
+          "function": "src/finassert/rules/portfolio.py:139:_evaluate_groups",
+          "self_seconds": 0.000572666
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.44759445900000006,
+          "function": "src/finassert/rules/_grouping.py:207:evaluate_groups",
+          "self_seconds": 0.00024124700000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.36651625000000004,
+          "function": "src/finassert/rules/_grouping.py:65:collect_groups",
+          "self_seconds": 0.13445225200000002
+        },
+        {
+          "calls": 100404,
+          "cumulative_seconds": 0.163869495,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.021992378
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.115428399,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.045969936
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.09716925900000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.043981126
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08081917400000001,
+          "function": "src/finassert/rules/portfolio.py:142:check",
+          "self_seconds": 8.9166e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08038329500000001,
+          "function": "src/finassert/rules/_grouping.py:38:aggregate",
+          "self_seconds": 5.817e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08027953800000001,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 5.745600000000001e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.080222082,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 0.000336836
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586384,
+      "warm_median_seconds": 0.09302679100073874,
+      "warm_validation_seconds": [
+        0.09220962499966845,
+        0.09302679100073874,
+        0.0932012920093257,
+        0.08916512498399243,
+        0.10155225000926293,
+        0.0897617909940891,
+        0.09073858399642631,
+        0.09568745800061151,
+        0.09574312501354143
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.09738287501386367,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "bounded",
+      "input_construction_seconds": 0.010578874993370846,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 65781760,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 2,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.459990875,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 3.4752e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.45991712500000004,
+          "function": "src/finassert/rules/portfolio.py:66:evaluate",
+          "self_seconds": 2.7090000000000002e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.45991441600000005,
+          "function": "src/finassert/rules/portfolio.py:139:_evaluate_groups",
+          "self_seconds": 0.00052875
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.45938525,
+          "function": "src/finassert/rules/_grouping.py:207:evaluate_groups",
+          "self_seconds": 0.00025649200000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.37533945900000004,
+          "function": "src/finassert/rules/_grouping.py:65:collect_groups",
+          "self_seconds": 0.138745263
+        },
+        {
+          "calls": 100404,
+          "cumulative_seconds": 0.168776318,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.02220312
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.119807118,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.048603069000000006
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.09978368300000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.044696437000000006
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08377567500000001,
+          "function": "src/finassert/rules/portfolio.py:142:check",
+          "self_seconds": 0.000118097
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08327633400000001,
+          "function": "src/finassert/rules/_grouping.py:38:aggregate",
+          "self_seconds": 8.1624e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08310575,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 7.6334e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08302941600000001,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 0.00034996800000000003
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586384,
+      "warm_median_seconds": 0.09713058298802935,
+      "warm_validation_seconds": [
+        0.11056095798267052,
+        0.10464562501874752,
+        0.09713058298802935,
+        0.08929208299377933,
+        0.09558462499990128,
+        0.09585162499570288,
+        0.09030408298713155,
+        0.10102949998690747,
+        0.09787500000675209
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.10983916698023677,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "reference",
+      "input_construction_seconds": 0.011552667012438178,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 66502656,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 2,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.5332800000000001,
+          "function": "engine.py:15:check",
+          "self_seconds": 1.6374e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.5332247910000001,
+          "function": "portfolio.py:65:evaluate",
+          "self_seconds": 3.041e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.53322175,
+          "function": "portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.000573584
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.532647875,
+          "function": "_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000378959
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.437267,
+          "function": "_grouping.py:67:collect_groups",
+          "self_seconds": 0.16078193200000002
+        },
+        {
+          "calls": 100405,
+          "cumulative_seconds": 0.194444426,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.025796292000000002
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.138455608,
+          "function": "tolerance.py:64:is_finite",
+          "self_seconds": 0.055619875000000006
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.11509972500000001,
+          "function": "_helpers.py:66:is_blank",
+          "self_seconds": 0.051149360000000005
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.09498495700000001,
+          "function": "portfolio.py:132:check",
+          "self_seconds": 9.5087e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.094494667,
+          "function": "_grouping.py:37:aggregate",
+          "self_seconds": 5.929e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.094389001,
+          "function": "grouped.py:83:aggregate_ordered",
+          "self_seconds": 7.559e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.094313411,
+          "function": "grouped.py:16:aggregate_values",
+          "self_seconds": 0.000255455
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586504,
+      "warm_median_seconds": 0.11321329098427668,
+      "warm_validation_seconds": [
+        0.10118299999157898,
+        0.12066387498634867,
+        0.11726295898552053,
+        0.10965758402016945,
+        0.11008700000820681,
+        0.1167918749852106,
+        0.11083583298022859,
+        0.11379795800894499,
+        0.11321329098427668
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.10931062500458211,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "reference",
+      "input_construction_seconds": 0.010686333989724517,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 63602688,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 3,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47112304200000005,
+          "function": "engine.py:15:check",
+          "self_seconds": 1.7208000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47103375000000003,
+          "function": "portfolio.py:65:evaluate",
+          "self_seconds": 2.209e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47103154100000005,
+          "function": "portfolio.py:129:_evaluate_groups",
+          "self_seconds": 0.0006542080000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.470376791,
+          "function": "_grouping.py:202:evaluate_groups",
+          "self_seconds": 0.000301031
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.38098045900000005,
+          "function": "_grouping.py:67:collect_groups",
+          "self_seconds": 0.138527111
+        },
+        {
+          "calls": 100405,
+          "cumulative_seconds": 0.17496466900000002,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.022820410000000003
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.123416993,
+          "function": "tolerance.py:64:is_finite",
+          "self_seconds": 0.049536117000000005
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.10132845500000001,
+          "function": "_helpers.py:66:is_blank",
+          "self_seconds": 0.045558075
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.089075968,
+          "function": "portfolio.py:132:check",
+          "self_seconds": 8.4564e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08867045600000001,
+          "function": "_grouping.py:37:aggregate",
+          "self_seconds": 6.0445e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.088571128,
+          "function": "grouped.py:83:aggregate_ordered",
+          "self_seconds": 5.304e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08851808800000001,
+          "function": "grouped.py:16:aggregate_values",
+          "self_seconds": 0.000310583
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586504,
+      "warm_median_seconds": 0.10031999999773689,
+      "warm_validation_seconds": [
+        0.10732824998558499,
+        0.10130737500730902,
+        0.09402670798590407,
+        0.0934274579922203,
+        0.09748770800069906,
+        0.10855599999194965,
+        0.10031999999773689,
+        0.09621820799657144,
+        0.10261766699841246
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "case": "grouped_skew",
+      "columns": 2,
+      "diagnostic_counts": {
+        "failed_groups": 0
+      },
+      "first_validation_seconds": 0.09586791699985042,
+      "group_count": 101,
+      "group_skew": "90% in HEAVY, remainder across up to 100 groups",
+      "implementation": "bounded",
+      "input_construction_seconds": 0.011016583011951298,
+      "numeric_domain": "float",
+      "outcome": "passed",
+      "process_peak_rss_bytes": 65241088,
+      "report_fingerprint": "21d08c04273b36f3ea07591882bb8f64519ef45a3cb7d887d391f5a0bb16bd2f",
+      "round": 3,
+      "rows": 100000,
+      "top_functions_by_cumulative_time": [
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.474910875,
+          "function": "src/finassert/core/engine.py:15:check",
+          "self_seconds": 1.4332000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47482370900000004,
+          "function": "src/finassert/rules/portfolio.py:66:evaluate",
+          "self_seconds": 1.9590000000000002e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47482175000000004,
+          "function": "src/finassert/rules/portfolio.py:139:_evaluate_groups",
+          "self_seconds": 0.000625834
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.47419550000000005,
+          "function": "src/finassert/rules/_grouping.py:207:evaluate_groups",
+          "self_seconds": 0.00024650000000000003
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.390801791,
+          "function": "src/finassert/rules/_grouping.py:65:collect_groups",
+          "self_seconds": 0.142355161
+        },
+        {
+          "calls": 100404,
+          "cumulative_seconds": 0.171547303,
+          "function": "~:0:<built-in method builtins.any>",
+          "self_seconds": 0.022698363000000003
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.12401289900000001,
+          "function": "src/finassert/numerical/tolerance.py:64:is_finite",
+          "self_seconds": 0.049159673
+        },
+        {
+          "calls": 200000,
+          "cumulative_seconds": 0.10362520700000001,
+          "function": "src/finassert/rules/_helpers.py:66:is_blank",
+          "self_seconds": 0.046403385000000005
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08313395900000001,
+          "function": "src/finassert/rules/portfolio.py:142:check",
+          "self_seconds": 6.7004e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08275787600000001,
+          "function": "src/finassert/rules/_grouping.py:38:aggregate",
+          "self_seconds": 4.6583000000000004e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.08268037,
+          "function": "src/finassert/rules/grouped.py:83:aggregate_ordered",
+          "self_seconds": 4.1705e-05
+        },
+        {
+          "calls": 101,
+          "cumulative_seconds": 0.082638665,
+          "function": "src/finassert/rules/grouped.py:16:aggregate_values",
+          "self_seconds": 0.000257953
+        }
+      ],
+      "validation_peak_tracemalloc_bytes": 9586384,
+      "warm_median_seconds": 0.09307937501580454,
+      "warm_validation_seconds": [
+        0.09595675001037307,
+        0.09460558401769958,
+        0.0906230419932399,
+        0.09158124998793937,
+        0.09549783301190473,
+        0.09320066700456664,
+        0.09198699999251403,
+        0.09175374999176711,
+        0.09307937501580454
+      ]
+    }
+  ]
+}

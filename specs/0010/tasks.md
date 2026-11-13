@@ -8,7 +8,8 @@ acceptance certification.
 
 ## Existing baseline
 
-A scalar corpus, isolated measurements, profiles, and a retained 48-case baseline are implemented. Optimized batch APIs remain proposed.
+A scalar corpus, isolated measurements, profiles, retained 48-case baseline and
+bounded scalar diagnostic evaluation are implemented. Batch APIs remain proposed.
 
 ## Remaining work, in order
 
@@ -17,6 +18,10 @@ A scalar corpus, isolated measurements, profiles, and a retained 48-case baselin
 - [x] Measure cold/warm runtime and peak memory for allocation and nonnegative rules.
 - [x] Profile materialization and diagnostic allocation before selecting optimization
   work.
+- [x] Count every failure while sampling diagnostic prefixes during evaluation,
+  including zero caps and nested/grouped populations, without changing reports.
+- [x] Capture scalar-reference parity and rerun all 48 benchmarks; retain the
+  memory comparison and investigate timing outliers. See [evidence](handoff.md).
 - [ ] Prototype vector kernels or shared column reads only if measurements justify them.
 - [ ] Require reference-result parity and deterministic reduction before any batch or
   parallel API is public.

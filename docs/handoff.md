@@ -17,20 +17,22 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `feature/seven-priority-roadmap`
-- **Last recorded main merge:** PR #15, README refresh (`a3f0a3e`).
-- **Delivery:** All seven gates in spec 0014 have implementation/evidence;
-  final regression suite passed 807 tests. Draft [PR #17](https://github.com/thatquantguy44/finassert/pull/17)
-  tracks the complete branch. Package and remote CI verification are recorded
-  in the newest entries.
-- **Open blockers:** None for the seven implementation gates. Broader proposed
-  work remains explicitly unchecked in the owning spec task files.
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18).
+- **Last recorded main merge:** PR #17, seven-priority delivery (`5ec9959`).
+- **Delivery:** Spec 0010 now bounds diagnostic retention during scalar evaluation;
+  all failures are counted and complete reference reports are preserved. Dense
+  100,000-row failures use 4.58 MiB of Python validation peak, down from 22.88 MiB.
+- **Evidence:** 2,144 tests, 1,322 reference comparisons, and all 48 benchmark
+  fingerprints match. See the [local handoff](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/handoff.md) and
+  [retained measurements](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md).
+- **Open blockers:** None for bounded diagnostic evaluation. Broader proposed
+  work remains unchecked in its owning spec tasks.
 
 ## Next up
 
-1. Review draft PR #17; no merge or release was performed.
-2. Use the retained spec 0010 profiles before choosing bounded-allocation or
-   vectorization work. Batch/concurrent APIs remain proposed.
+1. Review the bounded-diagnostic branch and retained correctness/memory evidence.
+2. Use updated spec 0010 profiles before selecting shared reads or vectorization;
+   input materialization and aggregation memory remain. Batch APIs stay proposed.
 3. Select further catalog, redaction, or workbook-visibility work from the
    [project roadmap](roadmap.md) and local task files.
 
@@ -49,6 +51,27 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Bound diagnostic memory during evaluation (spec 0010)
+
+- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18), from merged PR #17 (`5ec9959`).
+- **Done:** Built-in arithmetic, weights, shared row/group, integrity, exposure,
+  and alignment evaluators now count every failure with bounded example samples.
+  Existing outcomes, messages, row identity/order, totals, truncation, numerical
+  reductions, and error precedence are preserved; no public API/schema change.
+- **Evidence:** 2,144 tests pass, including 1,322 full-reference comparisons from
+  the merged baseline. All 48 benchmark report fingerprints match. Dense
+  100,000-row failure peak fell 80.0% (22.88 → 4.58 MiB). Paired grouped runs
+  resolve a timing outlier without showing sustained regression. See
+  [spec 0010 evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md).
+- **Verification:** Ruff lint/format, mypy (58 modules), strict docs, author policy,
+  wheel/sdist build, and isolated installed CLI/unit/FX/workbook flows pass. The local
+  editable-install path was hidden by this
+  environment; installing the built wheel allowed the MCP subprocess check and
+  full suite to pass. No repository workaround was introduced.
+- **Limits:** Input materialization and necessary aggregation/group/key state
+  still scale with the data. No merge, release, or public batch API is included.
+- **Next step:** Review this branch and the local spec handoff.
 
 ### 2026-11-13 — Pin the browser CI runner to Playwright's supported OS
 

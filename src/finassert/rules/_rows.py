@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from finassert.adapters._column import extract_columns
 from finassert.core.models import Outcome, ValidationResult
 from finassert.numerical import Numeric, is_finite
+from finassert.rules._diagnostics import Sample
 from finassert.rules._helpers import is_blank
 from finassert.rules.base import NullPolicy
 
@@ -67,8 +68,9 @@ def evaluate_rows(
     if not labels:
         return rule._row_result(Outcome.SKIPPED, "The file has no rows to check.", context)
 
-    unusable: list[dict[str, Any]] = []
-    failed: list[dict[str, Any]] = []
+    unusable: Sample[dict[str, Any]] = Sample(rule.max_violations)
+    failed: Sample[dict[str, Any]] = Sample(rule.max_violations)
+    only_blanks = True
     checked = 0
     for position, label in enumerate(labels):
         values: dict[str, Numeric] = {}
@@ -88,34 +90,34 @@ def evaluate_rows(
                 entry["blank"] = blank
             if invalid:
                 entry["invalid"] = invalid
-            unusable.append(entry)
+            unusable.add(entry)
+            only_blanks = only_blanks and not invalid
             continue
         checked += 1
         failure = check(values)
         if failure is not None:
-            failed.append({"row": label, **failure})
+            failed.add({"row": label, **failure})
 
     limit = rule.max_violations
     if unusable:
-        only_blanks = all("invalid" not in item for item in unusable)
         if only_blanks and rule.null_policy is NullPolicy.SKIP:
             return rule._row_result(
                 Outcome.SKIPPED,
-                f"Skipped because {len(unusable)} row(s) have blank values.",
-                {**context, "blank_rows": unusable[:limit], "blank_row_count": len(unusable)},
+                f"Skipped because {unusable.count} row(s) have blank values.",
+                {**context, "blank_rows": unusable.examples, "blank_row_count": unusable.count},
             )
         return rule._row_result(
             Outcome.FAILED,
-            f"{len(unusable)} row(s) have blank or non-numeric values, so they cannot be checked.",
+            f"{unusable.count} row(s) have blank or non-numeric values, so they cannot be checked.",
             {
                 **context,
-                "unusable_row_count": len(unusable),
-                "unusable_rows": unusable[:limit],
-                "unusable_rows_truncated": len(unusable) > limit,
+                "unusable_row_count": unusable.count,
+                "unusable_rows": unusable.examples,
+                "unusable_rows_truncated": unusable.count > limit,
             },
         )
     message = (
-        f"{len(failed)} of {checked} {noun}(s) fail the check."
+        f"{failed.count} of {checked} {noun}(s) fail the check."
         if failed
         else f"All {checked} {noun}(s) pass the check."
     )
@@ -125,10 +127,10 @@ def evaluate_rows(
         {
             **context,
             "checked_count": checked,
-            "failed_count": len(failed),
-            "failed_rows": failed[:limit],
-            "failed_rows_truncated": len(failed) > limit,
+            "failed_count": failed.count,
+            "failed_rows": failed.examples,
+            "failed_rows_truncated": failed.count > limit,
         },
-        observed=len(failed),
+        observed=failed.count,
         expected=0,
     )

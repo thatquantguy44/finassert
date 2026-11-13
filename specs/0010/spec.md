@@ -1,6 +1,6 @@
 # 0010 — Performance and batch validation
 
-**Status:** Reproducible scalar baseline implemented; optimized batch APIs proposed
+**Status:** Scalar benchmarks and bounded diagnostic evaluation implemented; batch APIs proposed
 
 ## Problem statement
 
@@ -53,6 +53,23 @@ Execution plans declare required columns, grouping, reducibility, numeric domain
 and estimated materialization. Partial aggregate states must define associative
 merge behavior; non-associative float reductions use a documented stable order.
 
+## Bounded diagnostic evaluation
+
+Built-in scalar rules count every failure while retaining only the configured
+prefix of each diagnostic population during evaluation. A zero example limit
+still produces the same outcome and complete totals. Sampling must preserve row
+identity and input order, existing nested example limits, messages, observed and
+expected values, severity, null-policy precedence, empty behavior, serialization,
+and truncation flags. Ranked turnover examples retain their stable tie order.
+Every row and group is evaluated even after its sample fills: invalid values,
+aggregation errors, and numerical errors beyond the prefix must remain visible.
+
+Numeric operands and grouping state needed to evaluate an invariant remain
+available in the original reduction order. This bounds diagnostic retention, not
+all input materialization or aggregation memory. Duplicate detection still keeps
+state per distinct key, with bounded row examples per key; required-field column
+summaries remain complete. No public API or result schema changes are required.
+
 ## Financial and numerical edge cases
 
 Parallel summation can change float results; Decimal context may be thread-local;
@@ -68,7 +85,7 @@ reference semantics must fall back or reject execution explicitly.
 ## Implementation milestones
 
 1. Reproducible benchmark corpus and scalar baselines. 2. Profile allocation and
-nonnegative rules. 3. pandas vector kernels behind private interface. 4. Batch
+nonnegative rules and bound diagnostic retention. 3. pandas vector kernels behind private interface. 4. Batch
 column sharing. 5. Parallel prototype only if measurement justifies complexity.
 
 ## Acceptance criteria
