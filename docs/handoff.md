@@ -17,17 +17,22 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `feature/six-slice-upstream-delivery`, from merged PR #19 (`a644bdb`).
+- **Branch:** `docs/spec-0016-excel-validation-workflow`, based on
+  current main `8d96fdc`; current work is documentation for the next add-in slice.
+- **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
+- **Next priority:** Mac-first Excel add-in workflow, scoped as proposed spec 0016.
+  Runtime implementation and real-host acceptance have not started.
 
 ## Next up
 
-1. Review draft PR #21 and its remote CI; keep it draft until approved.
-2. Next engineering scope: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
+1. Review the proposed spec 0016 scope PR targeting main.
+2. Start spec 0016 E-01: proposal issue, stale-result regression and real Mac baseline.
+3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
 
@@ -44,6 +49,34 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Prepare Excel workflow scope for main
+
+- **Request:** Commit and push all scoped changes and open a PR targeting main.
+- **Branch:** `docs/spec-0016-excel-validation-workflow`, fast-forwarded onto
+  `8d96fdc`, the merge of PR #21. The PR adds documentation only.
+- **Scope:** Complete spec 0016 workspace, ordered tasks, manual acceptance
+  checklist and updated catalog/interface/project priorities. Add-in distribution
+  remains later work; no runtime or real-host acceptance is claimed.
+- **Verification:** 16 Markdown files / 80 local links and anchors,
+  workspace/task/acceptance coverage, whitespace and strict MkDocs passed.
+- **Next:** Review scope; implementation starts with E-01.
+
+### 2026-11-13 — Scope the next Excel add-in milestone
+
+- **Branch:** `docs/spec-0016-excel-validation-workflow`, based on `ab24d76`.
+- **Done:** [Spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md)
+  defines one-source binding, freshness/run lifecycle, diagnostic navigation,
+  explicit date interpretation, safe evidence export and real Mac acceptance.
+  Required workspace files plus a manual acceptance checklist define six ordered
+  implementation tasks, ten acceptance criteria and an 8–12-day planning range.
+- **Decisions:** Prioritize this Excel workflow before 0012 U-08/U-09. Keep shared
+  financial outcomes unchanged; captured input and policy govern current results.
+- **Not done:** Implementation, host/certificate setup, pilot execution and rollout
+  remain pending. The existing six-slice PR remains a separate delivery.
+- **Verify:** 16 Markdown files / 80 local links and anchors, workspace/task/criteria
+  coverage, strict MkDocs and whitespace checks passed. No runtime behavior changed.
+- **Next:** Spec 0016 E-01.
 
 ### 2026-11-13 — Six ordered upstream slices delivered
 

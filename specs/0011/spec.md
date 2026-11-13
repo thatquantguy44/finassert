@@ -13,6 +13,12 @@ recommended Office-add-in design with a spike plan are in
 browser app, and the assistant) proposes which header plays which template
 column; it explains each match and never applies one silently.
 
+The next live-workbook milestone is scoped separately in
+[0016 — Excel add-in validation workflow](../0016/spec.md): explicit source
+binding, result freshness, diagnostic navigation, date interpretation and real
+Mac acceptance. It remains proposed; the existing milestone-7 prototype is not
+promoted to real-host support by that plan.
+
 ## Problem statement
 
 Validation is reachable only through Python. Fund accountants, operations
