@@ -40,7 +40,7 @@ required. Do not imply that scaffolding means implementation is complete.
 ## Creating a spec
 
 Copy [_template/](_template/spec.md) to the next unused numbered directory
-(currently `0015`). Replace the template prompts, set an explicit status, and add
+(currently `0016`). Replace the template prompts, set an explicit status, and add
 the spec to the catalog below. Numbers are permanent and are not reused. Keep
 draft planning and unresolved questions explicit instead of inventing completion.
 
@@ -66,7 +66,8 @@ cross-spec dependencies, and overall priorities in the
 | [0012 Treasury and capital markets](0012/spec.md) | Proposed; upstream rules and deferred QuantMeridian handoff |
 
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
-| [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; draft PR #17 |
+| [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
+| [0015 Verified upstream release bundles](0015/spec.md) | Implementation authorized; six-slice delivery in progress |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.
