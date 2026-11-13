@@ -21,6 +21,6 @@ acceptance certification.
   properties with 0013.
 - [ ] Define explicit offline Hypothesis profiles and retain named regressions for fixed
   defects.
-- [ ] Add unit/FX round trips after 0008.
+- [x] Add unit/FX round trips after 0008.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

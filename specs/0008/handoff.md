@@ -5,16 +5,19 @@
 
 ## Current state
 
-- Status: Proposed.
-- Implementation/reference areas:
-  [src/finassert/numerical](../../src/finassert/numerical),
-  [src/finassert/adapters](../../src/finassert/adapters),
-  [src/finassert/core/models.py](../../src/finassert/core/models.py).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Review and specify the dimensional model and currency-code extension
-  mechanism.
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Typed quantities, explicit direct FX, and retained provenance.
+- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
+- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
 
 ## Entries
+
+### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Typed quantities, explicit direct FX, and retained provenance.
+- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
+- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
 
 ### 2026-11-13 — Numbered spec workspace created
 

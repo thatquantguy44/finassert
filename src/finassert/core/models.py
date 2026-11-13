@@ -219,6 +219,9 @@ def _json_value(value: Any) -> Any:
         return str(value)
     if isinstance(value, Enum):
         return _json_value(value.value)
+    serializer = getattr(value, "to_dict", None)
+    if callable(serializer):
+        return _json_value(serializer())
     if isinstance(value, float) and not math.isfinite(value):
         return "NaN" if math.isnan(value) else "Infinity" if value > 0 else "-Infinity"
     if isinstance(value, dict):

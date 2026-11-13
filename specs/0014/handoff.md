@@ -3,11 +3,18 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Atomic Excel reports and complete CLI file workflow.
-- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
-- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
+- **Latest delivered work:** Typed quantities, explicit direct FX, and retained provenance.
+- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
+- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
 
 ## Entries
+
+### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Typed quantities, explicit direct FX, and retained provenance.
+- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
+- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
 
 ### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
 

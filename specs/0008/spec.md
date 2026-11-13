@@ -1,6 +1,6 @@
 # 0008 — Financial units and currencies
 
-**Status:** Proposed
+**Status:** Initial Money/Price/Notional, ratio units, direct FX, and MoneySource integration implemented
 
 ## Problem statement
 
@@ -34,7 +34,8 @@ no global FX table exists.
 ```python
 usd = Money(Decimal("100"), "USD")
 rate = FxRate("EUR", "USD", Decimal("1.08"), as_of, source="approved-close")
-converted = rate.convert(Money(Decimal("50"), "EUR"))
+converted = rate.convert(Money(Decimal("50"), "EUR"), at=valuation_time,
+                         max_age=timedelta(days=1))
 ```
 
 Rules either require homogeneous currency or accept a caller-provided converter
@@ -45,6 +46,33 @@ and maximum rate age.
 Currencies use normalized ISO 4217 codes plus an explicit extension mechanism for
 fund units. Rates state base/quote direction, positive finite value, aware UTC
 timestamp, source, and optional identifier. Serialization never drops these.
+
+## Initial dimensional and integration contract
+
+`finassert.units` uses Decimal amounts and distinct immutable `Money`, `Price`,
+and `Notional` dimensions. Addition/subtraction require identical dimensions and
+currencies. Scaling is explicit. `BasisPoints` stores bps, `Percentage` stores
+percentage points, and `Return` stores a fraction; conversions are named methods.
+Cross-ratio addition is rejected rather than interpreting 50 bps as 50%.
+
+Currency strings normalize to uppercase three-letter codes. Validation checks
+syntax, not current ISO assignment; maintaining a live code registry is outside
+this initial module. Explicit caller-owned fund units use `UNIT:<identifier>`.
+No module-global extension registry or rates table is introduced.
+
+Direct FX conversion requires caller-supplied `at` and nonnegative `max_age`.
+Future, stale, nonpositive, and directionally incompatible rates error. Both
+timestamps are aware and normalize to UTC. Inversion is explicit. Converted
+quantities retain immutable rate provenance through same-dimension arithmetic.
+
+`MoneySource(data, columns=[...], currency="USD")` adapts explicitly named Money
+columns to Decimal amounts for existing rules. Requested non-null amounts must
+be Money in the declared currency; mixed/unconverted currencies error. Other
+columns and row labels are preserved. Results retain the used columns, currency,
+and distinct FX records under `metadata.financial_units`, which artifacts and
+Excel report metadata serialize. Missing values still follow the rule policy.
+Rate provenance is never silently truncated; more than 100 distinct rates in one
+source is rejected. Existing numeric input semantics are unchanged.
 
 ## Financial and numerical edge cases
 

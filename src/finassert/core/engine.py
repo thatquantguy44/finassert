@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from dataclasses import replace
 from typing import Any
 
 from finassert.core.diagnostics import normalize_diagnostics
@@ -23,12 +24,18 @@ def check(data: Any, rules: Iterable[Rule], *, raise_on_error: bool = False) -> 
     results: list[ValidationResult] = []
     for rule in rules:
         try:
+            reset_context = getattr(data, "reset_validation_context", None)
+            if callable(reset_context):
+                reset_context()
             result = rule.evaluate(data)
             if result.rule_id != rule.rule_id:
                 raise ValueError("rule returned a result with a different rule_id")
             limit = getattr(rule, "max_violations", None)
             if limit is not None:
                 result = normalize_diagnostics(result, limit)
+            if callable(reset_context):
+                context = data.validation_context
+                result = replace(result, metadata={**result.metadata, "financial_units": context})
             results.append(result)
         except Exception as exc:
             if raise_on_error:

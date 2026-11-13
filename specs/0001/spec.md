@@ -48,6 +48,11 @@ at the default error-severity threshold. Warning/info failures remain visible.
 An empty set passes vacuously. Results may carry bounded diagnostic collections
 as defined by 0005.
 
+Sources opting into the 0008 provenance protocol expose both
+`reset_validation_context()` and `validation_context`. The engine resets that
+context before each rule and retains the resulting unit/FX metadata. Monetary
+coercion remains the adapter's responsibility, and ordinary inputs are unchanged.
+
 ## Financial and numerical edge cases
 
 The engine performs no numeric coercion, rounding, normalization, currency

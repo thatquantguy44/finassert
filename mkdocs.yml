@@ -16,6 +16,7 @@ nav:
   - Assistant tool server: assistant.md
   - Excel add-in: excel-add-in.md
   - Integrations: integrations.md
+  - Financial units and FX: financial-units.md
   - Design notes:
       - Grouped validation: design/grouped-validation.md
       - Excel integration: design/excel-integration.md

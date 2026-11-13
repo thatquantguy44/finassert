@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Typed quantities, explicit direct FX, and retained provenance.
+- **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
+- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
+
 ### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).

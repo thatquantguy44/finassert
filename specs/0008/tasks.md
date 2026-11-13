@@ -8,16 +8,16 @@ acceptance certification.
 
 ## Existing baseline
 
-No runtime implementation is claimed; the capability remains proposed.
+Money/Price/Notional, ratio units, direct FX, and the opt-in MoneySource adapter are implemented initially.
 
 ## Remaining work, in order
 
-- [ ] Review and specify the dimensional model and currency-code extension mechanism.
-- [ ] Implement immutable Money and ratio units with Decimal-preserving operations.
-- [ ] Implement explicit direct FX with base/quote direction, UTC as-of time, source,
+- [x] Review and specify the dimensional model and currency-code extension mechanism.
+- [x] Implement immutable Money and ratio units with Decimal-preserving operations.
+- [x] Implement explicit direct FX with base/quote direction, UTC as-of time, source,
   and age validation.
-- [ ] Integrate unit/FX provenance with adapters, financial rules, and artifacts.
-- [ ] Add property and boundary coverage for conversion, stale rates, bps/percent
+- [x] Integrate unit/FX provenance with adapters, financial rules, and artifacts.
+- [x] Add property and boundary coverage for conversion, stale rates, bps/percent
   distinctions, and incompatible units.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

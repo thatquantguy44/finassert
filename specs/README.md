@@ -59,7 +59,7 @@ cross-spec dependencies, and overall priorities in the
 | [0005 Reporting and diagnostics](0005/spec.md) | Text/JSON/HTML initial |
 | [0006 Rule registry and custom rules](0006/spec.md) | Implemented (initial) |
 | [0007 CLI and pipeline integration](0007/spec.md) | Implemented (initial) |
-| [0008 Financial units and currencies](0008/spec.md) | Proposed |
+| [0008 Financial units and currencies](0008/spec.md) | Money/ratio units, direct FX, and adapter integration implemented (initial) |
 | [0009 Property-based testing](0009/spec.md) | Implemented (initial) |
 | [0010 Performance and batch validation](0010/spec.md) | Proposed |
 | [0011 Non-technical interfaces](0011/spec.md) | Milestones 1–6 implemented (initial); Excel files supported |
