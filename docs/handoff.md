@@ -11,25 +11,35 @@ rewrite old entries (append a correction instead).
 3. On finishing, copy the **Entry template**, fill it in, and put it directly
    under the `Entries` heading. Update **Current state** and **Next up**.
 4. Keep entries factual: link specs, PRs, and commits instead of restating them.
+5. Spec-specific plans, tasks, contracts, and session details live in the numbered
+   `specs/NNNN/` workspaces. This log retains project-wide state and cross-spec
+   decisions; see the [spec catalog](https://github.com/thatquantguy44/finassert/blob/main/specs/README.md).
 
 ## Current state
 
-- **Branch:** `fix/github-merge-author` (clean, based on `main`)
-- **Last merged:** PR #3 grouped DataFrame contracts
-- **Active spec:** [0004 DataFrame adapters](https://github.com/thatquantguy44/finassert/blob/main/specs/0004-dataframe-adapters.md)
-- **Open blockers:** none recorded
+- **Branch:** `feature/seven-priority-roadmap`
+- **Last recorded merge:** PR #3 grouped DataFrame contracts
+- **Active work:** [Seven-priority delivery](https://github.com/thatquantguy44/finassert/blob/main/specs/0012/spec.md), starting with Excel reader correctness
+  under [0011](https://github.com/thatquantguy44/finassert/blob/main/specs/0011/spec.md),
+  adapter contracts under [0004](https://github.com/thatquantguy44/finassert/blob/main/specs/0004/spec.md),
+  and diagnostics under [0005](https://github.com/thatquantguy44/finassert/blob/main/specs/0005/spec.md).
+- **Open blockers / gaps:** Known formula/error-cell, adapter length-validation,
+  and diagnostic gaps are recorded in the corresponding spec task files.
 
 ## Next up
 
-Ordered; mirrors the [roadmap](roadmap.md). Move items to an entry when done.
+Immediate corrective work precedes the feature sequence in the
+[roadmap](roadmap.md). Move items to an entry when done.
 
-1. Harden dataframe adapters, column mappings, grouped rules, and diagnostic
-   row identity (spec 0004).
-2. Cash and NAV reconciliation rules with documented sign and materiality
+1. Fix uncached trailing formulas and Excel error-cell outcomes (spec 0011).
+2. Enforce adapter value/label lengths and shared adapter tests (spec 0004), then
+   stabilize bounded diagnostics, row identity, and strict JSON (spec 0005).
+3. Cash and NAV reconciliation rules with documented sign and materiality
    conventions.
-3. Stable CLI/JSON artifacts and optional YAML policy configuration.
-4. Typed financial units and explicit FX provenance.
-5. Benchmark batch execution before choosing vectorization or concurrency.
+4. Excel report output, stable CLI/JSON artifacts, and optional YAML policy
+   configuration.
+5. Typed financial units and explicit FX provenance.
+6. Benchmark batch execution before choosing vectorization or concurrency.
 
 ## Entry template
 
@@ -46,6 +56,44 @@ Ordered; mirrors the [roadmap](roadmap.md). Move items to an entry when done.
 ```
 
 ## Entries
+
+### 2026-11-13 — Seven-priority implementation branch
+
+- **Author:** Codex (Joshua Lutkemuller's session)
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Done:** Created an ordered delivery workspace at `specs/0012/`, preserving
+  the existing Excel reader and numbered-spec migration as branch foundations.
+- **Not done:** The seven implementation gates remain open; work starts at gate 1.
+- **Decisions:** Draft PR tracks all seven priorities. Each gate receives
+  verification and a reviewable commit before moving to the next.
+- **Next step:** Fix trailing uncached formulas and Excel error-cell outcomes.
+
+### 2026-11-13 — Numbered specification workspaces
+
+- **Author:** Codex (Joshua Lutkemuller's session)
+- **Branch / PR:** `docs/spec-0011-excel`; no PR created in this session.
+- **Done:** Moved specs 0001-0011 verbatim into `specs/NNNN/spec.md`. Added
+  `plan.md`, `tasks.md`, `roadmap.md`, `AGENTS.md`, `contracts.md`, and `handoff.md`
+  to every spec folder. Added a reusable template, repository/shared instructions,
+  contribution guidance, and updated active links and current-state tracking.
+- **Not done / partial:** Runtime code and spec requirements are unchanged.
+  Formula/error-cell, adapter length-validation, and diagnostic gaps reproduced
+  during the preceding review are tracked as open tasks, not fixes.
+- **Decisions made:** Use permanent four-digit folder names. `spec.md` remains
+  canonical; companion files track implementation and evidence. Master handoff
+  history is preserved, including historical paths. New specs start from
+  `specs/_template/`.
+- **Open questions / blockers:** No blocker for the documentation migration.
+- **Verify with:** Compare migrated spec contents against HEAD; verify all
+  numbered folders, local links, and anchors; `git diff --check`;
+  `.venv/bin/python -m mkdocs build --strict --site-dir /tmp/finassert-review-site`.
+- **Evidence:** All 11 specs match their original contents byte-for-byte; every
+  numbered folder and the template has the seven required files. Historical
+  master handoff entries are unchanged. Local links/anchors, the strict docs
+  build, and the whitespace check pass. Runtime checks were not repeated for
+  this documentation-only migration.
+- **Next step:** Fix the first unchecked task in `specs/0011/tasks.md`: detect
+  uncached formulas before trimming trailing rows.
 
 ### 2026-10-15 — Excel reader implemented (spec 0011 milestones 1-2)
 - **Author:** Claude Code (Joshua Lutkemuller's session)

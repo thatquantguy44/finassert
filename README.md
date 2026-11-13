@@ -126,7 +126,7 @@ issues follow the private process in [SECURITY.md](SECURITY.md).
 ## Roadmap
 
 The next milestone is the adapter and diagnostic contract described in
-[specification 0004](specs/0004-dataframe-adapters.md), followed by catalog rules
+[specification 0004](specs/0004/spec.md), followed by catalog rules
 whose financial semantics can be stated without institutional assumptions. The
 full sequence appears in the [roadmap](docs/roadmap.md).
 

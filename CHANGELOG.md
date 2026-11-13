@@ -5,6 +5,13 @@ and intends to use Semantic Versioning after the public API stabilizes.
 
 ## [Unreleased]
 
+### Changed
+
+- Organized specifications into numbered workspaces with dedicated spec, plan,
+  tasks, roadmap, agent instructions, contracts, and handoff files; added a
+  reusable template for future specs. Existing specification requirements are
+  unchanged.
+
 ### Added
 
 - Dependency-free core validation engine and structured reports.
