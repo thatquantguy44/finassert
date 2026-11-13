@@ -5,12 +5,25 @@
 
 ## Current state
 
-- **Branch:** `feature/seven-priority-roadmap`.
+- **Branch:** `feature/shared-column-reads`.
 - **Latest delivered work:** Adapter length enforcement and shared contracts.
 - **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
-- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
+- **Next step:** Review the shared-read parity evidence under spec 0010; further
+  extensions remain proposed.
 
 ## Entries
+
+### 2026-11-13 — Shared-read parity under spec 0010
+
+- **Branch:** `feature/shared-column-reads`.
+- **Done:** Private shared reads retain at most one column for eligible built-in
+  checks on plain dictionaries/native pandas frames. Custom sources and rules,
+  lazy iterables and one-shot columns retain scalar reads. Native labels and
+  explicit row keys remain unchanged; reset-hook mutations clear retained values.
+- **Evidence:** Full 3,484-test suite passed, including 2,644 captured-reference
+  tests and focused label/mutation/nested/concurrent regressions.
+- **Details:** [Spec 0010 handoff](../0010/handoff.md) and
+  [measurements](../0010/artifacts/README.md#shared-column-reads).
 
 ### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
 

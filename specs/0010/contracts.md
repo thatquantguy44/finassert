@@ -11,6 +11,7 @@ and review focus; it does not introduce a second definition.
 - [Public API](spec.md#public-api-design)
 - [Data contracts](spec.md#data-contracts)
 - [Bounded diagnostic evaluation](spec.md#bounded-diagnostic-evaluation)
+- [Private shared column reads](spec.md#private-shared-column-reads)
 - [Failure semantics](spec.md#failure-semantics)
 - [Acceptance criteria](spec.md#acceptance-criteria)
 
@@ -44,3 +45,11 @@ report fingerprints match. The regression fixture in
 was captured from the merged scalar baseline at `5ec9959`; it fingerprints both
 direct evaluation and normalized reports. No contract migration is needed because
 public behavior and serialization are preserved.
+
+## Shared reads evidence — 2026-11-13
+
+The [24-case corpus and timing follow-ups](artifacts/README.md#shared-column-reads)
+retain full fingerprints, raw measurements and exact source digests. Sharing
+retains at most one column within a call, with explicit scalar fallbacks. All
+2,644 captured-reference tests and focused provenance/mutation cases pass.
+The full suite passes 3,484 tests. No public contract migration is needed.

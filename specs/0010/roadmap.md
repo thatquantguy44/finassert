@@ -2,14 +2,15 @@
 
 ## Current milestone
 
-Bounded scalar diagnostic evaluation implemented and compared with the retained
-48-case reference. Dense 100,000-row failure peak fell from 22.88 to 4.58 MiB;
-complete report fingerprints match. See [measurements](artifacts/README.md).
+Bounded scalar diagnostics and private one-column sharing implemented. Retained
+scalar and multi-rule reference/optimized corpora preserve all full report
+fingerprints. Multi-rule measurements and timing variability are documented in
+[artifacts/README.md](artifacts/README.md).
 
 ## Next and deferred work
 
-Review the bounded-diagnostic change, then use the updated profiles to select
-shared reads or private vector kernels only when a workload justifies them.
-Input materialization and aggregation memory remain; batch APIs stay proposed.
+Review the shared-read branch and scoped fallback behavior. Numerical scans and
+aggregation still dominate profiles; select further private kernels only when a
+workload justifies them. Public batch and concurrent APIs remain proposed.
 
 See [tasks.md](tasks.md), [plan.md](plan.md), and the [project roadmap](../../docs/roadmap.md).

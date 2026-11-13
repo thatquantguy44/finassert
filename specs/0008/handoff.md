@@ -5,12 +5,24 @@
 
 ## Current state
 
-- **Branch:** `feature/seven-priority-roadmap`.
+- **Branch:** `feature/shared-column-reads`.
 - **Latest delivered work:** Typed quantities, explicit direct FX, and retained provenance.
 - **Evidence:** 86 unit, diagnostics, accounting, and property tests passed; Ruff, mypy, strict docs, and whitespace checks passed.
-- **Next step:** Gate 7: retain reproducible runtime and peak-memory baselines.
+- **Next step:** Review the shared-read parity evidence under spec 0010; further
+  extensions remain proposed.
 
 ## Entries
+
+### 2026-11-13 — Shared-read parity under spec 0010
+
+- **Branch:** `feature/shared-column-reads`.
+- **Done:** Verified that private shared reads preserve per-rule unit/FX metadata.
+  MoneySource and arbitrary context-aware sources continue scalar reads; reset
+  hooks clear retained values before running. No unit or conversion contract changed.
+- **Evidence:** Full 3,484-test suite passed; focused repeated-source tests compare
+  complete cached/scalar reports and distinct FX records for a/b/a column reads.
+- **Details:** [Spec 0010 handoff](../0010/handoff.md) and
+  [measurements](../0010/artifacts/README.md#shared-column-reads).
 
 ### 2026-11-13 — Gate 6: Typed quantities, explicit direct FX, and retained provenance
 

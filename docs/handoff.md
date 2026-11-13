@@ -17,23 +17,24 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18).
-- **Last recorded main merge:** PR #17, seven-priority delivery (`5ec9959`).
-- **Delivery:** Spec 0010 now bounds diagnostic retention during scalar evaluation;
-  all failures are counted and complete reference reports are preserved. Dense
-  100,000-row failures use 4.58 MiB of Python validation peak, down from 22.88 MiB.
-- **Evidence:** 2,144 tests, 1,322 reference comparisons, and all 48 benchmark
-  fingerprints match. See the [local handoff](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/handoff.md) and
-  [retained measurements](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md).
-- **Open blockers:** None for bounded diagnostic evaluation. Broader proposed
-  work remains unchecked in its owning spec tasks.
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19).
+- **Last recorded main merge:** PR #18, bounded diagnostic memory (`28388d7`).
+- **Delivery:** All four multi-rule benchmark/shared-read items implemented under
+  spec 0010. Eligible built-in policies share at most one column within a check;
+  unsupported/custom/unit-aware cases retain scalar behavior.
+- **Evidence:** 3,484 tests and all complete benchmark report fingerprints match.
+  Fifty rules materialize once; peak memory is flat. Alternating timings show
+  5.0–7.2% gains in three workloads and neutral Decimal pandas. See the
+  [spec handoff](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/handoff.md)
+  and [measurements](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md#shared-column-reads).
+- **Open blockers:** None for these four items; broader work remains proposed.
 
 ## Next up
 
-1. Review the bounded-diagnostic branch and retained correctness/memory evidence.
-2. Use updated spec 0010 profiles before selecting shared reads or vectorization;
-   input materialization and aggregation memory remain. Batch APIs stay proposed.
-3. Select further catalog, redaction, or workbook-visibility work from the
+1. Review the shared-read branch, retained measurements and scoped fallbacks.
+2. Use numeric-scan profiles before choosing more private kernels. Public batch
+   and concurrent APIs remain proposed.
+3. Select further catalog, redaction or workbook-visibility work from the
    [project roadmap](roadmap.md) and local task files.
 
 ## Entry template
@@ -51,6 +52,27 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Measure multi-rule policies and share bounded column reads
+
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19), from merged PR #18 (`28388d7`).
+- **Done:** All four requested items: 1/10/50-rule benchmarks, extraction time/
+  count and peak-memory evidence, a justified private shared-read prototype,
+  and complete report/Decimal/row identity/unit-provenance parity verification.
+- **Measurement:** All 24 reference/optimized reports match. Fifty shared-column
+  rules materialize once rather than fifty times; peak memory stays flat.
+  Alternating pairs show 5.0–7.2% wall gains in three workloads; Decimal pandas
+  is neutral. All raw runs, including mixed timing differences, are retained in
+  [spec 0010 evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0010/artifacts/README.md#shared-column-reads).
+- **Verification:** 3,484 tests passed, including 2,644 captured-reference tests.
+  Custom rules/tolerances, overloaded scalars, lazy/one-shot inputs, reset hooks, nested/
+  concurrent calls, Decimal labels and per-rule FX provenance have regressions.
+  Ruff lint/format, mypy (59 modules), strict docs, wheel/sdist build and isolated installed CLI/unit/FX/workbook
+  flows pass.
+- **Decisions:** One-column per-call retention; exact eligible built-ins only.
+  No cached numeric reduction or unit context. Unsupported cases preserve scalar
+  behavior. Public signatures/schemas remain unchanged; no merge/release.
+- **Next step:** Review this branch and scoped fallbacks before further kernels.
 
 ### 2026-11-13 — Bound diagnostic memory during evaluation (spec 0010)
 

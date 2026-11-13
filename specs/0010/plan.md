@@ -48,3 +48,23 @@ PYTHONPATH=src .venv/bin/python scripts/benchmark_validation.py --sizes 1000 100
 
 Keep the original baseline artifact unchanged. Reproduction and measured limits
 are documented in [artifacts/README.md](artifacts/README.md).
+
+## Shared column reads
+
+1. Retain the merged scalar baseline before runtime changes, using policies of
+   1/10/50 rules sharing a column on mapping/pandas and float/Decimal inputs.
+   Separate construction, validation timing, tracemalloc and cProfile. Record
+   extraction calls and profiled extraction time as well as whole-check costs.
+2. Use measured extraction cost to decide whether a private prototype is useful.
+   Start with consecutive built-in arithmetic/weight rules and one retained
+   column: bound retention rather than keeping every distinct policy column.
+3. Share only within one check on plain list/tuple-backed dictionaries or native
+   pandas frames. Custom rules/subclasses, lazy rule iterables, arbitrary column
+   sources, one-shot columns, overloaded scalars/configurations and unit-aware
+   sources keep scalar behavior. Clear
+   state around unsupported rules and at call exit, including exceptions.
+4. Verify complete reports against uncached execution and captured pre-change
+   fingerprints. Cover Decimal boundaries, unusual labels, errors, mutations
+   between rules/calls, nested checks and per-rule financial-unit/FX provenance.
+5. Retain optimized measurements alongside the immutable reference; ship only
+   measured gains with no result regression and documented workload limits.
