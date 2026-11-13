@@ -17,7 +17,7 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `feature/shared-column-reads`.
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19).
 - **Last recorded main merge:** PR #18, bounded diagnostic memory (`28388d7`).
 - **Delivery:** All four multi-rule benchmark/shared-read items implemented under
   spec 0010. Eligible built-in policies share at most one column within a check;
@@ -55,7 +55,7 @@ rewrite old entries (append a correction instead).
 
 ### 2026-11-13 — Measure multi-rule policies and share bounded column reads
 
-- **Branch:** `feature/shared-column-reads`, from merged PR #18 (`28388d7`).
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19), from merged PR #18 (`28388d7`).
 - **Done:** All four requested items: 1/10/50-rule benchmarks, extraction time/
   count and peak-memory evidence, a justified private shared-read prototype,
   and complete report/Decimal/row identity/unit-provenance parity verification.

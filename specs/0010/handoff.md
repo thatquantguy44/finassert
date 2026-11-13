@@ -5,7 +5,7 @@
 
 ## Current state
 
-- **Branch:** `feature/shared-column-reads`, from merged PR #18 (`28388d7`).
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19), from merged PR #18 (`28388d7`).
 - **Latest delivered work:** All four multi-rule measurement/shared-read items.
   Private sharing retains one column across eligible consecutive built-in rules;
   custom/lazy/unit-aware inputs retain scalar behavior.
@@ -20,7 +20,7 @@
 
 ### 2026-11-13 — Multi-rule benchmarks and bounded shared reads
 
-- **Branch:** `feature/shared-column-reads`, from merged PR #18 (`28388d7`).
+- **Branch / PR:** `feature/shared-column-reads`, [draft PR #19](https://github.com/thatquantguy44/finassert/pull/19), from merged PR #18 (`28388d7`).
 - **Done:** Retained policies with 1/10/50 rules, two sizes, float/Decimal and
   mapping/pandas. Measured materialization calls, profiled extraction time,
   first/warm validation time, tracemalloc and RSS separately. Prototyped and
