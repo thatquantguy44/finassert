@@ -5,15 +5,19 @@
 
 ## Current state
 
-- Status: Implemented (initial).
-- Implementation/reference areas:
-  [src/finassert/registry](../../src/finassert/registry),
-  [src/finassert/rules/custom.py](../../src/finassert/rules/custom.py).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Audit coverage for rich/invalid callable results, duplicate/replacement
-  registration, sorted IDs, and registry independence.
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ## Entries
+
+### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ### 2026-11-13 — Numbered spec workspace created
 

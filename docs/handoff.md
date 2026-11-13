@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
+
 ### 2026-11-13 — Gate 4: Verified public cash and NAV reconciliation across adapters
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).

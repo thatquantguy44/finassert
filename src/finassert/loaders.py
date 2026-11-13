@@ -145,8 +145,10 @@ def parse_csv(text: str) -> TableSource:
 def parse_json(text: str) -> Any:
     """Parse a JSON column mapping or list of row objects, keeping decimals exact."""
     try:
-        data = json.loads(text, parse_float=Decimal, parse_int=_integer)
-    except json.JSONDecodeError as exc:
+        data = json.loads(
+            text, parse_float=Decimal, parse_int=_integer, parse_constant=_invalid_constant
+        )
+    except ValueError as exc:
         raise InvalidDataError(f"the JSON input is not valid JSON: {exc}") from exc
     if isinstance(data, dict):
         return data
@@ -155,7 +157,17 @@ def parse_json(text: str) -> Any:
     raise InvalidDataError("JSON input must be an object of columns or a list of row objects")
 
 
-def parse_xlsx(data: bytes, *, sheet: str | None = None) -> TableSource:
+def _invalid_constant(value: str) -> Any:
+    raise ValueError(f"non-JSON numeric constant {value!r}")
+
+
+def parse_xlsx(
+    data: bytes,
+    *,
+    sheet: str | None = None,
+    header_row: int | None = None,
+    max_row: int | None = None,
+) -> TableSource:
     """Read one worksheet of an Excel ``.xlsx`` workbook.
 
     The first non-empty row holds the headers. Numbers keep the exact decimal
@@ -168,20 +180,26 @@ def parse_xlsx(data: bytes, *, sheet: str | None = None) -> TableSource:
     Args:
         data: The workbook file contents.
         sheet: Worksheet name; required when the workbook has several sheets.
+        header_row: Explicit 1-based header row; otherwise use the first nonempty row.
+        max_row: Optional last worksheet row to include, inclusive.
 
     Raises:
         InvalidDataError: If the workbook, sheet, or headers cannot be read,
             or a formula cell has no saved result.
     """
-    worksheet = read_sheet(data, sheet)
+    worksheet = read_sheet(data, sheet, header_row=header_row, max_row=max_row)
     if not worksheet.rows:
         raise InvalidDataError(f"sheet {worksheet.name!r} is empty; row 1 must hold headers")
-    header_row, header_cells = worksheet.rows[0]
+    actual_header, header_cells = worksheet.rows[0]
+    if header_row is not None and actual_header != header_row:
+        raise InvalidDataError(f"header row {header_row} is empty")
     headers: dict[int, str] = {}
     for position, value in sorted(header_cells.items()):
         name = value if isinstance(value, str) else str(value)
         if not name.strip():
-            raise InvalidDataError(f"cell {column_letter(position)}{header_row} has no header text")
+            raise InvalidDataError(
+                f"cell {column_letter(position)}{actual_header} has no header text"
+            )
         if name in headers.values():
             raise InvalidDataError(f"header {name!r} appears more than once")
         headers[position] = name
@@ -260,6 +278,8 @@ def load_input(
     *,
     format: str | None = None,
     sheet: str | None = None,
+    header_row: int | None = None,
+    max_row: int | None = None,
 ) -> Any:
     """Read a CSV, JSON, Excel, or Parquet input file for validation.
 
@@ -268,6 +288,8 @@ def load_input(
         format: One of :data:`INPUT_FORMATS`; inferred from the extension when
             omitted.
         sheet: Worksheet to read from an Excel workbook.
+        header_row: Optional explicit 1-based Excel header row.
+        max_row: Optional last Excel worksheet row to include.
 
     Raises:
         InvalidDataError: If the format is unknown, a sheet is given for a
@@ -282,8 +304,12 @@ def load_input(
         )
     if sheet is not None and resolved != "xlsx":
         raise SheetError("a sheet can only be chosen for Excel (.xlsx) input", ())
+    if (header_row is not None or max_row is not None) and resolved != "xlsx":
+        raise SheetError("header_row and max_row are only available for Excel (.xlsx) input", ())
     if resolved == "xlsx":
-        return parse_xlsx(location.read_bytes(), sheet=sheet)
+        return parse_xlsx(
+            location.read_bytes(), sheet=sheet, header_row=header_row, max_row=max_row
+        )
     if resolved == "parquet":
         return read_parquet(location)
     try:

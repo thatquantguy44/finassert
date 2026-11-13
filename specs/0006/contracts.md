@@ -22,3 +22,12 @@ and review focus; it does not introduce a second definition.
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.
+
+## Verified factory boundary — 2026-11-13
+
+Main's policy layer already separates `RuleFactorySpec`/`ParameterSpec` descriptors
+from configured instances in `RuleRegistry`. `RuleCatalog` is a caller-owned
+allowlist with deterministic name/ID lookup, collision checks, typed parameters,
+and explicit replacement. `default_catalog()` creates a fresh built-in catalog;
+policy loading rejects unknown fields and never imports user-named Python code.
+The CLI and workbook workflow reuse this existing boundary.

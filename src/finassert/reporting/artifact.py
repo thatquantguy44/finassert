@@ -22,6 +22,8 @@ def build_artifact(
     input_locator: str | None = None,
     input_format: str | None = None,
     input_sheet: str | None = None,
+    input_header_row: int | None = None,
+    input_max_row: int | None = None,
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Wrap a report with the context needed to audit or reproduce it.
@@ -32,6 +34,8 @@ def build_artifact(
         input_locator: Input description exactly as the user supplied it.
         input_format: Loader format used for the input.
         input_sheet: Worksheet read from a workbook input, if any.
+        input_header_row: Explicit worksheet header row supplied by the caller.
+        input_max_row: Inclusive worksheet row bound supplied by the caller.
         generated_at: Timestamp to record; defaults to the current UTC time.
     """
     moment = generated_at or datetime.now(UTC)
@@ -43,7 +47,9 @@ def build_artifact(
         "tool": {"name": "finassert", "version": __version__},
         "generated_at": moment.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "policy": None if policy is None else policy.describe(),
-        "input": _input_context(input_locator, input_format, input_sheet),
+        "input": _input_context(
+            input_locator, input_format, input_sheet, input_header_row, input_max_row
+        ),
         "report": report.to_dict(),
     }
 
@@ -54,11 +60,25 @@ def artifact_to_json(artifact: dict[str, Any], *, indent: int | None = 2) -> str
 
 
 def _input_context(
-    locator: str | None, input_format: str | None, sheet: str | None
+    locator: str | None,
+    input_format: str | None,
+    sheet: str | None,
+    header_row: int | None,
+    max_row: int | None,
 ) -> dict[str, Any] | None:
-    if locator is None and input_format is None and sheet is None:
+    if (
+        locator is None
+        and input_format is None
+        and sheet is None
+        and header_row is None
+        and max_row is None
+    ):
         return None
     context: dict[str, Any] = {"locator": locator, "format": input_format}
     if sheet is not None:
         context["sheet"] = sheet
+    if header_row is not None:
+        context["header_row"] = header_row
+    if max_row is not None:
+        context["max_row"] = max_row
     return context

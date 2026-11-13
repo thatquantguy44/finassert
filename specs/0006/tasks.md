@@ -14,9 +14,9 @@ acceptance certification.
 
 - [ ] Audit coverage for rich/invalid callable results, duplicate/replacement
   registration, sorted IDs, and registry independence.
-- [ ] Specify factory descriptors and parameter schemas needed by allowlisted CLI
+- [x] Specify factory descriptors and parameter schemas needed by allowlisted CLI
   configuration in 0007.
-- [ ] Implement factory lookup only after separating configured rule instances from
+- [x] Implement factory lookup only after separating configured rule instances from
   factory metadata.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

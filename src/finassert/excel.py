@@ -27,6 +27,7 @@ from typing import Any
 from finassert._xlsx import _excel_date, _is_date_format, column_letter
 from finassert.core.exceptions import InvalidDataError
 from finassert.loaders import TableSource, parse_cell
+from finassert.reporting.xlsx import write_report_xlsx
 from finassert.workbook import ExcelError, WorkbookSource, read_workbook
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "read_workbook",
     "results_sheet",
     "results_table",
+    "write_report_xlsx",
 ]
 
 MAX_CELLS = 5_000_000

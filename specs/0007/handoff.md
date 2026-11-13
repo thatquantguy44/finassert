@@ -5,16 +5,19 @@
 
 ## Current state
 
-- Status: Proposed.
-- Implementation/reference areas: [pyproject.toml](../../pyproject.toml),
-  [src/finassert/registry](../../src/finassert/registry),
-  [src/finassert/reporting](../../src/finassert/reporting),
-  [docs/examples/pipeline-validation.md](../../docs/examples/pipeline-validation.md).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Freeze the versioned artifact envelope with 0005 and factory/configuration
-  contracts with 0006.
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ## Entries
+
+### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ### 2026-11-13 — Numbered spec workspace created
 

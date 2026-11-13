@@ -22,11 +22,11 @@ acceptance certification.
 - [x] Run the full shared 0004 adapter contract suite over WorkbookSource.
 - [ ] Add coverage for cached formulas, workbook epochs, hidden/merged regions, and
   header/row-label properties.
-- [ ] Implement write_report_xlsx Summary/Results sheets with Decimal text and
+- [x] Implement write_report_xlsx Summary/Results sheets with Decimal text and
   formula-injection protection.
 - [ ] Resolve hidden-region reporting and totals-row options; max_row already bounds the
   selected region.
-- [ ] Add CLI workbook flags after 0007; add a Diagnostics sheet after 0005 defines
+- [x] Add CLI workbook flags after 0007; add a Diagnostics sheet after 0005 defines
   structured observations.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

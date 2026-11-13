@@ -6,11 +6,18 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Adapter length enforcement and shared contracts.
-- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
-- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
+- **Latest delivered work:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ## Entries
+
+### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Atomic Excel reports and complete CLI file workflow.
+- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
+- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
 
 ### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
 

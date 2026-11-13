@@ -1,6 +1,6 @@
 # 0013 — Excel workbook integration
 
-**Status:** Reader implemented (initial); report writer and CLI proposed
+**Status:** Reader, report writer, and CLI worksheet-region/report extensions implemented (initial)
 
 ## Problem statement
 
@@ -54,8 +54,9 @@ report = fa.check(source, rules_built_with(mapping))
 write_report_xlsx(report, "validation.xlsx")
 ```
 
-Proposed CLI extension to 0007: `--format xlsx --sheet NAME --header-row N` and
-`--output report.xlsx`.
+CLI extensions to 0007: `--format xlsx --sheet NAME --header-row N --max-row N`
+select the worksheet region. `--xlsx report.xlsx` writes the reviewer workbook;
+`--output report.json` retains the existing JSON artifact contract.
 
 ## Data contracts
 
@@ -73,8 +74,8 @@ has fixed sheets: `Summary` (counts by outcome) and `Results` (one row per
 expected, tolerance, and `metadata` serialized as canonical JSON text). Decimals
 are written as text to avoid float drift. Rule metadata is currently free-form
 (`missing_rows`, `invalid_positions`, ...), so the writer does not flatten it
-into per-row records; a `Diagnostics` sheet is blocked on 0005 defining
-structured, bounded failing observations. Values beginning with `=`, `+`, `-`,
+into per-row records. A `Diagnostics` sheet renders the structured, bounded
+collections defined by 0005, retaining total count, cap, and truncation. Values beginning with `=`, `+`, `-`,
 or `@` are written as text to prevent formula injection when a reviewer opens the
 report.
 

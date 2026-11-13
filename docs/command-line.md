@@ -1,5 +1,25 @@
 # Policies and the command line
 
+To export an Excel review workbook, install `finassert[cli,excel]` and use
+`--xlsx`. JSON output remains on `--output`; the two can be written in one run:
+
+```bash
+finassert check --config policy.yml --input positions.xlsx --sheet Positions \
+  --header-row 3 --max-row 500 --output report.json --xlsx review.xlsx
+```
+
+Header and last-row options use Excel's 1-based worksheet row numbers. The
+selected header row must contain headers; cells outside the chosen region are
+excluded, so choose `--max-row` before a totals section. The artifact records
+these bounds. Without an explicit header row, the first nonempty row remains the
+header. Hidden rows inside the selected region are included.
+
+Excel reports contain Summary, Results, and Diagnostics sheets. Decimal values
+and formula-like text stay literal text, and row/group examples remain bounded
+while total counts stay complete. A report that cannot fit Excel's cell text
+limits errors instead of silently truncating evidence. Outputs are written
+atomically and cannot replace the input or policy file.
+
 A **policy** is a small file that names the checks a dataset must pass. Policies
 let people who do not write Python define, review, and run checks, and let
 pipelines run exactly the same checks without bespoke code.

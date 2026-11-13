@@ -8,19 +8,19 @@ acceptance certification.
 
 ## Existing baseline
 
-No runtime implementation is claimed; the capability remains proposed.
+Current main implements the policy catalog, strict YAML/JSON configuration, CLI, and JSON/CSV/XLSX/Parquet loaders.
 
 ## Remaining work, in order
 
-- [ ] Freeze the versioned artifact envelope with 0005 and factory/configuration
+- [x] Freeze the versioned artifact envelope with 0005 and factory/configuration
   contracts with 0006.
-- [ ] Specify strict versioned YAML configuration, unknown-key rejection, and
+- [x] Specify strict versioned YAML configuration, unknown-key rejection, and
   Decimal-sensitive parameter spelling.
-- [ ] Implement explicit JSON/CSV loaders and a CLI invoking the ordinary
+- [x] Implement explicit JSON/CSV loaders and a CLI invoking the ordinary
   engine/reporters.
-- [ ] Subprocess-test exit codes 0-4, mixed outcomes, paths with spaces, atomic partial
+- [x] Subprocess-test exit codes 0-4, mixed outcomes, paths with spaces, atomic partial
   output, and malformed inputs.
-- [ ] Add Excel flags with 0011; add optional Parquet support after the initial loaders.
-- [ ] Document plain-shell and CI recipes without coupling to orchestrator SDKs.
+- [x] Add Excel flags with 0013; add optional Parquet support after the initial loaders.
+- [x] Document plain-shell and CI recipes without coupling to orchestrator SDKs.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

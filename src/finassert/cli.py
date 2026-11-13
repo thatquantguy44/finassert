@@ -37,6 +37,7 @@ from finassert.policy import (
 from finassert.policy.issues import closest
 from finassert.policy.suggest import TemplateFit, fit_template, suggest_templates
 from finassert.reporting import artifact_to_json, build_artifact, render_artifact_html
+from finassert.reporting.xlsx import write_report_xlsx
 
 EXIT_PASSED = 0
 EXIT_FAILED = 1
@@ -114,6 +115,21 @@ def _parser() -> argparse.ArgumentParser:
     check.add_argument("--output", metavar="FILE", help="write the JSON report here")
     check.add_argument("--html", metavar="FILE", help="write a readable HTML report here")
     check.add_argument(
+        "--xlsx", metavar="FILE", help="write an Excel report (requires finassert[excel])"
+    )
+    check.add_argument(
+        "--header-row",
+        type=int,
+        metavar="N",
+        help="1-based worksheet header row; defaults to the first nonempty row",
+    )
+    check.add_argument(
+        "--max-row",
+        type=int,
+        metavar="N",
+        help="last worksheet row to include, such as the row before a totals section",
+    )
+    check.add_argument(
         "--fail-on",
         choices=[item.value for item in Severity],
         default=Severity.ERROR.value,
@@ -171,11 +187,17 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _check(arguments: argparse.Namespace) -> int:
-    outputs = [Path(item) for item in (arguments.output, arguments.html) if item]
+    outputs = [Path(item) for item in (arguments.output, arguments.html, arguments.xlsx) if item]
     if len({path.resolve() for path in outputs}) != len(outputs):
-        return _fail(EXIT_USAGE, "--output and --html must name different files.")
+        return _fail(EXIT_USAGE, "--output, --html, and --xlsx must name different files.")
     if any(path.resolve() == Path(arguments.input).resolve() for path in outputs):
         return _fail(EXIT_USAGE, "a report path must not be the input file.")
+    if any(path.resolve() == Path(arguments.config).resolve() for path in outputs):
+        return _fail(EXIT_USAGE, "a report path must not be the policy file.")
+    if arguments.header_row is not None and arguments.header_row < 1:
+        return _fail(EXIT_USAGE, "--header-row must be at least 1.")
+    if arguments.max_row is not None and arguments.max_row <= (arguments.header_row or 0):
+        return _fail(EXIT_USAGE, "--max-row must be greater than the selected header row.")
 
     try:
         policy = load_policy(arguments.config, format=arguments.policy_format)
@@ -186,7 +208,13 @@ def _check(arguments: argparse.Namespace) -> int:
         return _fail(EXIT_USAGE, f"cannot read policy {arguments.config!r}: {_reason(exc)}")
 
     try:
-        data = load_input(arguments.input, format=arguments.format, sheet=arguments.sheet)
+        data = load_input(
+            arguments.input,
+            format=arguments.format,
+            sheet=arguments.sheet,
+            header_row=arguments.header_row,
+            max_row=arguments.max_row,
+        )
     except SheetError as exc:
         hint = "; pass one with --sheet NAME" if arguments.sheet is None and exc.sheets else ""
         return _fail(EXIT_USAGE, f"{arguments.input!r}: {exc}{hint}.")
@@ -203,6 +231,8 @@ def _check(arguments: argparse.Namespace) -> int:
         input_locator=arguments.input,
         input_format=input_format,
         input_sheet=arguments.sheet,
+        input_header_row=arguments.header_row,
+        input_max_row=arguments.max_row,
         generated_at=_generated_at(),
     )
 
@@ -221,6 +251,12 @@ def _check(arguments: argparse.Namespace) -> int:
             write_atomic(Path(arguments.html), render_artifact_html(artifact))
             if not arguments.quiet:
                 print(f"HTML report written to {arguments.html}")
+        if arguments.xlsx:
+            write_report_xlsx(report, arguments.xlsx, artifact=artifact)
+            if not arguments.quiet:
+                print(f"Excel report written to {arguments.xlsx}")
+    except (ImportError, ValueError) as exc:
+        return _fail(EXIT_IO, f"cannot write report: {exc}")
     except OSError as exc:
         return _fail(EXIT_IO, f"cannot write report: {_reason(exc)}")
     return code

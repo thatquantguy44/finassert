@@ -24,3 +24,12 @@ and review focus; it does not introduce a second definition.
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
 row identity require a spec amendment and migration note.
+
+## Verified file workflow — 2026-11-13
+
+Retain main's strict version-1 YAML/JSON policies, allowlisted factory descriptors,
+Decimal-sensitive parameters, existing loaders, and exit codes 0-4. JSON and HTML
+artifacts remain available. `--xlsx` adds an atomic Excel report without changing
+`--output` from JSON. Explicit Excel header/last-row bounds are recorded in run
+context. Errors and invariant failures still produce artifacts after evaluation;
+input/configuration failures do not create a falsely passing report.
