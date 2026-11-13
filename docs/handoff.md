@@ -50,6 +50,18 @@ rewrite old entries (append a correction instead).
 
 ## Entries
 
+### 2026-11-13 — Pin the browser CI runner to Playwright's supported OS
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, draft PR #17.
+- **Evidence:** CI at `5abd62e` passed Python 3.11-3.13, quality/package checks,
+  authorship, and documentation. The web job built all artifacts but failed
+  installing Chromium: pinned Playwright 1.55 rejects Ubuntu 26.04, now selected
+  by `ubuntu-latest`.
+- **Fix:** Pin only the web job to Ubuntu 24.04, supported by Playwright 1.55's
+  [platform contract](https://github.com/microsoft/playwright/blob/v1.55.0/packages/playwright-core/src/server/utils/hostPlatform.ts).
+  Browser smoke tests remain required, with no dependency upgrade or skipped gate.
+- **Next step:** Verify all browser/Excel smoke tests on the corrected runner.
+
 ### 2026-11-13 — Seven priorities delivered and locally verified
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17); issue #16.
