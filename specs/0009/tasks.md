@@ -17,8 +17,8 @@ acceptance certification.
   strategies.
 - [ ] Add exact tolerance-boundary and scaling properties.
 - [ ] Add cash/NAV identity properties as 0002 is promoted.
-- [ ] Add cross-adapter equivalence properties with 0004 and Excel header/row-label
-  properties with 0011.
+- [x] Add cross-adapter equivalence properties with 0004 and Excel header/row-label
+  properties with 0013.
 - [ ] Define explicit offline Hypothesis profiles and retain named regressions for fixed
   defects.
 - [ ] Add unit/FX round trips after 0008.

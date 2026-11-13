@@ -21,7 +21,7 @@ Dependencies and acceptance requirements remain in
 Verification from the repository root:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_engine.py tests/unit/test_portfolio.py tests/unit/test_arithmetic.py tests/unit/test_grouped_cash_prototype.py
+PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_engine.py tests/unit/test_portfolio.py tests/unit/test_arithmetic.py tests/unit/test_accounting.py
 ```
 
 This command covers the existing baseline. Add focused coverage for new behavior as

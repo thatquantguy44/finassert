@@ -5,17 +5,19 @@
 
 ## Current state
 
-- Status: pandas, mapping, and grouped aggregation contracts implemented; Polars
-  proposed.
-- Implementation/reference areas:
-  [src/finassert/adapters](../../src/finassert/adapters),
-  [src/finassert/rules/grouped.py](../../src/finassert/rules/grouped.py),
-  [docs/design/grouped-validation.md](../../docs/design/grouped-validation.md).
-- Remaining work and known gaps: [tasks.md](tasks.md).
-- Next step: Reject unequal value/label lengths from ColumnSource before evaluating a
-  rule; review reproduced a weight-rule PASS for values=[1], labels=[].
+- **Branch:** `feature/seven-priority-roadmap`.
+- **Latest delivered work:** Adapter length enforcement and shared contracts.
+- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
+- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
 
 ## Entries
+
+### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Adapter length enforcement and shared contracts.
+- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
+- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
 
 ### 2026-11-13 — Numbered spec workspace created
 

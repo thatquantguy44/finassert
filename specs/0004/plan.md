@@ -7,8 +7,8 @@
    value/label lengths.
 2. Parameterize common contract cases across supported inputs and add bounded
    adapter-equivalence properties with 0009.
-3. Resolve ordered aggregation and currency preconditions before promoting the private
-   cash rule; keep Polars deferred.
+3. Verify the existing public cash rule's ordered aggregation and currency
+   preconditions; keep Polars deferred.
 
 Implementation areas: [src/finassert/adapters](../../src/finassert/adapters),
 [src/finassert/rules/grouped.py](../../src/finassert/rules/grouped.py),
@@ -20,7 +20,7 @@ Dependencies and acceptance requirements remain in
 Verification from the repository root:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_adapter_contracts.py tests/unit/test_grouped_rules.py tests/unit/test_grouped_cash_prototype.py tests/integration
+uv run pytest -q tests/unit/test_adapter_contracts.py tests/unit/test_grouped_rules.py tests/integration/test_shared_adapter_contracts.py
 ```
 
 This command covers the existing baseline. Add focused coverage for new behavior as

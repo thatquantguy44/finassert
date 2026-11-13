@@ -13,8 +13,8 @@ Preserve these review constraints:
 
 - Column values and labels have equal length, and multi-column native labels align.
 - Adapters preserve dtypes, input order, duplicate labels, and caller data.
-- Grouped reductions are explicitly configured; FIRST/LAST currently use physical input
-  order.
+- Grouped reductions are explicitly configured. Public FIRST/LAST rules require
+  an explicit ordering column; retain main's implemented ordering contract.
 
 Use [plan.md](plan.md) for the approach and its verification command. Update task
 evidence and the local handoff when work finishes; reflect cross-spec effects in the

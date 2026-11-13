@@ -31,6 +31,9 @@ class WorkbookSource:
     """
 
     def __init__(self, columns: dict[str, list[Any]], labels: list[int]) -> None:
+        for name, values in columns.items():
+            if len(values) != len(labels):
+                raise InvalidDataError(f"column {name!r} does not match the row count")
         self._columns = columns
         self._labels = labels
 

@@ -6,11 +6,18 @@
 ## Current state
 
 - **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Excel formula and error-cell correctness.
-- **Evidence:** 86 focused Excel tests, Ruff, and mypy passed; six regressions failed before the fix.
-- **Next step:** Gate 2: enforce adapter lengths and shared contracts.
+- **Latest delivered work:** Adapter length enforcement and shared contracts.
+- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
+- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
 
 ## Entries
+
+### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Adapter length enforcement and shared contracts.
+- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
+- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
 
 ### 2026-11-13 — Gate 1: Excel formula and error-cell correctness
 

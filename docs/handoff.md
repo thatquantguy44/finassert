@@ -57,6 +57,13 @@ Immediate corrective work precedes the feature sequence in the
 
 ## Entries
 
+### 2026-11-13 — Gate 2: Adapter length enforcement and shared contracts
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).
+- **Done:** Adapter length enforcement and shared contracts.
+- **Evidence:** 86 adapter tests passed across six input forms, including generated workbook/pandas equivalence; Ruff and mypy passed.
+- **Next step:** Gate 3: bounded diagnostics and strict artifacts.
+
 ### 2026-11-13 — Gate 1: Excel formula and error-cell correctness
 
 - **Branch / PR:** `feature/seven-priority-roadmap`, [draft PR #17](https://github.com/thatquantguy44/finassert/pull/17).

@@ -15,6 +15,10 @@ def extract_column(data: Any, name: str) -> tuple[list[Any], list[Any]]:
     """Extract a named column and stable row labels from supported inputs."""
     if isinstance(data, ColumnSource):
         values, labels = data.column(name)
+        if len(values) != len(labels):
+            raise InvalidDataError(
+                f"column {name!r} has {len(values)} values but {len(labels)} row labels"
+            )
         for position, value in enumerate(values):
             if isinstance(value, CellError):
                 label = labels[position] if position < len(labels) else position
