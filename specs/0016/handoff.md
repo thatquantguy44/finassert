@@ -4,7 +4,8 @@
 
 - **Status:** Scoped proposal; runtime implementation and real-host acceptance pending.
 - **Branch:** docs/spec-0016-excel-validation-workflow, based on main at 8d96fdc.
-- **PR:** No separate implementation PR created for this scope.
+- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22), open for
+  review against main. Runtime implementation remains pending.
 - **Delivered:** Required seven-file workspace and manual acceptance checklist;
   six ordered implementation tasks with requirement/acceptance coverage. All
   documentation checks passed; the scope is ready for implementation review.
@@ -13,6 +14,15 @@
 - **Next step:** E-01: proposal issue, stale-result regression and Mac host baseline.
 
 ## Entries
+
+### 2026-11-13 — Scope committed, pushed and opened for review
+
+- **Commit:** d035bba, docs: scope the Excel add-in validation workflow.
+- **PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22), targeting main,
+  ready for review. All 16 changed files are documentation.
+- **Evidence:** 80 local links/anchors, workspace/task/acceptance coverage,
+  whitespace and strict MkDocs passed. Remote checks are visible on the PR.
+- **Next:** Review scope; E-01–E-06 and real-host acceptance remain pending.
 
 ### 2026-11-13 — Scope prepared for publication to main
 

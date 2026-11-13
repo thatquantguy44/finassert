@@ -27,10 +27,11 @@ rewrite old entries (append a correction instead).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
 - **Next priority:** Mac-first Excel add-in workflow, scoped as proposed spec 0016.
   Runtime implementation and real-host acceptance have not started.
+- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22), open for review against main.
 
 ## Next up
 
-1. Review the proposed spec 0016 scope PR targeting main.
+1. Review the proposed spec 0016 scope in PR #22.
 2. Start spec 0016 E-01: proposal issue, stale-result regression and real Mac baseline.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
@@ -49,6 +50,16 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Publish the Excel workflow scope PR
+
+- **Commit / PR:** d035bba and [PR #22](https://github.com/thatquantguy44/finassert/pull/22),
+  from docs/spec-0016-excel-validation-workflow to main. Ready for review.
+- **Done:** Committed and pushed all scoped changes; verified the PR contains 16
+  documentation files on top of merged PR #21.
+- **Verify:** Local documentation/coverage/whitespace checks passed; remote check
+  results are recorded on the PR. Runtime implementation remains pending.
+- **Next:** Review scope, then spec 0016 E-01.
 
 ### 2026-11-13 — Prepare Excel workflow scope for main
 
