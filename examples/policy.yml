@@ -1,0 +1,22 @@
+# Example finassert policy. Try it with:
+#   finassert check --config examples/policy.yml --input examples/positions.csv --html report.html
+# or open both files in the browser app (python scripts/build_web.py).
+#
+# With the sample data, the first check passes and the second fails on row 5,
+# where a market value was booked with the wrong sign.
+version: 1
+name: Daily positions
+description: Long-only equity book, one portfolio per file
+assumptions:
+  - Weights are fractions of 1 (0.30), not percentages (30)
+  - Cash is held as a position, so weights include it
+rules:
+  # Weights must add up to 1. Quote the tolerance to keep it an exact decimal.
+  - rule: weights_sum_to_one
+    column: weight
+    tolerance: "0.0001"
+
+  # Market values cannot be negative in a long-only book.
+  # Column names are written exactly as they appear in the file's header.
+  - rule: non_negative
+    column: Mkt Val (USD)

@@ -1,0 +1,32 @@
+# finassert policy
+version: 1
+name: "Synthetic 13-week coverage and continuity"
+assumptions:
+  - "Synthetic amounts in currency major units, with no conversion or netting."
+  - "One row per vintage/entity/currency/scenario/calendar week; end is exclusive."
+  - "Expected scope includes series absent from the input."
+  - "Payments are positive magnitudes; receipts/payments exclude financing flows."
+  - "This policy checks coverage and continuity only, not liquidity or capacity."
+rules:
+  - rule: forecast_coverage
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+  - rule: cash_continuity
+    period_start: "period_start"
+    period_end: "period_end"
+    group_by: ["forecast_as_of", "entity_id", "scenario_id"]
+    currency: "currency"
+    expected_scope: [{"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-01", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Alpha", "currency": "EUR", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "USD", "scenario_id": "downside"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "base"}, {"forecast_as_of": "2026-10-02", "entity_id": "Beta", "currency": "EUR", "scenario_id": "downside"}]
+    first_period: "2026-10-05"
+    periods: 13
+    row_key: "row_id"
+    opening_cash: "opening_cash"
+    closing_cash: "closing_cash"
+    tolerance: "0.01"
+    null_policy: "fail"

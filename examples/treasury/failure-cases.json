@@ -1,0 +1,83 @@
+[
+  {
+    "name": "missing_week",
+    "dataset": "cash-forecast.csv",
+    "operation": "remove",
+    "row_ids": [
+      "cash-00-05"
+    ],
+    "coverage": "failed",
+    "continuity": "error"
+  },
+  {
+    "name": "missing_series",
+    "dataset": "cash-forecast.csv",
+    "operation": "remove",
+    "row_ids": [
+      "cash-00-00",
+      "cash-00-01",
+      "cash-00-02",
+      "cash-00-03",
+      "cash-00-04",
+      "cash-00-05",
+      "cash-00-06",
+      "cash-00-07",
+      "cash-00-08",
+      "cash-00-09",
+      "cash-00-10",
+      "cash-00-11",
+      "cash-00-12"
+    ],
+    "coverage": "failed",
+    "continuity": "error"
+  },
+  {
+    "name": "duplicate_week",
+    "dataset": "cash-forecast.csv",
+    "operation": "duplicate",
+    "row_ids": [
+      "cash-00-05"
+    ],
+    "coverage": "failed",
+    "continuity": "error"
+  },
+  {
+    "name": "disconnected_cash",
+    "dataset": "cash-forecast.csv",
+    "operation": "replace",
+    "row_ids": [
+      "cash-00-05"
+    ],
+    "values": {
+      "opening_cash": "900.00"
+    },
+    "coverage": "passed",
+    "continuity": "failed"
+  },
+  {
+    "name": "cash_shortfall",
+    "dataset": "cash-forecast.csv",
+    "operation": "replace",
+    "row_ids": [
+      "cash-00-12"
+    ],
+    "values": {
+      "minimum_buffer": "1000.00"
+    },
+    "coverage": "passed",
+    "continuity": "passed",
+    "future_buffer": "failed"
+  },
+  {
+    "name": "facility_overdraw",
+    "dataset": "facilities.csv",
+    "operation": "replace",
+    "row_ids": [
+      "facility-00-12"
+    ],
+    "values": {
+      "commitment": "160.00"
+    },
+    "future_capacity": "failed"
+  }
+]

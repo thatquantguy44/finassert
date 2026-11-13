@@ -24,9 +24,16 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-excel = ["openpyxl>=3.1"]
+excel = ["openpyxl>=3.1.5"]
 pandas = ["pandas>=2.1"]
 yaml = ["PyYAML>=6.0"]
+cli = ["PyYAML>=6.0"]
+parquet = ["pyarrow>=15"]
+assistant = ["mcp>=2,<3"]
+
+[project.scripts]
+finassert = "finassert.cli:main"
+finassert-assistant = "finassert.assistant:main"
 
 [dependency-groups]
 dev = [
@@ -34,11 +41,13 @@ dev = [
   "hypothesis>=6.100",
   "mkdocs-material>=9.5",
   "mypy>=1.11",
-  "openpyxl>=3.1",
+  "openpyxl>=3.1.5",
   "pandas>=2.1",
   "pre-commit>=3.7",
+  "pyarrow>=26.0.0",
   "pytest>=8.2",
   "ruff>=0.8",
+  "types-pyyaml>=6.0.12.20260906",
 ]
 
 [project.urls]
@@ -49,7 +58,20 @@ Issues = "https://github.com/thatquantguy44/finassert/issues"
 packages = ["src/finassert"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/docs", "/specs", "/examples", "/README.md", "/LICENSE", "/pyproject.toml", "/mkdocs.yml"]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/specs",
+  "/examples",
+  "/scripts",
+  "/web",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/LICENSE",
+  "/pyproject.toml",
+  "/mkdocs.yml",
+]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
@@ -80,8 +102,12 @@ strict = true
 files = ["src/finassert"]
 
 [[tool.mypy.overrides]]
-module = ["openpyxl", "openpyxl.*"]
+module = ["pyarrow", "pyarrow.*"]
 ignore_missing_imports = true
 
 [tool.uv]
 default-groups = ["dev"]
+
+[[tool.mypy.overrides]]
+module = ["openpyxl", "openpyxl.*"]
+ignore_missing_imports = true

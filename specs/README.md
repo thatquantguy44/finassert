@@ -40,7 +40,7 @@ required. Do not imply that scaffolding means implementation is complete.
 ## Creating a spec
 
 Copy [_template/](_template/spec.md) to the next unused numbered directory
-(currently `0013`). Replace the template prompts, set an explicit status, and add
+(currently `0015`). Replace the template prompts, set an explicit status, and add
 the spec to the catalog below. Numbers are permanent and are not reused. Keep
 draft planning and unresolved questions explicit instead of inventing completion.
 
@@ -53,17 +53,20 @@ cross-spec dependencies, and overall priorities in the
 | Specification | Status |
 |---|---|
 | [0001 Core validation engine](0001/spec.md) | Implemented (initial) |
-| [0002 Financial invariants](0002/spec.md) | Proposed; two initial rules implemented |
+| [0002 Financial invariants](0002/spec.md) | Milestones 1–2 implemented (initial) |
 | [0003 Numerical tolerances](0003/spec.md) | Implemented (initial) |
-| [0004 DataFrame adapters](0004/spec.md) | pandas, mapping, and grouped contracts implemented; Polars proposed |
-| [0005 Reporting and diagnostics](0005/spec.md) | Text/JSON initial |
+| [0004 DataFrame adapters](0004/spec.md) | pandas initial; ordering decided; Polars proposed |
+| [0005 Reporting and diagnostics](0005/spec.md) | Text/JSON/HTML initial |
 | [0006 Rule registry and custom rules](0006/spec.md) | Implemented (initial) |
-| [0007 CLI and pipeline integration](0007/spec.md) | Proposed |
+| [0007 CLI and pipeline integration](0007/spec.md) | Implemented (initial) |
 | [0008 Financial units and currencies](0008/spec.md) | Proposed |
 | [0009 Property-based testing](0009/spec.md) | Implemented (initial) |
 | [0010 Performance and batch validation](0010/spec.md) | Proposed |
-| [0011 Excel workbook integration](0011/spec.md) | Reader initial; writer proposed |
-| [0012 Seven-priority delivery](0012/spec.md) | In progress; ordered integration tracker |
+| [0011 Non-technical interfaces](0011/spec.md) | Milestones 1–6 implemented (initial); Excel files supported |
+| [0012 Treasury and capital markets](0012/spec.md) | Proposed; upstream rules and deferred QuantMeridian handoff |
+
+| [0013 Excel workbook files](0013/spec.md) | Reader initial; correctness and writer work in progress |
+| [0014 Seven-priority delivery](0014/spec.md) | In progress; ordered integration tracker |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

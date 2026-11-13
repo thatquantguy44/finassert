@@ -11,16 +11,30 @@ nav:
   - Getting started: getting-started.md
   - Architecture: architecture.md
   - Rule development: rule-development.md
+  - Policies and command line: command-line.md
+  - Browser app: browser-app.md
+  - Assistant tool server: assistant.md
+  - Excel add-in: excel-add-in.md
   - Integrations: integrations.md
   - Design notes:
       - Grouped validation: design/grouped-validation.md
+      - Excel integration: design/excel-integration.md
+      - Real-Excel spike: design/excel-spike.md
   - Examples:
       - Portfolio validation: examples/portfolio-validation.md
+      - Multi-portfolio holdings: examples/multi-portfolio-holdings.md
+      - Cash reconciliation: examples/cash-reconciliation.md
+      - Treasury forecasts: examples/treasury-forecast.md
       - NAV reconciliation: examples/nav-reconciliation.md
+      - Market values and returns: examples/valuation-and-returns.md
+      - Exposure and position limits: examples/exposure-limits.md
+      - Weights, targets, and turnover: examples/rebalancing.md
+      - Position roll-forward: examples/position-rollforward.md
       - Pipeline validation: examples/pipeline-validation.md
   - API reference: reference/index.md
   - Roadmap: roadmap.md
   - Handoff log: handoff.md
+  - Releasing: releasing.md
 markdown_extensions:
   - admonition
   - pymdownx.highlight:

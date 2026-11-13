@@ -15,9 +15,12 @@ Imports of `finassert` do not import pandas or NumPy. Diagnostics are bounded to
 avoid accidentally creating unbounded artifacts. Rule order, result order, and
 JSON key ordering are deterministic for identical inputs and configuration.
 
-An empty rule set passes vacuously. Skipped rules do not fail a report. Failed
-and errored rules do, regardless of severity; severity classifies impact rather
-than changing truth.
+An empty rule set passes vacuously. Skipped rules do not fail a report. A rule
+that could not run fails it, and so does a failed rule of `error` severity (the
+default). A failed rule of `warning` or `info` severity is a warning: its result
+still says `failed`, and it is listed and counted, but it does not fail the
+report. Severity changes whether a finding stops a run, never whether it is
+reported.
 
 ## Column and grouping contracts
 

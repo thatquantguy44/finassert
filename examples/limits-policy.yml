@@ -1,0 +1,27 @@
+# Example mandate limits for examples/holdings.csv. The limits are illustrative:
+# replace them with the ones in your own mandate.
+version: 1
+name: Mandate limits
+description: Unlevered, fully invested portfolios with no position above 60%.
+assumptions:
+  - Each row is one position, with market values in the portfolio's base currency.
+  - The NAV is the same on every row of a portfolio.
+  - Limits are inclusive and measured against the NAV.
+rules:
+  - rule: gross_within_limit
+    value: market_value
+    base: nav
+    maximum: "1.0"
+    group_by: [portfolio]
+  - rule: net_within_limit
+    value: market_value
+    base: nav
+    minimum: "0.95"
+    maximum: "1.0"
+    group_by: [portfolio]
+  - rule: position_within_limit
+    value: market_value
+    base: nav
+    maximum: "0.6"
+    group_by: [portfolio]
+    row_key: ticker

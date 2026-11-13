@@ -1,0 +1,6 @@
+ticker,description,weight,Mkt Val (USD)
+AAPL,Apple Inc.,0.30,3000000
+MSFT,Microsoft Corp.,0.25,2500000
+JNJ,Johnson & Johnson,0.20,2000000
+XOM,Exxon Mobil Corp.,0.15,-1500000
+CASH,"Cash, USD",0.10,1000000

@@ -1,9 +1,5 @@
-# 0012 — Seven-priority delivery: roadmap
+# 0012 — Roadmap
 
-- **Current:** Branch foundation and gate 1, Excel correctness.
-- **Next:** Adapter contracts, then diagnostics/artifact stability.
-- **Following:** Cash/NAV rules, workbook/CLI delivery, typed units/direct FX.
-- **Final:** Measured scalar performance baselines and full verification.
+Cash continuity and weekly coverage rules are implemented; remaining treasury rules and consumer integration remain proposed.
 
-See [tasks.md](tasks.md) for completion and the [project roadmap](../../docs/roadmap.md)
-for longer-term scope.
+Use [tasks.md](tasks.md) and [plan.md](plan.md) for remaining work. The seven-priority integration tracker is [0014](../0014/spec.md).

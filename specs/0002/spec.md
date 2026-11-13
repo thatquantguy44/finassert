@@ -1,6 +1,23 @@
 # 0002 — Financial invariants
 
-**Status:** Proposed catalog; weight-sum and nonnegative rules implemented
+**Status:** Milestones 1–2 implemented (initial): weight-sum and nonnegative
+rules, and grouped cash (`accounting.cash_reconciles`) and NAV
+(`accounting.nav_reconciles`) reconciliation. Cash requires an explicit
+`outflow_sign`; NAV sums signed lines, so assets minus liabilities is
+`sum(market_value)` with liabilities negative. Currencies are never converted;
+a currency column becomes a group key. `weights_sum_to_one` can check each
+portfolio with `group_by`. Milestone 3 is implemented (initial):
+`accounting.market_value_reconciles` (quantity × price × optional multiplier),
+`returns.simple_return_reconciles` (explicit `fraction` or `percent`; flows at
+the end of the period), and `exposure.gross_within_limit`,
+`exposure.net_within_limit`, and `exposure.position_within_limit`, which
+measure per group against an optional base column such as the NAV. Limits are
+inclusive and supplied by the user: no template encodes one. Portfolio-management rules follow:
+`arithmetic.in_range`, `portfolio.weights_match_market_values`,
+`portfolio.drift_within_band` (default severity `warning`),
+`portfolio.turnover_within_limit` (explicit `one_way` or `two_way`), and
+`accounting.position_rolls_forward` (explicit sell sign). Collateral and
+financing rules remain proposed.
 
 ## Problem statement
 
@@ -25,7 +42,9 @@ currencies, fetch market data, or replace accounting control ownership.
 ## Proposed architecture
 
 Rule families are `portfolio`, `accounting`, `returns`, `collateral`, `exposure`,
-and `securities_financing`. Each rule is immutable configuration plus pure
+and `securities_financing`, plus `arithmetic` for single-column value checks and
+`data` for file-shape checks (`data.no_duplicates`, `data.required_fields`) that
+hold for any file. Each rule is immutable configuration plus pure
 evaluation. Stable IDs use `family.rule_name`.
 
 Catalog candidates include weight totals; cash opening + flows + P&L = closing;

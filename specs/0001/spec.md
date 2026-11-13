@@ -79,5 +79,6 @@ batch execution is 0010.
 
 ## Explicit deferred work
 
-Async rules, cancellation, retries, parallelism, dependency graphs, and policy
-severity thresholds are deferred.
+Async rules, cancellation, retries, parallelism, and dependency graphs are
+deferred. Severity gating is implemented: only `error`-severity failures (and
+rules that could not run) fail a report, and `--fail-on` raises the threshold.

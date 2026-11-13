@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">finassert — Financial invariants, tested like code.</title>
+  <desc id="description">Bring your data, define checks, inspect the evidence. An illustrative cash-continuity exception compares opening cash of 100 with the previous closing balance of 110.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101D34"/><stop offset="1" stop-color="#081320"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#59E4C5"/><stop offset="1" stop-color="#82B8FF"/></linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="20" fill="url(#background)"/>
+  <rect x="48" y="42" width="40" height="40" rx="10" fill="#132F39"/>
+  <path d="m59 62 7 7 13-15" fill="none" stroke="#59E4C5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="104" y="69" fill="#A8BDCF" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">FINANCIAL VALIDATION</text>
+  <text x="48" y="155" fill="#F4F8FC" font-family="Arial, sans-serif" font-size="66" font-weight="700" letter-spacing="-2">finassert</text>
+  <rect x="50" y="177" width="64" height="4" rx="2" fill="url(#accent)"/>
+  <text x="48" y="221" fill="#E0EAF4" font-family="Arial, sans-serif" font-size="26">Financial invariants, tested like code.</text>
+  <text x="48" y="255" fill="#A8BDCF" font-family="Arial, sans-serif" font-size="18">Explicit assumptions. Exact diagnostics. Reviewable evidence.</text>
+  <rect x="682" y="42" width="470" height="216" rx="14" fill="#111F31" stroke="#2D4359"/>
+  <text x="706" y="73" fill="#A8BDCF" font-family="Arial, sans-serif" font-size="12" letter-spacing="2">ILLUSTRATIVE CHECK</text>
+  <text x="706" y="109" fill="#F4F8FC" font-family="Arial, sans-serif" font-size="23" font-weight="700">Cash continuity</text>
+  <rect x="1015" y="87" width="111" height="28" rx="14" fill="#382D22"/>
+  <text x="1070" y="106" fill="#FFD299" font-family="Arial, sans-serif" font-size="12" font-weight="700" text-anchor="middle">EXCEPTION</text>
+  <path d="M706 131H1128" stroke="#2D4359"/>
+  <g font-family="Arial, sans-serif" font-size="13" fill="#A8BDCF"><text x="706" y="161">Prior closing</text><text x="866" y="161">Opening</text><text x="1026" y="161">Difference</text></g>
+  <g font-family="monospace" font-size="28" fill="#E0EAF4"><text x="706" y="196">110</text><text x="866" y="196">100</text><text x="1026" y="196" fill="#FFD299">−10</text></g>
+  <text x="706" y="234" fill="#A8BDCF" font-family="monospace" font-size="13">row W2 · previous row W1 · same currency</text>
+  <path d="M48 288H1152" stroke="#273A52"/>
+  <g font-family="Arial, sans-serif" font-size="16">
+    <text x="48" y="326" fill="#59E4C5" font-weight="700">01</text><text x="82" y="326" fill="#E0EAF4">Bring your data</text>
+    <text x="360" y="326" fill="#59E4C5" font-weight="700">02</text><text x="394" y="326" fill="#E0EAF4">Define your checks</text>
+    <text x="733" y="326" fill="#59E4C5" font-weight="700">03</text><text x="767" y="326" fill="#E0EAF4">Inspect the evidence</text>
+  </g>
+</svg>

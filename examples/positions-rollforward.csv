@@ -1,0 +1,5 @@
+portfolio,ticker,opening_quantity,buys,sells,closing_quantity
+Alpha,AAPL,1000,200,300,900
+Alpha,MSFT,500,0,100,400
+Beta,AAPL,250,50,0,310
+Beta,JNJ,400,100,50,450

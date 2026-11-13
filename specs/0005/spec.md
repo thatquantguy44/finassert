@@ -1,6 +1,6 @@
 # 0005 — Reporting and diagnostics
 
-**Status:** Text and JSON-compatible models implemented (initial)
+**Status:** Text, JSON-compatible, artifact envelope, and HTML views implemented (initial)
 
 ## Problem statement
 

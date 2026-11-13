@@ -1,8 +1,3 @@
 # Spec 0012 agent instructions
 
-Follow [the shared instructions](../AGENTS.md). Read this workspace's spec,
-contracts, tasks, plan, and newest handoff before implementation.
-
-Work through the seven gates in order. Consult each owning spec's instructions
-and contracts before touching its code. Update evidence before marking a gate
-complete. Preserve the draft PR until all gates pass; do not merge or release.
+Follow [shared instructions](../AGENTS.md). Read the local spec, contracts, tasks, plan, and newest handoff before related changes. Scope: Treasury and capital markets validation. Relevant areas: src/finassert/rules/treasury.py and examples/treasury/. Preserve the existing main implementation and documented deferred boundaries.

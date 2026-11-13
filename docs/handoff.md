@@ -19,8 +19,8 @@ rewrite old entries (append a correction instead).
 
 - **Branch:** `feature/seven-priority-roadmap`
 - **Last recorded merge:** PR #3 grouped DataFrame contracts
-- **Active work:** [Seven-priority delivery](https://github.com/thatquantguy44/finassert/blob/main/specs/0012/spec.md), starting with Excel reader correctness
-  under [0011](https://github.com/thatquantguy44/finassert/blob/main/specs/0011/spec.md),
+- **Active work:** [Seven-priority delivery](https://github.com/thatquantguy44/finassert/blob/main/specs/0014/spec.md), starting with Excel reader correctness
+  under [0013](https://github.com/thatquantguy44/finassert/blob/main/specs/0013/spec.md),
   adapter contracts under [0004](https://github.com/thatquantguy44/finassert/blob/main/specs/0004/spec.md),
   and diagnostics under [0005](https://github.com/thatquantguy44/finassert/blob/main/specs/0005/spec.md).
 - **Open blockers / gaps:** Known formula/error-cell, adapter length-validation,
@@ -56,6 +56,20 @@ Immediate corrective work precedes the feature sequence in the
 ```
 
 ## Entries
+
+### 2026-11-13 — Reconcile current main before implementation
+
+- **Branch / PR:** `feature/seven-priority-roadmap`, draft PR #17; tracking issue #16.
+- **Finding:** The initial local checkout was stale. Main at `a3f0a3e` already
+  includes public cash/NAV rules, policies/CLI, workbook loading, Excel add-in,
+  and treasury work. Preserve these implementations and verify remaining gaps.
+- **Layout correction:** Main already allocated 0011 to non-technical interfaces
+  and 0012 to treasury. The unpublished workbook-file proposal moves to 0013;
+  the unpublished seven-priority tracker moves to 0014. Previous entries retain
+  the paths and numbering used at the time.
+- **Decision:** Retain main's severity-based blocking semantics. Extend the Excel
+  module with the optional workbook-reader API without replacing the add-in API.
+- **Next step:** Verify the integrated baseline, then complete gate 1 in order.
 
 ### 2026-11-13 — Seven-priority implementation branch
 

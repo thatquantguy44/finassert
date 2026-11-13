@@ -1,0 +1,4 @@
+portfolio,date,currency,opening_balance,inflows,outflows,cash_income,closing_balance
+Alpha,2026-01-02,USD,1000000.00,250000.00,100000.00,1250.50,1151250.50
+Alpha,2026-01-02,EUR,500000.00,0.00,45000.00,0.00,450000.00
+Beta,2026-01-02,USD,750000.00,0.00,20000.00,300.00,730300.00

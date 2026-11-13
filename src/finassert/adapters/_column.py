@@ -16,7 +16,7 @@ def extract_column(data: Any, name: str) -> tuple[list[Any], list[Any]]:
         return data.column(name)
     if isinstance(data, Mapping):
         if name not in data:
-            raise ColumnNotFoundError(name)
+            raise ColumnNotFoundError(name, [str(key) for key in data])
         raw_values = data[name]
         if isinstance(raw_values, (str, bytes)):
             raise InvalidDataError(f"column {name!r} must be an iterable of values")
@@ -33,7 +33,7 @@ def extract_column(data: Any, name: str) -> tuple[list[Any], list[Any]]:
             if not isinstance(row, Mapping):
                 raise InvalidDataError(f"row {index} is not a mapping")
             if name not in row:
-                raise ColumnNotFoundError(name)
+                raise ColumnNotFoundError(name, [str(key) for key in row])
             row_values.append(row[name])
         return row_values, list(range(len(row_values)))
     raise InvalidDataError(
@@ -98,7 +98,7 @@ def _looks_like_pandas(data: Any) -> bool:
 
 def _extract_pandas(data: Any, name: str) -> tuple[list[Any], list[Any]]:
     if name not in data.columns:
-        raise ColumnNotFoundError(name)
+        raise ColumnNotFoundError(name, [str(column) for column in data.columns])
     return data[name].tolist(), data.index.tolist()
 
 

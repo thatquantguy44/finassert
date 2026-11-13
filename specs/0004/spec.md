@@ -1,7 +1,8 @@
 # 0004 — DataFrame adapters
 
 **Status:** pandas, mapping, and grouped aggregation contracts implemented;
-Polars proposed
+milestone 5 decided (explicit ordering column, `ColumnMapping.order_key`, for
+`FIRST`/`LAST` in public rules); Polars proposed
 
 ## Problem statement
 
@@ -59,8 +60,9 @@ mapping = ColumnMapping(
 
 `ColumnMapping`, `GroupKey`, and `FieldAggregation` are public adapter contracts.
 `GroupedRule` is the public structural grouped-rule contract. Grouped rule
-factories remain rule-specific; the cash prototype is private until ordering and
-currency preconditions are resolved.
+factories remain rule-specific; `cash_reconciles` and `nav_reconciles` are the
+first public grouped rules, and `ColumnMapping.order_key` orders rows for
+`FIRST`/`LAST`.
 
 ## Data contracts
 
@@ -93,7 +95,9 @@ evaluation errors, never passes.
 column-mapping and group contracts (complete). 3. pandas nullable, Decimal,
 duplicate-index, empty, and non-mutation tests (complete). 4. Typed group
 aggregation and grouped-rule contracts (complete). 5. Decide whether first/last
-policies require an explicit ordering column. 6. Polars eager prototype, then lazy
+policies require an explicit ordering column (complete: public rules require
+`order_key`; ties on different values, mixed key kinds, and non-ISO text keys
+fail the group; see the grouped validation design). 6. Polars eager prototype, then lazy
 behavior only with explicit collection limits.
 
 ## Acceptance criteria

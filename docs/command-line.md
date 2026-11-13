@@ -1,0 +1,275 @@
+# Policies and the command line
+
+A **policy** is a small file that names the checks a dataset must pass. Policies
+let people who do not write Python define, review, and run checks, and let
+pipelines run exactly the same checks without bespoke code.
+
+## Starting from a template
+
+`finassert templates` lists starter policies, and `finassert init` writes one
+for you to adapt:
+
+```bash
+finassert init --template long-only-holdings --output policy.yml
+```
+
+| Template | For |
+|---|---|
+| `long-only-holdings` | Daily holdings of one long-only portfolio, with cash held as a position. |
+| `target-allocation` | A model portfolio or strategic asset allocation, before it is traded. |
+| `multi-portfolio-holdings` | One file of positions for many portfolios, with weights, market values, and NAV. |
+| `cash-reconciliation` | One row per portfolio, currency, and day with balances and total flows. |
+| `nav-reconciliation` | Holdings of several funds, each line with a market value and the fund's NAV. |
+| `position-valuation` | One row per position with quantity, price, and market value. |
+| `position-rollforward` | One row per portfolio and security: opening and closing quantities and trades. |
+| `return-reconciliation` | One row per portfolio and period with beginning and ending values and a return. |
+
+Each template lists the assumptions under which its checks are meaningful,
+and the file opens with comments on what to change, usually the column names
+and the rounding tolerance. Templates check only what holds by definition for
+that kind of file; they never encode regulatory or house limits, so write exposure
+and position limits yourself (see [exposure limits](examples/exposure-limits.md)). `init` will
+not replace an existing file unless you pass `--force`.
+
+## Matching a template to your file
+
+Templates name the columns they expect (`market_value`, `closing_balance`), but
+your file may say `Mkt Val` or `Ending Balance`. `finassert suggest` reads your
+file's headers, ranks the templates by how well their columns match, and
+explains every match:
+
+```bash
+finassert suggest --input holdings.csv
+finassert suggest --input holdings.csv --output policy.yml   # write the best fit
+finassert suggest --input holdings.csv --template nav-reconciliation --output policy.yml
+```
+
+```text
+1. multi-portfolio-holdings: Holdings of several portfolios
+   5 of 5 columns matched.
+   - 'portfolio' is your column 'Fund' (known name match)
+   - 'market_value' is your column 'MV (Base)' (known name match)
+```
+
+A match is one of: `exact` (same words, ignoring case and punctuation), `known
+name` (a common name for the same thing, such as `qty` for quantity), `contains`
+(a header that includes a multi-word known name, such as `Market Value (Base)`,
+choosing the one with the fewest extra words), or `similar` (a typo, for names of
+six or more letters). When two headers fit equally well, as with `MV (Base)` and
+`MV (Local)`, or two expected columns want the same header, nothing is chosen
+and the candidates are listed. Currency, date, and sign conventions are never
+guessed.
+
+These are proposals. The policy `--output` writes lists each match to confirm at
+the top of the file, keeps the template's name for any column it could not
+match (so `finassert check` reports it rather than skipping the check), and
+keeps the template's assumptions. `--json` prints the suggestions for scripts.
+Exit code 3 means no template fits or the output file exists; use `--force` to
+replace it. The browser app does the same when you open a file: it offers the
+templates that fit and fills in the matched columns for you to confirm.
+
+## Writing a policy
+
+```yaml
+version: 1
+name: Daily positions
+description: Long-only equity book, one portfolio per file
+assumptions:
+  - Weights are fractions of 1, not percentages
+rules:
+  - rule: weights_sum_to_one
+    column: weight
+    tolerance: "0.0001"
+  - rule: non_negative
+    column: Mkt Val (USD)
+    null_policy: ignore
+```
+
+- `version` is required and must be `1`.
+- `rules` is an ordered list; results appear in the same order. An empty list
+  is allowed and passes vacuously.
+- Each entry starts with `rule:`, naming a check by factory name
+  (`non_negative`) or rule identifier (`arithmetic.non_negative`). The other
+  keys are that check's settings. Run `finassert rules` to see every check, its
+  settings, and when **not** to use it.
+- `column` is the header text exactly as it appears in the data file, spaces
+  and punctuation included.
+- `name`, `description`, and `assumptions` are optional and are printed in the
+  HTML report.
+
+Unknown settings, misspelled rule names, wrong types, and duplicated keys are
+errors, never ignored. Every problem is reported at once with its line number
+and the nearest valid spelling; nothing is corrected automatically:
+
+```text
+finassert: the policy 'policy.yml' is not valid:
+  - line 7, rules[2].rule: Unknown rule 'non_negativ'. Available rules: non_negative, weights_sum_to_one. Did you mean 'non_negative'?
+  - line 11, rules[3].tolerance: '1,000' is not a plain number. Write digits only, such as "0.0001"; commas, percent signs, and currency symbols are not accepted.
+```
+
+### Numbers and tolerances
+
+Quote tolerances (`"0.0001"`) to keep them as exact decimals. Unquoted values
+with a decimal point are binary floats, as in Python. A tolerance may also be a
+mapping with `absolute` and `relative` parts:
+
+```yaml
+    tolerance:
+      absolute: "0.0001"
+      relative: "0.000001"
+```
+
+`non_negative` accepts only an absolute tolerance, because a relative bound has
+no meaning against zero. Limits such as `maximum: "1.3"` in exposure checks are
+plain numbers and follow the same rule: quote them to keep them exact. Net
+exposure limits may be negative; the others may not.
+
+Policies may also be written as JSON with the same structure. JSON strings in
+tolerances are exact decimals, and JSON numbers are floats.
+
+## Running checks
+
+Install the command line with `finassert[cli]`, which adds the YAML reader.
+To try it, run the sample policy against the sample data in `examples/`; one
+check passes and one fails on a negative market value:
+
+```bash
+finassert check --config examples/policy.yml --input examples/positions.csv --html report.html
+```
+
+For your own files:
+
+```bash
+finassert check --config policy.yml --input positions.csv \
+  --output report.json --html report.html
+```
+
+| Option | Meaning |
+|---|---|
+| `--config` | Policy file (`.yml`, `.yaml`, or `.json`). |
+| `--input` | Data file: `.csv`, `.json`, `.xlsx`/`.xlsm`, or `.parquet`/`.pq`. |
+| `--sheet` | Worksheet to check in an Excel workbook; required if it has several. |
+| `--format`, `--policy-format` | Override the format inferred from the extension. |
+| `--output` | Write the JSON report artifact. |
+| `--html` | Write a self-contained HTML report for people. |
+| `--quiet` | Print nothing on success except errors. |
+
+The command never prompts. Reports are written atomically: a failed write
+leaves any previous file untouched, and an interrupted run writes nothing.
+
+### Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | Every check passed or was skipped, or failed only at `warning` or `info` severity (see below). |
+| `1` | At least one check failed at `error` severity, or at or above the `--fail-on` severity. |
+| `2` | At least one check could not run, for example a missing column. Wins over `1`. |
+| `3` | The command line or policy is invalid, or the policy cannot be read. |
+| `4` | The input cannot be read or parsed, or a report cannot be written. |
+
+### Warnings and severity
+
+Every check has a `severity`, set per check in the policy:
+
+```yaml
+  - rule: position_within_limit
+    value: market_value
+    maximum: "0.1"
+    severity: warning      # error (the default), warning, or info
+```
+
+- `error` (the default): if the check fails, the run fails (exit code `1`).
+- `warning` and `info`: the failure is still reported, in full and in the
+  report as a **Warning**, but the run does not fail. The summary says
+  `PASS (2 warnings)`, the HTML report says "Passed with warnings", and the JSON
+  report counts them (`warnings`, `blocking_failures`) and marks each result
+  `blocking: true` or `false`.
+- A check that **could not run** (a missing column, unreadable values) always
+  fails the run, whatever its severity: it is never a pass.
+
+A pipeline that wants warnings to stop it can say so without editing the policy:
+`finassert check ... --fail-on warning` fails the run (exit code `1`) for any
+failure of `warning` severity or above, and `--fail-on info` for any failure at
+all. The reports are unchanged: `--fail-on` only affects the exit code. In the
+browser app, choose "If this check fails" on each check.
+
+### Reading data files
+
+CSV files must be UTF-8 (Excel: *Save As › CSV UTF-8*) with unique column
+headers in the first row. Cells are read without guessing:
+
+- blank cells are missing values, handled by each check's `null_policy`;
+- whole numbers become integers, and numbers with a decimal point or exponent
+  become exact decimals, so `0.1 + 0.2 + 0.7` sums to exactly `1.0`;
+- everything else stays text. `1,000`, `40%`, and `$5` are reported as
+  non-numeric, never rescaled.
+
+Rows are labelled as a spreadsheet would show them, with the header on row 1,
+so a failing "row 3" is row 3 in Excel.
+
+JSON input may be an object of columns (`{"weight": [0.4, 0.6]}`) or a list of
+row objects. JSON numbers are read as exact decimals.
+
+Excel workbooks (`.xlsx`, `.xlsm`) are read directly, with no extra
+dependency. The first non-empty row holds the headers, and rows are labelled
+with the sheet's own row numbers. Cells are read as Excel stored them, not as
+they are displayed:
+
+- numbers keep their exact stored value, so a cell showing `0.3` because of its
+  format is still checked at full precision, and an Excel table checks the same
+  way as the CSV export of it;
+- percentage cells keep their stored fraction: a cell showing `40%` is `0.4`;
+- date cells become dates and are reported as non-numeric, never read as the
+  day counts Excel stores them as;
+- formulas are checked by their saved result. A formula with no saved result,
+  as some export tools write, is an error: open the file in Excel and save it;
+- text cells follow the CSV rules: numbers stored as text read as numbers, and
+  blank or space-only cells are empty;
+- rows with no values are skipped; a value in a column with no header is an
+  error; chart sheets are ignored.
+
+A workbook with several sheets needs `--sheet` (otherwise the command exits
+with code 3 and lists the sheets), so the wrong tab is never checked by accident. Old `.xls` files must be re-saved as `.xlsx`.
+
+Parquet files need `finassert[parquet]` (pyarrow). Values keep their stored
+types: decimal columns become exact decimals, floating-point columns stay
+binary floats, and nulls and NaN are missing values. Rows are labelled from 0,
+as in a default pandas index.
+
+## Report artifacts
+
+`--output` writes the 0005 report wrapped with the context needed to audit it:
+
+```json
+{
+  "schema_version": 1,
+  "tool": {"name": "finassert", "version": "0.1.0"},
+  "generated_at": "2026-01-01T00:00:00Z",
+  "policy": {"name": "Daily positions", "digest": "sha256:…", "rules": ["…"]},
+  "input": {"locator": "positions.csv", "format": "csv"},
+  "report": {"passed": true, "results": ["…"]}
+}
+```
+
+The policy digest fingerprints the parsed policy, so reformatting a file does
+not change it but changing any setting does. Set `SOURCE_DATE_EPOCH` to fix
+`generated_at` for reproducible artifacts.
+
+The HTML report embeds the same artifact in `script#finassert-report`, uses no
+external resources, adapts to dark mode, and prints cleanly.
+
+## From Python
+
+```python
+from finassert.loaders import load_input
+from finassert.policy import load_policy
+from finassert.reporting import to_html
+
+policy = load_policy("policy.yml")
+report = policy.check(load_input("positions.csv"))
+html = to_html(report, policy=policy, input_locator="positions.csv")
+```
+
+Organizations can expose their own rules to policies by registering a
+`RuleFactorySpec` in a `RuleCatalog` and passing `catalog=` to
+`load_policy`. Policies can never name a factory the caller did not register.

@@ -1,6 +1,8 @@
 # Rule development
 
-A rule exposes `rule_id`, `name`, `severity`, and `evaluate(data)`. The method
+A rule exposes `rule_id`, `name`, `severity`, and `evaluate(data)`. Return the
+rule's own `severity` in every result: a failed result of `warning` or `info`
+severity is reported but does not fail the report. The method
 returns a `ValidationResult` and should be deterministic, side-effect free, and
 non-mutating. Stable identifiers should use a reverse-domain or project namespace
 for third-party rules.

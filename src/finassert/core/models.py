@@ -18,11 +18,24 @@ class Outcome(StrEnum):
 
 
 class Severity(StrEnum):
-    """Business impact assigned to a validation result."""
+    """Business impact assigned to a validation result.
+
+    A failed check of ``ERROR`` severity fails the report. A failed check of
+    ``WARNING`` or ``INFO`` severity is reported but does not, unless a caller
+    asks for a stricter threshold (for example ``--fail-on warning``).
+    """
 
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
+
+    @property
+    def rank(self) -> int:
+        """Return the severity's order: ``error`` above ``warning`` above ``info``."""
+        return _RANKS[self.value]
+
+
+_RANKS = {"error": 2, "warning": 1, "info": 0}
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,12 +57,33 @@ class ValidationResult:
         """Return whether this evaluation passed."""
         return self.outcome is Outcome.PASSED
 
+    def blocks(self, fail_on: Severity = Severity.ERROR) -> bool:
+        """Return whether this result fails a run that fails on ``fail_on`` and above.
+
+        A check that could not run always blocks, because it is never a pass.
+        A failed check blocks when its severity is at least ``fail_on``.
+        """
+        if self.outcome is Outcome.ERROR:
+            return True
+        return self.outcome is Outcome.FAILED and self.severity.rank >= fail_on.rank
+
+    @property
+    def blocking(self) -> bool:
+        """Return whether this result fails the report (see :meth:`blocks`)."""
+        return self.blocks()
+
+    @property
+    def warning(self) -> bool:
+        """Return whether this is a failed check whose severity does not fail the report."""
+        return self.outcome is Outcome.FAILED and not self.blocking
+
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible dictionary."""
         return {
             "rule_id": self.rule_id,
             "rule_name": self.rule_name,
             "passed": self.passed,
+            "blocking": self.blocking,
             "outcome": self.outcome.value,
             "severity": self.severity.value,
             "message": self.message,
@@ -64,16 +98,28 @@ class ValidationResult:
 class ValidationReport:
     """Aggregate of results produced by a validation run.
 
-    An empty report passes vacuously. Skipped rules do not fail a report. Any
-    failed or errored rule fails the report, independent of its severity.
+    An empty report passes vacuously. Skipped rules do not fail a report. A rule
+    that could not run fails it, and so does a failed rule of ``error``
+    severity. A failed rule of ``warning`` or ``info`` severity is a warning: it
+    is listed and counted but does not fail the report.
     """
 
     results: tuple[ValidationResult, ...] = ()
 
     @property
     def passed(self) -> bool:
-        """Return ``True`` when no result failed or errored."""
-        return all(result.outcome in {Outcome.PASSED, Outcome.SKIPPED} for result in self.results)
+        """Return ``True`` when no result blocks: nothing errored or failed at ``error``."""
+        return not any(result.blocking for result in self.results)
+
+    @property
+    def warnings(self) -> tuple[ValidationResult, ...]:
+        """Return failed results whose severity does not fail the report."""
+        return tuple(result for result in self.results if result.warning)
+
+    @property
+    def blocking_failures(self) -> tuple[ValidationResult, ...]:
+        """Return the results that fail the report."""
+        return tuple(result for result in self.results if result.blocking)
 
     @property
     def counts_by_outcome(self) -> dict[str, int]:
@@ -98,6 +144,8 @@ class ValidationReport:
         """Return a JSON-compatible dictionary."""
         return {
             "passed": self.passed,
+            "blocking_failures": len(self.blocking_failures),
+            "warnings": len(self.warnings),
             "counts_by_outcome": self.counts_by_outcome,
             "counts_by_severity": self.counts_by_severity,
             "results": [result.to_dict() for result in self.results],
@@ -107,8 +155,10 @@ class ValidationReport:
         """Render a concise human-readable terminal summary."""
         status = "PASS" if self.passed else "FAIL"
         counts = self.counts_by_outcome
+        warned = len(self.warnings)
+        noted = f" ({warned} warning{'s' if warned != 1 else ''})" if warned else ""
         header = (
-            f"finassert {status}: {counts['passed']} passed, {counts['failed']} failed, "
+            f"finassert {status}{noted}: {counts['passed']} passed, {counts['failed']} failed, "
             f"{counts['error']} errors, {counts['skipped']} skipped"
         )
         details = [

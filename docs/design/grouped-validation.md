@@ -1,8 +1,9 @@
 # Grouped validation design
 
-This design records the dataframe-contract exploration completed before a public
-cash-reconciliation rule. The prototype lives in the private
-`finassert.rules._cash_reconciliation` module and is not supported API.
+This design records the dataframe-contract exploration behind the public
+reconciliation rules, `cash_reconciles` and `nav_reconciles`
+(`finassert.rules.accounting`). The private prototype it describes has been
+promoted and removed; the findings below are kept as the rationale.
 
 ## Decisions
 
@@ -88,32 +89,43 @@ Snapshot-oriented data can use `REQUIRE_UNIQUE` for repeated balances. Because
 adapters do not reorder data, callers using `FIRST` or `LAST` are responsible for
 providing financially meaningful row order.
 
-## Proposed cash-rule API
+## Public cash and NAV rules
 
-The rule factory remains proposed, while its grouped mapping contract is settled:
+The promotion criteria were settled as follows.
 
-```python
-rule = fa.cash_reconciles(
-    mapping=mapping,
-    tolerance=fa.Tolerance(absolute="0.01"),
-    null_policy="fail",
-    empty_policy="skip",
-    max_violations=20,
-)
-```
-
-Before export, `absolute` string coercion, a currency grouping precondition, and
-whether production rules require an explicit ordering column must be specified.
-The private prototype must not be imported by applications.
-
-## Promotion criteria
-
-A public cash rule requires:
-
-- an explicit sign convention;
-- a decision on requiring an ordering column for first/last aggregation;
-- currency and valuation-date preconditions;
-- stable null and empty-population policies;
-- contract parity across mapping, row-record, and pandas inputs;
-- bounded, JSON-compatible group diagnostics; and
-- property tests for partitioning and reconciliation identities.
+- **Sign convention.** `outflow_sign` is required, with no default: `positive`
+  checks `closing = opening + inflows - outflows (+ cash_pnl)`, `negative`
+  checks `closing = opening + inflows + outflows (+ cash_pnl)`. Each result
+  records the equation it checked. NAV uses signed lines,
+  `sum(market_value) = nav`, so liabilities and short positions are negative
+  rows rather than a separately signed column.
+- **Ordering for first/last (specification 0004, milestone 5).** Public rules
+  require `ColumnMapping.order_key` whenever `FIRST` or `LAST` is configured;
+  physical row order is never treated as a financial ordering.
+  `aggregate_ordered` takes the row with the smallest or largest key. Ordering
+  values must be numbers, dates, or ISO 8601 text, because text such as
+  `1/10/2026` sorts before `1/9/2026`. Rows that tie on the extreme key with
+  different values, keys that mix numbers and dates, and keys that mix
+  time-zone-aware and naive times fail the group. `aggregate_values` keeps its
+  documented physical-order behavior for low-level callers.
+- **Input grain.** The column-name factory offers `grain="summary"` (one row
+  per group; every field `REQUIRE_UNIQUE`, so conflicting repeated rows fail)
+  and `grain="transactions"` (running balances: `FIRST` opening, `LAST`
+  closing, `SUM` flows, ordered by `order_by`). A complete `ColumnMapping` can
+  be passed instead for any other configuration.
+- **Currency and valuation date.** Currencies are never converted. Naming the
+  `currency` column adds it as a group key; when omitted, the result records
+  that every group is assumed to hold one currency. Dates are ordinary
+  `group_by` columns.
+- **Nulls and empty files.** `null_policy` is `fail` (unusable rows are listed
+  in file order with the blank or non-numeric fields) or `skip`; `ignore` is
+  rejected because leaving out rows changes the totals. A blank NAV on some
+  rows is allowed, as long as each group gives at least one and they agree. A
+  blank group key is an evaluation error. A file with no rows is skipped.
+- **String tolerances.** The Python API takes numbers or `Decimal`; quoted text
+  becomes `Decimal` in the policy layer only.
+- **Parity, diagnostics, and properties.** Mapping, row-record, and pandas
+  inputs give identical results. Failed groups are capped by `max_violations`
+  and list the group identity, observed and expected values, the difference,
+  and up to 20 row labels. Hypothesis tests cover reconciliation under row
+  shuffling and the isolation of a single broken group.

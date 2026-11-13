@@ -12,5 +12,15 @@ report = fa.check(data, [fa.weights_sum_to_one(tolerance=Decimal("0"))])
 assert report.passed
 ```
 
+When a file holds several portfolios, name the column that identifies each one
+and every portfolio must add up to one:
+
+```python
+rule = fa.weights_sum_to_one(column="weight", group_by=["portfolio"], tolerance=Decimal("0.0001"))
+```
+
+Failing portfolios are listed with their totals and row numbers. See
+[Holdings of several portfolios](multi-portfolio-holdings.md) for a full policy.
+
 Only apply `non_negative` to fields, such as a long-only gross market value
 policy, where negatives are economically invalid.

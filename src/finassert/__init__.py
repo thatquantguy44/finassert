@@ -1,5 +1,6 @@
 """Financial invariants, tested like code."""
 
+from finassert._version import __version__
 from finassert.core import (
     GroupAggregationError,
     GroupedRule,
@@ -11,7 +12,28 @@ from finassert.core import (
     check,
 )
 from finassert.numerical import Tolerance
-from finassert.rules import NullPolicy, custom_rule, non_negative, weights_sum_to_one
+from finassert.rules import (
+    NullPolicy,
+    cash_continuity,
+    cash_reconciles,
+    custom_rule,
+    drift_within_band,
+    forecast_coverage,
+    gross_within_limit,
+    in_range,
+    market_value_reconciles,
+    nav_reconciles,
+    net_within_limit,
+    no_duplicates,
+    non_negative,
+    position_rolls_forward,
+    position_within_limit,
+    required_fields,
+    simple_return_reconciles,
+    turnover_within_limit,
+    weights_match_market_values,
+    weights_sum_to_one,
+)
 
 __all__ = [
     "GroupAggregationError",
@@ -23,10 +45,25 @@ __all__ = [
     "Tolerance",
     "ValidationReport",
     "ValidationResult",
+    "__version__",
+    "cash_continuity",
+    "cash_reconciles",
     "check",
     "custom_rule",
+    "drift_within_band",
+    "forecast_coverage",
+    "gross_within_limit",
+    "in_range",
+    "market_value_reconciles",
+    "nav_reconciles",
+    "net_within_limit",
+    "no_duplicates",
     "non_negative",
+    "position_rolls_forward",
+    "position_within_limit",
+    "required_fields",
+    "simple_return_reconciles",
+    "turnover_within_limit",
+    "weights_match_market_values",
     "weights_sum_to_one",
 ]
-
-__version__ = "0.1.0"

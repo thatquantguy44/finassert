@@ -3,15 +3,71 @@
 ## Top-level API
 
 - `check(data, rules, *, raise_on_error=False) -> ValidationReport`
-- `weights_sum_to_one(*, column="weight", tolerance=1e-8, null_policy="fail")`
+- `weights_sum_to_one(*, column="weight", tolerance=1e-8, null_policy="fail",
+  group_by=(), max_violations=20)`; with `group_by`, each group must add up to 1.
 - `non_negative(*, column, tolerance=0, null_policy="fail", max_violations=20)`
+- `cash_reconciles(*, outflow_sign, opening_cash, inflows, outflows,
+  closing_cash, cash_pnl=None, group_by=(), currency=None, grain="summary",
+  order_by=None, row_key=None, mapping=None, tolerance=0, null_policy="fail",
+  max_violations=20)` checks that cash rolls forward within each group.
+- `nav_reconciles(*, market_value, nav, group_by=(), currency=None,
+  row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
+  that signed market values add up to the reported NAV within each group.
+- `market_value_reconciles(*, quantity, price, market_value, multiplier=None,
+  row_key=None, tolerance=0, null_policy="fail", max_violations=20)` checks
+  `market_value = quantity * price * multiplier` on every row.
+- `gross_within_limit(*, value, maximum=None, minimum=None, base=None,
+  group_by=(), currency=None, row_key=None, null_policy="fail",
+  max_violations=20)` limits `sum(abs(value)) / base` of each group;
+  `net_within_limit` limits `sum(value) / base` and accepts negative limits.
+- `position_within_limit(*, value, maximum, base=None, group_by=(),
+  currency=None, row_key=None, ...)` limits `abs(value) / base` of every row.
+- `simple_return_reconciles(*, beginning_value, ending_value, reported_return,
+  return_unit, net_flows=None, row_key=None, tolerance=0, ...)` checks
+  `(ending - beginning - net_flows) / beginning`; `return_unit` is
+  `"fraction"` or `"percent"` and has no default.
+- `in_range(*, column, minimum=None, maximum=None, tolerance=0,
+  null_policy="fail", severity="error", max_violations=20, row_key=None)`
+  requires every value to lie between inclusive limits.
+- `weights_match_market_values(*, weight, market_value, nav=None, group_by=(),
+  row_key=None, tolerance=1e-8, ...)` checks `weight = market_value / NAV` (or
+  `/ sum(market_value)` without `nav`) in each portfolio.
+- `drift_within_band(*, weight, target_weight, band=None, total_limit=None,
+  group_by=(), row_key=None, severity="warning", ...)` limits each position's
+  drift from its target and, optionally, the portfolio's total drift.
+- `turnover_within_limit(*, weight, previous_weight, maximum, sides,
+  group_by=(), ...)` limits `sum(abs(weight - previous_weight))`, halved for
+  `sides="one_way"`; `sides` has no default.
+- `position_rolls_forward(*, sell_sign, opening_quantity, buys, sells,
+  closing_quantity, group_by, adjustments=None, tolerance=0, ...)` checks
+  `closing = opening + buys - sells + adjustments`; `sell_sign` has no default.
+- `no_duplicates(*, columns, null_policy="fail", max_violations=20)` checks
+  that no value, or combination of values, appears on two rows.
+- `required_fields(*, columns, max_violations=20)` checks that the named
+  columns are never blank.
 - `custom_rule(rule_id, name, evaluator, ...)`
+- `forecast_coverage(*, period_start, period_end, group_by, currency,
+  expected_scope, first_period, periods=13, row_key=None, severity="error",
+  max_violations=20)` requires all explicitly expected weekly buckets.
+- `cash_continuity(*, opening_cash, closing_cash, period_start, period_end,
+  group_by, currency, expected_scope, first_period, periods=13, row_key=None,
+  tolerance=0, null_policy="fail", severity="error", max_violations=20)` compares
+  opening to prior closing only after independently verifying full coverage.
+  See [treasury forecasts](../examples/treasury-forecast.md) for contracts and limits.
 - `Tolerance(absolute=0, relative=0)`
+
+## Excel
+
+- `finassert.excel.read_range(payload)` converts cells selected in Excel (values, number
+  formats, value types) into a table, and `results_table(artifact)` shapes a report as
+  rows for a results sheet. See the [Excel add-in](../excel-add-in.md).
 
 ## Adapter contracts
 
-- `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={})` creates
-  an immutable semantic-to-physical field and aggregation map.
+- `ColumnMapping(columns, group_keys=(), row_key=None, aggregations={},
+  order_key=None)` creates an immutable semantic-to-physical field and
+  aggregation map. `order_key` names the column that orders rows for `FIRST`
+  and `LAST`, which public rules require.
 - `FieldAggregation` provides `SUM`, `FIRST`, `LAST`, and `REQUIRE_UNIQUE`.
 - `GroupKey(name, column)` declares one ordered grouping dimension.
 - `PandasDataFrameAdapter(frame)` exposes pandas values and index labels through
@@ -19,17 +75,77 @@
 - `GroupedRule` is the structural protocol for ordinary rules that declare a
   mapping and required semantic fields.
 - `finassert.rules.aggregate_values(values, aggregation)` applies one configured
-  numeric reduction without dataframe coercion.
+  numeric reduction without dataframe coercion, taking `FIRST`/`LAST` by
+  physical order; `finassert.rules.grouped.aggregate_ordered(values, order,
+  aggregation)` takes them by ordering keys from `order_value`.
 
-The grouped cash-reconciliation module is private exploratory code and is not part
-of the supported API.
+## Policies
+
+- `finassert.policy.load_policy(path, *, catalog=None, format=None) -> Policy`
+  reads a `.yml`, `.yaml`, or `.json` policy; YAML needs PyYAML.
+- `parse_policy(document, *, catalog=None)` and
+  `parse_policy_text(text, *, format, catalog=None)` validate an in-memory
+  policy.
+- `Policy` exposes `rules`, `entries`, `name`, `description`, `assumptions`,
+  `digest`, `check(data)`, `to_document()`, and `describe()`.
+- `dump_policy(policy) -> str` writes YAML that reloads to an identical policy.
+- `suggest_templates(columns, *, minimum_fraction=0.5) -> tuple[TemplateFit, ...]`
+  and `fit_template(template, columns)` match a template's expected columns to a
+  file's headers; `TemplateFit.matches` lists each `ColumnMatch` (with `how` it
+  matched) and `TemplateFit.adapted()` returns the template with the file's
+  column names filled in and the matches to confirm added to its notes.
+- `PolicyError.issues` holds `PolicyIssue` values with `location`, `line`,
+  `message`, and `suggestion`.
+- `RuleCatalog`, `RuleFactorySpec`, `ParameterSpec`, and `default_catalog()`
+  define which factories a policy may name and describe them in plain language.
+
+- `policy_templates()` and `get_template(name)` return `PolicyTemplate` starter
+  policies with `policy()`, `to_yaml()`, `assumptions` in the document, and
+  `adapt` notes.
+
+## Loaders
+
+- `finassert.loaders.load_input(path, *, format=None, sheet=None)` reads CSV,
+  JSON, Excel `.xlsx`, or Parquet; `sheet` chooses an Excel worksheet.
+- `parse_xlsx(data, *, sheet=None) -> TableSource` reads workbook bytes with no
+  dependency; `read_parquet(path)` needs pyarrow.
+- `parse_csv(text) -> TableSource` and `parse_json(text)` parse text directly.
+- `TableSource` implements `ColumnSource` with spreadsheet row numbers as
+  labels and exposes `column_names`, `row_count`, and `preview()`.
+
+## Reporting
+
+- `finassert.reporting.to_text(report)` and `to_json(report)` render a report.
+- `build_artifact(report, *, policy=None, input_locator=None, input_format=None,
+  generated_at=None)` wraps a report with schema version, tool version, policy
+  digest, and input context; `artifact_to_json()` serializes it.
+- `to_html(report, ...)` and `render_artifact_html(artifact)` produce a
+  self-contained HTML page that embeds the artifact.
+
+## Assistant tool server
+
+`finassert-assistant --root FOLDER` serves the tools `rules`, `templates`,
+`check_policy`, `inspect`, and `run_checks` over MCP; see
+[Assistant tool server](../assistant.md). The same functions are available as
+`finassert.assistant.list_rules`, `list_templates`, `validate_policy`,
+`inspect_data`, and `check_data`, with `Workspace` restricting file access.
+
+## Command line
+
+`finassert check` and `finassert rules`; see
+[Policies and the command line](../command-line.md) for options and exit codes.
+`finassert.cli.exit_code(report, fail_on="error")` maps a report to its exit code.
 
 ## Results
 
 `ValidationResult` contains `rule_id`, `rule_name`, `outcome`, `severity`,
 `message`, `observed`, `expected`, `tolerance`, and `metadata`; `passed` is a
-derived property. `ValidationReport` exposes ordered `results`, `failures`,
-counts, `passed`, `to_dict()`, and `summary()`.
+derived property, `blocking` (the result fails the report) and `warning` (a failed
+result whose severity is below `error`), and `blocks(fail_on)` for a stricter
+threshold. `ValidationReport` exposes ordered `results`, `failures`,
+`blocking_failures`, `warnings`, counts, `passed` (true when nothing blocks),
+`to_dict()`, and `summary()`. `finassert.cli.exit_code(report, fail_on)` maps a
+report to its exit code.
 
 Outcomes are `passed`, `failed`, `error`, and `skipped`. JSON serialization uses
 strings for Decimal values so precision is not lost.
