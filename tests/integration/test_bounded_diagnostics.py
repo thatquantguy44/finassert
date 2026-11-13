@@ -132,3 +132,16 @@ def test_complete_scalar_reference_parity(case: Any, adapter: str) -> None:
     expected = json.loads(REFERENCE.read_text())["fingerprints"][name]
     actual = payload(pd.DataFrame(data) if adapter == "pandas" else data, rule)
     assert fingerprint(actual) == expected, actual
+
+
+@pytest.mark.parametrize("adapter", ["mapping", "pandas"])
+@pytest.mark.parametrize("case", list(parity_cases()), ids=lambda case: case[0])
+def test_repeated_policy_preserves_captured_scalar_reference(case: Any, adapter: str) -> None:
+    name, columns, rule = case
+    data = pd.DataFrame(columns) if adapter == "pandas" else columns
+    expected = json.loads(REFERENCE.read_text())["fingerprints"][name]
+    direct = payload(data, rule)["direct"]
+    report = fa.check(data, [rule, rule])
+    for result in report.results:
+        actual = {"direct": direct, "report": fa.ValidationReport((result,)).to_dict()}
+        assert fingerprint(actual) == expected, actual

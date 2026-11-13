@@ -1,6 +1,6 @@
 # 0010 — Performance and batch validation
 
-**Status:** Scalar benchmarks and bounded diagnostic evaluation implemented; batch APIs proposed
+**Status:** Scalar/multi-rule benchmarks, bounded diagnostics and private shared reads implemented; batch APIs proposed
 
 ## Problem statement
 
@@ -69,6 +69,38 @@ available in the original reduction order. This bounds diagnostic retention, not
 all input materialization or aggregation memory. Duplicate detection still keeps
 state per distinct key, with bounded row examples per key; required-field column
 summaries remain complete. No public API or result schema changes are required.
+
+## Private shared column reads
+
+Policies of 1, 10 and 50 rules over a shared column are measured with
+`scripts/benchmark_shared_reads.py`: mapping/pandas inputs and float/Decimal,
+separate construction, warm/first timings, validation tracemalloc, and cProfile.
+Retain materialization counts, profiled extraction time and complete report
+fingerprints. Timing under cProfile is diagnostic evidence, not ordinary runtime.
+The uncached scalar path remains the equivalence reference.
+
+A private prototype may reuse one materialized column across consecutive exact
+built-in nonnegative, range and weights rules in one ordinary `check` call.
+Retaining one column bounds cache memory independently of policy column count.
+Plain dictionaries with list/tuple columns and native pandas frames are eligible.
+A different column evicts the previous one. Overloaded/custom scalar cells or
+labels disable reuse for the rest of the call after one inspection. Custom
+tolerance/configuration subclasses are scalar rule boundaries. No aggregate, numeric classification,
+null mask or financial-unit context is reused. Existing reductions stay in their
+original order; row keys and native label alignment are still validated.
+
+Custom rules and subclasses clear sharing before they execute. Lazy rule
+iterables, one-shot columns, arbitrary column sources and MoneySource preserve
+scalar reads; each rule still receives the original input object. Validation
+context resets clear retained values before the hook runs. Nested/concurrent
+checks are isolated, and every exit including strict exceptions releases the
+session. No cached data survives a check call. Unsupported cases fall back to
+scalar execution rather than imposing a new source snapshot contract.
+
+The prototype ships only with retained evidence of useful measured gains and
+complete parity, including Decimal boundaries, duplicate/composite labels,
+errors, mutation boundaries and per-rule unit/FX provenance. Public signatures
+and report schemas remain unchanged; batch/concurrent APIs remain proposed.
 
 ## Financial and numerical edge cases
 

@@ -5,17 +5,46 @@
 
 ## Current state
 
-- **Branch / PR:** `feature/bounded-diagnostic-memory`, [draft PR #18](https://github.com/thatquantguy44/finassert/pull/18), based on merged PR #17 (`5ec9959`).
-- **Latest delivered work:** Count every failure while retaining bounded diagnostic
-  samples throughout built-in scalar evaluation.
-- **Evidence:** 2,144 tests pass, including 1,322 complete scalar-reference
-  comparisons. All 48 benchmark fingerprints match; dense 100,000-row failure
-  peak fell from 22.88 to 4.58 MiB. Paired grouped timings show no sustained
-  regression. See [artifacts](artifacts/README.md).
-- **Next step:** Review this branch and its retained evidence before choosing
-  further measured optimizations. Batch APIs remain proposed.
+- **Branch:** `feature/shared-column-reads`, from merged PR #18 (`28388d7`).
+- **Latest delivered work:** All four multi-rule measurement/shared-read items.
+  Private sharing retains one column across eligible consecutive built-in rules;
+  custom/lazy/unit-aware inputs retain scalar behavior.
+- **Evidence:** 24 reference/optimized cases preserve complete fingerprints;
+  50-rule reads fall from 50 to 1, with essentially flat peak memory. Alternating
+  timings show 5.0–7.2% wall gains in three workloads and neutral Decimal pandas.
+  Full suite: 3,484 passed, including 2,644 captured-reference tests.
+- **Next step:** Review this branch and the scoped fallbacks. Further kernels and
+  public batch/concurrent APIs remain proposed.
 
 ## Entries
+
+### 2026-11-13 — Multi-rule benchmarks and bounded shared reads
+
+- **Branch:** `feature/shared-column-reads`, from merged PR #18 (`28388d7`).
+- **Done:** Retained policies with 1/10/50 rules, two sizes, float/Decimal and
+  mapping/pandas. Measured materialization calls, profiled extraction time,
+  first/warm validation time, tracemalloc and RSS separately. Prototyped and
+  verified private one-column sharing within an ordinary check call.
+- **Decision:** Ship the scoped optimization: 50 shared-column rules read once
+  instead of fifty times. Alternating uninstrumented timing pairs show 4.99%
+  float mapping, 6.82% float pandas and 7.22% Decimal mapping wall gains. Decimal
+  pandas is neutral (+0.53% wall, -1.68% CPU). Matrix timing variability and alternating raw samples remain retained; no universal speedup is claimed. Peak memory is flat.
+- **Scope:** Exact built-in nonnegative/range/weights rules and native pandas or
+  plain list/tuple-backed dictionaries; one retained column, evicted on a new
+  column. Custom rules/subclasses and custom tolerances are barriers. Lazy rule iterables, one-shot
+  columns, arbitrary sources and MoneySource keep scalar reads. Overloaded scalar cells/labels disable reuse. Reset hooks clear
+  cached values; nested/concurrent checks and strict errors isolate/release state.
+- **Verification:** 3,484 tests passed. Complete fingerprints match all 24 matrix
+  cases and all timing follow-ups. 2,644 captured-reference tests check standalone
+  and repeated policies. Focused tests cover Decimal, labels, errors, mutations,
+  read counts, context resets and per-rule unit/FX provenance. Ruff lint/format,
+  mypy (59 modules), strict docs, wheel/sdist build and isolated installed CLI/unit/FX/workbook
+  flows pass.
+- **Evidence:** Raw samples, exact source digests and reproduction commands are in
+  [artifacts/README.md](artifacts/README.md#shared-column-reads).
+- **Limits:** Numerical scans/aggregation remain dominant; public check signatures
+  and report schemas are unchanged. No batch API, merge or release is included.
+- **Next step:** Review the branch and scoped fallbacks before further optimization.
 
 ### 2026-11-13 — Bounded diagnostic memory during scalar evaluation
 

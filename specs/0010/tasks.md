@@ -9,7 +9,8 @@ acceptance certification.
 ## Existing baseline
 
 A scalar corpus, isolated measurements, profiles, retained 48-case baseline and
-bounded scalar diagnostic evaluation are implemented. Batch APIs remain proposed.
+bounded scalar diagnostic evaluation are implemented. Multi-rule measurement and
+private one-column sharing are implemented; batch APIs remain proposed.
 
 ## Remaining work, in order
 
@@ -22,7 +23,12 @@ bounded scalar diagnostic evaluation are implemented. Batch APIs remain proposed
   including zero caps and nested/grouped populations, without changing reports.
 - [x] Capture scalar-reference parity and rerun all 48 benchmarks; retain the
   memory comparison and investigate timing outliers. See [evidence](handoff.md).
-- [ ] Prototype vector kernels or shared column reads only if measurements justify them.
+- [x] Benchmark policies of 1/10/50 rules sharing columns on mapping/pandas inputs.
+- [x] Retain extraction counts/time and validation peak-memory measurements.
+- [x] Implement private shared reads within one check if measurements justify them.
+- [x] Verify complete report parity, Decimal behavior, row identity and per-rule
+  unit/FX provenance for shared and scalar execution.
+- [ ] Prototype vector kernels only if measurements justify them.
 - [ ] Require reference-result parity and deterministic reduction before any batch or
   parallel API is public.
 

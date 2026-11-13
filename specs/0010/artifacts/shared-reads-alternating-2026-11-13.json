@@ -1,0 +1,387 @@
+{
+  "generated_at": "2026-11-13T09:36:51.281640+00:00",
+  "method": {
+    "cpu_time": "process_time; excludes time not scheduled on CPU",
+    "fresh_process_per_adapter_domain": true,
+    "order": "alternating scalar/shared within each worker",
+    "profiling": "none",
+    "timed_pairs": 7,
+    "timings_exclude_construction_gc_serialization": true,
+    "warmup_pairs": 1
+  },
+  "results": [
+    {
+      "adapter": "mapping",
+      "numeric_domain": "float",
+      "report_fingerprint": "412ca1c9a31fbdb1c40cde2a964b13c51ac4b420f4a523d8f446cf315fe53102",
+      "rows": 100000,
+      "rule_count": 50,
+      "samples": [
+        {
+          "cpu_seconds": 1.2005919999999999,
+          "execution": "scalar",
+          "pair": 1,
+          "wall_seconds": 1.2664972089987714
+        },
+        {
+          "cpu_seconds": 1.2559359999999997,
+          "execution": "shared",
+          "pair": 1,
+          "wall_seconds": 1.4541275420051534
+        },
+        {
+          "cpu_seconds": 1.3280960000000004,
+          "execution": "shared",
+          "pair": 2,
+          "wall_seconds": 1.597809667000547
+        },
+        {
+          "cpu_seconds": 1.3204290000000007,
+          "execution": "scalar",
+          "pair": 2,
+          "wall_seconds": 1.4667682090075687
+        },
+        {
+          "cpu_seconds": 1.2491459999999988,
+          "execution": "scalar",
+          "pair": 3,
+          "wall_seconds": 1.4181742079963442
+        },
+        {
+          "cpu_seconds": 1.1498080000000002,
+          "execution": "shared",
+          "pair": 3,
+          "wall_seconds": 1.1844543750048615
+        },
+        {
+          "cpu_seconds": 1.11008,
+          "execution": "shared",
+          "pair": 4,
+          "wall_seconds": 1.1220587500138208
+        },
+        {
+          "cpu_seconds": 1.1588119999999993,
+          "execution": "scalar",
+          "pair": 4,
+          "wall_seconds": 1.207347291026963
+        },
+        {
+          "cpu_seconds": 1.1910810000000005,
+          "execution": "scalar",
+          "pair": 5,
+          "wall_seconds": 1.2454178750049323
+        },
+        {
+          "cpu_seconds": 1.150843,
+          "execution": "shared",
+          "pair": 5,
+          "wall_seconds": 1.186029625008814
+        },
+        {
+          "cpu_seconds": 1.1085319999999985,
+          "execution": "shared",
+          "pair": 6,
+          "wall_seconds": 1.129999458004022
+        },
+        {
+          "cpu_seconds": 1.1875310000000017,
+          "execution": "scalar",
+          "pair": 6,
+          "wall_seconds": 1.2483097079966683
+        },
+        {
+          "cpu_seconds": 1.1863660000000031,
+          "execution": "scalar",
+          "pair": 7,
+          "wall_seconds": 1.2321366670075804
+        },
+        {
+          "cpu_seconds": 1.1704709999999992,
+          "execution": "shared",
+          "pair": 7,
+          "wall_seconds": 1.2547504590183962
+        }
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "numeric_domain": "float",
+      "report_fingerprint": "412ca1c9a31fbdb1c40cde2a964b13c51ac4b420f4a523d8f446cf315fe53102",
+      "rows": 100000,
+      "rule_count": 50,
+      "samples": [
+        {
+          "cpu_seconds": 1.311852,
+          "execution": "scalar",
+          "pair": 1,
+          "wall_seconds": 1.4187411250022706
+        },
+        {
+          "cpu_seconds": 1.1891139999999996,
+          "execution": "shared",
+          "pair": 1,
+          "wall_seconds": 1.251288958999794
+        },
+        {
+          "cpu_seconds": 1.1532740000000006,
+          "execution": "shared",
+          "pair": 2,
+          "wall_seconds": 1.2013797920080833
+        },
+        {
+          "cpu_seconds": 1.2269959999999998,
+          "execution": "scalar",
+          "pair": 2,
+          "wall_seconds": 1.3187964590033516
+        },
+        {
+          "cpu_seconds": 1.2440869999999995,
+          "execution": "scalar",
+          "pair": 3,
+          "wall_seconds": 1.282159458991373
+        },
+        {
+          "cpu_seconds": 1.2451939999999997,
+          "execution": "shared",
+          "pair": 3,
+          "wall_seconds": 1.349302415997954
+        },
+        {
+          "cpu_seconds": 1.1456529999999994,
+          "execution": "shared",
+          "pair": 4,
+          "wall_seconds": 1.1653304999927059
+        },
+        {
+          "cpu_seconds": 1.206778,
+          "execution": "scalar",
+          "pair": 4,
+          "wall_seconds": 1.225094249995891
+        },
+        {
+          "cpu_seconds": 1.2045279999999998,
+          "execution": "scalar",
+          "pair": 5,
+          "wall_seconds": 1.227195625018794
+        },
+        {
+          "cpu_seconds": 1.1295559999999991,
+          "execution": "shared",
+          "pair": 5,
+          "wall_seconds": 1.1449130419932771
+        },
+        {
+          "cpu_seconds": 1.140282000000001,
+          "execution": "shared",
+          "pair": 6,
+          "wall_seconds": 1.1686157919757534
+        },
+        {
+          "cpu_seconds": 1.2747339999999987,
+          "execution": "scalar",
+          "pair": 6,
+          "wall_seconds": 1.3578714160248637
+        },
+        {
+          "cpu_seconds": 1.2587649999999968,
+          "execution": "scalar",
+          "pair": 7,
+          "wall_seconds": 1.2892557079903781
+        },
+        {
+          "cpu_seconds": 1.2526969999999977,
+          "execution": "shared",
+          "pair": 7,
+          "wall_seconds": 1.3774087079800665
+        }
+      ]
+    },
+    {
+      "adapter": "mapping",
+      "numeric_domain": "decimal",
+      "report_fingerprint": "5b4d9a7d3672259768d315939af0d166fe02eebdee03c92e4e772e3c5add4351",
+      "rows": 100000,
+      "rule_count": 50,
+      "samples": [
+        {
+          "cpu_seconds": 1.3345680000000004,
+          "execution": "scalar",
+          "pair": 1,
+          "wall_seconds": 1.399981583992485
+        },
+        {
+          "cpu_seconds": 1.3782509999999997,
+          "execution": "shared",
+          "pair": 1,
+          "wall_seconds": 1.444241666002199
+        },
+        {
+          "cpu_seconds": 1.4071159999999994,
+          "execution": "shared",
+          "pair": 2,
+          "wall_seconds": 1.5842892079963349
+        },
+        {
+          "cpu_seconds": 1.3516529999999998,
+          "execution": "scalar",
+          "pair": 2,
+          "wall_seconds": 1.4206226250098553
+        },
+        {
+          "cpu_seconds": 1.386367,
+          "execution": "scalar",
+          "pair": 3,
+          "wall_seconds": 1.4856226659903768
+        },
+        {
+          "cpu_seconds": 1.300286999999999,
+          "execution": "shared",
+          "pair": 3,
+          "wall_seconds": 1.3783610000100452
+        },
+        {
+          "cpu_seconds": 1.3000509999999998,
+          "execution": "shared",
+          "pair": 4,
+          "wall_seconds": 1.3779004589887336
+        },
+        {
+          "cpu_seconds": 1.4333050000000007,
+          "execution": "scalar",
+          "pair": 4,
+          "wall_seconds": 1.6347581659792922
+        },
+        {
+          "cpu_seconds": 1.4418039999999994,
+          "execution": "scalar",
+          "pair": 5,
+          "wall_seconds": 1.5523180000018328
+        },
+        {
+          "cpu_seconds": 1.3260650000000016,
+          "execution": "shared",
+          "pair": 5,
+          "wall_seconds": 1.3934697499789763
+        },
+        {
+          "cpu_seconds": 1.309942999999997,
+          "execution": "shared",
+          "pair": 6,
+          "wall_seconds": 1.3547759169887286
+        },
+        {
+          "cpu_seconds": 1.3725510000000014,
+          "execution": "scalar",
+          "pair": 6,
+          "wall_seconds": 1.5565634999948088
+        },
+        {
+          "cpu_seconds": 1.350041000000001,
+          "execution": "scalar",
+          "pair": 7,
+          "wall_seconds": 1.4804385000024922
+        },
+        {
+          "cpu_seconds": 1.2971000000000004,
+          "execution": "shared",
+          "pair": 7,
+          "wall_seconds": 1.3477047079941258
+        }
+      ]
+    },
+    {
+      "adapter": "pandas",
+      "numeric_domain": "decimal",
+      "report_fingerprint": "5b4d9a7d3672259768d315939af0d166fe02eebdee03c92e4e772e3c5add4351",
+      "rows": 100000,
+      "rule_count": 50,
+      "samples": [
+        {
+          "cpu_seconds": 1.3617499999999998,
+          "execution": "scalar",
+          "pair": 1,
+          "wall_seconds": 1.399902083008783
+        },
+        {
+          "cpu_seconds": 1.3388300000000006,
+          "execution": "shared",
+          "pair": 1,
+          "wall_seconds": 1.4012242089956999
+        },
+        {
+          "cpu_seconds": 1.2917159999999992,
+          "execution": "shared",
+          "pair": 2,
+          "wall_seconds": 1.3141218329838011
+        },
+        {
+          "cpu_seconds": 1.3643360000000007,
+          "execution": "scalar",
+          "pair": 2,
+          "wall_seconds": 1.4232584580022376
+        },
+        {
+          "cpu_seconds": 1.3379949999999994,
+          "execution": "scalar",
+          "pair": 3,
+          "wall_seconds": 1.3642207910015713
+        },
+        {
+          "cpu_seconds": 1.3268889999999995,
+          "execution": "shared",
+          "pair": 3,
+          "wall_seconds": 1.407259209023323
+        },
+        {
+          "cpu_seconds": 1.3597769999999993,
+          "execution": "shared",
+          "pair": 4,
+          "wall_seconds": 1.491508375009289
+        },
+        {
+          "cpu_seconds": 1.395510999999999,
+          "execution": "scalar",
+          "pair": 4,
+          "wall_seconds": 1.4931243340251967
+        },
+        {
+          "cpu_seconds": 1.3886000000000003,
+          "execution": "scalar",
+          "pair": 5,
+          "wall_seconds": 1.4573846249841154
+        },
+        {
+          "cpu_seconds": 1.360175,
+          "execution": "shared",
+          "pair": 5,
+          "wall_seconds": 1.467676375003066
+        },
+        {
+          "cpu_seconds": 1.3633349999999993,
+          "execution": "shared",
+          "pair": 6,
+          "wall_seconds": 1.4508203330042306
+        },
+        {
+          "cpu_seconds": 1.348471,
+          "execution": "scalar",
+          "pair": 6,
+          "wall_seconds": 1.392135000001872
+        },
+        {
+          "cpu_seconds": 1.3123759999999969,
+          "execution": "scalar",
+          "pair": 7,
+          "wall_seconds": 1.3231385840044823
+        },
+        {
+          "cpu_seconds": 1.269399,
+          "execution": "shared",
+          "pair": 7,
+          "wall_seconds": 1.3169686250039376
+        }
+      ]
+    }
+  ],
+  "source_sha256": "ebe26cdb73b3d6ef312f746150af3367da4f7de3f03f9fa664fb8b23c13e4894"
+}

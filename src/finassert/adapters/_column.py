@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from decimal import Decimal
 from typing import Any
 
+from finassert.adapters._shared_reads import _ACTIVE
 from finassert.core.exceptions import ColumnNotFoundError, InvalidDataError
 from finassert.core.models import CellError
 from finassert.core.protocols import ColumnSource
@@ -13,6 +14,21 @@ from finassert.core.protocols import ColumnSource
 
 def extract_column(data: Any, name: str) -> tuple[list[Any], list[Any]]:
     """Extract a named column and stable row labels from supported inputs."""
+    session = _ACTIVE.get()
+    if session is not None:
+        if session.accepts(data, name):
+            if session.name == name and session.column is not None:
+                return session.column
+            # One slot bounds retention even for policies over many columns.
+            session.clear()
+            column = _extract_uncached(data, name)
+            session.remember(name, column)
+            return column
+        session.clear()
+    return _extract_uncached(data, name)
+
+
+def _extract_uncached(data: Any, name: str) -> tuple[list[Any], list[Any]]:
     if isinstance(data, ColumnSource):
         values, labels = data.column(name)
         if len(values) != len(labels):
