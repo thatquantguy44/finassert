@@ -93,6 +93,10 @@ jobs:
           if-no-files-found: error
       - name: Install Chromium
         run: uv run --with playwright==1.55.0 playwright install --with-deps chromium
+      - name: Track Excel freshness regressions (spec 0016 E-01)
+        env:
+          FINASSERT_EXCEL_PAGE: dist/excel-offline/taskpane.html
+        run: uv run --with playwright==1.55.0 pytest -q -rx tests/browser/test_excel_freshness.py
       - name: Smoke-test browser app against the Pyodide CDN
         run: uv run --with playwright==1.55.0 python scripts/smoke_web.py dist/web/finassert.html
       - name: Smoke-test the Excel task pane against a stand-in for Excel

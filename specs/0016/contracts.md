@@ -40,7 +40,18 @@ Microsoft distinguishes a table's
 The implementation must use those boundaries rather than assume getRange excludes
 totals. [Calculation state](https://learn.microsoft.com/en-us/javascript/api/excel/excel.application?view=excel-js-1.9#excel-excel-application-calculationstate-member)
 is documented in ExcelApi 1.9. The complete method/event matrix and actual Mac
-behavior still require E-01 evidence.
+behavior are separated in the [API matrix](api-matrix.md) and
+[baseline evidence](artifacts/README.md). The stable method audit is complete;
+actual Mac Office.js behavior remains unobserved because the add-in entry is disabled.
+
+E-01 corrects the existing prototype's declared minimum to ExcelApi 1.7, matching
+getRangeByIndexes in its sheet writer. Generated manifests now enforce that floor;
+hosts below it can no longer load the prototype. The future 1.9 workflow remains
+proposed. No financial, date-reader, artifact or row-identity contract changes here.
+The manifest deployment version is separately maintained at 1.0.0.0 because
+Microsoft's validator rejected the package-derived 0.1.0.0 as below its minimum.
+The add-in ID and actual package/report version are unchanged. This does not
+establish the cause of the disabled native entry or prove a successful install.
 
 No stable workbook date-system getter is assumed. E-01 must substantiate any
 automatic path; user selection is the defined baseline. A search hit or a preview

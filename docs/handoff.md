@@ -17,22 +17,27 @@ rewrite old entries (append a correction instead).
 
 ## Current state
 
-- **Branch:** `docs/spec-0016-excel-validation-workflow`, based on
-  current main `8d96fdc`; current work is documentation for the next add-in slice.
+- **Branch:** `feature/excel-host-baseline`, based on integrated main `3b5a014`.
+- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
+  targeting main. E-01's native baseline remains incomplete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
-- **Next priority:** Mac-first Excel add-in workflow, scoped as proposed spec 0016.
-  Runtime implementation and real-host acceptance have not started.
-- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22), open for review against main.
+- **Next priority:** Spec 0016 E-01 is in progress: three stale-result reproductions,
+  stable API audit, diagnostic probe and manifest corrections are implemented.
+  The native baseline remains incomplete; later workflow tasks are proposed.
+- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
+- **Host blocker:** Excel 16.115 lists finassert under Developer Add-ins as disabled.
+  Actual Office.js capabilities and read/run timings remain pending; see
+  [baseline evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-host-baseline/specs/0016/artifacts/README.md).
 
 ## Next up
 
-1. Review the proposed spec 0016 scope in PR #22.
-2. Start spec 0016 E-01: proposal issue, stale-result regression and real Mac baseline.
+1. Complete spec 0016 E-01's native load/read/run baseline and collect real diagnostics.
+2. Then E-02: explicit source binding and date interpretation, before E-03 freshness.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
@@ -50,6 +55,37 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-13 — Publish Excel E-01 draft PR
+
+- **Commit / PR:** 950a03e and [draft PR #24](https://github.com/thatquantguy44/finassert/pull/24),
+  from feature/excel-host-baseline to main. Verified the implementation commit was
+  already pushed; linked the draft in both handoffs.
+- **Scope:** E-01 regressions, API/diagnostic work, manifest corrections and native
+  baseline findings. The draft records the disabled add-in entry; it does not
+  close issue #23 or claim real-host acceptance.
+- **Verification:** Prior implementation evidence remains recorded below;
+  publication changes only handoff links. Strict MkDocs and whitespace passed.
+- **Next:** Resolve native loading and finish E-01's read/run measurements.
+
+### 2026-11-13 — Start Excel E-01 baseline and regression slice
+
+- **Branch / issue:** feature/excel-host-baseline from refreshed main 3b5a014;
+  [#23](https://github.com/thatquantguy44/finassert/issues/23). Scope PR #22 is merged.
+- **Done:** Three strict expected-failure browser reproductions with passing
+  controls; stable Office API audit; read-only calculation/event diagnostic;
+  prototype requirement corrected to 1.7, proposed workflow floor retained at 1.9.
+  Separated manifest deployment version from the package after validator rejection.
+- **Host evidence:** Installed Excel 16.115 on macOS 26.5.1; served baseline matches
+  fresh main byte for byte. The Developer Add-ins entry is disabled; native pane
+  loading and actual Office.js measurements remain pending. Existing server,
+  certificate trust, sideload manifest and user workbook data were not changed.
+- **Verification:** 3,624 tests passed (nine browser tests run separately: six pass,
+  three expected failures); CDN and bundled/offline Excel smoke flows passed.
+  Ruff/format, mypy, strict MkDocs, isolated installed-distribution verification
+  and Microsoft's corrected manifest validation passed.
+- **Next:** Resolve native loading and record capabilities/timings before completing
+  E-01. Stale-result fixes remain E-03; distribution remains deferred.
 
 ### 2026-11-13 — Publish the Excel workflow scope PR
 

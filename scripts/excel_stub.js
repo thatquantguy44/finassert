@@ -5,6 +5,14 @@
   const sheets = {};
   const state = { selected: config.selected, sheets: {}, log: [] };
   window.__excel = state;
+  const supports = (version) => (config.requirements || {})[version] !== false;
+  const eventMember = (version) => supports(version) ? { add() {} } : undefined;
+  const application = {
+    calculationMode: config.calculationMode || "Automatic",
+    calculationState: config.calculationState || "Done",
+    load() { state.log.push("read calculation metadata"); },
+  };
+  state.application = application;
 
   const letters = (index) => {
     let text = "";
@@ -69,6 +77,9 @@
 
   const sheetApi = (sheet) => ({
     name: sheet.name,
+    onChanged: eventMember("1.7"),
+    onCalculated: eventMember("1.8"),
+    onFormatChanged: eventMember("1.9"),
     tables: {
       items: sheet.tables.map((t) => ({ name: t.name, getRange: () => range(sheet, t.r0, t.c0, t.rows, t.cols) })),
       load() {},
@@ -91,13 +102,14 @@
     context: {
       platform: "PC",
       diagnostics: { host: "Excel", platform: "PC", version: "16.0.stub" },
-      requirements: { isSetSupported: () => true },
+      requirements: { isSetSupported: (_name, version) => supports(version) },
     },
   };
   window.Excel = {
     run: async (callback) => {
       const context = {
         sync: async () => {},
+        application,
         workbook: {
           getSelectedRange: () => {
             if (state.selected === "single") return range(holdings, 3, 1, 1, 1); // B4

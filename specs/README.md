@@ -67,7 +67,7 @@ cross-spec dependencies, and overall priorities in the
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
 | [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
 | [0015 Verified upstream release bundles](0015/spec.md) | Implemented and verified; PR #21 merged |
-| [0016 Excel add-in validation workflow](0016/spec.md) | Proposed; Mac-first source binding, freshness, navigation and real-host acceptance |
+| [0016 Excel add-in validation workflow](0016/spec.md) | E-01 in progress; native baseline unresolved; binding/freshness/navigation proposed |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

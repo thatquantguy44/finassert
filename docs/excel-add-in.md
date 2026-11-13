@@ -11,6 +11,14 @@ test that does that: the pane has a **Diagnostics for testers** section that run
 it and produces a report. Until it has been done the add-in should be treated as a
 prototype.
 
+The manifest declares ExcelApi 1.7 because results/policy sheet writes use
+`getRangeByIndexes`. Diagnostics also probe the planned spec 0016 floor of 1.9,
+record calculation mode/state and check event members without changing settings.
+Date-system selection and stale-result handling are still pending implementation.
+The manifest deployment version is 1.0.0.0 to satisfy Office validation; the pane
+and reports retain the actual finassert package version. Maintainers bump
+ADD_IN_VERSION in scripts/build_excel.py when releasing an updated manifest.
+
 The next delivery is scoped in
 [spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
 explicit source binding, stale-result handling, diagnostic navigation, explicit
