@@ -112,6 +112,11 @@ auto-corrected. The browser application makes zero network requests after load;
 a failed load or Pyodide error is shown as an evaluation error, not an empty
 report. Reports omit full records beyond capped diagnostics.
 
+The optional Excel-only [QuantSmith reference](../0018/spec.md) fetches selected
+documentation from the add-in's local origin when the reader requests it. It
+does not send workbook cells and does not change the offline browser/file app
+or financial results.
+
 ## Implementation milestones
 
 1. Catalog metadata for existing rules and `default_catalog()`. 2. Human policy

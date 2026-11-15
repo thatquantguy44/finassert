@@ -8,8 +8,18 @@ and explicit source/date binding plus configurable E-03 freshness/capture.
 E-04 now adds bounded diagnostic navigation and focused native F8 evidence.
 E-05 adds verified provenance, canonical outputs, unique names, saved ownership and
 write-error recovery. Full E-06 acceptance remains pending; follow the master ordering.
+The optional 0018 local QuantSmith reference is implemented for the Excel pane;
+it does not change workbook validation or the offline file/browser application.
 
 ## Entries
+
+### 2026-11-15 — Optional pinned QuantSmith reader
+
+The Excel pane now offers an on-demand text reader for allowlisted documents
+from a pinned local QuantSmith checkout. The local server's same-origin API
+is opt-in; no private content enters the add-in build. Synthetic Git/API and
+browser evidence is under [0018](../0018/handoff.md). This does not complete
+0016 E-06 Mac acceptance or change the browser/file app's offline contract.
 
 ### 2026-11-15 — E-05 verified exports and owned destinations
 

@@ -64,6 +64,7 @@ include = [
   "/docs",
   "/specs",
   "/examples",
+  "/integrations",
   "/scripts",
   "/web",
   "/README.md",
