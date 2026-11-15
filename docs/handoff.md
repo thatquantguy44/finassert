@@ -19,19 +19,19 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
    decisions; see the [spec catalog](https://github.com/thatquantguy44/finassert/blob/main/specs/README.md).
 6. Stage intended work/prose, run `python3 scripts/check_handoff.py --refresh`,
    then explicitly stage this file again. Hooks/CI check the index/history and
-   preserve older entries. See [the workflow](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/CONTRIBUTING.md#master-handoff-checkpoints).
+   preserve older entries. See [the workflow](https://github.com/thatquantguy44/finassert/blob/main/CONTRIBUTING.md#master-handoff-checkpoints).
 
 ## Current state
 
-- **Last worked on:** Opened PR #25 for Excel E-01–E-03 and canonical handoff guards; recorded delivery and pickup.
+- **Last worked on:** Saved the reusable Git/filesystem handoff prompt on main and recorded PR #25's merge.
 - **Highest priority:** E-04 — Diagnostic navigation.
 - **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
-- **Verification:** Documentation links/anchors, strict MkDocs, whitespace and guarded checkpoint checks pass; implementation verification is retained in PR #25.
-- **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
-  `00ce4d9`. E-01/E-02 native baseline/source binding and configurable E-03
-  freshness/stable capture are implemented and verified.
+- **Verification:** Markdown links/anchors, strict MkDocs, whitespace and staged handoff/author checks pass; runtime code is unchanged.
+- **Branch:** `main`, refreshed to merge commit `32cf4ab` before saving the prompt.
+  E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
+  capture and spec 0017's Git-backed handoff guards are merged and verified.
 - **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
-  is open for review, targeting main with Excel E-01–E-03 and handoff enforcement.
+  is merged into main at `32cf4ab`, with Excel E-01–E-03 and handoff enforcement.
 - **Previous baseline PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
   is merged; its outstanding native baseline is now complete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
@@ -42,7 +42,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Scope:** finassert only; no release/tag or downstream application change.
 - **Remaining product scope:** E-01–E-03 have native and automated evidence;
   E-04–E-06 remain proposed.
-- **Stopping point:** PR #25 is open for review; implementation is committed/pushed and E-04 has not started.
+- **Stopping point:** PR #25 is merged into main; the reusable prompt is saved and E-04 has not started.
+- **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
+  describes both Git and filesystem modes for reuse elsewhere. Finassert's
+  implemented checker remains Git-backed; no filesystem backend was added here.
 - **Native session:**
   The last observed native pane was Ready/Unbound. Source, date choice and capture
   settings are session-only and must be selected again after reopening.
@@ -53,13 +56,13 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
   sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
   subsequently tested with both epochs. See
-  [evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md).
+  [evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/README.md).
 
 ## Next up
 
 1. E-04 — Diagnostic navigation.
-   Resume on `feature/excel-source-binding-dates` at
-   [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md#ordered-implementation).
+   Start a new feature branch from refreshed `main` at
+   [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/tasks.md#ordered-implementation).
    Read its agent instructions and R-03 first. Start with the bounded diagnostic
    view and physical row/cell mapping, reusing E-03's current-result preflight
    before changing selection. Cover offset/quoted sources, ambiguous business
@@ -76,19 +79,11 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
+  "prior_head": "32cf4aba736ec05eec4668df7b0d19261699c16c",
   "recent_commits": [
     {
-      "commit": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
-      "subject": "chore: enforce canonical master handoff checkpoints"
-    },
-    {
-      "commit": "4822db8c42bb3d4526427c40185202b567b1ebb0",
-      "subject": "feat(excel): bind sources and verify configurable captures"
-    },
-    {
-      "commit": "ccafd3d3fe00ca0e6d79a4cca5830246dab27641",
-      "subject": "docs: prepare Excel source binding and dates branch"
+      "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
+      "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
     },
     {
       "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
@@ -97,15 +92,25 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "3b5a014394054d173e7be7cb29578848a3937981",
       "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
+    },
+    {
+      "commit": "8d96fdce17dce11bf4af56d5d7cb4749c51b18a8",
+      "subject": "Merge pull request #21 from thatquantguy44/feature/six-slice-upstream-delivery"
+    },
+    {
+      "commit": "a644bdb675b4743d5a2a76a44f44014439c71573",
+      "subject": "Merge pull request #19 from thatquantguy44/feature/shared-column-reads"
     }
   ],
   "changed_paths": [
     "docs/handoff.md",
+    "docs/roadmap.md",
+    "prompts/master_handoff.md",
     "specs/0016/handoff.md",
     "specs/0017/handoff.md"
   ],
-  "project_sha256": "2907aafc2ae21d3291acf5e4812467d8fec16db7b5fa192433c998a689deab5c",
-  "reviewed_sections_sha256": "ec3e5256bae902c42de1a11f7a2d38eebe8549e6169f019f18e56add3505c65f"
+  "project_sha256": "acbd59b6126788bb26d36ec986c80c68a8c1ca6561d4650418160228b211f914",
+  "reviewed_sections_sha256": "b20d3919187f1221eaa1efd832004ae0d508043482bf344532a21b5012a0340e"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -124,6 +129,24 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — Save reusable prompt on main after PR merge
+
+- **Worked on:** Saved the reusable Git/filesystem handoff prompt on main and recorded PR #25's merge.
+- **Stopping point:** PR #25 is merged into main; the reusable prompt is saved and E-04 has not started.
+- **Priorities:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** Markdown links/anchors, strict MkDocs, whitespace and staged handoff/author checks pass; runtime code is unchanged.
+- **Delivery:** User requested committing the untracked prompts/master_handoff.md
+  directly to main. Main was fast-forwarded to origin/main's merge commit
+  32cf4ab; the prompt text is preserved. This checkpoint also corrects the current
+  PR/branch state after [PR #25](https://github.com/thatquantguy44/finassert/pull/25)
+  merged. Older open-PR entries remain historical and unchanged.
+- **Scope:** Documentation only. The prompt describes a portable Git/filesystem
+  workflow; it does not implement filesystem mode in finassert. Existing runtime
+  and native/browser evidence is carried forward, not claimed as rerun here.
+- **Pickup:** E-04 remains highest; start its own feature branch from main.
+  E-05 provenance/output ownership and E-06 full Mac acceptance remain pending.
 
 ### 2026-11-15 — Open implementation PR and record pickup
 

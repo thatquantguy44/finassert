@@ -3,12 +3,22 @@
 ## Current state
 
 - **Status:** Implemented; 38 Git regression tests and 3,662 full-suite tests pass.
-- **Branch:** feature/excel-source-binding-dates, starting at 4822db8.
+- **Branch:** main; PR #25 merged the implementation at 32cf4ab.
 - **Next step:** Follow the master's highest priority: 0016 E-04 diagnostic
-  navigation. Main-branch promotion and required remote status administration
-  remain separate from this branch implementation.
+  navigation on a new feature branch from main. Required remote status
+  administration remains separate from this implementation.
 
 ## Entries
+
+### 2026-11-15 — Save portable prompt on main
+
+PR #25 merged at 32cf4ab. The user requested saving the existing untracked
+[reusable prompt](../../prompts/master_handoff.md) directly on main. Its Git and
+filesystem-mode requirements are prompt content for other repositories; this
+documentation commit does not add a filesystem backend to finassert's checker.
+The master records the merge and keeps E-04 as the next pickup. Links/anchors,
+strict docs, whitespace and the real staged handoff/author checks are verified;
+runtime evidence is carried forward because implementation code is unchanged.
 
 ### 2026-11-15 — PR opened for the delivered guards
 

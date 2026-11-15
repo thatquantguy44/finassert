@@ -3,6 +3,8 @@
 The [master handoff](handoff.md#next-up) is canonical for current project ordering
 and the next pickup. This roadmap supplies longer-term context. Spec 0017 adds
 commit/push/CI checkpoint guards; it does not change the E-04 product priority.
+PR #25 merged Excel E-01–E-03 and these guards into main at 32cf4ab. Start the
+E-04 navigation work on a new feature branch from refreshed main.
 
 The seven-priority delivery now provides corrected workbook input, shared
 adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report

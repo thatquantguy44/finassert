@@ -4,7 +4,7 @@
 
 - **Status:** E-01–E-03 implemented and verified; E-04–E-06 pending.
   AC-01/02/05 verified for their slices; full acceptance remains pending.
-- **Branch:** feature/excel-source-binding-dates, from refreshed main 00ce4d9.
+- **Branch:** main; PR #25 merged E-01–E-03 at 32cf4ab.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -20,6 +20,15 @@
   ownership and E-06 complete Mac acceptance.
 
 ## Entries
+
+### 2026-11-15 — Implementation merged; E-04 resumes from main
+
+PR #25 merged at 32cf4ab, bringing E-01 native evidence, E-02 binding/dates and
+configurable E-03 freshness/capture to main. E-04 is still unstarted and should
+use a new feature branch from main. The current user-requested prompt/documentation
+commit changes no Excel implementation; existing acceptance evidence remains
+valid and the full E-06 workflow remains pending. Project ordering stays in the
+master handoff.
 
 ### 2026-11-15 — Implementation PR opened
 
