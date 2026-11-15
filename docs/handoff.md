@@ -23,24 +23,26 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Spec 0017 canonical master handoff guards for commits, pushes and CI.
+- **Last worked on:** Opened PR #25 for Excel E-01–E-03 and canonical handoff guards; recorded delivery and pickup.
 - **Highest priority:** E-04 — Diagnostic navigation.
 - **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
-- **Verification:** 3,662 runtime tests (including 38 Git/hook cases), Ruff/format, mypy, strict docs, links/anchors and staged checkpoint checks pass.
+- **Verification:** Documentation links/anchors, strict MkDocs, whitespace and guarded checkpoint checks pass; implementation verification is retained in PR #25.
 - **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
   `00ce4d9`. E-01/E-02 native baseline/source binding and configurable E-03
   freshness/stable capture are implemented and verified.
-- **Implementation PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
-  is merged into main; its outstanding native baseline is now complete.
+- **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
+  is open for review, targeting main with Excel E-01–E-03 and handoff enforcement.
+- **Previous baseline PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
+  is merged; its outstanding native baseline is now complete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
-- **Scope:** finassert only; no release/tag/publication or downstream application change.
+- **Scope:** finassert only; no release/tag or downstream application change.
 - **Remaining product scope:** E-01–E-03 have native and automated evidence;
   E-04–E-06 remain proposed.
-- **Stopping point:** Handoff enforcement is implemented; Excel E-01–E-03 are complete and E-04 has not started.
+- **Stopping point:** PR #25 is open for review; implementation is committed/pushed and E-04 has not started.
 - **Native session:**
   The last observed native pane was Ready/Unbound. Source, date choice and capture
   settings are session-only and must be selected again after reopening.
@@ -74,8 +76,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "4822db8c42bb3d4526427c40185202b567b1ebb0",
+  "prior_head": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
   "recent_commits": [
+    {
+      "commit": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
+      "subject": "chore: enforce canonical master handoff checkpoints"
+    },
     {
       "commit": "4822db8c42bb3d4526427c40185202b567b1ebb0",
       "subject": "feat(excel): bind sources and verify configurable captures"
@@ -91,37 +97,15 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "3b5a014394054d173e7be7cb29578848a3937981",
       "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
-    },
-    {
-      "commit": "8d96fdce17dce11bf4af56d5d7cb4749c51b18a8",
-      "subject": "Merge pull request #21 from thatquantguy44/feature/six-slice-upstream-delivery"
     }
   ],
   "changed_paths": [
-    ".githooks/pre-commit",
-    ".githooks/pre-push",
-    ".github/pull_request_template.md",
-    ".github/workflows/handoff.yml",
-    "AGENTS.md",
-    "CONTRIBUTING.md",
-    "README.md",
     "docs/handoff.md",
-    "docs/roadmap.md",
-    "scripts/check_handoff.py",
     "specs/0016/handoff.md",
-    "specs/0017/AGENTS.md",
-    "specs/0017/contracts.md",
-    "specs/0017/handoff.md",
-    "specs/0017/plan.md",
-    "specs/0017/roadmap.md",
-    "specs/0017/spec.md",
-    "specs/0017/tasks.md",
-    "specs/AGENTS.md",
-    "specs/README.md",
-    "tests/unit/test_handoff.py"
+    "specs/0017/handoff.md"
   ],
-  "project_sha256": "b1500538014784f9f7bc3b41b4392da1c0de141ee377031269bbe231b2e5b1be",
-  "reviewed_sections_sha256": "55227b32ee1fe0f75f67bd5e629832ec13d69a35018b166182e912cd85194515"
+  "project_sha256": "2907aafc2ae21d3291acf5e4812467d8fec16db7b5fa192433c998a689deab5c",
+  "reviewed_sections_sha256": "ec3e5256bae902c42de1a11f7a2d38eebe8549e6169f019f18e56add3505c65f"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -140,6 +124,24 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — Open implementation PR and record pickup
+
+- **Worked on:** Opened PR #25 for Excel E-01–E-03 and canonical handoff guards; recorded delivery and pickup.
+- **Stopping point:** PR #25 is open for review; implementation is committed/pushed and E-04 has not started.
+- **Priorities:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** Documentation links/anchors, strict MkDocs, whitespace and guarded checkpoint checks pass; implementation verification is retained in PR #25.
+- **PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25), targeting main.
+  It includes 4822db8 (Excel/native evidence) and e8d3526 (handoff enforcement),
+  after the branch-preparation commit. Existing implementation was already clean,
+  committed and pushed; this entry records the PR without changing runtime code.
+- **Evidence carried forward:** 3,662 runtime tests, 38 Git/hook cases, 72 separate
+  browser cases and native Mac evidence. The previous handoff push workflow
+  [passed](https://github.com/thatquantguy44/finassert/actions/runs/43675401872).
+  PR checks run against the final head; review/merge remains separate.
+- **Remaining:** E-04 navigation, E-05 provenance/output ownership, E-06 full Mac
+  acceptance and remote required-status administration. No merge or release.
 
 ### 2026-11-14 — Canonical handoff enforcement
 

@@ -10,6 +10,16 @@
 
 ## Entries
 
+### 2026-11-15 — PR opened for the delivered guards
+
+Commit e8d3526 passed its real author/checkpoint commit hooks, pre-push history
+guard and [push CI](https://github.com/thatquantguy44/finassert/actions/runs/43675401872).
+[PR #25](https://github.com/thatquantguy44/finassert/pull/25) now includes this
+implementation together with Excel E-01–E-03. The current update records delivery;
+documentation/guard checks are repeated, with runtime evidence carried forward.
+Remote branch protection and merging remain separate; the master still names
+E-04 as the highest product priority and pickup.
+
 ### 2026-11-14 — Initial master checkpoint verified
 
 The actual index failed validation when project changes were staged without the

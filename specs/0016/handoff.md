@@ -21,6 +21,15 @@
 
 ## Entries
 
+### 2026-11-15 — Implementation PR opened
+
+[PR #25](https://github.com/thatquantguy44/finassert/pull/25) targets main with
+E-01 native completion, E-02 source/date binding and configurable E-03 capture/
+freshness, plus the spec 0017 handoff guards. Commits 4822db8/e8d3526 were already
+pushed; this update records the PR. Existing native, 72-browser and full-suite
+evidence is retained. No runtime change, merge or release. Follow the master's
+E-04 pickup; navigation, provenance/output ownership and full E-06 remain pending.
+
 ### 2026-11-14 — Master checkpoint guard added under 0017
 
 The master handoff is canonical for project order and pickup. Spec 0017 now
