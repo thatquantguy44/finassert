@@ -91,6 +91,8 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
         + (WEB / "excel-output.js").read_text(encoding="utf-8")
         + "\n"
         + (WEB / "excel.js").read_text(encoding="utf-8")
+        + "\n"
+        + (WEB / "quantsmith-docs.js").read_text(encoding="utf-8")
         if excel
         else ""
     )
@@ -103,7 +105,7 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
         [
             "default-src 'none'",
             "script-src " + " ".join(sources),
-            f"connect-src {engine}",
+            f"connect-src {engine}" + (" 'self'" if excel and engine != "'self'" else ""),
             "style-src 'unsafe-inline'",
             "img-src data:",
             "base-uri 'none'",

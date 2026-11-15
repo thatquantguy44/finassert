@@ -7,6 +7,8 @@ into main at 32cf4ab. E-04 navigation is implemented on
 feature/excel-diagnostic-navigation with focused native/automated evidence.
 E-05 now adds verified source provenance, canonical outputs, saved ownership and
 partial-write recovery on the same branch. Review the stack, then complete E-06 acceptance.
+Spec 0018 adds an optional local, read-only QuantSmith reference in the Excel
+pane. It does not change E-06's priority or claim shared hosting support.
 
 The seven-priority delivery now provides corrected workbook input, shared
 adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report

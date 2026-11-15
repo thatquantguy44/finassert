@@ -15,6 +15,7 @@ nav:
   - Browser app: browser-app.md
   - Assistant tool server: assistant.md
   - Excel add-in: excel-add-in.md
+  - QuantSmith reference: quantsmith-reference.md
   - Integrations: integrations.md
   - Financial units and FX: financial-units.md
   - Design notes:

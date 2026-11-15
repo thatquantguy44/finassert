@@ -23,11 +23,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Ran E-06 Linux automated preflight and repaired hidden-DOM browser/smoke assertions; real Mac acceptance remains open.
+- **Last worked on:** Implemented an optional pinned QuantSmith reference reader for the Excel add-in; E-06 Mac acceptance remains open on the Excel branch.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
-- **Verification:** 3,697 runtime and 106 bundled browser tests, both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No E-06 real-host row ran.
-- **Branch:** `feature/excel-diagnostic-navigation`, based on main `2515422`.
+- **Verification:** 3,700 runtime and 107 bundled browser tests pass, including synthetic pinned Git/API and reference-panel coverage. Both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No private QuantSmith checkout or Mac Excel host was available for live reference/native acceptance.
+- **Branch:** `feature/quantsmith-readonly-docs`, based on `feature/excel-diagnostic-navigation` at `c4b169a` (draft PR #26); this checkpoint contains only the QuantSmith reference changes.
   E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
   capture and spec 0017's Git-backed handoff guards are merged and verified.
 - **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
@@ -42,10 +42,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Scope:** finassert only; no release/tag or downstream application change.
 - **Remaining product scope:** E-01–E-05 have focused native/automated evidence.
   Full E-06 acceptance and external review remain; no broad support claim yet.
-- **Stopping point:** E-06 automated preflight is recorded locally; full Mac acceptance and external review remain.
+- **Stopping point:** The optional QuantSmith reader is implemented in this checkpoint; private-checkout/live Excel reference verification and full E-06 Mac acceptance remain.
 - **E-04 commit:** [6bbf6b9](https://github.com/thatquantguy44/finassert/commit/6bbf6b9bd44992ada89a901277f5a9eae54ee78e)
-  was committed/pushed before E-05 at `4862ce7`. This checkpoint records the
-  E-06 Linux preflight; Mac acceptance and external review remain open.
+  precedes E-05 at `4862ce7`; E-06 Linux preflight is `c4b169a` on
+  [draft PR #26](https://github.com/thatquantguy44/finassert/pull/26).
 - **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
   describes both Git and filesystem modes for reuse elsewhere. Finassert's
   implemented checker remains Git-backed; no filesystem backend was added here.
@@ -87,8 +87,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "4862ce791fd442e341e88b8390dd4fd549267d11",
+  "prior_head": "c4b169a242eec9d188cb5d0c87b266a789d08c56",
   "recent_commits": [
+    {
+      "commit": "c4b169a242eec9d188cb5d0c87b266a789d08c56",
+      "subject": "test(excel): record E-06 Linux preflight"
+    },
     {
       "commit": "4862ce791fd442e341e88b8390dd4fd549267d11",
       "subject": "Add verified Excel snapshot exports and owned destinations"
@@ -104,23 +108,39 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
       "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
-    },
-    {
-      "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
-      "subject": "Merge pull request #24 from thatquantguy44/feature/excel-host-baseline"
     }
   ],
   "changed_paths": [
+    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "scripts/smoke_excel.py",
-    "scripts/smoke_web.py",
-    "specs/0016/acceptance.md",
+    "docs/quantsmith-reference.md",
+    "docs/roadmap.md",
+    "integrations/quantsmith-docs.lock.json",
+    "mkdocs.yml",
+    "pyproject.toml",
+    "scripts/build_web.py",
+    "scripts/quantsmith_docs.py",
+    "scripts/serve_excel.py",
+    "specs/0011/contracts.md",
+    "specs/0011/handoff.md",
+    "specs/0011/spec.md",
     "specs/0016/handoff.md",
-    "specs/0016/tasks.md",
-    "tests/browser/test_excel_sources.py"
+    "specs/0018/AGENTS.md",
+    "specs/0018/contracts.md",
+    "specs/0018/handoff.md",
+    "specs/0018/plan.md",
+    "specs/0018/roadmap.md",
+    "specs/0018/spec.md",
+    "specs/0018/tasks.md",
+    "specs/README.md",
+    "tests/browser/test_excel_quantsmith_reference.py",
+    "tests/unit/test_quantsmith_docs.py",
+    "web/app.css",
+    "web/excel-panel.html",
+    "web/quantsmith-docs.js"
   ],
-  "project_sha256": "78455ef03e1bf5a0d0917616e84c288bbb8de0316b315f1f05536ae64e5220cc",
-  "reviewed_sections_sha256": "4896be02bffe42501e00cd69051e9d98794bb471735c2fbece8a22d0a281c717"
+  "project_sha256": "d61f6e077314ff4278bdc6ca52403af6c947865960202421fc52ed83fa96b73c",
+  "reviewed_sections_sha256": "66abacc1f9e7c61e484d74ddb02627bcdf0ec975dd911d594554c3ea8b39908a"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -139,6 +159,15 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — Optional pinned QuantSmith reference in Excel
+
+- **Worked on:** Implemented an optional pinned QuantSmith reference reader for the Excel add-in; E-06 Mac acceptance remains open on the Excel branch.
+- **Stopping point:** The optional QuantSmith reader is implemented in this checkpoint; private-checkout/live Excel reference verification and full E-06 Mac acceptance remain.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
+- **Verification:** 3,700 runtime and 107 bundled browser tests pass, including synthetic pinned Git/API and reference-panel coverage. Both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No private QuantSmith checkout or Mac Excel host was available for live reference/native acceptance.
+- **Branch / evidence:** `feature/quantsmith-readonly-docs` based on Excel draft PR #26 at `c4b169a`; see spec `0018` and [the local reader guide](quantsmith-reference.md). The lock pins QuantSmith `86eed7f47d2735964705ecd6d43be842f594ba2f`. No private file is bundled or served in this workspace.
 
 ### 2026-11-15 — E-06 automated preflight; Mac acceptance pending
 

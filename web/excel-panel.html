@@ -46,6 +46,19 @@
       report are the sheet's own row numbers. Source binding lasts for this pane session.</p>
       <p class="hint">Your cells are read in this window and never sent anywhere. This pane
       loads Microsoft's Office library to talk to Excel.</p>
+      <details id="quantsmith-reference">
+        <summary>QuantSmith reference</summary>
+        <p class="hint">Read agent guides and documentation from a pinned local
+        QuantSmith checkout. Opening a document does not read or send workbook cells.</p>
+        <button id="quantsmith-load" type="button">Load reference</button>
+        <p id="quantsmith-status" role="status" aria-live="polite"></p>
+        <div class="field"><label for="quantsmith-search">Find a document</label>
+          <input id="quantsmith-search" type="search" disabled
+            placeholder="Agent name, path, or topic"></div>
+        <div id="quantsmith-list" class="quantsmith-list"></div>
+        <p id="quantsmith-source" class="hint"></p>
+        <pre id="quantsmith-content" class="quantsmith-content" aria-label="Reference document"></pre>
+      </details>
       <details id="excel-spike">
         <summary>Diagnostics for testers</summary>
         <p class="hint">Runs the checklist from the add-in's real-Excel test: environment, security

@@ -24,3 +24,8 @@ ID-based ownership for explicit results replacement. Failed/partial writes stay
 incomplete and are reported without changing financial outcomes. Policy-only
 save/load remains independent of freshness/capture settings. File/browser
 outputs and public signatures stay compatible; full E-06 acceptance remains pending.
+
+The optional [0018 local reference](../0018/spec.md) adds explicit read-only
+documentation requests from the Excel pane. QuantSmith text is not packaged
+with finassert or treated as executable instructions. Existing policy, workbook,
+result and offline browser contracts remain unchanged.
