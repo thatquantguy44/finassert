@@ -300,6 +300,7 @@ Optional dataframe and interface dependencies stay outside the core import path.
 | [Architecture](docs/architecture.md) | Understand the engine and adapter boundaries. |
 | [Rule development](docs/rule-development.md) | Add a check with explicit financial semantics. |
 | [Specifications](specs/README.md) | Review implemented and proposed contracts. |
+| [Master handoff](docs/handoff.md) | Start work from current status, highest priorities and the next pickup. |
 | [Roadmap](docs/roadmap.md) | Follow adapter, financing, units, and interface work. |
 
 <details>
@@ -316,7 +317,8 @@ uv run python scripts/verify_dist.py dist
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before substantial changes. It covers
-financial-semantics proposals, synthetic test data, and commit identity rules.
+financial-semantics proposals, synthetic test data, commit identity rules and the
+required [handoff checkpoint workflow](CONTRIBUTING.md#master-handoff-checkpoints).
 Security reports follow [SECURITY.md](SECURITY.md).
 
 </details>

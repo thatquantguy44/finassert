@@ -1,5 +1,9 @@
 # Roadmap
 
+The [master handoff](handoff.md#next-up) is canonical for current project ordering
+and the next pickup. This roadmap supplies longer-term context. Spec 0017 adds
+commit/push/CI checkpoint guards; it does not change the E-04 product priority.
+
 The seven-priority delivery now provides corrected workbook input, shared
 adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report
 output, typed quantities/direct FX, and retained scalar performance evidence.

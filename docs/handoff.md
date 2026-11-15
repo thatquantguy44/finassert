@@ -3,20 +3,30 @@
 Single running record of work handed between sessions, agents, and people.
 Newest entry first. Add an entry at the end of every working session; do not
 rewrite old entries (append a correction instead).
+This is the canonical project status, priority and pickup document. Local handoffs
+and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## How to use
 
 1. Read **Current state** and the newest entry before starting.
 2. Pick the top item under **Next up**, or the item the previous entry names.
-3. On finishing, copy the **Entry template**, fill it in, and put it directly
-   under the `Entries` heading. Update **Current state** and **Next up**.
+3. Before every nonempty commit, add a dated **Entry template** under `Entries`.
+   Match its work/stopping/priority/pickup/verification fields to **Current state**
+   and review **Next up**. Existing priorities may be reaffirmed explicitly.
 4. Keep entries factual: link specs, PRs, and commits instead of restating them.
 5. Spec-specific plans, tasks, contracts, and session details live in the numbered
    `specs/NNNN/` workspaces. This log retains project-wide state and cross-spec
    decisions; see the [spec catalog](https://github.com/thatquantguy44/finassert/blob/main/specs/README.md).
+6. Stage intended work/prose, run `python3 scripts/check_handoff.py --refresh`,
+   then explicitly stage this file again. Hooks/CI check the index/history and
+   preserve older entries. See [the workflow](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/CONTRIBUTING.md#master-handoff-checkpoints).
 
 ## Current state
 
+- **Last worked on:** Spec 0017 canonical master handoff guards for commits, pushes and CI.
+- **Highest priority:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** 3,662 runtime tests (including 38 Git/hook cases), Ruff/format, mypy, strict docs, links/anchors and staged checkpoint checks pass.
 - **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
   `00ce4d9`. E-01/E-02 native baseline/source binding and configurable E-03
   freshness/stable capture are implemented and verified.
@@ -28,14 +38,15 @@ rewrite old entries (append a correction instead).
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
-- **Next priority:** Spec 0016 E-04 diagnostic navigation. E-01–E-03 have
-  native and automated evidence; E-04–E-06 remain proposed.
-- **Stopping point:** E-03 is complete; E-04 implementation has not started.
-  The latest native pane is Ready/Unbound. Source, date choice and capture
+- **Remaining product scope:** E-01–E-03 have native and automated evidence;
+  E-04–E-06 remain proposed.
+- **Stopping point:** Handoff enforcement is implemented; Excel E-01–E-03 are complete and E-04 has not started.
+- **Native session:**
+  The last observed native pane was Ready/Unbound. Source, date choice and capture
   settings are session-only and must be selected again after reopening.
-- **Verification caveat:** The latest 72 browser cases pass. The earlier full
-  3,624-test runtime pass remains evidence; duplicate reruns stalled during local
-  dependency imports and were stopped. No Python runtime code changed afterward.
+- **Verification context:** The earlier E-03 duplicate-import-read caveat is
+  historical. A new complete 3,662-test run passed for the handoff guard work.
+  The 72 Excel browser passes remain E-03 evidence; Excel runtime code is unchanged.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
 - **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
   sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
@@ -44,7 +55,8 @@ rewrite old entries (append a correction instead).
 
 ## Next up
 
-1. Resume on `feature/excel-source-binding-dates` at
+1. E-04 — Diagnostic navigation.
+   Resume on `feature/excel-source-binding-dates` at
    [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md#ordered-implementation).
    Read its agent instructions and R-03 first. Start with the bounded diagnostic
    view and physical row/cell mapping, reusing E-03's current-result preflight
@@ -53,21 +65,104 @@ rewrite old entries (append a correction instead).
 2. Then E-05 safe evidence/provenance and E-06 full Mac acceptance.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
+## Commit context
+
+This checkpoint is the enclosing Git commit. Recent commits below precede it;
+use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
+
+<!-- finassert-handoff-checkpoint:v1 -->
+```json
+{
+  "version": 1,
+  "prior_head": "4822db8c42bb3d4526427c40185202b567b1ebb0",
+  "recent_commits": [
+    {
+      "commit": "4822db8c42bb3d4526427c40185202b567b1ebb0",
+      "subject": "feat(excel): bind sources and verify configurable captures"
+    },
+    {
+      "commit": "ccafd3d3fe00ca0e6d79a4cca5830246dab27641",
+      "subject": "docs: prepare Excel source binding and dates branch"
+    },
+    {
+      "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
+      "subject": "Merge pull request #24 from thatquantguy44/feature/excel-host-baseline"
+    },
+    {
+      "commit": "3b5a014394054d173e7be7cb29578848a3937981",
+      "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
+    },
+    {
+      "commit": "8d96fdce17dce11bf4af56d5d7cb4749c51b18a8",
+      "subject": "Merge pull request #21 from thatquantguy44/feature/six-slice-upstream-delivery"
+    }
+  ],
+  "changed_paths": [
+    ".githooks/pre-commit",
+    ".githooks/pre-push",
+    ".github/pull_request_template.md",
+    ".github/workflows/handoff.yml",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "docs/handoff.md",
+    "docs/roadmap.md",
+    "scripts/check_handoff.py",
+    "specs/0016/handoff.md",
+    "specs/0017/AGENTS.md",
+    "specs/0017/contracts.md",
+    "specs/0017/handoff.md",
+    "specs/0017/plan.md",
+    "specs/0017/roadmap.md",
+    "specs/0017/spec.md",
+    "specs/0017/tasks.md",
+    "specs/AGENTS.md",
+    "specs/README.md",
+    "tests/unit/test_handoff.py"
+  ],
+  "project_sha256": "b1500538014784f9f7bc3b41b4392da1c0de141ee377031269bbe231b2e5b1be",
+  "reviewed_sections_sha256": "55227b32ee1fe0f75f67bd5e629832ec13d69a35018b166182e912cd85194515"
+}
+```
+<!-- /finassert-handoff-checkpoint -->
+
 ## Entry template
 
 ```markdown
 ### YYYY-MM-DD — short title
-- **Author:** name or agent
+- **Worked on:** match Current state / Last worked on
+- **Stopping point:** match Current state / Stopping point
+- **Priorities:** match Current state / Highest priority and Next up item 1 title
+- **Next pickup:** match Current state / Next pickup; explicitly explain if none
+- **Verification:** match Current state / Verification; record actual evidence
 - **Branch / PR:** 
-- **Done:** 
-- **Not done / partial:** 
-- **Decisions made:** 
-- **Open questions / blockers:** 
-- **Verify with:** commands or tests to confirm the state
-- **Next step:** the single most useful thing to do next
+- **Decisions / blockers:** optional additional context
 ```
 
 ## Entries
+
+### 2026-11-14 — Canonical handoff enforcement
+
+- **Worked on:** Spec 0017 canonical master handoff guards for commits, pushes and CI.
+- **Stopping point:** Handoff enforcement is implemented; Excel E-01–E-03 are complete and E-04 has not started.
+- **Priorities:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** 3,662 runtime tests (including 38 Git/hook cases), Ruff/format, mypy, strict docs, links/anchors and staged checkpoint checks pass.
+- **Guard behavior:** Nonempty commits require a complete staged checkpoint and
+  immutable old Entries. Generated context records actual prior commits, changed
+  paths and snapshot digests; refresh never stages files or invents priorities.
+  Pre-push/CI inspect every new commit, including locally bypassed commits.
+- **Compatibility:** Unchanged complete snapshots can pass merge/squash transport;
+  integration changing project content needs refreshed context. Earlier unguarded
+  history remains historical. Existing author enforcement remains active.
+- **Limits:** Semantic accuracy needs contributor review. Local hooks must be
+  enabled in each clone; remote branch protection must require the CI check for
+  repository-wide merge enforcement. No remote administrative setting changed.
+- **Prior checkpoint:** 4822db8 committed/pushed the Excel implementation. Its
+  native/72-browser/earlier 3,624-runtime evidence and duplicate-import-read caveat
+  remain recorded below. No financial/runtime behavior changes in this guard work.
+- **Resume:** The same E-04 pickup remains highest; 0017 does not move product
+  priorities. Read the owning spec instructions/contracts/tasks before coding.
 
 ### 2026-11-14 — Excel checkpoint and next-session pickup
 

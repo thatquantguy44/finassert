@@ -21,6 +21,15 @@
 
 ## Entries
 
+### 2026-11-14 — Master checkpoint guard added under 0017
+
+The master handoff is canonical for project order and pickup. Spec 0017 now
+requires a complete master checkpoint with matching current/newest-entry fields
+and generated Git context for each nonempty commit; push/CI check outgoing history.
+Follow [the contributor workflow](../../CONTRIBUTING.md#master-handoff-checkpoints).
+This local handoff defers to the master's priorities. E-01–E-03 remain complete;
+E-04 remains the next product task. No Excel implementation changed in this work.
+
 ### 2026-11-14 — Commit checkpoint; resume at E-04
 
 - **Branch:** feature/excel-source-binding-dates. E-01–E-03 are the stopping point;
