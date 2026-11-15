@@ -18,27 +18,39 @@ rewrite old entries (append a correction instead).
 ## Current state
 
 - **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
-  `00ce4d9`. Prepared for E-02; no E-02 implementation has started.
+  `00ce4d9`. E-01/E-02 native baseline/source binding and configurable E-03
+  freshness/stable capture are implemented and verified.
 - **Implementation PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
-  is merged into main. E-01's native baseline remains incomplete.
+  is merged into main; its outstanding native baseline is now complete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag/publication or downstream application change.
-- **Next priority:** Spec 0016 E-01 is in progress: three stale-result reproductions,
-  stable API audit, diagnostic probe and manifest corrections are implemented.
-  The native baseline remains incomplete; later workflow tasks are proposed.
+- **Next priority:** Spec 0016 E-04 diagnostic navigation. E-01–E-03 have
+  native and automated evidence; E-04–E-06 remain proposed.
+- **Stopping point:** E-03 is complete; E-04 implementation has not started.
+  The latest native pane is Ready/Unbound. Source, date choice and capture
+  settings are session-only and must be selected again after reopening.
+- **Verification caveat:** The latest 72 browser cases pass. The earlier full
+  3,624-test runtime pass remains evidence; duplicate reruns stalled during local
+  dependency imports and were stopped. No Python runtime code changed afterward.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
-- **Host blocker:** Excel 16.115 lists finassert under Developer Add-ins as disabled.
-  Actual Office.js capabilities and read/run timings remain pending; see
-  [baseline evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-host-baseline/specs/0016/artifacts/README.md).
+- **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
+  sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
+  subsequently tested with both epochs. See
+  [evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md).
 
 ## Next up
 
-1. Complete spec 0016 E-01's native load/read/run baseline and collect real diagnostics.
-2. Then E-02: explicit source binding and date interpretation, before E-03 freshness.
+1. Resume on `feature/excel-source-binding-dates` at
+   [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md#ordered-implementation).
+   Read its agent instructions and R-03 first. Start with the bounded diagnostic
+   view and physical row/cell mapping, reusing E-03's current-result preflight
+   before changing selection. Cover offset/quoted sources, ambiguous business
+   keys, missing targets and keyboard navigation; never infer a row from a key.
+2. Then E-05 safe evidence/provenance and E-06 full Mac acceptance.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Entry template
@@ -56,6 +68,69 @@ rewrite old entries (append a correction instead).
 ```
 
 ## Entries
+
+### 2026-11-14 — Excel checkpoint and next-session pickup
+
+- **Branch:** [feature/excel-source-binding-dates](https://github.com/thatquantguy44/finassert/tree/feature/excel-source-binding-dates).
+  This checkpoint packages the completed E-01 native verification, E-02 explicit
+  source/date binding and configurable E-03 freshness/stable capture.
+- **Stopping point:** E-04 has not started. Continue with the first unchecked
+  task in [0016 tasks](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md)
+  after reading that workspace's AGENTS.md, R-03, contracts and newest handoff.
+  Start with canonical bounded findings and exact physical row/cell targets;
+  reuse source verification before navigation. Financial outcomes stay unchanged.
+- **Verification:** Latest 72 browser cases, native freshness/configuration checks,
+  CDN/bundled Excel and shared browser/file smoke passed. The earlier complete
+  runtime run passed 3,624 tests; duplicate runs were stopped during blocked
+  dependency imports. Quality, distributions, links/anchors and strict docs pass.
+  This commit/push changes no runtime behavior beyond the already verified work.
+- **Host recovery:** Latest pane opened Ready/Unbound; rebind and choose the epoch
+  for another session. Keep the historical blank Reload finding open for E-06;
+  closing/reopening through Microsoft's sideload CLI is the verified recovery.
+- **Remaining:** E-04 navigation, E-05 source provenance/durable output ownership,
+  then full E-06 Mac correction/navigation/export acceptance. No broad platform
+  support, release or main-branch promotion is implied by this checkpoint.
+
+### 2026-11-14 — Session-configurable Excel freshness and capture
+
+- **Branch:** feature/excel-source-binding-dates; user chose session-only pane controls.
+- **Done:** E-03 freshness states, event/on-demand monitoring, verified/snapshot-only
+  capture, 2–4 comparisons, request-size/time limits, cancel/defaults, calculation
+  guards and generation-safe publication. Existing JSON/HTML/sheet actions always
+  reverify Current results; unverified or historical results cannot export.
+- **Cross-spec:** 0011's shared app invalidates policy/input results; financial
+  outcomes, Python/file APIs and artifact schemas stay compatible. Canonical typed
+  capture vectors and private formula identity live under 0016. Pre-existing
+  output-name collisions are refused; full E-05 ownership/provenance remains pending.
+- **Evidence:** Native Excel edit → Stale → reread/Current financial failure,
+  snapshot-only export blocking and configuration/default controls verified.
+  3,624 runtime tests, 72 browser cases, CDN/bundled Excel and shared browser/file
+  smoke, quality/distribution/docs checks. See
+  [local evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md#e-03-configurable-freshness-and-stable-capture).
+- **Next:** E-04 navigation, E-05 evidence/output and E-06 complete Mac acceptance.
+  Changes remain local; no commit/push/publication performed in this turn.
+
+### 2026-11-13 — Native Excel baseline and explicit source/date binding complete
+
+- **Branch:** feature/excel-source-binding-dates; local implementation, no rollout.
+- **Done:** E-01 corrected manifest built/sideloaded; native pane Ready and all
+  diagnostic steps PASS in Excel 16.115 / macOS 26.5.1. Fifty-thousand-row timings:
+  startup 1,062 ms, read/preview 561 ms, check/render 631 ms. Actual capability and
+  calculation metadata, original failures and build identities retained.
+- **E-02:** Explicit table/fixed-range binding, exact IDs/bounds, totals exclusion,
+  visibility/input guards, bounded reads and required 1900/1904 selection. Native
+  offsets/hidden rows/totals/date equality and selection-preserving Run verified.
+- **Cross-spec:** 0011 compatibility notes updated. Range merged-header detection
+  requires stable ExcelApi 1.13; earlier hosts can choose a table. Python/file,
+  financial outcomes, policy and artifact schemas remain compatible.
+- **Verify:** 3,624 runtime tests; browser source/date regressions plus one expected
+  E-03 policy-freshness failure; CDN/bundled Excel and shared browser/file smoke,
+  Ruff/format, mypy, distributions, strict docs, local links/anchors and whitespace.
+  See [spec evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md).
+- **Host recovery:** Reload left a blank pane; CLI reopening recovered the final
+  build and repeated a passing 1904 check. Cause remains an E-06 investigation.
+- **Next:** E-03 stable capture/freshness; E-04–E-06 remain proposed. Full Mac
+  correction/navigation/export acceptance and broader platform support are pending.
 
 ### 2026-11-13 — Prepare the source-binding and dates branch
 

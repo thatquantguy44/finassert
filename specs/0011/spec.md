@@ -7,7 +7,7 @@ application, starter policy templates, and the assistant tool server
 distribution). Spreadsheet *files* are also supported: Excel `.xlsx` is read
 without a dependency in both the CLI and the browser. Integration inside Excel
 itself (milestone 7) is implemented as an initial task pane (`docs/excel-add-in.md`),
-tested against a stand-in for Excel but not yet in real Excel; the market survey, options, and a
+verified against a stand-in and an early native Mac baseline under 0016; the market survey, options, and a
 recommended Office-add-in design with a spike plan are in
 `docs/design/excel-integration.md`. Column matching (`finassert suggest`, the
 browser app, and the assistant) proposes which header plays which template
@@ -16,8 +16,10 @@ column; it explains each match and never applies one silently.
 The next live-workbook milestone is scoped separately in
 [0016 — Excel add-in validation workflow](../0016/spec.md): explicit source
 binding, result freshness, diagnostic navigation, date interpretation and real
-Mac acceptance. It remains proposed; the existing milestone-7 prototype is not
-promoted to real-host support by that plan.
+Mac acceptance. E-01/E-02 now supply actual native baseline evidence and explicit
+source/date binding and E-03 session-configurable freshness/stable capture.
+Navigation, source provenance/output ownership and complete E-06 acceptance
+remain proposed; no broad platform support follows from the early Mac checks.
 
 ## Problem statement
 

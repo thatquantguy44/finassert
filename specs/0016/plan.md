@@ -1,6 +1,7 @@
 # 0016 — Excel add-in validation workflow: plan
 
-**Status:** E-01 in progress; later workflow tasks remain proposed.
+**Status:** E-01/E-02 verified; E-03 configurable freshness/capture implemented;
+E-04–E-06 pending. Verification is recorded in [artifacts](artifacts/README.md).
 
 ## Approach
 
@@ -19,10 +20,12 @@ ship an intermediate UI that labels unverified snapshots Current.
 | E-05 | Versioned source provenance, verified JSON/HTML/results-sheet export, owned-output/source-overlap guards and write-error recovery | 1–2 days |
 | E-06 | Complete real Mac workflow, 50,000-row measurements, parity/input-integrity evidence, regression suite and user documentation | 2 days |
 
-The 8–12-day aggregate is a planning range for one engineer. E-01 refines it;
-access to a real Excel installation can affect elapsed time. The disabled local
-Developer Add-ins entry blocks E-01's native read/run measurements; the remaining
-8–12-day estimate is not refined from stand-in timings.
+The original 8–12-day aggregate was a planning range for one engineer. E-01's
+native Mac run is now complete: 1,062 ms engine startup, 561 ms read/preview and
+631 ms template check/render for 50,000 rows. This fixture does not motivate a
+service/worker fallback. E-02 is also verified; the remaining E-03–E-06 planning
+range is 6–9 engineering days, driven by race, navigation and output guarantees.
+The measurements establish neither a general latency guarantee nor full acceptance.
 
 ## Dependencies and affected areas
 
@@ -51,9 +54,14 @@ six-slice delivery. See [API findings](api-matrix.md) and [baseline](artifacts/R
 ## Implementation decisions to retain
 
 - Bind one source per session. Persisted configurations are deferred.
-- Use stable Office APIs; initial baseline ExcelApi 1.9, verified in E-01.
+- Use stable Office APIs: 1.7 table/prototype, live freshness 1.9, range-mode
+  merged-header detection 1.13. Explain unavailable range mode without guessing.
 - Require an explicit date-system choice unless stable host detection is proven.
 - Events invalidate; captures and generation checks authorize current-result use.
+- Keep settings in pane-session memory. Default to events and two verified captures;
+  on-demand still verifies actions and snapshot-only stays unverified/no export.
+- Private formula identity supplements the versioned evaluated snapshot digest;
+  fixed vectors define its typed scalar/geometry/date encoding.
 - Read again on Run and before navigation/export; do not trust cached selection.
 - Use canonical diagnostic samples and exact row mappings; never guess a target.
 - Keep prior results historical on invalidation; no new engine status or automatic
@@ -81,9 +89,11 @@ PYTHONPATH="$PWD/src" uv run --with playwright==1.55.0 python \
 
 Also build with --bundle-pyodide download (or a verified local distribution) and
 run smoke_excel.py with --serve. Retain the existing fully offline browser audit.
-Run tests/browser/test_excel_freshness.py with FINASSERT_EXCEL_PAGE pointing to
-that bundled taskpane.html and Playwright 1.55.0 available. Its three strict
-expected failures track issue #23 until E-03; unrelated harness failures must fail.
+Run tests/browser with FINASSERT_EXCEL_PAGE pointing to that bundled taskpane.html
+and Playwright 1.55.0 available, using python -m pytest. E-02's reread-on-Run and
+rebind clearing resolved two E-01 reproductions. E-03 resolves the remaining
+policy-edit reproduction; no expected failures remain. The capture suite covers
+configurations, cancellation/timeouts, delayed events, stale exports and races.
 Network/runtime setup is described in the existing build scripts; secrets and
 workbook contents do not belong in logs or committed evidence.
 

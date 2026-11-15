@@ -2,22 +2,110 @@
 
 ## Current state
 
-- **Status:** E-01 in progress; native baseline incomplete. E-02–E-06 pending.
-- **Branch:** feature/excel-source-binding-dates from refreshed main at 00ce4d9;
-  prepared for E-02, with no E-02 implementation yet.
-- **Implementation PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
-  is merged; E-01's native baseline is still incomplete.
-- **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
-- **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23).
-- **Delivered:** Three stale-result reproductions, passing controls, stable API
-  audit, read-only metadata probe and manifest floor/version corrections.
-- **Open evidence:** Native pane is disabled in Excel's Developer Add-ins list.
-  Installed version and served build hashes are recorded; actual Office.js
-  capabilities/calculation and startup/read timings remain unobserved.
-- **Next step:** Resolve native loading; complete the synthetic E-01 read/run and
-  diagnostic capture in [baseline evidence](artifacts/README.md), then E-02.
+- **Status:** E-01–E-03 implemented and verified; E-04–E-06 pending.
+  AC-01/02/05 verified for their slices; full acceptance remains pending.
+- **Branch:** feature/excel-source-binding-dates, from refreshed main 00ce4d9.
+- **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
+  [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
+- **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
+  remaining expected-failure browser cases; review/closure is separate.
+- **Delivered:** Native corrected-manifest baseline, explicit table/fixed-range
+  binding, exact IDs/geometry, totals/visibility/input guards, bounded requests
+  and required user date interpretation. E-03 adds session-configurable freshness,
+  stable captures, generations and existing-action preflight.
+  See [evidence](artifacts/README.md).
+- **Native:** Excel 16.115 / Mac; 50,000-row baseline all PASS. Both epochs,
+  hidden row, actual table totals and selection-preserving Run verified.
+- **Next:** E-04 bounded diagnostic navigation, then E-05 provenance/output
+  ownership and E-06 complete Mac acceptance.
 
 ## Entries
+
+### 2026-11-14 — Commit checkpoint; resume at E-04
+
+- **Branch:** feature/excel-source-binding-dates. E-01–E-03 are the stopping point;
+  E-04 implementation has not started. This checkpoint includes all recorded
+  native evidence, source/date binding and session-configurable captures.
+- **First work on resume:** Read R-03 and the E-04 task. Build a diagnostic view
+  from canonical retained samples with complete counts/caps, then map observed
+  findings to physical source rows/cells. Reuse withCurrentResult for navigation
+  preflight; do not derive worksheet rows from business keys. Explain ambiguous
+  and missing targets and add keyboard actions. Start tests with C7 offsets,
+  quoted sheet names, duplicate keys and source edits/sort/delete before use.
+- **Verification carried forward:** Latest 72 browser cases pass; earlier full
+  runtime pass is 3,624 tests. Duplicate runtime reruns stalled during dependency
+  imports, as recorded below; no Python runtime implementation changed afterward.
+  The commit/handoff update uses links/anchors, strict docs and whitespace checks.
+- **Native session:** Latest build opened Ready/Unbound with no epoch selected.
+  Rebind and explicitly choose dates; settings do not persist. Retain the earlier
+  Reload failure for E-06 and use the measured CLI close/reopen recovery route.
+- **Later:** E-05 provenance/output ownership and E-06 complete Mac acceptance.
+
+### 2026-11-14 — Configurable freshness and stable capture
+
+- **Request:** Add configurable freshness/stable captures; user selected pane
+  controls for this session only. Branch feature/excel-source-binding-dates.
+- **Implemented:** Unbound/Ready/Reading/Checking/Current/Stale/Blocked states;
+  live events or on-demand monitoring; verified or unverified snapshot mode;
+  2–4 captures, bounded rows/cells and 1–300s timeout, cancel and Restore defaults.
+  Strict defaults are events, verified/two captures, 5,000 rows, 50,000 cells, 120s.
+- **Integrity:** Typed canonical evaluated snapshot SHA-256 with independent
+  vectors, separate private formula hash, settled/manual calculation guards,
+  generation/source/policy/date/config checks around async work and candidate
+  publication. Event handlers are removed on rebind; pane shutdown makes no new
+  Office calls. Export always rereads/compares in verified mode, even on demand;
+  snapshot-only never becomes Current. Shared file/policy paths are regression-tested.
+- **Output prerequisite:** Refuse bound-source replacement and existing sheets
+  not created in this pane session. Durable ownership, unique-name UI, provenance,
+  navigation and protected/partial output recovery remain E-04/E-05.
+- **Evidence:** Native Excel 16.115 / 1904 C7:H9: verified passing Current result;
+  edit F8 to -400 → Stale/exports disabled; rerun → Current with one financial
+  failure at physical row 8; configuration edits invalidate; snapshot-only stays
+  unverified/no export; defaults restored. See [E-03 evidence](artifacts/README.md#e-03-configurable-freshness-and-stable-capture).
+- **Verification:** 3,624 runtime tests and 72 browser cases; CDN/bundled Excel
+  and shared browser/file smoke, Ruff/format, mypy, distributions and strict docs.
+  Initial sandbox loopback failures were rerun with loopback access; mypy's old
+  cache caused an internal error and a fresh cache passed. Build during document
+  edits hit an archive-size race; the final distribution was built after edits.
+- **Final verification note:** Latest 72 browser cases pass. A duplicate full
+  runtime rerun was stopped during blocked dependency file reads before collection;
+  the earlier 3,624-test pass remains evidence and Python runtime code was unchanged.
+  The final served build reopened Ready/Unbound in native Excel.
+- **Remaining:** Complete E-06 acceptance, including native navigation/output
+  parity and broader platform support. Earlier Reload blank-pane finding is
+  retained; CLI close/reopen is the measured recovery route.
+- **Next:** E-04. No commit, push, release or deployment performed in this turn.
+
+### 2026-11-13 — Complete native E-01 and implement E-02
+
+- **Branch:** feature/excel-source-binding-dates. No release or rollout.
+- **E-01:** Built and sideloaded corrected 1.0.0.0 / 1.7 manifest. Menu entry
+  remained disabled; Microsoft's CLI-generated sideload workbook opened Ready.
+  Native diagnostics all PASS: 50,000 rows, startup 1,062 ms, read/preview 561 ms,
+  check/render 631 ms. Actual 1.9/calculation/event answers and build hashes saved.
+- **E-02:** Explicit workbook-table or fixed-rectangle binding, IDs, exact quoted
+  bounds, actual header/body/totals, all hidden/filtered rows, prefetch ceiling,
+  5,000-row / 50,000-cell requests, malformed/empty/merged/header guards, mapping
+  review, structural reselection and required 1900/1904 choice. Each Run resolves
+  and reads the bound source; source/date changes clear old snapshots/results.
+- **API amendment:** Stable merged-header detection needs ExcelApi 1.13 for range
+  mode. Earlier hosts get a table/update alternative; table manifest floor stays
+  1.7 and planned freshness stays 1.9. No automatic epoch getter was established.
+- **Native E-02:** C7:H9, quoted/apostrophe sheet name, hidden row, both epochs
+  yielding 2026-01-01; P18 selection then 3 passing checks; actual totals row 11
+  excluded from table body C7:H10, including a -99999 sentinel. Saved native
+  fixture reopened intact after an initial generated table repair.
+- **Verification:** Full runtime suite 3,624 passed; browser source/date and
+  freshness cases pass except the explicit E-03 policy-edit xfail. CDN/bundled
+  Excel and shared browser/file smoke flows, Ruff/format, mypy, distribution,
+  strict docs, local links/anchors and whitespace checked; details in artifacts.
+- **Boundaries:** No stable capture/calculation gate, comprehensive freshness,
+  navigation or export/collision preflight is claimed. E-06 acceptance remains
+  pending; retain the original historical baseline and handoff entries.
+- **Recovery finding:** Native Add-in options Reload left a blank pane. Closing
+  the disposable workbook and CLI reopening recovered the final build; 1904
+  source read and three passing checks repeated. Cause unknown; investigate in E-06.
+- **Next:** E-03; estimated E-03–E-06 work is 6–9 engineering days after these slices.
 
 ### 2026-11-13 — Next branch prepared from merged main
 

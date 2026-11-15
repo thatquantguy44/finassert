@@ -1,4 +1,4 @@
-/* finassert Excel add-in: reads the selected cells (or the table they are in), writes
+/* finassert Excel add-in: binds one table or fixed rectangular range, writes
  * results to a new sheet, and saves or loads the checks on a sheet. It never changes the
  * cells it reads. All checking happens in the application. */
 "use strict";
@@ -7,6 +7,20 @@
   const RESULTS_SHEET = "finassert results";
   const POLICY_SHEET = "finassert policy";
   const BLOCK_ROWS = 5000; // rows read per request, to stay inside Office's payload limits
+  const MAX_CELLS = 5000000;
+  let source = null;
+  let handlers = [];
+  let busy = false;
+  let revision = 0;
+  let active = null;
+  let closing = false;
+  let record = null;
+  let freshness = "Unbound";
+  let reason = "Choose a source.";
+  let config = window.finassertCapture.settings({});
+  let configError = "";
+  const ownedSheetIds = new Set();
+  const captureTools = window.finassertCapture;
 
   const $ = (id) => document.getElementById(id);
   const app = () => window.finassertApp;
@@ -15,77 +29,447 @@
     if (app()) app().setStatus(text, isError);
   }
 
-  // Excel's own address, such as "Sheet1!A4:F20", without the workbook path.
+  // Preserve Excel's exact quoting (including doubled apostrophes in sheet names).
   function describe(address) {
-    return address.replace(/^'?\[.*?\]/, "").replace(/^'|'(?=!)/g, "");
+    return address;
   }
 
-  const LOAD = ["rowCount", "columnCount", "rowIndex", "address"];
+  const LOAD = ["rowCount", "columnCount", "rowIndex", "columnIndex", "address"];
+  const supports = (version) => Office.context.requirements.isSetSupported("ExcelApi", version);
+  const epoch = () => $("excel-date-system").value;
 
-  // The cells to read: what is selected; for a single cell, the table it is in, else
-  // everything on the sheet.
-  async function chooseRange(context, sheet) {
-    let range = context.workbook.getSelectedRange();
-    range.load(LOAD);
+  function renderFreshness() {
+    const stamp = record ? ` Last verified: ${record.verifiedAt || "not verified"}.` : "";
+    const monitor = config.monitoring === "on-demand" ? " Live alerts are off; actions reverify the source." : "";
+    const text = `${freshness} — ${reason}${stamp}${monitor}`;
+    $("excel-freshness").textContent = text;
+    $("excel-freshness").dataset.state = freshness;
+    app().setLiveState({ state: freshness, reason, text, busy });
+    app().blockData(busy || !source || !epoch() || Boolean(configError));
+    for (const id of ["excel-read", "excel-bind-table", "excel-tables-refresh", "excel-date-system",
+      "excel-monitoring", "excel-capture-mode", "excel-confirmations", "excel-block-rows",
+      "excel-block-cells", "excel-capture-timeout", "excel-settings-reset", "spike-run", "excel-save-policy", "excel-load-policy"]) {
+      $(id).disabled = busy;
+    }
+    $("excel-cancel").disabled = !busy;
+    sourceSummary();
+  }
+
+  function state(next, message) {
+    freshness = next;
+    reason = message;
+    renderFreshness();
+  }
+
+  function invalidate(message, structural = false) {
+    revision++;
+    if (structural && source && source.kind === "range") {
+      source = null;
+      record = null;
+      app().clearData();
+      state("Unbound", message + " Reselect the fixed range.");
+    } else if (busy && freshness === "Blocked") renderFreshness();
+    else state(source ? (app().result() ? "Stale" : "Ready") : "Unbound", message);
+  }
+
+  function assertJob(job) {
+    if (closing || active !== job || job.cancelled || revision !== job.generation ||
+        source !== job.source || epoch() !== job.dateSystem || app().policyKey() !== job.policyKey ||
+        configError || JSON.stringify(config) !== job.configKey ||
+        (job.dataVersion !== null && job.dataVersion !== app().dataVersion())) {
+      throw new Error("The operation was cancelled or its source, policy or settings changed. Rerun the checks.");
+    }
+    if (performance.now() > job.deadline) throw new Error("Operation timed out between requests. Reduce the source or increase the timeout.");
+  }
+
+  async function sync(context, job) {
+    if (job) assertJob(job);
     await context.sync();
-    let what = "the selected cells";
-    if (range.rowCount * range.columnCount === 1) {
-      const selected = range;
-      range = null;
-      sheet.tables.load("items/name");
-      await context.sync();
-      for (const table of sheet.tables.items) {
-        const tableRange = table.getRange();
-        const hit = selected.getIntersectionOrNullObject(tableRange);
-        await context.sync();
-        if (!hit.isNullObject) {
-          range = tableRange;
-          what = `the table "${table.name}"`;
-          break;
-        }
-      }
-      if (!range) {
-        range = sheet.getUsedRange(true);
-        what = "everything on the sheet";
-      }
-      range.load(LOAD);
-      await context.sync();
-    }
-    return { range, what };
+    if (job) assertJob(job);
   }
 
-  // Reads a range in blocks of rows, with the formats and types Excel reports.
-  async function readRange(context, range) {
-    const values = [];
-    const numberFormats = [];
-    const valueTypes = [];
-    for (let start = 0; start < range.rowCount; start += BLOCK_ROWS) {
-      const rows = Math.min(BLOCK_ROWS, range.rowCount - start);
-      const block = range.getRow(start).getResizedRange(rows - 1, 0);
-      block.load(["values", "numberFormat", "valueTypes"]);
-      await context.sync();
-      values.push(...block.values);
-      numberFormats.push(...block.numberFormat);
-      valueTypes.push(...block.valueTypes);
+  async function operate(kind, action) {
+    if (busy || closing) return false;
+    const job = { kind, generation: revision, source, dateSystem: epoch(), policyKey: app().policyKey(),
+      settings: config, configKey: JSON.stringify(config), dataVersion: null,
+      deadline: performance.now() + config.timeoutSeconds * 1000,
+      manualAcknowledged: $("excel-manual-calculated").checked, cancelled: false };
+    active = job;
+    busy = true;
+    if (kind === "run" || kind === "read" || kind === "export") state("Reading", "Reading the bound source.");
+    else renderFreshness();
+    try {
+      if (configError) throw new Error(configError);
+      await action(job);
+      return true;
+    } catch (error) {
+      // A completion belonging to an old pane/operation cannot restore any state.
+      if (!closing && active === job) {
+        if (["read", "bind", "date"].includes(kind)) app().clearData();
+        const message = error && error.message ? error.message : String(error);
+        state(source ? "Blocked" : "Unbound", message);
+        say("Excel could not complete the operation: " + message, true);
+      }
+      return false;
+    } finally {
+      if (active === job) { active = null; busy = false; if (!closing) renderFreshness(); }
     }
-    return { values, numberFormats, valueTypes, firstRow: range.rowIndex + 1 };
   }
 
-  async function readSelection() {
-    return Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const { range, what } = await chooseRange(context, sheet);
-      return { name: describe(range.address), what, payload: await readRange(context, range) };
+  function guarded(action, kind = "action") {
+    return () => operate(kind, action);
+  }
+
+  async function calculation(context, job) {
+    if (!supports("1.9") || !source.eventsReady) {
+      throw new Error("Verified live checks need ExcelApi 1.9 and edit/calculation/format events. Update Excel.");
+    }
+    context.application.load(["calculationMode", "calculationState"]);
+    await sync(context, job);
+    const mode = context.application.calculationMode;
+    if (!["Automatic", "AutomaticExceptTables", "Manual"].includes(mode)) throw new Error("Excel returned an unknown calculation mode.");
+    if (context.application.calculationState !== "Done") throw new Error("Calculation is pending or running. Calculate in Excel, then try again.");
+    if (mode === "Manual" && !job.manualAcknowledged) {
+      throw new Error("Manual calculation mode: calculate in Excel, then confirm 'I calculated this workbook' in the pane.");
+    }
+    if (job.calculationMode && job.calculationMode !== mode) throw new Error("Calculation mode changed during the operation. Rerun.");
+    job.calculationMode = mode;
+  }
+
+  function checkSize(range) {
+    if (range.rowCount < 2 || range.columnCount < 1) {
+      throw new Error("Select a header and at least one data row, or explicitly choose a workbook table.");
+    }
+    if (range.rowCount * range.columnCount > MAX_CELLS) {
+      throw new Error("Select at most 5,000,000 cells, including the header. No cells were fetched.");
+    }
+  }
+
+  function sourceSummary(parsedRows) {
+    if (source && parsedRows != null) source.parsed_row_count = parsedRows;
+    if (source) parsedRows = source.parsed_row_count;
+    $("excel-source-summary").textContent = source
+      ? `${source.kind === "table" ? `Table "${source.table_name}"; ` : "Fixed range; "}` +
+        `worksheet "${source.worksheet_name}"; ${source.address}; header row ${source.header_row}; ` +
+        `${source.data_row_count} physical data row(s), ${source.column_count} column(s). ` +
+        (parsedRows == null ? "" : `${parsedRows} parsed data row(s). `) +
+        (source.kind === "table" ? "Table totals excluded. " : "Totals exclusion follows the selected bounds. ") +
+        `Hidden and filtered rows included. Date system: ${epoch() || "choose 1900 or 1904"} (user choice).`
+      : "No source bound.";
+    $("excel-source-read").disabled = busy || !source || !epoch();
+  }
+
+  async function refreshTables() {
+    const tables = await Excel.run(async (context) => {
+      const collection = context.workbook.tables;
+      collection.load("items/id,items/name");
+      await context.sync();
+      for (const table of collection.items) table.worksheet.load(["id", "name"]);
+      await context.sync();
+      return collection.items.map((table) => ({ id: table.id, name: table.name, sheet: table.worksheet.name }));
+    });
+    const picker = $("excel-table");
+    picker.replaceChildren(new Option(tables.length ? "Choose a table…" : "No workbook tables", ""),
+      ...tables.map((table) => new Option(`${table.sheet} — ${table.name}`, table.id)));
+  }
+
+  async function tableRange(context, id, job) {
+    const table = context.workbook.tables.getItem(id);
+    table.load(["id", "name"]);
+    table.worksheet.load(["id", "name"]);
+    table.rows.load("count");
+    await sync(context, job);
+    if (!table.rows.count) throw new Error("The table has no data rows.");
+    const header = table.getHeaderRowRange();
+    const body = table.getDataBodyRange();
+    header.load(LOAD);
+    body.load(LOAD);
+    await sync(context, job);
+    if (header.rowCount !== 1 || body.rowIndex !== header.rowIndex + 1 ||
+        body.columnIndex !== header.columnIndex || body.columnCount !== header.columnCount) {
+      throw new Error("The table must have one header row directly above its data body.");
+    }
+    const range = header.getResizedRange(body.rowCount, 0);
+    range.load(LOAD);
+    await sync(context, job);
+    return { range, sheet: table.worksheet, table };
+  }
+
+  function descriptor(range, sheet, table) {
+    checkSize(range);
+    return { kind: table ? "table" : "range", worksheet_id: sheet.id, worksheet_name: sheet.name,
+      ...(table ? { table_id: table.id, table_name: table.name } : {}),
+      address: describe(range.address), header_row: range.rowIndex + 1,
+      rowIndex: range.rowIndex, columnIndex: range.columnIndex,
+      data_row_count: range.rowCount - 1, column_count: range.columnCount,
+      hidden_rows: "include_all" };
+  }
+
+  async function disposeHandlers() {
+    const previous = handlers;
+    handlers = [];
+    for (const handler of previous) {
+      await Excel.run(handler.context, async (context) => { handler.remove(); await context.sync(); });
+    }
+  }
+
+  function installHandlers(context, sheet, bound, table) {
+    const add = (member, callback) => {
+      if (member && typeof member.add === "function") handlers.push(member.add((event) => {
+        if (!closing && source === bound) callback(event);
+      }));
+    };
+    bound.eventsReady = ["onChanged", "onCalculated", "onFormatChanged"].every(
+      (name) => sheet[name] && typeof sheet[name].add === "function");
+    add(sheet.onChanged, (event) => {
+      if (event.changeType !== "RangeEdited") {
+        $("excel-manual-calculated").checked = false;
+        invalidate("The worksheet structure changed.", true);
+      } else if (config.monitoring === "events" && captureTools.overlaps(event.address, bound)) {
+        $("excel-manual-calculated").checked = false;
+        invalidate("Bound source cells changed.");
+      }
+    });
+    add(sheet.onFormatChanged, (event) => {
+      if (config.monitoring === "events" && captureTools.overlaps(event.address, bound)) invalidate("Source number formats changed.");
+    });
+    add(sheet.onCalculated, () => {
+      $("excel-manual-calculated").checked = false;
+      if (config.monitoring === "events") invalidate("The source worksheet recalculated.");
+    });
+    if (table) add(table.onChanged, () => {
+      if (config.monitoring === "events") {
+        $("excel-manual-calculated").checked = false;
+        invalidate("The bound table changed or resized.");
+      }
     });
   }
 
-  // A sheet that finassert owns: created if missing, emptied if it already exists.
+  async function bind(kind, job) {
+    await disposeHandlers();
+    assertJob(job);
+    source = null;
+    revision++;
+    job.generation = revision;
+    job.source = null;
+    record = null;
+    app().clearData();
+    state("Unbound", "Resolving the selected source.");
+    sourceSummary();
+    if (kind === "range" && !supports("1.13")) {
+      throw new Error("Range binding needs ExcelApi 1.13 to reject merged headers. Update Excel or choose a table.");
+    }
+    const bound = await Excel.run(async (context) => {
+      let range, sheet, table;
+      if (kind === "table") {
+        if (!$("excel-table").value) throw new Error("Choose a table first.");
+        ({ range, sheet, table } = await tableRange(context, $("excel-table").value, job));
+      } else {
+        try {
+          range = context.workbook.getSelectedRange();
+          range.load(LOAD);
+          sheet = range.worksheet;
+          sheet.load(["id", "name"]);
+          await sync(context, job);
+        } catch (error) {
+          assertJob(job);
+          throw new Error("Select one rectangular range; disjoint selections are not supported.");
+        }
+      }
+      const bound = descriptor(range, sheet, table);
+      installHandlers(context, sheet, bound, table);
+      await sync(context, job);
+      return bound;
+    });
+    assertJob(job);
+    source = bound;
+    job.source = bound;
+    sourceSummary();
+    if (epoch()) await captureSource(job);
+    else {
+      state("Ready", "Source bound; choose 1900 or 1904 before reading.");
+      say("Source bound. Choose the workbook's 1900 or 1904 date system before reading or running.");
+    }
+  }
+
+  async function resolvedRange(context, bound, job) {
+    if (bound.kind === "table") {
+      const resolved = await tableRange(context, bound.table_id, job);
+      if (resolved.sheet.id !== bound.worksheet_id || resolved.table.id !== bound.table_id) {
+        throw new Error("The bound table is no longer on its original worksheet. Choose the source again.");
+      }
+      return resolved;
+    }
+    const sheet = context.workbook.worksheets.getItem(bound.worksheet_id);
+    sheet.load(["id", "name"]);
+    const range = sheet.getRangeByIndexes(bound.rowIndex, bound.columnIndex,
+      bound.data_row_count + 1, bound.column_count);
+    range.load(LOAD);
+    await sync(context, job);
+    if (sheet.id !== bound.worksheet_id) throw new Error("The bound worksheet no longer exists. Reselect the source.");
+    return { range, sheet };
+  }
+
+  // Reads a range in blocks of rows, with the formats and types Excel reports.
+  async function readRange(context, range, job) {
+    const values = [];
+    const numberFormats = [];
+    const valueTypes = [];
+    const formulas = [];
+    const limits = job ? job.settings : config;
+    if (range.columnCount > limits.blockCells) {
+      throw new Error("One source row exceeds the cells-per-request setting. Increase that setting or select fewer columns.");
+    }
+    const blockRows = Math.max(1, Math.min(limits.blockRows, Math.floor(limits.blockCells / range.columnCount)));
+    for (let start = 0; start < range.rowCount; start += blockRows) {
+      const rows = Math.min(blockRows, range.rowCount - start);
+      const block = range.getRow(start).getResizedRange(rows - 1, 0);
+      block.load(["values", "numberFormat", "valueTypes", "formulas"]);
+      await sync(context, job);
+      values.push(...block.values);
+      numberFormats.push(...block.numberFormat);
+      valueTypes.push(...block.valueTypes);
+      formulas.push(...block.formulas);
+    }
+    return { values, numberFormats, valueTypes, formulas, firstRow: range.rowIndex + 1 };
+  }
+
+  async function readCapture(job) {
+    if (!source || !epoch()) throw new Error("Bind one source and choose 1900 or 1904 before running.");
+    assertJob(job);
+    const bound = job.source;
+    const capture = await Excel.run(async (context) => {
+      await calculation(context, job);
+      const { range, sheet, table } = await resolvedRange(context, bound, job);
+      const current = descriptor(range, sheet, table);
+      if (bound.kind === "range") {
+        const merged = range.getRow(0).getMergedAreasOrNullObject();
+        await sync(context, job);
+        if (!merged.isNullObject) throw new Error("Unmerge the source header cells, then reselect the range.");
+      }
+      const { formulas, ...payload } = await readRange(context, range, job);
+      payload.date1904 = job.dateSystem === "1904";
+      const again = await resolvedRange(context, bound, job);
+      if (JSON.stringify(current) !== JSON.stringify(descriptor(again.range, again.sheet, again.table))) {
+        throw new Error("Source identity or bounds changed during a chunked read. Rerun.");
+      }
+      await calculation(context, job);
+      return { current, payload, formulas };
+    });
+    assertJob(job);
+    if (!capture.payload.values.slice(1).some((row) => row.some((cell) =>
+      cell != null && (typeof cell !== "string" || cell.trim() !== "")))) {
+      throw new Error("The source has no nonblank data rows.");
+    }
+    const fingerprints = await captureTools.fingerprints(capture.current, capture.payload, capture.formulas);
+    assertJob(job);
+    return { ...capture, ...fingerprints, capturedAt: new Date().toISOString() };
+  }
+
+  function ingest(capture, job) {
+    assertJob(job);
+    const bound = job.source;
+    // The Python reader owns header normalization and all cell/date interpretation.
+    const parsed = app().useData(capture.current.address, JSON.stringify(capture.payload), "excel-range", true);
+    job.dataVersion = app().dataVersion();
+    if (!parsed) throw new Error("The bound source could not be parsed. Correct its headers or data and read again.");
+    if (!parsed.rowCount) {
+      throw new Error("The source has no nonblank data rows.");
+    }
+    if (bound.headers && JSON.stringify(bound.headers) !== JSON.stringify(parsed.columns)) {
+      source = null;
+      sourceSummary();
+      throw new Error("Source headers changed. Reselect the source and review every column mapping before running.");
+    }
+    Object.assign(bound, capture.current, { headers: parsed.columns, date_system: job.dateSystem, date_system_source: "user" });
+    sourceSummary(parsed.rowCount);
+    say(`Read ${bound.kind === "table" ? `the table "${bound.table_name}"` : "the bound range"} (${bound.address}).`);
+  }
+
+  async function captureSource(job) {
+    record = null;
+    state("Reading", "Reading a preview; Run checks verifies the result.");
+    const capture = await readCapture(job);
+    ingest(capture, job);
+    state("Ready", "Source preview read. Run the checks to verify a result.");
+  }
+
+  function sameCapture(left, right) {
+    return left.snapshot === right.snapshot && left.formula === right.formula;
+  }
+
+  async function runBound(job) {
+    const first = await readCapture(job);
+    ingest(first, job);
+    state("Checking", "Checking the captured input; the candidate is not yet current.");
+    const outcome = app().evaluate();
+    if (!outcome.ok) {
+      app().publishResult(outcome);
+      throw new Error(outcome.error || "The policy is invalid. Fix the listed problems and rerun.");
+    }
+    assertJob(job);
+    // Let queued edits and host notifications run after synchronous Python evaluation.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assertJob(job);
+    let verifiedAt = null;
+    if (job.settings.capture === "verified") {
+      for (let i = 1; i < job.settings.confirmations; i++) {
+        state("Reading", `Verifying capture ${i + 1} of ${job.settings.confirmations}.`);
+        const after = await readCapture(job);
+        if (!sameCapture(first, after)) throw new Error("The source changed between captures. Candidate discarded; rerun the checks.");
+        verifiedAt = after.capturedAt;
+      }
+    }
+    assertJob(job);
+    record = { snapshot: first.snapshot, formula: first.formula, capturedAt: first.capturedAt,
+      verifiedAt, policyKey: job.policyKey, settingsKey: job.configKey, outcome };
+    app().publishResult(outcome);
+    $("excel-manual-calculated").checked = false;
+    if (verifiedAt) state("Current", "The result matched its source at the last verification time.");
+    else state("Stale", "Snapshot-only result: stable capture is disabled; current-result export is unavailable.");
+  }
+
+  async function withCurrentResult(action) {
+    if (!app().isLiveResult()) return operate("action", action);
+    if (busy || freshness !== "Current" || !record || config.capture !== "verified") {
+      say("Rerun with stable capture enabled before exporting a current result.", true);
+      return false;
+    }
+    const result = record;
+    return operate("export", async (job) => {
+      if (result.policyKey !== job.policyKey || result.settingsKey !== job.configKey || app().result() !== result.outcome) {
+        throw new Error("The result's policy or settings changed. Rerun before exporting.");
+      }
+      for (let i = 0; i < job.settings.confirmations; i++) {
+        const current = await readCapture(job);
+        if (!sameCapture(result, current)) throw new Error("The bound source changed since this result. Rerun before exporting.");
+        result.verifiedAt = current.capturedAt;
+      }
+      assertJob(job);
+      await action();
+      assertJob(job);
+      $("excel-manual-calculated").checked = false;
+      state("Current", "Source and policy reverified before the action.");
+    });
+  }
+
+  // Only sheets created in this pane session can be cleared. E-05 owns durable
+  // output ownership and unique-name/replacement UI; names alone confer no ownership.
   async function freshSheet(context, name) {
     let sheet = context.workbook.worksheets.getItemOrNullObject(name);
     await context.sync();
     if (sheet.isNullObject) {
       sheet = context.workbook.worksheets.add(name);
+      sheet.load("id");
+      await context.sync();
+      ownedSheetIds.add(sheet.id);
     } else {
+      sheet.load("id");
+      await context.sync();
+      if (source && sheet.id === source.worksheet_id) throw new Error("Output cannot replace the bound source worksheet.");
+      if (!ownedSheetIds.has(sheet.id)) {
+        throw new Error(`The sheet "${name}" already exists and was not created in this pane session. Rename it before trying again.`);
+      }
       const used = sheet.getUsedRangeOrNullObject();
       await context.sync();
       if (!used.isNullObject) used.clear();
@@ -148,31 +532,44 @@
     app().openPolicyText(text.text, "finassert-policy.yml", `the checks saved in this workbook`);
   }
 
-  async function useSelection() {
+  async function useSelection(job) {
     if (!app() || !app().ready()) {
       say("The checking engine is still loading. Try again in a moment.", true);
       return;
     }
     say("Reading the cells…");
-    const selection = await readSelection();
-    app().useData(selection.name, JSON.stringify(selection.payload), "excel-range");
-    say(`Read ${selection.what} (${selection.name}).`);
+    await bind("range", job);
   }
 
   async function writeToSheet() {
     if (!app() || !app().result()) return;
-    await writeResults(app().resultsSheet());
-    say(`Results written to the sheet "${RESULTS_SHEET}". Your data was not changed.`);
+    return withCurrentResult(async () => {
+      await writeResults(app().resultsSheet());
+      say(`Results written to the sheet "${RESULTS_SHEET}". Your data was not changed.`);
+    });
   }
 
-  function guarded(action) {
-    return async () => {
-      try {
-        await action();
-      } catch (error) {
-        say("Excel could not be read or written: " + (error && error.message ? error.message : error), true);
-      }
-    };
+  function applySettings() {
+    try {
+      const next = captureTools.settings({
+        monitoring: $("excel-monitoring").value, capture: $("excel-capture-mode").value,
+        confirmations: Number($("excel-confirmations").value), blockRows: Number($("excel-block-rows").value),
+        blockCells: Number($("excel-block-cells").value), timeoutSeconds: Number($("excel-capture-timeout").value),
+      });
+      const changed = JSON.stringify(config) !== JSON.stringify(next) || configError;
+      config = next;
+      configError = "";
+      $("excel-settings-status").textContent = next.capture === "verified"
+        ? `${next.confirmations} matching captures; ${next.blockRows} rows / ${next.blockCells} cells per request; ${next.timeoutSeconds}s timeout.`
+        : "Snapshot-only results remain unverified and cannot export as current evidence.";
+      if (changed) invalidate("Freshness or capture settings changed. Run again.");
+      else renderFreshness();
+    } catch (error) {
+      configError = error.message;
+      revision++;
+      $("excel-settings-status").textContent = configError;
+      state("Blocked", "Invalid capture settings: " + configError);
+    }
   }
 
   /* ---------- diagnostics for testers ---------- */
@@ -218,7 +615,9 @@
       const range = sheet.getUsedRange(true);
       range.load(LOAD);
       await context.sync();
-      return { name: describe(range.address), payload: await readRange(context, range) };
+      const payload = await readRange(context, range);
+      payload.date1904 = epoch() === "1904";
+      return { name: describe(range.address), payload };
     });
   }
 
@@ -231,7 +630,7 @@
     info.contextPlatform = Office.context.platform;
     info.userAgent = navigator.userAgent;
     info.sets = {};
-    for (const v of ["1.1", "1.2", "1.3", "1.4", "1.5", "1.7", "1.8", "1.9"]) {
+    for (const v of ["1.1", "1.2", "1.3", "1.4", "1.5", "1.7", "1.8", "1.9", "1.13"]) {
       try { info.sets[v] = Office.context.requirements.isSetSupported("ExcelApi", v); } catch (error) { info.sets[v] = null; }
     }
     return info;
@@ -278,7 +677,7 @@
             (name) => [name, Boolean(sheet[name] && typeof sheet[name].add === "function")]
           )),
           dateSystem: "not detected; explicit user choice is required in E-02",
-          currentDatePayload: "date1904 omitted; reader defaults to 1900",
+          currentDatePayload: "date1904 explicitly supplied from the required user choice",
         };
       });
       info.workflowBaseline = baseline;
@@ -361,6 +760,7 @@
   }
 
   async function spike() {
+    if (!epoch()) throw new Error("Choose 1900 or 1904 before running diagnostics.");
     const portfolios = Math.max(10, Math.min(2000, Number($("spike-portfolios").value) || 1000));
     const box = $("spike-report");
     box.value = "Running… this creates the sheet \"" + SPIKE_SHEET + "\" and can take a minute.";
@@ -385,12 +785,59 @@
     if (info.host !== Office.HostType.Excel) return;
     $("excel-panel").hidden = false;
     for (const id of ["excel-write", "excel-save-policy", "excel-load-policy"]) $(id).hidden = false;
-    $("excel-read").addEventListener("click", guarded(useSelection));
-    $("excel-write").addEventListener("click", guarded(writeToSheet));
+    $("excel-read").addEventListener("click", guarded(useSelection, "bind"));
+    $("excel-tables-refresh").addEventListener("click", guarded(refreshTables));
+    $("excel-bind-table").addEventListener("click", guarded((job) => bind("table", job), "bind"));
+    $("excel-source-read").addEventListener("click", guarded(captureSource, "read"));
+    $("excel-date-system").addEventListener("change", () => {
+      invalidate("Date interpretation changed.");
+      record = null;
+      app().clearData();
+      if (source && epoch()) operate("date", captureSource);
+      else {
+        state(source ? "Ready" : "Unbound", "Choose 1900 or 1904 before running.");
+        say("Choose the workbook's 1900 or 1904 date system before running.");
+      }
+    });
+    $("excel-write").addEventListener("click", writeToSheet);
     $("excel-save-policy").addEventListener("click", guarded(savePolicy));
     $("excel-load-policy").addEventListener("click", guarded(loadPolicy));
-    $("spike-run").addEventListener("click", guarded(spike));
+    $("spike-run").addEventListener("click", guarded(spike, "diagnostics"));
     $("spike-copy").addEventListener("click", guarded(copyReport));
+    window.finassertExcel = {
+      run: () => operate("run", runBound),
+      withCurrentResult,
+      policyChanged(message) { invalidate(message); },
+      inputChanged() { record = null; invalidate("Input changed. Run the bound source again for verified live results."); },
+      status: () => ({ state: freshness, reason, busy, generation: revision, settings: { ...config },
+        snapshot: record ? { sha256: record.snapshot, capturedAt: record.capturedAt, verifiedAt: record.verifiedAt } : null }),
+    };
+    for (const id of ["excel-monitoring", "excel-capture-mode", "excel-confirmations", "excel-block-rows", "excel-block-cells", "excel-capture-timeout"]) {
+      $(id).addEventListener("change", applySettings);
+      if ($(id).tagName === "INPUT") $(id).addEventListener("input", applySettings);
+    }
+    $("excel-settings-reset").addEventListener("click", () => {
+      for (const [id, key] of [["excel-monitoring", "monitoring"], ["excel-capture-mode", "capture"],
+        ["excel-confirmations", "confirmations"], ["excel-block-rows", "blockRows"],
+        ["excel-block-cells", "blockCells"], ["excel-capture-timeout", "timeoutSeconds"]]) {
+        $(id).value = captureTools.defaults[key];
+      }
+      applySettings();
+    });
+    $("excel-manual-calculated").addEventListener("change", () => {
+      if (busy) invalidate("Manual calculation confirmation changed during the operation. Try again.");
+      else renderFreshness();
+    });
+    $("excel-cancel").addEventListener("click", () => {
+      if (!active) return;
+      active.cancelled = true;
+      invalidate("Cancellation requested; the current host request or Python check must finish first.");
+    });
+    applySettings();
+    await guarded(refreshTables)();
+    renderFreshness();
+    // Office destroys session handlers when the pane closes. Avoid new host requests on pagehide.
+    window.addEventListener("pagehide", () => { closing = true; revision++; handlers = []; record = null; });
   }
 
   start();

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "slice": "E-02",
+  "recorded_on": "2026-11-13",
+  "branch": "feature/excel-source-binding-dates",
+  "host": {
+    "platform": "Mac",
+    "excel_version": "16.115",
+    "range_merge_guard_ExcelApi_1_13": true
+  },
+  "build": {
+    "taskpane_sha256": "9711a5c66fd04694860e96164b7e5cede16201c54fe791e2e040a7769b0436a6",
+    "manifest_sha256": "3eb69c50794a756886325bc107f4d3b7616e64d73697736d0203c90d88ffbf45"
+  },
+  "fixture_origin": "Synthetic offset holdings. An initial generated table needed Excel repair; totals were then created in native Excel and the saved fixture reopened intact. The 1904 fixture changes only the synthetic epoch and the two date serials.",
+  "fixed_range": {
+    "address": "'Holdings O''Brien'!C7:H9",
+    "header_row": 7,
+    "physical_data_rows": 2,
+    "parsed_data_rows": 2,
+    "columns": 6,
+    "hidden_data_row": 9,
+    "date_systems_tested": [
+      "1900",
+      "1904"
+    ],
+    "date_system_source": "user",
+    "date_preview_in_both_systems": [
+      "2026-01-01",
+      "2026-01-01"
+    ],
+    "selection_moved_to": "P18",
+    "run_after_selection_move": {
+      "template": "long-only-holdings",
+      "passed": 3,
+      "skipped": 0,
+      "policy_sha256": "bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533"
+    }
+  },
+  "table": {
+    "name": "BindingTable",
+    "address": "'Holdings O''Brien'!C7:H10",
+    "header_row": 7,
+    "physical_data_rows": 3,
+    "columns": 6,
+    "total_row": 11,
+    "excluded_sentinel_cell": "F11",
+    "excluded_sentinel_value": -99999,
+    "native_totals_checkbox": true,
+    "reopened_intact": true
+  },
+  "limits": "E-02 source/date evidence only. E-03 stable captures, calculation/freshness guards, E-04 navigation and E-05 safe output remain pending. E-06 full acceptance has not run.",
+  "earlier_native_build": {
+    "taskpane_sha256": "843871feda0569dc8e0fe9e9f0756013d6fd32a3ccde2ed039e2f482e460d60b",
+    "manifest_sha256": "3eb69c50794a756886325bc107f4d3b7616e64d73697736d0203c90d88ffbf45"
+  },
+  "final_native_smoke": {
+    "pane_ready": true,
+    "explicit_epoch": "1904",
+    "address": "'Holdings O''Brien'!C7:H9",
+    "physical_data_rows": 2,
+    "parsed_data_rows": 2,
+    "date_preview": [
+      "2026-01-01",
+      "2026-01-01"
+    ],
+    "long_only_checks_passed": 3,
+    "current_served_bytes_match_build": true
+  },
+  "host_reload_observation": "Native Add-in options > Reload left a blank pane. Closing the synthetic workbook and reopening via the verified sideload CLI recovered the final build, with an unbound source and no date choice; explicit 1904 range read and 3 passing checks repeated. Cause not established; retain for E-06 recovery acceptance."
+}

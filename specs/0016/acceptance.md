@@ -1,6 +1,9 @@
 # 0016 — Real Excel acceptance record
 
-**Status:** NOT RUN. This is a checklist/template, not test evidence.
+**Status:** E-06 NOT RUN. This is the full-workflow checklist, not test evidence.
+Early E-01/E-02 native evidence is retained separately in [artifacts](artifacts/README.md).
+E-03's partial native freshness/configuration checks are also recorded there;
+they do not complete the navigation/output checklist below.
 Normative behavior and criteria remain in [spec.md](spec.md#acceptance-criteria).
 
 Use the existing [spike runbook](../../docs/design/excel-spike.md) for build,

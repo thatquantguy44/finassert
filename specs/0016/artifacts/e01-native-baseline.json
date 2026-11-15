@@ -1,0 +1,131 @@
+{
+  "finassert": "0.1.0",
+  "steps": [
+    {
+      "name": "environment",
+      "status": "INFO",
+      "ms": 0
+    },
+    {
+      "name": "Excel API support",
+      "status": "PASS",
+      "ms": 0
+    },
+    {
+      "name": "planned workflow API baseline",
+      "status": "PASS",
+      "ms": 11
+    },
+    {
+      "name": "engine start-up",
+      "status": "PASS",
+      "ms": 0
+    },
+    {
+      "name": "security policy",
+      "status": "PASS",
+      "ms": 0
+    },
+    {
+      "name": "network use",
+      "status": "PASS",
+      "ms": 0
+    },
+    {
+      "name": "write 50,000 test rows",
+      "status": "PASS",
+      "ms": 265
+    },
+    {
+      "name": "read the rows back",
+      "status": "PASS",
+      "ms": 561
+    },
+    {
+      "name": "run the multi-portfolio template",
+      "status": "PASS",
+      "ms": 631
+    },
+    {
+      "name": "write the results sheet",
+      "status": "PASS",
+      "ms": 41
+    },
+    {
+      "name": "save and load the checks",
+      "status": "PASS",
+      "ms": 93
+    },
+    {
+      "name": "your data was not changed",
+      "status": "PASS",
+      "ms": 158
+    }
+  ],
+  "environment": {
+    "host": "Excel",
+    "platform": "Mac",
+    "version": "16.115.1108.0",
+    "contextPlatform": "Mac",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)",
+    "sets": {
+      "1.1": true,
+      "1.2": true,
+      "1.3": true,
+      "1.4": true,
+      "1.5": true,
+      "1.7": true,
+      "1.8": true,
+      "1.9": true
+    },
+    "workflowBaseline": {
+      "calculationMode": "Automatic",
+      "calculationState": "Done",
+      "worksheetEvents": {
+        "onChanged": true,
+        "onCalculated": true,
+        "onFormatChanged": true
+      },
+      "dateSystem": "not detected; explicit user choice is required in E-02",
+      "currentDatePayload": "date1904 omitted; reader defaults to 1900"
+    }
+  },
+  "startedAt": 10916,
+  "schema_version": 1,
+  "slice": "E-01",
+  "recorded_on": "2026-11-13",
+  "source_commit": "ccafd3d3fe00ca0e6d79a4cca5830246dab27641",
+  "build": {
+    "manifest.xml": {
+      "sha256": "3eb69c50794a756886325bc107f4d3b7616e64d73697736d0203c90d88ffbf45",
+      "size_bytes": 1076
+    },
+    "taskpane.html": {
+      "sha256": "654ed076f87dd3c72e5c42393e8d768ce8f5d81eb2f24b024ff4d1578c1108f8",
+      "size_bytes": 255080
+    }
+  },
+  "native_taskpane_opened": true,
+  "route": "office-addin-debugging start --no-debug --no-live-reload; generated sideload workbook opened in Excel",
+  "fixture": {
+    "portfolios": 1000,
+    "data_rows": 50000,
+    "columns": 5,
+    "address": "finassert spike data!A1:E50001"
+  },
+  "policy_sha256": "7675f9972a24cb314b9d837e0732fd4f20c1078082b83c3288c20bcc4db3dc37",
+  "timings_ms": {
+    "engine_startup": 1062,
+    "write_50000_rows": 265,
+    "read_50000_rows_and_preview": 561,
+    "run_template_and_render": 631,
+    "write_results": 41,
+    "policy_round_trip": 93,
+    "input_integrity_reread": 158
+  },
+  "operating_system": {
+    "name": "macOS",
+    "version": "26.5.1",
+    "build": "25F80"
+  }
+}

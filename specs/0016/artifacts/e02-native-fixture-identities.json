@@ -1,0 +1,10 @@
+{
+  "1900": {
+    "file": "finassert-e02-native-table-1900.xlsx",
+    "sha256": "55d23c0b5d51c4d96d2e1abdc4a6490dea8bfaa99d4fda3152469b1b50e058b5"
+  },
+  "1904": {
+    "file": "finassert-e02-native-table-1904.xlsx",
+    "sha256": "12b12974956864636ac9aeded9b0d913cd2459f76119b32ba1e5c83e4f41929e"
+  }
+}

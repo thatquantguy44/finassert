@@ -16,12 +16,11 @@ Next engineering work:
 
 1. Build the Mac-first Excel validate → navigate → correct → rerun workflow under
    [specification 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md).
-   Explicit source binding, stale-result handling, diagnostic navigation and date
-   interpretation are proposed; real Excel acceptance is required for completion.
-   E-01 has regression reproductions, an API audit and a diagnostic probe; finish
-   the disabled native add-in loading baseline before E-02 source/date binding.
-   PR #24 is merged; feature/excel-source-binding-dates is prepared from main for
-   that next code slice, without promoting the outstanding native acceptance.
+   E-01's native 50,000-row baseline and E-02's explicit source/date binding are
+   verified on feature/excel-source-binding-dates. E-03 now adds configurable
+   session capture/freshness, calculation/event/policy guards and export preflight.
+   Next are diagnostic navigation, safe evidence output and full E-06 Mac acceptance.
+   Range mode requires stable ExcelApi 1.13; table mode keeps the 1.7 floor.
 2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
 3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the

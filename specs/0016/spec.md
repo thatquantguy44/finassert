@@ -1,7 +1,8 @@
 # 0016 — Excel add-in validation workflow
 
-**Status:** E-01 in progress; the live workflow and real-host acceptance remain proposed.
-**Updated:** 2026-11-13
+**Status:** E-01/E-02 verified; E-03 configurable capture/freshness implemented;
+E-04–E-06 remain proposed. See [verification evidence](artifacts/README.md).
+**Updated:** 2026-11-14
 **Owner:** finassert. Mac desktop is the first real-host acceptance target.
 
 ## Problem statement
@@ -80,6 +81,9 @@ label, never the identity or a file-access permission.
   remain a separate API; do not imply they are implemented in the live adapter.
 - Reject disjoint selections, merged headers, duplicate/blank headers and empty
   data regions before evaluation. Explicit range bounds own totals exclusion.
+- Range binding requires stable ExcelApi 1.13 for merged-header detection. On
+  earlier hosts, block range mode with an update/table-choice message; table mode
+  retains the manifest's 1.7 floor. Live capture/freshness requires 1.9.
 - Preserve the existing 5,000,000-cell ceiling, checking dimensions before
   fetching cells. Read in bounded requests, reducing rows per request for wide
   tables. Payload-limit/read errors must never publish a partial result.
@@ -94,7 +98,7 @@ claim that remote edits can never occur afterward.
 
 Every Run rereads the bound source. Register stable Office events for cell edits
 and completed calculations; invalidate on relevant value, formula, format,
-structure, source, effective-policy or date-system changes. Do not require Run
+structure, source, effective-policy or date-system changes by default. Do not require Run
 merely because the selection moved or an unrelated worksheet cell was edited.
 Worksheet-wide calculation invalidation may be conservative. Resolve supported
 events/requirement sets during E-01; no preview dependency is allowed.
@@ -117,6 +121,46 @@ Old results may remain visible as historical/stale, with their timestamp and
 reason; current-result export and source navigation remain disabled until rerun.
 Read cancellation, if offered, takes effect between host requests; do not claim
 that synchronous Python evaluation is interruptible.
+
+#### Session settings
+
+Expose freshness and capture controls in the pane. They reset when the pane
+reopens and never change workbook settings, policy YAML or financial semantics.
+Changing any control invalidates the result and any active operation. Invalid
+settings block running/export with an actionable message; offer Restore defaults.
+
+| Control | Default | Allowed configuration |
+| --- | --- | --- |
+| Change monitoring | Live workbook events | Live events or on demand |
+| Capture verification | Verify stable captures | Verified or snapshot only |
+| Matching captures per run | 2 | Integer 2–4; one before evaluation, the rest afterward |
+| Maximum rows per request | 5,000 | Integer 1–5,000 |
+| Maximum cells per request | 50,000 | Integer 1,000–50,000 |
+| Operation timeout | 120 seconds | Integer 1–300 seconds |
+
+On-demand mode suppresses immediate cell/format/calculation alerts. Label that
+limitation beside freshness; every Run and current-result action still rereads
+and verifies. Source, policy, date and settings changes always invalidate;
+structural edits always invalidate a fixed range binding. Current is the last
+verified observation, with its UTC time, in either monitoring mode.
+
+Snapshot-only mode reads once and evaluates for inspection. Label its result
+unverified/Stale, never Current; current-result exports remain disabled. It
+does not bypass calculation, source, date, size or generation guards.
+
+Reduce row count to honor both request limits. If one row exceeds the configured
+cell limit, reject before fetching cells and ask for a higher limit or narrower
+source. The 5,000,000-cell total ceiling is fixed. Timeout/cancel apply between
+host requests and after evaluation/hash completion; they cannot interrupt an
+outstanding Office request or synchronous Python. No automatic retries.
+
+Manual calculation requires an explicit session acknowledgement that the user
+calculated the workbook. Consume it after a successful run and clear it on
+source edits/calculation notifications; another manual-mode action needs a new
+acknowledgement. The host must still report Done before and after each capture.
+Acknowledging a completed calculation permits the next preflight; it does not
+invalidate an already verified result. Changing the acknowledgement during an
+active operation invalidates that operation. Successful exports consume it too.
 
 Events are notifications, not the sole integrity check. Before navigation or
 current-result export, revalidate source identity, contents, policy and generation
@@ -213,12 +257,38 @@ The proposed input.excel object has source schema_version 1:
 | captured_at / verified_at | UTC snapshot and last comparison timestamps |
 | snapshot_sha256 | Digest of the versioned canonical evaluated payload |
 
-E-03 must define one canonical digest encoding for ordered typed values, formats,
-value types, resolved source geometry and date interpretation, with fixed vectors.
+E-03 defines the private capture encoding below, with [fixed vectors](artifacts/e03-capture-vectors.json).
 Include effective policy digest separately; it already belongs in the artifact.
 The digest covers evaluated values, not the formula source or external workbook
 dependencies. It is snapshot identity, not a signature or a completeness proof.
 Ephemeral session/generation tokens and full navigation maps are not exported.
+
+### Canonical capture encoding v1
+
+Hash UTF-8 bytes of JavaScript JSON.stringify of this ordered array, with no
+whitespace, sorting, locale conversion or Unicode normalization:
+
+```text
+["finassert.excel.snapshot", 1,
+ [kind, worksheet_id, worksheet_name, table_id_or_null, table_name_or_null,
+  address, header_row, zero_based_row_index, zero_based_column_index,
+  physical_data_row_count, column_count, "include_all", date_system, "user"],
+ typed_values_grid, typed_number_formats_grid, typed_value_types_grid]
+```
+
+Every grid includes the header and all selected physical body rows, including
+blank gaps. Its height and width must match the descriptor. Encode scalars as
+["null"], ["string", original_text], ["boolean", boolean], or ["number", text].
+Number text is ECMAScript String(finite_number), with negative zero explicitly
+"-0"; reject nonfinite/unsupported values. Thus 1 and "1" remain distinct,
+newlines/Unicode retain JSON escaping, and signed zero is deterministic.
+Use lowercase hexadecimal SHA-256 prefixed with sha256:.
+
+Also compare a private formula fingerprint using the same scalar/grid encoding
+of ["finassert.excel.formulas", 1, typed_formulas_grid]. This detects formula-text
+changes even when evaluated values match. It is separate from snapshot_sha256;
+neither hash proves external dependency completeness or uninterrupted atomicity.
+Source provenance remains in session memory until E-05 adds artifact plumbing.
 
 The source summary distinguishes physical body rows from parsed data rows when
 the existing reader drops wholly blank rows. The capture digest retains the full
@@ -269,13 +339,12 @@ corrected from 1.4 to 1.7 because its sheet writer uses getRangeByIndexes; this
 does not promote the proposed workflow. The new diagnostic reads calculation
 metadata and checks event-member availability without changing settings.
 
-Installed Mac Excel 16.115 was identified, but its Developer Add-ins entry for
-finassert was disabled. Actual Office.js capability answers, calculation behavior,
-startup/read timings and a successful native read/run remain unobserved. See
-[baseline evidence](artifacts/README.md); E-01 is incomplete.
-Exact read widths and performance targets are measured there, then recorded
-before claiming support. Further pilot platforms are optional until selected.
-No unanswered product preference blocks the initial scoped implementation.
+The original disabled Developer Add-ins observation is retained historically.
+E-01 subsequently completed through Microsoft's sideload CLI in native Excel
+16.115, with actual capabilities and 50,000-row timings in
+[baseline evidence](artifacts/README.md#e-01-native-completion).
+Full E-06 navigation/correction/output acceptance and further platform pilots
+remain pending. Session-only pane settings were explicitly selected by the user.
 
 ### Tradeoffs and risks
 

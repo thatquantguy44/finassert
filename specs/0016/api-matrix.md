@@ -10,7 +10,7 @@ evidence. Tracking issue: [#23](https://github.com/thatquantguy44/finassert/issu
 | Operations | Stable API set | Use |
 | --- | --- | --- |
 | Workbook.getSelectedRange; WorksheetCollection lookup/add; worksheet tables; table name/getRange | 1.1 | Source selection and owned-output lookup |
-| Range row/column counts, rowIndex/address, values/numberFormat/valueTypes, getRow/getResizedRange | 1.1 | Chunked source capture |
+| Range row/column counts, rowIndex/address, values/numberFormat/valueTypes/formulas, getRow/getResizedRange | 1.1 | Chunked source capture |
 | Worksheet.getUsedRange(valuesOnly=true) | 1.2 for valuesOnly | Single-cell fallback and policy loading |
 | Range.getIntersectionOrNullObject; Worksheet.getUsedRangeOrNullObject; WorksheetCollection.getItemOrNullObject | 1.4 | Table hit detection and output existence |
 | Worksheet.getRangeByIndexes | 1.7 | Results/policy/diagnostic sheet writes |
@@ -64,3 +64,37 @@ They must become ordinary passing tests when E-03 implements those contracts.
 Mac application metadata and the concrete add-in-loading finding are recorded in
 [the baseline evidence](artifacts/e01-baseline.json). No actual Office.js capability
 or timing value is substituted with a stand-in result.
+
+## E-02 amendment and native observations
+
+E-01 subsequently completed in native Excel 16.115 on Mac. All audited sets
+through 1.9 were supported; calculation was Automatic/Done and the three event
+members were present. See [the actual report](artifacts/e01-native-diagnostics.txt).
+This supersedes the earlier unresolved-loading status without changing that
+historical observation. Microsoft's sideload CLI and its generated workbook
+opened the pane while the menu entry had been disabled.
+
+E-02 uses stable Range.getMergedAreasOrNullObject (ExcelApi **1.13**) to reject
+merged headers, including vertical merges at the selection edge. It checks that
+capability before range binding; earlier hosts can explicitly choose a table.
+Table header/body/ID APIs remain 1.1; structural notifications and sheet writes
+use the 1.7 manifest floor. The later freshness workflow still needs 1.9.
+Native E-02 range capture exercised the 1.13 guard successfully. No stable date
+getter was established: a user choice with no default supplies every live payload.
+
+Source: Microsoft's [stable Range reference](https://learn.microsoft.com/en-us/javascript/api/excel/excel.range?view=office-js)
+and [1.13 requirement set](https://learn.microsoft.com/en-us/javascript/api/requirement-sets/excel/excel-api-1-13-requirement-set).
+The [E-02 record](artifacts/e02-native-verification.json) retains actual source,
+date and selection observations; the full E-06 workflow remains pending.
+
+## E-03 amendment
+
+Live capture now enforces stable 1.9 calculation/event support. Range.formulas
+is a stable 1.1 read, checked against the [Range reference](https://learn.microsoft.com/en-us/javascript/api/excel/excel.range?view=excel-js-1.9#excel-excel-range-formulas-member)
+on 2026-11-14; it supplies a separate private formula fingerprint. Rebind removes
+handlers using their original contexts. Shutdown discards callbacks/session state
+without starting Office requests; Microsoft documents automatic event destruction
+on refresh/close in its [event lifecycle](https://learn.microsoft.com/en-us/office/dev/add-ins/excel/excel-add-ins-events#lifecycle-of-an-event-handler).
+No global event disabling or recalculation is used. The E-01 expected failures
+are now ordinary passing browser cases. Native E-03 evidence is retained
+[here](artifacts/e03-native-verification.json); complete E-06 remains pending.

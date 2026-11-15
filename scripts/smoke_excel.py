@@ -41,8 +41,7 @@ VALUES = [
 # (name, what is selected, whether the data is a named table, what the add-in should say)
 SCENARIOS = [
     ("selection", "range", True, "the selected cells"),
-    ("single cell in a table", "single", True, 'the table "HoldingsTable"'),
-    ("single cell, no table", "single", False, "everything on the sheet"),
+    ("explicit table", "single", True, 'the table "HoldingsTable"'),
 ]
 
 STUB = (Path(__file__).resolve().parent / "excel_stub.js").read_text(encoding="utf-8")
@@ -161,8 +160,15 @@ def _exercise(page: Any, label: str, what: str, expect: Any) -> list[str]:
         if page.evaluate(f"document.getElementById('{control}').hidden"):
             failures.append(f"{label}: {control} was not enabled")
     before = page.evaluate("JSON.stringify(window.__excel.sheets.Holdings.cells)")
-    page.click("#excel-read")
+    page.select_option("#excel-date-system", "1900")
+    if what.startswith("the table"):
+        page.select_option("#excel-table", "table-1")
+        page.click("#excel-bind-table")
+    else:
+        page.click("#excel-read")
+        what = "the bound range"
     expect(page.locator("#status")).to_contain_text(f"Read {what} (Holdings!A3:E7)")
+    expect(page.locator("#excel-freshness")).to_have_attribute("data-state", "Ready")
     expect(page.locator("#data-name")).to_contain_text("Holdings!A3:E7: 4 row(s), 5 column(s)")
     expect(page.locator("#data-notes")).to_contain_text("1 cell(s) show Excel errors")
     expect(page.locator("#data-notes")).to_contain_text("#N/A in column 'market_value', row 6")
@@ -171,6 +177,7 @@ def _exercise(page: Any, label: str, what: str, expect: Any) -> list[str]:
     page.select_option("#template", "multi-portfolio-holdings")
     expect(page.locator(".check")).to_have_count(4)
     page.click("#run")
+    expect(page.locator("#excel-freshness")).to_have_attribute("data-state", "Current")
     banner = page.locator("#result-banner").inner_text()
     print(f"{label}: {banner}")
     if not banner.startswith("✗ Failed"):

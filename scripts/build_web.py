@@ -85,7 +85,13 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
         .replace("{{PYODIDE_URL}}", pyodide_url)
         .replace("{{VERSION}}", version)
     )
-    excel_js = (WEB / "excel.js").read_text(encoding="utf-8") if excel else ""
+    excel_js = (
+        (WEB / "excel-capture.js").read_text(encoding="utf-8")
+        + "\n"
+        + (WEB / "excel.js").read_text(encoding="utf-8")
+        if excel
+        else ""
+    )
     # A relative address means Pyodide is served alongside the page (offline bundle).
     engine = pyodide_url if pyodide_url.startswith("https://") else "'self'"
     sources = [_hash(app_js), "'wasm-unsafe-eval'", engine]

@@ -1,0 +1,115 @@
+{
+  "recorded_date": "2026-11-14",
+  "branch": "feature/excel-source-binding-dates",
+  "base_commit": "ccafd3d3fe00ca0e6d79a4cca5830246dab27641",
+  "uncommitted_worktree": true,
+  "host": {
+    "app": "Microsoft Excel",
+    "version": "16.115",
+    "platform": "Mac",
+    "loading_route": "Microsoft office-addin-debugging CLI; existing trusted localhost HTTPS"
+  },
+  "builds": {
+    "native_transition_cases_taskpane_sha256": "95107845d6465d35dd0d7884062aecb725ec5ee1ea71f075f36278eb594fdd18",
+    "manifest_sha256": "3eb69c50794a756886325bc107f4d3b7616e64d73697736d0203c90d88ffbf45",
+    "native_reopen_taskpane_sha256": "c2579de09ed1d80b60d8b218a5e3863471c5eab350bbb65fb8f97cdb43f42c53",
+    "native_reopen_session_ready_unbound_no_epoch": true,
+    "current_local_taskpane_sha256": "b6f0aa4ff11a486922052af2dc8d4e03551df845a96393e1a3937bb0b034964f",
+    "current_local_build_note": "Manual export acknowledgement and shared file-policy corrections followed native cases; these paths are verified in the browser, not claimed native.",
+    "current_local_native_ready_unbound_no_epoch": true
+  },
+  "fixture": {
+    "identity_reference": "e02-native-fixture-identities.json",
+    "worksheet": "Holdings O'Brien",
+    "source_address": "'Holdings O''Brien'!C7:H9",
+    "date_system": "1904",
+    "data_rows": 2,
+    "columns": 6,
+    "hidden_row": 9,
+    "source_fixture_modified": false,
+    "temporary_edit": "F8: 400 to -400, then restored; CLI-generated copy discarded"
+  },
+  "policy_sha256": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+  "observations": [
+    {
+      "case": "strict run",
+      "status": "PASS",
+      "state": "Current",
+      "text": "Current — The result matched its source at the last verification time. Last verified: 2026-11-14T18:06:38.063Z.",
+      "financial_banner": "✓ Passed: 3 passed, 0 skipped."
+    },
+    {
+      "case": "source edit notification",
+      "status": "PASS",
+      "state": "Stale",
+      "text": "Stale — Bound source cells changed. Last verified: 2026-11-14T18:07:23.315Z.",
+      "financial_banner": "Historical / unverified result — Bound source cells changed.",
+      "disabled_actions": [
+        "Download report (HTML)",
+        "Download report (JSON)",
+        "Write results to a sheet"
+      ]
+    },
+    {
+      "case": "reread negative value",
+      "status": "PASS",
+      "state": "Current",
+      "verified_at": "2026-11-14T18:08:12.294Z",
+      "financial_banner": "✗ Failed: 1 failed, 0 could not run, 2 passed.",
+      "retained_example": {
+        "physical_row": 8,
+        "column": "market_value",
+        "value": "-400"
+      }
+    },
+    {
+      "case": "configure capture count",
+      "status": "PASS",
+      "state": "Stale",
+      "setting": 3,
+      "text": "3 matching captures; 5000 rows / 50000 cells per request; 120s timeout."
+    },
+    {
+      "case": "snapshot only",
+      "status": "PASS",
+      "state": "Stale",
+      "text": "Stale — Snapshot-only result: stable capture is disabled; current-result export is unavailable. Last verified: not verified.",
+      "disabled_actions": [
+        "Download report (HTML)",
+        "Download report (JSON)",
+        "Write results to a sheet"
+      ]
+    },
+    {
+      "case": "restore defaults",
+      "status": "PASS",
+      "text": "2 matching captures; 5000 rows / 50000 cells per request; 120s timeout."
+    },
+    {
+      "case": "native reopen strict run",
+      "status": "PASS",
+      "state": "Current",
+      "verified_at": "2026-11-14T18:16:58.345Z",
+      "financial_banner": "✓ Passed: 3 passed, 0 skipped."
+    }
+  ],
+  "automated": {
+    "runtime_passed": 3624,
+    "browser_passed": 72,
+    "expected_failures": 0,
+    "digest_vectors": "e03-capture-vectors.json",
+    "runtime_scope": "Earlier complete run passed 3624 tests. Python runtime code was unchanged afterward; final JS behavior passed all 72 browser cases.",
+    "duplicate_runtime_repeat": "Stopped after imports stalled in macOS read calls, including a fresh-bytecode-cache attempt; no test failure was reported. This duplicate does not replace the prior complete pass."
+  },
+  "not_claimed": [
+    "E-06 complete acceptance",
+    "atomic capture",
+    "new native performance benchmark",
+    "native on-demand/manual/cancel/race acceptance",
+    "diagnostic navigation",
+    "artifact source provenance",
+    "durable output ownership",
+    "Windows/web support"
+  ],
+  "historical_reload_blank_pane": "Retained for E-06; CLI close/reopen verified. No cause or fix claimed."
+}

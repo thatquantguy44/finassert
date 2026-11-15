@@ -1,7 +1,10 @@
 # Real-Excel spike: runbook
 
-The add-in has only run against a stand-in for Excel. This is the test that replaces
-the stand-in with the real thing. It takes about 15 minutes per platform: a built-in
+The native Mac E-01 baseline passed on 2026-11-13 in Excel 16.115. The
+[retained report](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/e01-native-diagnostics.txt)
+records capabilities, calculation and 50,000-row timings. E-03 adds session-configurable
+capture/freshness with separate evidence; the completed E-04–E-06
+workflow still requires its own acceptance run. This is the repeatable host test. It takes about 15 minutes per platform: a built-in
 diagnostics panel runs most of the checklist and produces a report to send back, and a
 short list of manual checks covers what only a person looking at Excel can judge.
 
@@ -43,15 +46,20 @@ centrally deployed).
 | Excel on the web | Insert › Add-ins › My Add-ins › Manage My Add-ins › **Upload My Add-in**, choose `dist/excel/manifest.xml`. |
 | Any (organization) | Upload the manifest in the Microsoft 365 admin centre under Integrated apps (centralized deployment). |
 
-These come from Microsoft's documentation and have not been run against this add-in. If
-a route fails, note the exact message: that is a finding.
+The Mac CLI route has been verified. The CLI expects a package.json in its working
+directory; a disposable directory with a minimal private package suffices. With
+the server already running, add --no-debug --no-live-reload --dev-server-port 3000.
+Open the generated sideload workbook if Excel does not bring it forward. The
+Developer Add-ins menu was disabled in the baseline; the generated workbook opened
+the pane successfully. Other platforms/routes remain unverified. Record failures.
 
 Then open **Insert › My Add-ins › finassert**. The pane should open and say "Ready"
 after a few seconds.
 
 ## 3. Run the diagnostics
 
-In the pane, open **Diagnostics for testers**, choose how the add-in was loaded, leave
+In the pane, choose **1900 or 1904** to match this disposable workbook, open
+**Diagnostics for testers**, choose how the add-in was loaded, leave
 **Test portfolios** at 1000 (50,000 rows), press **Run the diagnostics**, and wait (a
 minute or two). Press **Copy the report** and paste it into your reply.
 
@@ -78,12 +86,12 @@ more than about 30 seconds, say so.
 These need a person looking at Excel. Note what you see.
 
 1. **Excel errors.** In a new sheet, make a small table with a header row and a cell
-   containing `=NA()`. Select it and press **Use the selected cells**. The pane should
+   containing `=NA()`. Select it and press **Use selected range**. The pane should
    say one cell shows an Excel error, and a check on that column should fail that row.
 2. **Dates.** A column of real dates formatted `yyyy-mm-dd`: the preview should show
    dates, not numbers like 46023. Repeat in a workbook using the 1904 date system
-   (File › Options › Advanced › "Use 1904 date system"): the add-in cannot detect this,
-   so dates will be off by four years and a day; confirm that, so the docs can say so.
+   and choose **1904** in the pane: both fixtures must display the same intended
+   date. Clear the selector and confirm that the live source cannot run.
 3. **Percentages.** A weight cell showing `40%` should read as 0.4 in the preview.
 4. **The policy sheet.** After **Save these checks in the workbook**, open the
    `finassert policy` sheet. Lines should show as plain text with their leading spaces,
@@ -92,8 +100,9 @@ These need a person looking at Excel. Note what you see.
    confirm the change appears in the pane.
 5. **Text that looks like a formula.** Name a policy `=1+1`, save it to the workbook,
    and check the sheet shows the text, not `2`, then load it back.
-6. **Tables.** Insert a table (Insert › Table), click one cell inside it, press **Use
-   the selected cells**: the pane should say it used the table.
+6. **Tables.** Insert a table (Insert › Table), choose it in the workbook table picker,
+   press **Use this table** and confirm the exact header/body bounds and totals
+   exclusion. A single selected cell must request an explicit table/larger range.
 7. **Results sheet.** After a run, **Write results to a sheet**: the stamp at the top
    should be readable, the Row column should match the rows you see in Excel, and your
    data sheet should be untouched.

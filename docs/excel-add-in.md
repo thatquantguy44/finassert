@@ -4,38 +4,53 @@ The add-in checks data inside Excel without saving a file first. It is a task pa
 that runs the same engine as the [browser app](browser-app.md): choose a template or
 open a policy, run the checks, and read the report, all in a pane beside the sheet.
 
-**Status: initial.** Everything on the finassert side is built and tested against a
-stand-in for Excel (`scripts/smoke_excel.py`). It has not yet been run in real Excel on
-Windows, Mac, or the web. The [real-Excel spike runbook](design/excel-spike.md) is the
-test that does that: the pane has a **Diagnostics for testers** section that runs most of
-it and produces a report. Until it has been done the add-in should be treated as a
-prototype.
+**Status: initial, with a native Mac baseline.** Excel 16.115 on macOS 26.5.1
+opened the corrected sideloaded pane and passed the synthetic 50,000-row diagnostic
+on 2026-11-13. Engine startup was 1,062 ms, reading/preview 561 ms and template
+checking/render 631 ms. This verifies that build and fixture; the complete
+freshness/navigation/output workflow and Windows/web acceptance remain pending.
+See the [evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md)
+and [real-host runbook](design/excel-spike.md).
 
 The manifest declares ExcelApi 1.7 because results/policy sheet writes use
 `getRangeByIndexes`. Diagnostics also probe the planned spec 0016 floor of 1.9,
 record calculation mode/state and check event members without changing settings.
-Date-system selection and stale-result handling are still pending implementation.
+Range binding additionally needs stable ExcelApi 1.13 for merged-header detection;
+on earlier hosts, choose a table or update Excel. Live capture requires ExcelApi
+1.9, settled calculation and a required date-system choice.
 The manifest deployment version is 1.0.0.0 to satisfy Office validation; the pane
 and reports retain the actual finassert package version. Maintainers bump
 ADD_IN_VERSION in scripts/build_excel.py when releasing an updated manifest.
 
 The next delivery is scoped in
 [spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
-explicit source binding, stale-result handling, diagnostic navigation, explicit
-date interpretation and a real Mac correction/rerun/export test. These changes
-are proposed; the behavior described below remains the current prototype.
+explicit source/date binding and configurable stable capture/freshness are
+implemented as E-02/E-03. Diagnostic navigation, source provenance, safe output
+ownership and complete Mac acceptance remain proposed as E-04–E-06.
 
 ## What it does
 
-1. **Use the selected cells.** Select the cells that hold your data, with the column
-   names in the first row, and press the button. Select a single cell to use the
-   table it is in (with its real headers), or, outside a table, everything on the
-   sheet. The pane says which it used. Large selections are read in blocks.
+1. **Bind one source.** Choose a workbook table and press **Use this table**, or
+   select one rectangle with a header row and data and press **Use selected range**.
+   Tables use their actual header/body and exclude totals; fixed range bounds own
+   totals exclusion. A single cell never expands to the whole sheet. Choose the
+   workbook's **1900 or 1904 date system**; neither is preselected. The summary
+   shows the sheet, exact address, header, physical/parsed rows, width and date
+   interpretation. Hidden and filtered rows are included. Moving the selection
+   keeps the source bound. Structural range edits require reselection; missing
+   sheet/table IDs cannot be replaced just by matching a display name.
 2. **Run checks.** Starting from a template, the pane matches its columns to your
-   headers and asks you to confirm each match, as the browser app does.
+   headers and asks you to confirm each match, as the browser app does. Each Run
+   rereads the bound source. Changed headers require rebinding and mapping review;
+   failed/partial reads cannot run. Rebinding or changing dates clears the result.
+   The pane shows Current only after matching stable captures around evaluation.
+   Relevant edits, recalculation, policy or settings changes make old results
+   historical. Currentness is separate from whether the financial checks passed.
 3. **Report.** The report names rows by the sheet's own row numbers, so "row 6" is row
    6 in Excel, even when your selection starts lower down.
-4. **Write results to a sheet.** One button creates (or replaces) a sheet named
+4. **Write results to a sheet.** A Current result is reread and compared again
+   before sheet/JSON/HTML export; missed events cannot authorize an old result.
+   One button creates a sheet named
    `finassert results`. It opens with a stamp that makes the sheet usable as evidence:
    the outcome, the policy's name and fingerprint, what was checked
    (`Holdings!A3:E7`), the counts, the time (UTC), and the finassert version. Below it
@@ -46,9 +61,43 @@ are proposed; the behavior described below remains the current prototype.
    workbook". The sheet is plain text you can read and edit; the add-in reads column A
    from row 3.
 
-**Your data is never changed.** The add-in writes only its own two sheets
-(`finassert results` and `finassert policy`, replaced if they already exist) and never
-edits, highlights, or deletes your cells.
+**Your source data is never changed.** Normal output uses `finassert results`
+and `finassert policy`. Replacement is allowed only for sheets created in the
+current pane session, and never the bound source sheet. A pre-existing name
+collision reports an error; rename that sheet before retrying. Unique-name and
+durable output ownership controls remain E-05 work.
+
+## Freshness and capture settings
+
+Open **Freshness and capture settings** in the pane. Settings last for this pane
+session; reopening restores defaults and requires a new binding/date choice.
+Changing settings requires a new run.
+
+| Setting | Default | Choices |
+| --- | --- | --- |
+| Change monitoring | Live workbook events | Live alerts or on demand |
+| Capture verification | Verify stable captures | Verified or snapshot only |
+| Matching captures | 2 | 2–4 |
+| Rows per request | 5,000 | 1–5,000 |
+| Cells per request | 50,000 | 1,000–50,000 |
+| Operation timeout | 120 seconds | 1–300 seconds |
+
+On demand turns off immediate value/format/calculation alerts; Run and export
+still verify the source. Current always describes the last verification time.
+Snapshot only evaluates one capture for inspection and stays unverified/Stale;
+current-result exports remain unavailable. Restore defaults returns to live events
+and two matching captures. Neither option changes the financial rules.
+
+Unbound needs a source; Ready needs a run; Reading/Checking are in progress;
+Current matched at the displayed UTC time; Stale is historical; Blocked explains
+a problem that needs correction. Manual calculation requires calculating in Excel
+and checking **I calculated this workbook in Excel** before the next action.
+The pane never recalculates or changes Excel's calculation mode.
+
+Cancel and timeout take effect between host requests. An outstanding request or
+Python evaluation cannot be interrupted. Reduce request sizes for host payload
+errors; a single row must fit the configured cell limit. The total source ceiling
+remains 5,000,000 cells.
 
 ## How Excel's cells are read
 
@@ -58,9 +107,8 @@ either way:
 - Numbers keep their shortest decimal text (`0.1`, not `0.1000000000000000055`), and
   whole numbers become integers. Excel keeps 15 significant digits.
 - A cell whose number format is a date is read as a date, not a serial number.
-  Workbooks that count dates from 1904 are read with the 1900 system unless told
-  otherwise; Office does not report which one a workbook uses, so check dates in a
-  1904 workbook.
+  Choose 1900 or 1904 to match the workbook setting before reading. The add-in
+  passes that choice explicitly and does not change Excel's date setting.
 - Percentages are never rescaled: a cell showing 40% holds 0.4 and stays 0.4.
 - Numeric text is read as a number; blank and spaces-only cells are blank, and blanks
   are never zero.
@@ -86,8 +134,11 @@ Then load the add-in. Microsoft's `npx office-addin-debugging start manifest.xml
 can sideload it and open Excel; or follow Microsoft's guide to sideloading Office
 Add-ins for your platform: Excel on the web and Windows can upload a manifest or use a
 shared-folder catalog, Mac uses a folder in Excel's container, and organizations deploy
-through the Microsoft 365 admin centre (centralized deployment). These steps come from
-Microsoft's documentation and have not been run against this add-in yet.
+through the Microsoft 365 admin centre (centralized deployment). The Mac CLI route was verified for the native baseline; Windows/web and
+centralized deployment remain unverified. If the Mac menu entry is disabled, the
+CLI-generated sideload workbook can open the pane. Run the CLI from a directory
+with a minimal package.json (it expects one), using --no-debug --no-live-reload
+and --dev-server-port 3000 when the HTTPS server is already running.
 
 CI runs Microsoft's manifest validator (`office-addin-manifest validate`) on every
 build. It calls a Microsoft web service, so for now a failure there is informational.

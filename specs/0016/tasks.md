@@ -1,6 +1,7 @@
 # 0016 — Excel add-in validation workflow: tasks
 
-**Status:** E-01 started; native host loading remains unresolved. E-02–E-06 pending.
+**Status:** E-01/E-02 complete; E-03 implemented and verified with configurable
+session controls. E-04–E-06 pending.
 
 ## Scoping delivery
 
@@ -19,7 +20,7 @@ documentation-only proposal; no new runtime capability is claimed.
 Each E task is one intended reviewable commit; split a commit further when needed
 without skipping its dependencies. Check completion only with recorded evidence.
 
-- [ ] **E-01 — Host baseline and contracts** (R-06, AC-08/09): open proposal issue;
+- [x] **E-01 — Host baseline and contracts** (R-06, AC-08/09): open proposal issue;
   add a regression reproducing stale data/policy results; record real Mac version,
   install route, capability/requirement matrix, calculation behavior and date
   fallback. Attach baseline diagnostics; refine the estimate and host support floor.
@@ -30,17 +31,33 @@ without skipping its dependencies. Check completion only with recorded evidence.
     diagnostic for the proposed 1.9 workflow. See [API matrix](api-matrix.md).
   - [x] Record installed Mac version, existing HTTPS/sideload route, baseline build
     identity and the disabled Developer Add-ins finding in [evidence](artifacts/README.md).
-  - [ ] Open the native pane, capture actual capabilities/calculation/timings and
+  - [x] Open the native pane, capture actual capabilities/calculation/timings and
     complete a synthetic read/run; refine the estimate from those measurements.
-- [ ] **E-02 — Source binding and dates** (R-01/04, AC-01/05): one table/range picker,
+    Evidence: [native diagnostic](artifacts/e01-native-diagnostics.txt) and
+    [structured baseline](artifacts/e01-native-baseline.json); 50,000 rows read in
+    561 ms, template check/render 631 ms, engine ready 1,062 ms; all steps passed.
+- [x] **E-02 — Source binding and dates** (R-01/04, AC-01/05): one table/range picker,
   exact geometry/identity, table totals exclusion, hidden/filtered inclusion,
   pre-read size guard, malformed/empty regions and explicit 1900/1904 choice.
   Verify offsets, date equality and selection changes that preserve binding.
-- [ ] **E-03 — Freshness and stable capture** (R-02, AC-02/03/08): define canonical
+  Evidence: 29 browser passes / one strict E-03 xfail; native Mac range/table,
+  hidden-row, totals-sentinel, both date systems and selection-move checks in
+  [E-02 evidence](artifacts/e02-native-verification.json). Requests are capped at
+  5,000 rows / 50,000 cells; range merge detection requires stable ExcelApi 1.13.
+  CDN/bundled Excel and shared browser/file smoke flows passed; full runtime suite
+  3,624 passed. See [evidence notes](artifacts/README.md#e-02-source-and-date-evidence).
+- [x] **E-03 — Freshness and stable capture** (R-02, AC-02/03/08): define canonical
   snapshot encoding/digest vectors; single operation/generations; rereads and
   calculation guards; edit/recalc/structure/policy invalidation; event disposal;
   delayed events, concurrent edits, failed runs and obsolete callbacks. Verify
   shared browser/file paths after changes to the common application.
+  Evidence: [typed digest vectors](artifacts/e03-capture-vectors.json),
+  [native observations and verification](artifacts/README.md#e-03-configurable-freshness-and-stable-capture),
+  and tests/browser/test_excel_capture.py. Session controls cover events/on-demand,
+  verified/snapshot-only, 2–4 captures, request sizes and timeout; obsolete jobs
+  cannot publish and every current-result export rechecks. Existing output-name
+  collisions are rejected unless the pane created the sheet; durable ownership,
+  unique names and full source-provenance output remain E-05.
 - [ ] **E-04 — Diagnostic navigation** (R-03, AC-04/06): canonical sampled findings,
   complete totals/caps; physical row/cell targets; business-key ambiguity, group
   context and missing targets; source verification and keyboard navigation.
@@ -58,14 +75,14 @@ without skipping its dependencies. Check completion only with recorded evidence.
 
 | Criterion | State | Evidence required |
 | --- | --- | --- |
-| AC-01 | pending | Source/bounds/visibility/totals fixtures and live table capture |
-| AC-02 | pending | Source/policy/date/calculation invalidation and fresh rerun |
-| AC-03 | pending | Interleaved edits, missing events and pre-action rejection |
+| AC-01 | verified for E-02 | Browser guards/geometry fixtures and native table/range capture; see E-02 evidence |
+| AC-02 | verified for E-03 | Browser races/invalidation plus native edit → Stale → fresh Current run |
+| AC-03 | E-03 verified; E-05 pending | Browser interleaved/missing-event/cancel/timeout cases and all existing export preflights; navigation/output staging pending |
 | AC-04 | pending | Row/cell/ambiguous/group/missing navigation evidence |
-| AC-05 | pending | Both epochs with explicit interpretation and matching dates |
+| AC-05 | verified for E-02 | Both explicit epochs produce 2026-01-01 in the browser and native Mac pane |
 | AC-06 | pending | Canonical JSON/HTML/sheet counts and unchanged source cells |
 | AC-07 | pending | Recorded real Mac correction/rerun/export and CLI comparison |
-| AC-08 | pending | Capability/calculation/input/write failure recovery |
+| AC-08 | E-01–E-03 verified; E-05 pending | Capability/calculation/input/race errors covered; protected/partial output recovery pending |
 | AC-09 | pending | Full checks and CDN/bundled/offline regression runs |
 | AC-10 | pending | 50,000-row planted findings, timings, bounds and integrity |
 
