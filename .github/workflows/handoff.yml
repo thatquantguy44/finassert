@@ -1,0 +1,29 @@
+name: Master handoff
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify every new master checkpoint
+        env:
+          BASE_REV: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_REV: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -n "$BASE_REV" ] && [ "$BASE_REV" != "0000000000000000000000000000000000000000" ]; then
+            git cat-file -e "${BASE_REV}^{commit}" 2>/dev/null || git fetch --no-tags origin "$BASE_REV"
+          fi
+          python3 scripts/check_handoff.py --range "$BASE_REV" "$HEAD_REV"

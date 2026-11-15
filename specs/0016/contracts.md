@@ -12,21 +12,35 @@ does not define another version of the workflow.
 - [Public API](spec.md#public-api-design), [data contracts](spec.md#data-contracts)
 - [Failure semantics](spec.md#failure-semantics), [acceptance](spec.md#acceptance-criteria)
 
-## Proposed compatibility changes
+## Compatibility changes
 
-- The add-in will require an explicit source instead of silently using a whole
+- E-02 requires an explicit source instead of silently using a whole
   worksheet after a single-cell selection. Table totals will be excluded.
-- Live date interpretation becomes explicit. The public read_range default and
+- E-02 makes live date interpretation explicit. The public read_range default and
   workbook-file APIs retain their existing behavior.
-- Old results become historical/stale when their dependencies change. Current-result
-  export and navigation require verification. Core outcomes remain unchanged.
-- Optional input.excel context is additive under artifact schema 1. Existing
+- E-03: results become historical when their dependencies change. Session controls
+  configure event/on-demand monitoring and verified/snapshot-only capture. Current
+  export requires fresh comparisons in both monitoring modes; snapshot-only never
+  becomes Current. Core outcomes and existing artifact schemas remain unchanged.
+- Proposed E-05: optional input.excel context is additive under artifact schema 1. Existing
   consumers may ignore it; artifacts without live context stay unchanged.
-- Output collisions use a new unique sheet by default; replacement identifies an
+- Proposed E-05: output collisions use a new unique sheet by default; replacement identifies an
   owned destination explicitly and can never clear a bound source.
 
-These are proposed migrations, not changes made by the scoping commit. E-03/E-05
-must amend affected 0005/0011 contracts and retain old artifact regression fixtures.
+E-02 implements the first two migrations. E-03 adds generation-safe capture,
+calculation/event/policy invalidation and preflight for the existing sheet/JSON/HTML
+actions. Its digest encoding and bounds are canonical in
+[R-02](spec.md#r-02-freshness-and-run-lifecycle) and
+[capture encoding](spec.md#canonical-capture-encoding-v1). Formula identity is
+private and separate from the evaluated snapshot digest. Parent 0011's shared
+application clears obsolete file results on policy/input changes. E-05 provenance,
+owned destination/collision handling and navigation remain pending; artifact
+changes will require the affected 0005/0011 contracts and legacy fixture checks.
+
+Range mode additionally requires stable ExcelApi 1.13 to detect merged headers;
+table mode retains the manifest's 1.7 floor. Hosts without 1.13 get an explicit
+table/update alternative. This is a mode-specific capability requirement, not a
+preview dependency or a change to Python parsing, outcomes or artifact schemas.
 
 ## Stable Office API evidence
 
@@ -42,7 +56,9 @@ totals. [Calculation state](https://learn.microsoft.com/en-us/javascript/api/exc
 is documented in ExcelApi 1.9. The complete method/event matrix and actual Mac
 behavior are separated in the [API matrix](api-matrix.md) and
 [baseline evidence](artifacts/README.md). The stable method audit is complete;
-actual Mac Office.js behavior remains unobserved because the add-in entry is disabled.
+the successful [Mac baseline](artifacts/e01-native-baseline.json) now records
+actual capability/calculation answers and synthetic timings. A working native
+sideload launch is documented in [the evidence notes](artifacts/README.md).
 
 E-01 corrects the existing prototype's declared minimum to ExcelApi 1.7, matching
 getRangeByIndexes in its sheet writer. Generated manifests now enforce that floor;
@@ -50,8 +66,9 @@ hosts below it can no longer load the prototype. The future 1.9 workflow remains
 proposed. No financial, date-reader, artifact or row-identity contract changes here.
 The manifest deployment version is separately maintained at 1.0.0.0 because
 Microsoft's validator rejected the package-derived 0.1.0.0 as below its minimum.
-The add-in ID and actual package/report version are unchanged. This does not
-establish the cause of the disabled native entry or prove a successful install.
+The add-in ID and actual package/report version are unchanged. The later native
+baseline establishes a working CLI sideload route; the disabled menu's cause
+remains unknown. E-03 live capture enforces 1.9 at runtime.
 
 No stable workbook date-system getter is assumed. E-01 must substantiate any
 automatic path; user selection is the defined baseline. A search hit or a preview

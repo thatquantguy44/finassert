@@ -3,58 +3,244 @@
 Single running record of work handed between sessions, agents, and people.
 Newest entry first. Add an entry at the end of every working session; do not
 rewrite old entries (append a correction instead).
+This is the canonical project status, priority and pickup document. Local handoffs
+and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## How to use
 
 1. Read **Current state** and the newest entry before starting.
 2. Pick the top item under **Next up**, or the item the previous entry names.
-3. On finishing, copy the **Entry template**, fill it in, and put it directly
-   under the `Entries` heading. Update **Current state** and **Next up**.
+3. Before every nonempty commit, add a dated **Entry template** under `Entries`.
+   Match its work/stopping/priority/pickup/verification fields to **Current state**
+   and review **Next up**. Existing priorities may be reaffirmed explicitly.
 4. Keep entries factual: link specs, PRs, and commits instead of restating them.
 5. Spec-specific plans, tasks, contracts, and session details live in the numbered
    `specs/NNNN/` workspaces. This log retains project-wide state and cross-spec
    decisions; see the [spec catalog](https://github.com/thatquantguy44/finassert/blob/main/specs/README.md).
+6. Stage intended work/prose, run `python3 scripts/check_handoff.py --refresh`,
+   then explicitly stage this file again. Hooks/CI check the index/history and
+   preserve older entries. See [the workflow](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/CONTRIBUTING.md#master-handoff-checkpoints).
 
 ## Current state
 
-- **Branch:** `feature/excel-host-baseline`, based on integrated main `3b5a014`.
-- **Implementation PR:** [draft #24](https://github.com/thatquantguy44/finassert/pull/24),
-  targeting main. E-01's native baseline remains incomplete.
+- **Last worked on:** Opened PR #25 for Excel E-01–E-03 and canonical handoff guards; recorded delivery and pickup.
+- **Highest priority:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** Documentation links/anchors, strict MkDocs, whitespace and guarded checkpoint checks pass; implementation verification is retained in PR #25.
+- **Branch:** `feature/excel-source-binding-dates`, created from refreshed main
+  `00ce4d9`. E-01/E-02 native baseline/source binding and configurable E-03
+  freshness/stable capture are implemented and verified.
+- **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
+  is open for review, targeting main with Excel E-01–E-03 and handoff enforcement.
+- **Previous baseline PR:** [#24](https://github.com/thatquantguy44/finassert/pull/24)
+  is merged; its outstanding native baseline is now complete.
 - **Delivered branch:** `feature/six-slice-upstream-delivery`; PR #21 is merged into main.
 - **Delivery:** Six ordered slices authorized: release bundle, property coverage,
   Excel hardening, cash buffer, facility capacity and treasury policy pack.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
-- **Scope:** finassert only; no release/tag/publication or downstream application change.
-- **Next priority:** Spec 0016 E-01 is in progress: three stale-result reproductions,
-  stable API audit, diagnostic probe and manifest corrections are implemented.
-  The native baseline remains incomplete; later workflow tasks are proposed.
+- **Scope:** finassert only; no release/tag or downstream application change.
+- **Remaining product scope:** E-01–E-03 have native and automated evidence;
+  E-04–E-06 remain proposed.
+- **Stopping point:** PR #25 is open for review; implementation is committed/pushed and E-04 has not started.
+- **Native session:**
+  The last observed native pane was Ready/Unbound. Source, date choice and capture
+  settings are session-only and must be selected again after reopening.
+- **Verification context:** The earlier E-03 duplicate-import-read caveat is
+  historical. A new complete 3,662-test run passed for the handoff guard work.
+  The 72 Excel browser passes remain E-03 evidence; Excel runtime code is unchanged.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
-- **Host blocker:** Excel 16.115 lists finassert under Developer Add-ins as disabled.
-  Actual Office.js capabilities and read/run timings remain pending; see
-  [baseline evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-host-baseline/specs/0016/artifacts/README.md).
+- **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
+  sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
+  subsequently tested with both epochs. See
+  [evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md).
 
 ## Next up
 
-1. Complete spec 0016 E-01's native load/read/run baseline and collect real diagnostics.
-2. Then E-02: explicit source binding and date interpretation, before E-03 freshness.
+1. E-04 — Diagnostic navigation.
+   Resume on `feature/excel-source-binding-dates` at
+   [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md#ordered-implementation).
+   Read its agent instructions and R-03 first. Start with the bounded diagnostic
+   view and physical row/cell mapping, reusing E-03's current-result preflight
+   before changing selection. Cover offset/quoted sources, ambiguous business
+   keys, missing targets and keyboard navigation; never infer a row from a key.
+2. Then E-05 safe evidence/provenance and E-06 full Mac acceptance.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
+
+## Commit context
+
+This checkpoint is the enclosing Git commit. Recent commits below precede it;
+use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
+
+<!-- finassert-handoff-checkpoint:v1 -->
+```json
+{
+  "version": 1,
+  "prior_head": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
+  "recent_commits": [
+    {
+      "commit": "e8d352686e4f105b08fc92ec2738cd3facbeba8c",
+      "subject": "chore: enforce canonical master handoff checkpoints"
+    },
+    {
+      "commit": "4822db8c42bb3d4526427c40185202b567b1ebb0",
+      "subject": "feat(excel): bind sources and verify configurable captures"
+    },
+    {
+      "commit": "ccafd3d3fe00ca0e6d79a4cca5830246dab27641",
+      "subject": "docs: prepare Excel source binding and dates branch"
+    },
+    {
+      "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
+      "subject": "Merge pull request #24 from thatquantguy44/feature/excel-host-baseline"
+    },
+    {
+      "commit": "3b5a014394054d173e7be7cb29578848a3937981",
+      "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
+    }
+  ],
+  "changed_paths": [
+    "docs/handoff.md",
+    "specs/0016/handoff.md",
+    "specs/0017/handoff.md"
+  ],
+  "project_sha256": "2907aafc2ae21d3291acf5e4812467d8fec16db7b5fa192433c998a689deab5c",
+  "reviewed_sections_sha256": "ec3e5256bae902c42de1a11f7a2d38eebe8549e6169f019f18e56add3505c65f"
+}
+```
+<!-- /finassert-handoff-checkpoint -->
 
 ## Entry template
 
 ```markdown
 ### YYYY-MM-DD — short title
-- **Author:** name or agent
+- **Worked on:** match Current state / Last worked on
+- **Stopping point:** match Current state / Stopping point
+- **Priorities:** match Current state / Highest priority and Next up item 1 title
+- **Next pickup:** match Current state / Next pickup; explicitly explain if none
+- **Verification:** match Current state / Verification; record actual evidence
 - **Branch / PR:** 
-- **Done:** 
-- **Not done / partial:** 
-- **Decisions made:** 
-- **Open questions / blockers:** 
-- **Verify with:** commands or tests to confirm the state
-- **Next step:** the single most useful thing to do next
+- **Decisions / blockers:** optional additional context
 ```
 
 ## Entries
+
+### 2026-11-15 — Open implementation PR and record pickup
+
+- **Worked on:** Opened PR #25 for Excel E-01–E-03 and canonical handoff guards; recorded delivery and pickup.
+- **Stopping point:** PR #25 is open for review; implementation is committed/pushed and E-04 has not started.
+- **Priorities:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** Documentation links/anchors, strict MkDocs, whitespace and guarded checkpoint checks pass; implementation verification is retained in PR #25.
+- **PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25), targeting main.
+  It includes 4822db8 (Excel/native evidence) and e8d3526 (handoff enforcement),
+  after the branch-preparation commit. Existing implementation was already clean,
+  committed and pushed; this entry records the PR without changing runtime code.
+- **Evidence carried forward:** 3,662 runtime tests, 38 Git/hook cases, 72 separate
+  browser cases and native Mac evidence. The previous handoff push workflow
+  [passed](https://github.com/thatquantguy44/finassert/actions/runs/43675401872).
+  PR checks run against the final head; review/merge remains separate.
+- **Remaining:** E-04 navigation, E-05 provenance/output ownership, E-06 full Mac
+  acceptance and remote required-status administration. No merge or release.
+
+### 2026-11-14 — Canonical handoff enforcement
+
+- **Worked on:** Spec 0017 canonical master handoff guards for commits, pushes and CI.
+- **Stopping point:** Handoff enforcement is implemented; Excel E-01–E-03 are complete and E-04 has not started.
+- **Priorities:** E-04 — Diagnostic navigation.
+- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
+- **Verification:** 3,662 runtime tests (including 38 Git/hook cases), Ruff/format, mypy, strict docs, links/anchors and staged checkpoint checks pass.
+- **Guard behavior:** Nonempty commits require a complete staged checkpoint and
+  immutable old Entries. Generated context records actual prior commits, changed
+  paths and snapshot digests; refresh never stages files or invents priorities.
+  Pre-push/CI inspect every new commit, including locally bypassed commits.
+- **Compatibility:** Unchanged complete snapshots can pass merge/squash transport;
+  integration changing project content needs refreshed context. Earlier unguarded
+  history remains historical. Existing author enforcement remains active.
+- **Limits:** Semantic accuracy needs contributor review. Local hooks must be
+  enabled in each clone; remote branch protection must require the CI check for
+  repository-wide merge enforcement. No remote administrative setting changed.
+- **Prior checkpoint:** 4822db8 committed/pushed the Excel implementation. Its
+  native/72-browser/earlier 3,624-runtime evidence and duplicate-import-read caveat
+  remain recorded below. No financial/runtime behavior changes in this guard work.
+- **Resume:** The same E-04 pickup remains highest; 0017 does not move product
+  priorities. Read the owning spec instructions/contracts/tasks before coding.
+
+### 2026-11-14 — Excel checkpoint and next-session pickup
+
+- **Branch:** [feature/excel-source-binding-dates](https://github.com/thatquantguy44/finassert/tree/feature/excel-source-binding-dates).
+  This checkpoint packages the completed E-01 native verification, E-02 explicit
+  source/date binding and configurable E-03 freshness/stable capture.
+- **Stopping point:** E-04 has not started. Continue with the first unchecked
+  task in [0016 tasks](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/tasks.md)
+  after reading that workspace's AGENTS.md, R-03, contracts and newest handoff.
+  Start with canonical bounded findings and exact physical row/cell targets;
+  reuse source verification before navigation. Financial outcomes stay unchanged.
+- **Verification:** Latest 72 browser cases, native freshness/configuration checks,
+  CDN/bundled Excel and shared browser/file smoke passed. The earlier complete
+  runtime run passed 3,624 tests; duplicate runs were stopped during blocked
+  dependency imports. Quality, distributions, links/anchors and strict docs pass.
+  This commit/push changes no runtime behavior beyond the already verified work.
+- **Host recovery:** Latest pane opened Ready/Unbound; rebind and choose the epoch
+  for another session. Keep the historical blank Reload finding open for E-06;
+  closing/reopening through Microsoft's sideload CLI is the verified recovery.
+- **Remaining:** E-04 navigation, E-05 source provenance/durable output ownership,
+  then full E-06 Mac correction/navigation/export acceptance. No broad platform
+  support, release or main-branch promotion is implied by this checkpoint.
+
+### 2026-11-14 — Session-configurable Excel freshness and capture
+
+- **Branch:** feature/excel-source-binding-dates; user chose session-only pane controls.
+- **Done:** E-03 freshness states, event/on-demand monitoring, verified/snapshot-only
+  capture, 2–4 comparisons, request-size/time limits, cancel/defaults, calculation
+  guards and generation-safe publication. Existing JSON/HTML/sheet actions always
+  reverify Current results; unverified or historical results cannot export.
+- **Cross-spec:** 0011's shared app invalidates policy/input results; financial
+  outcomes, Python/file APIs and artifact schemas stay compatible. Canonical typed
+  capture vectors and private formula identity live under 0016. Pre-existing
+  output-name collisions are refused; full E-05 ownership/provenance remains pending.
+- **Evidence:** Native Excel edit → Stale → reread/Current financial failure,
+  snapshot-only export blocking and configuration/default controls verified.
+  3,624 runtime tests, 72 browser cases, CDN/bundled Excel and shared browser/file
+  smoke, quality/distribution/docs checks. See
+  [local evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md#e-03-configurable-freshness-and-stable-capture).
+- **Next:** E-04 navigation, E-05 evidence/output and E-06 complete Mac acceptance.
+  Changes remain local; no commit/push/publication performed in this turn.
+
+### 2026-11-13 — Native Excel baseline and explicit source/date binding complete
+
+- **Branch:** feature/excel-source-binding-dates; local implementation, no rollout.
+- **Done:** E-01 corrected manifest built/sideloaded; native pane Ready and all
+  diagnostic steps PASS in Excel 16.115 / macOS 26.5.1. Fifty-thousand-row timings:
+  startup 1,062 ms, read/preview 561 ms, check/render 631 ms. Actual capability and
+  calculation metadata, original failures and build identities retained.
+- **E-02:** Explicit table/fixed-range binding, exact IDs/bounds, totals exclusion,
+  visibility/input guards, bounded reads and required 1900/1904 selection. Native
+  offsets/hidden rows/totals/date equality and selection-preserving Run verified.
+- **Cross-spec:** 0011 compatibility notes updated. Range merged-header detection
+  requires stable ExcelApi 1.13; earlier hosts can choose a table. Python/file,
+  financial outcomes, policy and artifact schemas remain compatible.
+- **Verify:** 3,624 runtime tests; browser source/date regressions plus one expected
+  E-03 policy-freshness failure; CDN/bundled Excel and shared browser/file smoke,
+  Ruff/format, mypy, distributions, strict docs, local links/anchors and whitespace.
+  See [spec evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md).
+- **Host recovery:** Reload left a blank pane; CLI reopening recovered the final
+  build and repeated a passing 1904 check. Cause remains an E-06 investigation.
+- **Next:** E-03 stable capture/freshness; E-04–E-06 remain proposed. Full Mac
+  correction/navigation/export acceptance and broader platform support are pending.
+
+### 2026-11-13 — Prepare the source-binding and dates branch
+
+- **Request:** Create the next branch off main and identify the next build slice.
+- **Done:** Fetched origin, fast-forwarded local main to 00ce4d9 (merged PR #24),
+  and created feature/excel-source-binding-dates directly from that commit.
+- **Next code slice:** Spec 0016 E-02: explicit table/range binding, exact source
+  identity/bounds, totals exclusion, input guards and required 1900/1904 choice.
+- **Gate:** E-01's native loading/capability/read/run evidence is still pending.
+  Branch preparation does not complete E-01 or start/promote E-02 acceptance.
+- **Verification:** Branch base equals origin/main; strict MkDocs and whitespace
+  checks passed for the handoff/roadmap update. No runtime behavior changed.
+- **Next:** Complete the native E-01 baseline, then implement E-02 in task order.
 
 ### 2026-11-13 — Publish Excel E-01 draft PR
 

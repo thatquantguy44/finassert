@@ -50,7 +50,8 @@ def test_the_plain_browser_app_has_no_excel_code_and_loads_nothing_from_microsof
     page = load("build_web").build()
 
     assert "{{" not in page
-    assert "excel-panel" not in page and "appsforoffice" not in page and "Excel.run" not in page
+    assert "excel-panel" not in page and "appsforoffice" not in page
+    assert not re.search(r"\bExcel\.run\(", page)
     assert "spike-run" not in page and "{{VERSION}}" not in page
 
 

@@ -2,14 +2,17 @@
 
 ## Current milestone
 
-Proposed Mac-first validate → navigate → correct → stale → rerun → export loop.
-E-01 is in progress: regression reproductions, stable API audit and a read-only
-host diagnostic are delivered on feature/excel-host-baseline. Native pane loading
-is unresolved; complete the real Mac baseline in [tasks.md](tasks.md) before E-02.
+The Mac-first validate → navigate → correct → stale → rerun → export loop remains
+partially proposed. E-01's native baseline and E-02's explicit source/date binding
+are verified on feature/excel-source-binding-dates. E-03 adds configurable session
+monitoring/stable captures, calculation guards and current-result preflight.
+See [tasks.md](tasks.md) and
+[native evidence](artifacts/README.md#e-02-source-and-date-evidence).
 
 ## Next milestone
 
-Complete E-01–E-06, retain the acceptance evidence and review the implementation.
+Implement E-04 navigation, then E-05/E-06; retain the
+acceptance evidence and review the implementation.
 Only then describe the tested Mac build as supported. Add Windows/web acceptance
 when those platforms become explicit delivery targets.
 

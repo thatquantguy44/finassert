@@ -2,7 +2,8 @@
 set -eu
 
 repository_root=$(git rev-parse --show-toplevel)
-exec python3 \
+python3 \
   "$repository_root/scripts/check_author.py" \
   --policy "$repository_root/.author-policy.toml" \
   --current
+exec python3 "$repository_root/scripts/check_handoff.py" --staged

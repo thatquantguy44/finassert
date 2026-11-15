@@ -1,0 +1,157 @@
+{
+  "encoding_version": 1,
+  "vectors": [
+    {
+      "name": "offset-unicode-1900",
+      "source": {
+        "kind": "range",
+        "worksheet_id": "{S}",
+        "worksheet_name": "Holdings O'Brien",
+        "address": "'Holdings O''Brien'!C7:D8",
+        "header_row": 7,
+        "rowIndex": 6,
+        "columnIndex": 2,
+        "data_row_count": 1,
+        "column_count": 2
+      },
+      "payload": {
+        "values": [
+          [
+            "n",
+            "tag"
+          ],
+          [
+            1,
+            "é\n"
+          ]
+        ],
+        "numberFormats": [
+          [
+            "General",
+            "General"
+          ],
+          [
+            "0.00",
+            "General"
+          ]
+        ],
+        "valueTypes": [
+          [
+            "String",
+            "String"
+          ],
+          [
+            "Double",
+            "String"
+          ]
+        ],
+        "firstRow": 7,
+        "date1904": false
+      },
+      "formulas": [
+        [
+          "n",
+          "tag"
+        ],
+        [
+          1,
+          "é\n"
+        ]
+      ],
+      "canonical": "[\"finassert.excel.snapshot\",1,[\"range\",\"{S}\",\"Holdings O'Brien\",null,null,\"'Holdings O''Brien'!C7:D8\",7,6,2,1,2,\"include_all\",\"1900\",\"user\"],[[[\"string\",\"n\"],[\"string\",\"tag\"]],[[\"number\",\"1\"],[\"string\",\"é\\n\"]]],[[[\"string\",\"General\"],[\"string\",\"General\"]],[[\"string\",\"0.00\"],[\"string\",\"General\"]]],[[[\"string\",\"String\"],[\"string\",\"String\"]],[[\"string\",\"Double\"],[\"string\",\"String\"]]]]",
+      "sha256": "sha256:600fa8e122ca5fa56004a26e04080a5d97064765ec30760b1badbb49a3ada42a",
+      "formula_sha256": "sha256:3e05996311c22ab7ce7875a15f2e13df805904d958ccb32774fb7198b8bf58b3"
+    },
+    {
+      "name": "table-signed-zero-1904",
+      "source": {
+        "kind": "table",
+        "worksheet_id": "{S2}",
+        "worksheet_name": "Data",
+        "table_id": "{T}",
+        "table_name": "Table1",
+        "address": "Data!A1:C3",
+        "header_row": 1,
+        "rowIndex": 0,
+        "columnIndex": 0,
+        "data_row_count": 2,
+        "column_count": 3
+      },
+      "payload": {
+        "values": [
+          [
+            "n",
+            "date",
+            "flag"
+          ],
+          [
+            -0.0,
+            44561,
+            true
+          ],
+          [
+            null,
+            "44561",
+            false
+          ]
+        ],
+        "numberFormats": [
+          [
+            "General",
+            "General",
+            "General"
+          ],
+          [
+            "0.00",
+            "yyyy-mm-dd",
+            "General"
+          ],
+          [
+            "General",
+            "General",
+            "General"
+          ]
+        ],
+        "valueTypes": [
+          [
+            "String",
+            "String",
+            "String"
+          ],
+          [
+            "Double",
+            "Double",
+            "Boolean"
+          ],
+          [
+            "Empty",
+            "String",
+            "Boolean"
+          ]
+        ],
+        "firstRow": 1,
+        "date1904": true
+      },
+      "formulas": [
+        [
+          "n",
+          "date",
+          "flag"
+        ],
+        [
+          "=1-1",
+          44561,
+          true
+        ],
+        [
+          null,
+          "44561",
+          false
+        ]
+      ],
+      "canonical": "[\"finassert.excel.snapshot\",1,[\"table\",\"{S2}\",\"Data\",\"{T}\",\"Table1\",\"Data!A1:C3\",1,0,0,2,3,\"include_all\",\"1904\",\"user\"],[[[\"string\",\"n\"],[\"string\",\"date\"],[\"string\",\"flag\"]],[[\"number\",\"-0\"],[\"number\",\"44561\"],[\"boolean\",true]],[[\"null\"],[\"string\",\"44561\"],[\"boolean\",false]]],[[[\"string\",\"General\"],[\"string\",\"General\"],[\"string\",\"General\"]],[[\"string\",\"0.00\"],[\"string\",\"yyyy-mm-dd\"],[\"string\",\"General\"]],[[\"string\",\"General\"],[\"string\",\"General\"],[\"string\",\"General\"]]],[[[\"string\",\"String\"],[\"string\",\"String\"],[\"string\",\"String\"]],[[\"string\",\"Double\"],[\"string\",\"Double\"],[\"string\",\"Boolean\"]],[[\"string\",\"Empty\"],[\"string\",\"String\"],[\"string\",\"Boolean\"]]]]",
+      "sha256": "sha256:680fbfa661c2898853b20a6d093fba46c281df80b8cd7877ae603862ec0ec7aa",
+      "formula_sha256": "sha256:2f7e49bc261c1406e94aa393ed01f508dd13730b89862f31c53ff80bddae78b6"
+    }
+  ]
+}

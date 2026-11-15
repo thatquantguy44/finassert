@@ -1,5 +1,9 @@
 # Roadmap
 
+The [master handoff](handoff.md#next-up) is canonical for current project ordering
+and the next pickup. This roadmap supplies longer-term context. Spec 0017 adds
+commit/push/CI checkpoint guards; it does not change the E-04 product priority.
+
 The seven-priority delivery now provides corrected workbook input, shared
 adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report
 output, typed quantities/direct FX, and retained scalar performance evidence.
@@ -16,10 +20,11 @@ Next engineering work:
 
 1. Build the Mac-first Excel validate → navigate → correct → rerun workflow under
    [specification 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md).
-   Explicit source binding, stale-result handling, diagnostic navigation and date
-   interpretation are proposed; real Excel acceptance is required for completion.
-   E-01 has regression reproductions, an API audit and a diagnostic probe; finish
-   the disabled native add-in loading baseline before E-02 source/date binding.
+   E-01's native 50,000-row baseline and E-02's explicit source/date binding are
+   verified on feature/excel-source-binding-dates. E-03 now adds configurable
+   session capture/freshness, calculation/event/policy guards and export preflight.
+   Next are diagnostic navigation, safe evidence output and full E-06 Mac acceptance.
+   Range mode requires stable ExcelApi 1.13; table mode keeps the 1.7 floor.
 2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
 3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the

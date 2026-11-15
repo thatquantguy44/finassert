@@ -10,6 +10,9 @@
     data: null, // {name, text, columns}
     checks: [], // [{id, spec, values}]
     result: null,
+    dataVersion: 0,
+    policyKey: null,
+    liveState: null,
     nextId: 1,
   };
 
@@ -78,8 +81,14 @@
 
   async function openData(file) {
     if (!file || !state.web) return;
+    const version = ++state.dataVersion;
+    if (window.finassertExcel) window.finassertExcel.inputChanged();
+    invalidateResult();
+    state.data = null;
+    refresh();
     const workbook = /\.xls[xm]$/i.test(file.name);
     const content = workbook ? new Uint8Array(await file.arrayBuffer()) : await file.text();
+    if (version !== state.dataVersion) return;
     state.pending = { name: file.name, content, format: "" };
     $("sheet-picker").hidden = true;
     showData(null);
@@ -108,7 +117,7 @@
       return;
     }
     errorBox.hidden = true;
-    state.data = { name, content, sheet, columns: info.columns, format };
+    state.data = { name, content, sheet, columns: info.columns, rowCount: info.row_count, format };
     const where = sheet ? `${name}, sheet "${sheet}"` : name;
     $("data-name").textContent =
       `${where}: ${info.row_count} row(s), ${info.columns.length} column(s).` +
@@ -428,6 +437,8 @@
 
   // `name` decides the format (.yml or .json); `label` is what messages call the policy.
   function openPolicyText(text, name, label) {
+    if (window.finassertExcel) window.finassertExcel.policyChanged("A policy load was requested.");
+    if (state.resultFormat !== "excel-range") invalidateResult();
     const parsed = call("read_policy", text, name);
     if (!parsed.ok) {
       showIssues(parsed.issues, `${label} has problems:`);
@@ -512,9 +523,9 @@
     };
   }
 
-  function run() {
-    if (!state.data) return;
-    const outcome = call(
+  function evaluate() {
+    if (!state.data) return { ok: false, error: "Read input before running." };
+    return call(
       "run",
       state.data.content,
       state.data.name,
@@ -522,7 +533,11 @@
       state.data.sheet,
       state.data.format
     );
+  }
+
+  function publishResult(outcome) {
     if (!outcome.ok) {
+      state.result = null;
       $("results").hidden = true;
       if (outcome.issues) showIssues(outcome.issues);
       setStatus(outcome.error || "The checks could not run.", true);
@@ -530,6 +545,7 @@
     }
     showIssues([]);
     state.result = outcome;
+    state.resultFormat = state.data.format;
     const counts = outcome.counts;
     const banner = $("result-banner");
     const warned = outcome.warnings || 0;
@@ -558,7 +574,41 @@
       $("cli-note").hidden = input.plain && (!sheet || sheet.plain);
     }
     $("results").hidden = false;
+    state.resultBanner = { text: banner.textContent, className: banner.className };
+    updateLiveResult();
     setStatus("Checks finished. The full report is below.");
+  }
+
+  function run() {
+    publishResult(evaluate());
+  }
+
+  function invalidateResult() {
+    state.result = null;
+    $("results").hidden = true;
+  }
+
+  function updateLiveResult() {
+    if (!state.result) return;
+    if (state.resultFormat !== "excel-range") {
+      for (const id of ["download-html", "download-json", "excel-write"]) if ($(id)) $(id).disabled = false;
+      if ($("excel-result-state")) $("excel-result-state").textContent = "";
+      return;
+    }
+    if (!state.liveState) return;
+    const live = state.liveState;
+    const current = live.state === "Current" && !live.busy;
+    for (const id of ["download-html", "download-json", "excel-write"]) {
+      if ($(id)) $(id).disabled = !current;
+    }
+    if (current && state.resultBanner) {
+      $("result-banner").textContent = state.resultBanner.text;
+      $("result-banner").className = state.resultBanner.className;
+    } else {
+      $("result-banner").textContent = `Historical / unverified result — ${live.reason}`;
+      $("result-banner").className = "result-banner warning";
+    }
+    if ($("excel-result-state")) $("excel-result-state").textContent = live.text;
   }
 
   // Names made only of ordinary characters are safe inside double quotes in
@@ -588,8 +638,15 @@
   }
 
   function refresh() {
+    const policyKey = JSON.stringify(policyDocument());
+    const changed = state.policyKey !== null && state.policyKey !== policyKey;
+    state.policyKey = policyKey;
+    if (changed) {
+      if (window.finassertExcel) window.finassertExcel.policyChanged("The effective policy was edited.");
+      if (state.resultFormat !== "excel-range") invalidateResult();
+    }
     const ready = Boolean(state.web && state.data && state.checks.length);
-    $("run").disabled = !ready;
+    $("run").disabled = !ready || Boolean(state.dataBlocked && state.data.format === "excel-range");
   }
 
   function wireDrop(zone, input, handler) {
@@ -616,23 +673,59 @@
   }));
   $("template").addEventListener("change", guarded(async () => useTemplate($("template").value)));
   $("add-check-button").addEventListener("click", () => addCheck($("add-check").value));
-  $("run").addEventListener("click", guarded(run));
-  $("download-html").addEventListener("click", () =>
-    download(state.result.html, `${baseName()}-report.html`, "text/html"));
-  $("download-json").addEventListener("click", () =>
-    download(state.result.artifact_json, `${baseName()}-report.json`, "application/json"));
-  $("download-policy").addEventListener("click", () =>
-    download(state.result.policy_yaml, "policy.yml", "application/yaml"));
+  $("run").addEventListener("click", guarded(async () => {
+    if (state.data && state.data.format === "excel-range" && window.finassertExcel) await window.finassertExcel.run();
+    else run();
+  }));
+  for (const [id, key, suffix, type] of [
+    ["download-html", "html", "html", "text/html"],
+    ["download-json", "artifact_json", "json", "application/json"],
+  ]) $(id).addEventListener("click", guarded(async () => {
+    const write = () => { if (state.result) download(state.result[key], `${baseName()}-report.${suffix}`, type); };
+    if (state.resultFormat === "excel-range" && window.finassertExcel) await window.finassertExcel.withCurrentResult(write);
+    else write();
+  }));
+  $("download-policy").addEventListener("click", () => {
+    const yaml = window.finassertApp.policyYaml();
+    if (yaml !== null) download(yaml, "policy.yml", "application/yaml");
+  });
+  for (const id of ["policy-name", "policy-description", "policy-assumptions"]) {
+    $(id).addEventListener("input", refresh);
+    $(id).addEventListener("change", refresh);
+  }
 
   // A small, stable surface for the Excel add-in script (excel.js), which feeds the
   // application cells read from the workbook and writes results back.
   window.finassertApp = {
     ready: () => Boolean(state.web),
-    useData(name, content, format) {
+    useData(name, content, format, internal = false) {
+      state.dataVersion++;
+      if (!internal && window.finassertExcel) window.finassertExcel.inputChanged();
       state.pending = { name, content, format };
       $("sheet-picker").hidden = true;
       showData(null);
+      return state.data ? { columns: [...state.data.columns], rowCount: state.data.rowCount } : null;
     },
+    blockData(blocked) {
+      state.dataBlocked = blocked;
+      refresh();
+    },
+    clearData() {
+      state.dataVersion++;
+      state.data = null;
+      state.result = null;
+      $("results").hidden = true;
+      $("data-summary").hidden = true;
+      refresh();
+    },
+    invalidateResult,
+    evaluate,
+    publishResult,
+    policyKey: () => JSON.stringify(policyDocument()),
+    dataVersion: () => state.dataVersion,
+    isLiveData: () => Boolean(state.data && state.data.format === "excel-range"),
+    isLiveResult: () => Boolean(state.result && state.resultFormat === "excel-range"),
+    setLiveState(detail) { state.liveState = detail; updateLiveResult(); },
     result: () => state.result,
     resultsSheet: () => call("results_sheet", state.result.artifact_json),
     // The checks as YAML, or null (with the problems shown) if they are not valid.

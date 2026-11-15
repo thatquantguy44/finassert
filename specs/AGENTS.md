@@ -16,6 +16,9 @@
 - Reflect project-wide decisions and cross-spec effects in `docs/handoff.md`
   and `docs/roadmap.md`. Preserve historical master handoff entries, including
   old paths when they describe the state at the time.
+- The master owns project priorities and pickup; local handoffs defer to it.
+  Every nonempty commit requires its new checkpoint and refreshed Git context;
+  follow [the checkpoint workflow](../CONTRIBUTING.md#master-handoff-checkpoints).
 - When reorganizing documents, update active links and verify local targets and
   anchors plus the strict documentation build. Runtime checks are needed when
   implementation changes, not merely when documentation moves.

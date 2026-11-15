@@ -1,8 +1,49 @@
 <div id="excel-panel" class="drop" hidden>
-      <button id="excel-read" class="primary" type="button">Use the selected cells</button>
-      <p class="hint">Select the cells that hold your data, with the column names in the first
-      row. Select a single cell to use the table it is in, or everything on the sheet. Row numbers in the report are
-      the sheet's own row numbers.</p>
+      <div class="field"><label for="excel-table">Workbook table</label>
+        <select id="excel-table"><option value="">Choose a table…</option></select></div>
+      <button id="excel-tables-refresh" type="button">Refresh tables</button>
+      <button id="excel-bind-table" type="button">Use this table</button>
+      <button id="excel-read" class="primary" type="button">Use selected range</button>
+      <p class="hint">Select one rectangle with column names in its first row and at least one
+      data row. Range bounds are fixed: exclude any totals yourself. A table uses its header
+      and data body and excludes its totals. Moving the selection does not change the source.</p>
+      <div class="field"><label for="excel-date-system">Workbook date system (required)</label>
+        <select id="excel-date-system">
+          <option value="">Choose 1900 or 1904…</option>
+          <option value="1900">1900</option><option value="1904">1904</option>
+        </select></div>
+      <p class="hint">Match Excel's workbook date setting. This choice only interprets the
+      captured cells; it does not change the workbook setting or write dates.</p>
+      <p id="excel-source-summary" role="status" aria-live="polite">No source bound.</p>
+      <p id="excel-freshness" role="status" aria-live="polite">Unbound — choose a source.</p>
+      <button id="excel-source-read" type="button" disabled>Read bound source</button>
+      <button id="excel-cancel" type="button" disabled>Cancel operation</button>
+      <details id="excel-workflow-settings">
+        <summary>Freshness and capture settings</summary>
+        <p class="hint">Settings apply to this pane session. Changing them requires a new run.</p>
+        <div class="field"><label for="excel-monitoring">Change monitoring</label>
+          <select id="excel-monitoring"><option value="events">Live workbook events</option>
+            <option value="on-demand">On demand — verify when using a result</option></select></div>
+        <div class="field"><label for="excel-capture-mode">Capture verification</label>
+          <select id="excel-capture-mode"><option value="verified">Verify stable captures</option>
+            <option value="snapshot">Snapshot only — unverified, no current-result export</option></select></div>
+        <div class="field"><label for="excel-confirmations">Matching captures per run</label>
+          <input id="excel-confirmations" type="number" min="2" max="4" value="2"></div>
+        <div class="field"><label for="excel-block-rows">Maximum rows per request</label>
+          <input id="excel-block-rows" type="number" min="1" max="5000" value="5000"></div>
+        <div class="field"><label for="excel-block-cells">Maximum cells per request</label>
+          <input id="excel-block-cells" type="number" min="1000" max="50000" value="50000"></div>
+        <div class="field"><label for="excel-capture-timeout">Operation timeout (seconds)</label>
+          <input id="excel-capture-timeout" type="number" min="1" max="300" value="120"></div>
+        <button id="excel-settings-reset" type="button">Restore default settings</button>
+        <p id="excel-settings-status" class="hint" role="status" aria-live="polite"></p>
+        <p class="hint">Verification rereads the source after checking. Cancellation and timeout
+        take effect between host requests; a running host request or Python check cannot be interrupted.
+        Calculation must be settled. In manual mode, calculate in Excel and confirm below.</p>
+        <label><input id="excel-manual-calculated" type="checkbox"> I calculated this workbook in Excel</label>
+      </details>
+      <p class="hint">All hidden and filtered data rows are included. Row numbers in the
+      report are the sheet's own row numbers. Source binding lasts for this pane session.</p>
       <p class="hint">Your cells are read in this window and never sent anywhere. This pane
       loads Microsoft's Office library to talk to Excel.</p>
       <details id="excel-spike">
