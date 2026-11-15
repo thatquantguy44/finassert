@@ -1,6 +1,7 @@
 # 0016 — Real Excel acceptance record
 
-**Status:** E-06 NOT RUN. This is the full-workflow checklist, not test evidence.
+**Status:** E-06 real-Mac workflow NOT RUN. A Linux automated preflight was run
+on 2026-11-15; it does not complete any real-host row below.
 Early E-01/E-02 native evidence is retained separately in [artifacts](artifacts/README.md).
 E-03's partial native freshness/configuration checks are also recorded there;
 they do not complete the navigation/output checklist below.
@@ -56,11 +57,42 @@ rows pending. Repeat date-sensitive cases with both workbook epochs.
 
 ## Completion record
 
-- Automated check run/commit: pending.
+- Automated preflight: see below; final E-06 commit pending.
 - Manual failures and fixes: pending.
 - Tested platform support statement: pending.
-- Remaining limitations: pending.
+- Remaining limitations: no Mac Excel host for full workflow, parity and native scale checks.
 - Reviewer/sign-off reference: pending.
 
 A successful Office stand-in run does not complete this record. Add Windows/web
 records separately if those platforms become delivery targets.
+
+## 2026-11-15 automated preflight (Linux)
+
+- Build source: `feature/excel-diagnostic-navigation` at
+  `4862ce791fd442e341e88b8390dd4fd549267d11`; browser/smoke harness and
+  evidence edits are local and uncommitted.
+- Host: Linux x86_64, CPython 3.11.18, Playwright 1.55.0 / Chromium 140.
+- The complete non-browser Python suite passed: **3,697 tests**. The initial
+  restricted-sandbox run could not open loopback sockets; the full rerun with
+  loopback access passed, including the MCP integration cases.
+- Ruff check, Ruff format check, mypy and strict MkDocs build passed.
+- The wheel and source distribution built and passed `scripts/verify_dist.py`
+  from an isolated installed environment.
+- Bundled Pyodide add-in build: taskpane SHA-256
+  `7bd505786c053702da501c7482609a8bc343a47e0724ee8e12f8f5e66c572c9a`;
+  manifest SHA-256
+  `3eb69c50794a756886325bc107f4d3b7616e64d73697736d0203c90d88ffbf45`.
+- Bundled Pyodide/Office stand-in browser regression: **106 passed**. The first
+  pass exposed a test harness reading `innerText` from a hidden preview; the
+  corrected test reads DOM text and the complete rerun passed.
+- Excel smoke passed in both bundled/served and CDN-page/local-runtime modes;
+  the shared browser/file smoke passed. Their hidden-result assertions were
+  corrected to read DOM text. The CDN-page mode supplied Pyodide locally and
+  does not establish availability of the external CDN.
+- Synthetic 50,000-row × 5-column Office stand-in diagnostic passed: 9 ms to
+  write, 1,566 ms to read, 1,941 ms to check/render. It found the three planted
+  failures in each grouped check, preserved source data and reported no requests
+  after engine startup. These are Linux stand-in timings, not Mac Excel timings.
+- No Mac Excel host is attached to this session. Environment, workflow,
+  calculation, parity, 50,000-row timing and source-integrity rows above remain
+  pending; prior focused native E-01–E-05 evidence is not substituted for E-06.

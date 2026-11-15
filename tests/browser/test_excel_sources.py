@@ -127,7 +127,9 @@ def test_both_epochs_produce_the_same_intended_date(pane):
 
     pane.select_option("#excel-date-system", "1900")
     pane.click("#excel-read")
-    before = pane.locator("#data-preview tbody").inner_text()
+    expect(pane.locator("#excel-freshness")).to_have_attribute("data-state", "Ready")
+    expect(pane.locator("#data-preview tbody")).to_contain_text("2026-01-01")
+    before = pane.locator("#data-preview tbody").text_content()
     assert "2026-01-01" in before
     pane.evaluate("window.__excel.sheets.Holdings.cells[3][0] = 44561")
     pane.select_option("#excel-date-system", "1904")

@@ -23,10 +23,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Implemented E-05 verified snapshot provenance, canonical output parity, durable ownership and safe partial-write recovery.
+- **Last worked on:** Ran E-06 Linux automated preflight and repaired hidden-DOM browser/smoke assertions; real Mac acceptance remains open.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
-- **Next pickup:** Execute 0016 acceptance.md on the completed E-01–E-05 build, including full Mac workflow, CLI/export parity and 50,000-row timings.
-- **Verification:** 3,697 runtime and 106 browser tests pass; native exports/ownership/literal addresses/source integrity, Ruff/format, mypy, all smoke flows, strict docs/links and installed distribution probes pass.
+- **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
+- **Verification:** 3,697 runtime and 106 bundled browser tests, both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No E-06 real-host row ran.
 - **Branch:** `feature/excel-diagnostic-navigation`, based on main `2515422`.
   E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
   capture and spec 0017's Git-backed handoff guards are merged and verified.
@@ -42,10 +42,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Scope:** finassert only; no release/tag or downstream application change.
 - **Remaining product scope:** E-01–E-05 have focused native/automated evidence.
   Full E-06 acceptance and external review remain; no broad support claim yet.
-- **Stopping point:** E-04 and E-05 are implemented and verified in this branch checkpoint; full E-06 acceptance remains.
+- **Stopping point:** E-06 automated preflight is recorded locally; full Mac acceptance and external review remain.
 - **E-04 commit:** [6bbf6b9](https://github.com/thatquantguy44/finassert/commit/6bbf6b9bd44992ada89a901277f5a9eae54ee78e)
-  was committed/pushed before E-05 work. This enclosing checkpoint adds E-05 on
-  the same branch. User requested commit/push; no new PR/merge/release was requested.
+  was committed/pushed before E-05 at `4862ce7`. This checkpoint records the
+  E-06 Linux preflight; Mac acceptance and external review remain open.
 - **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
   describes both Git and filesystem modes for reuse elsewhere. Finassert's
   implemented checker remains Git-backed; no filesystem backend was added here.
@@ -68,10 +68,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 ## Next up
 
 1. E-06 — Full Mac acceptance and regressions.
-   Review the E-04/E-05 stack, then execute 0016 acceptance.md on the completed
-   build. Record the full Mac workflow with both date systems, output/CLI parity,
-   calculation/failure/structure cases and 50,000-row timings/input integrity.
-   Focused E-04/E-05 native evidence does not complete the acceptance checklist.
+   Obtain a Mac Excel host and execute the pending 0016 acceptance.md rows on
+   the completed build. Record the full workflow with both date systems,
+   output/CLI parity, calculation/failure/structure cases and 50,000-row native
+   timings/input integrity. Linux stand-in evidence does not complete the
+   acceptance checklist.
 2. Paired forecast accuracy — 0012 U-08.
    Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
 3. Debt principal and issuance — 0012 U-09.
@@ -86,8 +87,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "6bbf6b9bd44992ada89a901277f5a9eae54ee78e",
+  "prior_head": "4862ce791fd442e341e88b8390dd4fd549267d11",
   "recent_commits": [
+    {
+      "commit": "4862ce791fd442e341e88b8390dd4fd549267d11",
+      "subject": "Add verified Excel snapshot exports and owned destinations"
+    },
     {
       "commit": "6bbf6b9bd44992ada89a901277f5a9eae54ee78e",
       "subject": "Add verified Excel diagnostic navigation"
@@ -103,52 +108,19 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
       "subject": "Merge pull request #24 from thatquantguy44/feature/excel-host-baseline"
-    },
-    {
-      "commit": "3b5a014394054d173e7be7cb29578848a3937981",
-      "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
     }
   ],
   "changed_paths": [
-    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "docs/roadmap.md",
-    "scripts/build_web.py",
-    "scripts/excel_stub.js",
-    "specs/0005/contracts.md",
-    "specs/0005/handoff.md",
-    "specs/0005/spec.md",
-    "specs/0007/contracts.md",
-    "specs/0007/handoff.md",
-    "specs/0011/contracts.md",
-    "specs/0011/handoff.md",
-    "specs/0011/spec.md",
-    "specs/0016/AGENTS.md",
-    "specs/0016/api-matrix.md",
-    "specs/0016/artifacts/README.md",
-    "specs/0016/artifacts/e05-native-exports.json",
-    "specs/0016/contracts.md",
+    "scripts/smoke_excel.py",
+    "scripts/smoke_web.py",
+    "specs/0016/acceptance.md",
     "specs/0016/handoff.md",
-    "specs/0016/plan.md",
-    "specs/0016/roadmap.md",
-    "specs/0016/spec.md",
     "specs/0016/tasks.md",
-    "specs/README.md",
-    "src/finassert/_excel_evidence.py",
-    "src/finassert/excel.py",
-    "src/finassert/reporting/html.py",
-    "src/finassert/web.py",
-    "tests/browser/test_excel_capture.py",
-    "tests/browser/test_excel_exports.py",
-    "tests/unit/test_excel_evidence_context.py",
-    "web/app.js",
-    "web/excel-output.js",
-    "web/excel-policy.html",
-    "web/excel-results.html",
-    "web/excel.js"
+    "tests/browser/test_excel_sources.py"
   ],
-  "project_sha256": "2cd092829c3bb57cc3dc04051d461a093e7c731165d39038d05ca84ac0d75cac",
-  "reviewed_sections_sha256": "d00a02c3216c2282ea3e048690a7e5dcd8315cd3b44063625c48e37b2e9ed8ad"
+  "project_sha256": "78455ef03e1bf5a0d0917616e84c288bbb8de0316b315f1f05536ae64e5220cc",
+  "reviewed_sections_sha256": "4896be02bffe42501e00cd69051e9d98794bb471735c2fbece8a22d0a281c717"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -167,6 +139,18 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — E-06 automated preflight; Mac acceptance pending
+
+- **Worked on:** Ran E-06 Linux automated preflight and repaired hidden-DOM browser/smoke assertions; real Mac acceptance remains open.
+- **Stopping point:** E-06 automated preflight is recorded locally; full Mac acceptance and external review remain.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
+- **Verification:** 3,697 runtime and 106 bundled browser tests, both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No E-06 real-host row ran.
+- **Branch / evidence:** `feature/excel-diagnostic-navigation` at `4862ce7` plus
+  E-06 test-harness and documentation edits in this checkpoint. See
+  [the acceptance record](https://github.com/thatquantguy44/finassert/blob/feature/excel-diagnostic-navigation/specs/0016/acceptance.md#2026-11-15-automated-preflight-linux).
+  No Mac host was available, so AC-07/09/10 and E-06 remain open.
 
 ### 2026-11-15 — E-05 verified evidence and safe output on the E-04 branch
 

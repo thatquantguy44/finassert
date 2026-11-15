@@ -8,6 +8,7 @@ data. It cannot show how real Excel behaves: that needs the spike in
 ``docs/design/excel-integration.md``.
 
 Requires Playwright. Pass ``--pyodide-dir`` to serve a local Pyodide distribution.
+Pass ``--spike-portfolios 1000`` for the synthetic 50,000-row diagnostic.
 
 Usage::
 
@@ -59,7 +60,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--browser", help="Chromium executable to use")
     parser.add_argument("--timeout", type=float, default=180)
+    parser.add_argument("--spike-portfolios", type=int, default=40)
     arguments = parser.parse_args(argv)
+    if not 10 <= arguments.spike_portfolios <= 2000:
+        parser.error("--spike-portfolios must be between 10 and 2000")
 
     from playwright.sync_api import expect, sync_playwright
 
@@ -97,12 +101,15 @@ def main(argv: list[str] | None = None) -> int:
                 re.compile(r"^(Ready|The checking engine could not)"),
                 timeout=arguments.timeout * 1000,
             )
-            if not page.locator("#status").inner_text().startswith("Ready"):
-                print(f"FAIL: engine did not start: {page.locator('#status').inner_text()}")
+            status_text = page.locator("#status").text_content() or ""
+            if not status_text.startswith("Ready"):
+                print(f"FAIL: engine did not start: {status_text}")
+                for line in console:
+                    print(line)
                 return 1
             failures += _exercise(page, label, what, expect)
             if selected == "range":
-                failures += _spike(page, expect)
+                failures += _spike(page, expect, arguments.spike_portfolios)
             context.close()
         browser.close()
     if server is not None:
@@ -127,10 +134,10 @@ def _office_stub(stub: str) -> Any:
     return handle
 
 
-def _spike(page: Any, expect: Any) -> list[str]:
-    """Run the diagnostics for testers against the stand-in, on a small generated book."""
+def _spike(page: Any, expect: Any, portfolios: int) -> list[str]:
+    """Run the diagnostics against the stand-in on a generated workbook."""
     page.click("#excel-spike summary")
-    page.fill("#spike-portfolios", "40")
+    page.fill("#spike-portfolios", str(portfolios))
     page.select_option("#spike-how", "sideloaded")
     page.click("#spike-run")
     report = page.locator("#spike-report")
@@ -143,7 +150,7 @@ def _spike(page: Any, expect: Any) -> list[str]:
     if "All steps passed" not in text:
         failures.append(f"the diagnostics reported failures:\n{text}")
     for needed in (
-        "write 2,000 test rows",
+        f"write {portfolios * 50:,} test rows",
         "weights failed in 3 portfolio(s) (expected 3)",
         "round-tripped unchanged",
         "no content-security-policy violations",
@@ -178,7 +185,7 @@ def _exercise(page: Any, label: str, what: str, expect: Any) -> list[str]:
     expect(page.locator(".check")).to_have_count(4)
     page.click("#run")
     expect(page.locator("#excel-freshness")).to_have_attribute("data-state", "Current")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"{label}: {banner}")
     if not banner.startswith("✗ Failed"):
         failures.append(f"{label}: unexpected banner {banner!r}")

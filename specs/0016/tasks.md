@@ -78,6 +78,9 @@ without skipping its dependencies. Check completion only with recorded evidence.
   acceptance.md, retain synthetic fixture/policy identities and actual results;
   run 50,000 rows, all repository checks and both runtime smoke modes; update user
   docs/support claims and the local/master handoffs. Record review status separately.
+  Linux automated preflight and 50,000-row Office stand-in evidence are recorded
+  in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux). The full
+  Mac workflow, native timings, CLI tie-out and external review remain pending.
 
 ## Acceptance ledger
 

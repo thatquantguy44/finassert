@@ -25,11 +25,32 @@
   names, saved ownership/explicit replacement, policy picker/independence and
   incomplete-write recovery. 22 unit and 15 E-05 browser cases; full runtime
   3,697 and full browser 106 pass. Native export/reopen/integrity evidence retained.
+- **E-06 preflight:** On Linux at source `4862ce7`, 3,697 runtime and 106 bundled
+  browser tests passed. Excel bundled and CDN-page/local-runtime smoke, shared
+  browser/file smoke, 50,000-row Office stand-in diagnostic, quality/docs and
+  distribution checks passed after correcting hidden-DOM harness assertions.
+  See [acceptance](acceptance.md#2026-11-15-automated-preflight-linux).
 - **Native stopping point:** Current, three passed, disposable C7:H9/1904 with
   final quote-preserving results saved. Full E-06 acceptance is still pending.
-- **Next:** Follow the master's E-06 acceptance pickup after reviewing this stack.
+- **Next:** Run the full acceptance checklist in Mac Excel when a host is
+  available, then obtain external review. No real-host row was completed here.
 
 ## Entries
+
+### 2026-11-15 — E-06 Linux preflight; Mac acceptance remains open
+
+- **Work:** Ran automated E-06 regressions against `4862ce7` and repaired
+  browser/smoke assertions that used `innerText` on hidden DOM elements. Added a
+  configurable 50,000-row Office stand-in diagnostic. No production behavior
+  changed.
+- **Verification:** 3,697 runtime and 106 bundled browser tests; both Excel
+  smoke modes, shared browser/file smoke, 50,000-row planted failures and source
+  integrity, Ruff/format, mypy, strict docs and isolated distribution probes pass.
+  Exact synthetic timings and bundle hashes are in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux).
+- **Stopping point:** No Mac Excel host was available. Full native E-06 workflow,
+  both epochs, CLI/export tie-out, 50,000-row native timings and review remain.
+- **Pickup:** Follow the master's E-06 priority: execute the pending real-host
+  rows on the same build and record actual fixture, policy and output evidence.
 
 ### 2026-11-15 — E-05 verified source evidence and output lifecycle
 
