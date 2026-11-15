@@ -91,6 +91,11 @@
     r.format = { font: {}, autofitColumns() {} };
     Object.defineProperty(r.format.font, "bold", { set(v) { sheet.bold.push(r0); } });
     r.clear = () => { sheet.cells = []; };
+    r.select = () => {
+      if (state.failSelection) throw new Error("Selection is protected");
+      state.navigation = { sheet: sheet.name, sheetId: sheet.id, r0, c0, rows, cols, address: r.address };
+      state.log.push({ type: "select", ...state.navigation });
+    };
     return new Proxy(r, {
       set(target, prop, value) {
         if (prop === "values" && !target.__loading) {

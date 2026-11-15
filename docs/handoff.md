@@ -23,11 +23,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Saved the reusable Git/filesystem handoff prompt on main and recorded PR #25's merge.
-- **Highest priority:** E-04 — Diagnostic navigation.
-- **Next pickup:** Read 0016 R-03; build bounded findings and physical row/cell targets using E-03 source verification.
-- **Verification:** Markdown links/anchors, strict MkDocs, whitespace and staged handoff/author checks pass; runtime code is unchanged.
-- **Branch:** `main`, refreshed to merge commit `32cf4ab` before saving the prompt.
+- **Last worked on:** Implemented E-04 bounded diagnostic navigation with source verification, identity guards and native Mac evidence.
+- **Highest priority:** E-05 — Evidence and export.
+- **Next pickup:** Implement 0016 R-05 source provenance, safe output ownership and export parity on this same branch, as authorized.
+- **Verification:** 3,675 runtime tests, 72 existing browser cases and 19 E-04 cases pass; native F8/correction/rerun, Ruff/mypy, CDN/bundled/shared-browser smoke, strict docs/links and installed distribution probes pass.
+- **Branch:** `feature/excel-diagnostic-navigation`, based on main `2515422`.
   E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
   capture and spec 0017's Git-backed handoff guards are merged and verified.
 - **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
@@ -40,18 +40,22 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag or downstream application change.
-- **Remaining product scope:** E-01–E-03 have native and automated evidence;
-  E-04–E-06 remain proposed.
-- **Stopping point:** PR #25 is merged into main; the reusable prompt is saved and E-04 has not started.
+- **Remaining product scope:** E-04 is implemented with focused native and
+  automated evidence. E-05 safe evidence/output and full E-06 acceptance remain.
+- **Stopping point:** E-04 implementation and evidence are recorded in this checkpoint; E-05 is authorized next on feature/excel-diagnostic-navigation.
+- **E-04/E-05 delivery:** Commit and push this E-04 checkpoint, then implement, verify and
+  commit E-05 on the same branch. No new PR has been requested for this work.
 - **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
   describes both Git and filesystem modes for reuse elsewhere. Finassert's
   implemented checker remains Git-backed; no filesystem backend was added here.
 - **Native session:**
-  The last observed native pane was Ready/Unbound. Source, date choice and capture
-  settings are session-only and must be selected again after reopening.
-- **Verification context:** The earlier E-03 duplicate-import-read caveat is
-  historical. A new complete 3,662-test run passed for the handoff guard work.
-  The 72 Excel browser passes remain E-03 evidence; Excel runtime code is unchanged.
+  The last observed native pane was Current, three passed, on disposable
+  `'Holdings O''Brien'!C7:H9`, explicit 1904; F8 restored to 400. Source, date
+  choice and capture settings remain session-only. Reopening requires rebinding.
+- **Verification context:** E-04's complete runtime pass is 3,675 tests. The
+  72 existing browser cases passed in the full run; the 19 final E-04 cases
+  passed together after correcting new fixture expectations. See
+  `specs/0016/artifacts/e04-native-navigation.json`.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
 - **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
   sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
@@ -60,14 +64,14 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Next up
 
-1. E-04 — Diagnostic navigation.
-   Start a new feature branch from refreshed `main` at
-   [spec 0016 E-04](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/tasks.md#ordered-implementation).
-   Read its agent instructions and R-03 first. Start with the bounded diagnostic
-   view and physical row/cell mapping, reusing E-03's current-result preflight
-   before changing selection. Cover offset/quoted sources, ambiguous business
-   keys, missing targets and keyboard navigation; never infer a row from a key.
-2. Then E-05 safe evidence/provenance and E-06 full Mac acceptance.
+1. E-05 — Evidence and export.
+   E-04 is reviewed and verified for this checkpoint. Read 0016 R-05 and
+   its contracts/tasks: add optional versioned input.excel provenance, safe
+   unique/owned destinations, collision/source-overlap guards and partial-write
+   recovery. Preserve canonical JSON/HTML/sheet parity and policy-only actions.
+2. E-06 — Full Mac acceptance and regressions.
+   Complete acceptance.md, output/CLI parity and 50,000-row workflow evidence;
+   focused E-04 selection does not complete that checklist.
 3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
 
 ## Commit context
@@ -79,8 +83,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "32cf4aba736ec05eec4668df7b0d19261699c16c",
+  "prior_head": "251542222cf52a34fb00e89b60279581a3728c03",
   "recent_commits": [
+    {
+      "commit": "251542222cf52a34fb00e89b60279581a3728c03",
+      "subject": "docs: save reusable handoff enforcement prompt"
+    },
     {
       "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
       "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
@@ -96,21 +104,38 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "8d96fdce17dce11bf4af56d5d7cb4749c51b18a8",
       "subject": "Merge pull request #21 from thatquantguy44/feature/six-slice-upstream-delivery"
-    },
-    {
-      "commit": "a644bdb675b4743d5a2a76a44f44014439c71573",
-      "subject": "Merge pull request #19 from thatquantguy44/feature/shared-column-reads"
     }
   ],
   "changed_paths": [
+    "docs/excel-add-in.md",
     "docs/handoff.md",
     "docs/roadmap.md",
-    "prompts/master_handoff.md",
+    "scripts/excel_stub.js",
+    "specs/0005/contracts.md",
+    "specs/0005/handoff.md",
+    "specs/0011/contracts.md",
+    "specs/0011/handoff.md",
+    "specs/0016/AGENTS.md",
+    "specs/0016/api-matrix.md",
+    "specs/0016/artifacts/README.md",
+    "specs/0016/artifacts/e04-native-navigation.json",
+    "specs/0016/contracts.md",
     "specs/0016/handoff.md",
-    "specs/0017/handoff.md"
+    "specs/0016/plan.md",
+    "specs/0016/roadmap.md",
+    "specs/0016/spec.md",
+    "specs/0016/tasks.md",
+    "specs/README.md",
+    "src/finassert/_excel_navigation.py",
+    "src/finassert/web.py",
+    "tests/browser/test_excel_navigation.py",
+    "tests/unit/test_excel_navigation_identity.py",
+    "web/app.css",
+    "web/excel-results.html",
+    "web/excel.js"
   ],
-  "project_sha256": "acbd59b6126788bb26d36ec986c80c68a8c1ca6561d4650418160228b211f914",
-  "reviewed_sections_sha256": "b20d3919187f1221eaa1efd832004ae0d508043482bf344532a21b5012a0340e"
+  "project_sha256": "7393744b7fea99003bcdb002a1a69a8274def9a841a891f9848ac0d61214b293",
+  "reviewed_sections_sha256": "20c98fd61a04521cd1cece72b173749a6d6b6071a0e38e7e5456d6cc0c381fe8"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -129,6 +154,35 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — E-04 commit checkpoint; E-05 authorized on this branch
+
+- **Worked on:** Implemented E-04 bounded diagnostic navigation with source verification, identity guards and native Mac evidence.
+- **Stopping point:** E-04 implementation and evidence are recorded in this checkpoint; E-05 is authorized next on feature/excel-diagnostic-navigation.
+- **Priorities:** E-05 — Evidence and export.
+- **Next pickup:** Implement 0016 R-05 source provenance, safe output ownership and export parity on this same branch, as authorized.
+- **Verification:** 3,675 runtime tests, 72 existing browser cases and 19 E-04 cases pass; native F8/correction/rerun, Ruff/mypy, CDN/bundled/shared-browser smoke, strict docs/links and installed distribution probes pass.
+- **Delivery:** User requested commit/push and adding E-05 to this branch.
+  This checkpoint contains E-04; the next implementation checkpoint will record
+  its actual commit and E-05 verification. No merge or release is authorized.
+
+### 2026-11-15 — E-04 diagnostic navigation implementation
+
+- **Worked on:** Implemented E-04 bounded diagnostic navigation with source verification, identity guards and native Mac evidence.
+- **Stopping point:** E-04 is implemented and verified in the working tree on feature/excel-diagnostic-navigation; changes are uncommitted.
+- **Priorities:** E-05 — Evidence and export.
+- **Next pickup:** Review E-04 changes/evidence, then implement 0016 R-05 source provenance, safe output ownership and export parity.
+- **Verification:** 3,675 runtime tests, 72 existing browser cases and 19 E-04 cases pass; native F8/correction/rerun, Ruff/mypy, CDN/bundled/shared-browser smoke, strict docs/links and installed distribution probes pass.
+- **Branch / PR:** feature/excel-diagnostic-navigation, based on main 2515422;
+  no new commit/push/PR. Existing E-01–E-03 implementation PR #25 remains merged.
+- **Decisions:** Private live-only metadata resolves retained native labels before
+  JSON, never business keys as row numbers. Duplicate/serialized/unsafe keys
+  require unique mapping and rerun. No source row means no target. Navigation
+  selects only a bound cell/row rectangle after configured capture preflight.
+  Canonical artifacts, financial outcomes and file/browser responses are unchanged.
+- **Evidence:** specs/0016/artifacts/e04-native-navigation.json records actual
+  build/fixture hashes, policy fingerprint, quoted offset source, native F8
+  selection and the corrected Current run. Full E-06 remains unexecuted.
 
 ### 2026-11-15 — Save reusable prompt on main after PR merge
 

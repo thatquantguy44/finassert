@@ -46,8 +46,15 @@ ownership and complete Mac acceptance remain proposed as E-04–E-06.
    The pane shows Current only after matching stable captures around evaluation.
    Relevant edits, recalculation, policy or settings changes make old results
    historical. Currentness is separate from whether the financial checks passed.
-3. **Report.** The report names rows by the sheet's own row numbers, so "row 6" is row
-   6 in Excel, even when your selection starts lower down.
+3. **Report and navigate.** Diagnostic findings show complete counts, example
+   caps, truncation and retained row/group examples. Use **Select cell** or
+   **Select source row** with a mouse or keyboard. Navigation rechecks the source,
+   then selects one unambiguous cell or the source columns of a physical row.
+   Ordinary labels use Excel's physical row numbers, including gaps. Configured
+   business keys are resolved against the captured data; they are never treated
+   as worksheet row numbers. Duplicate/colliding keys require a unique key and
+   rerun. Missing groups/periods show **No source row**. Stale, blocked and
+   snapshot-only results cannot navigate; correct the cause and rerun.
 4. **Write results to a sheet.** A Current result is reread and compared again
    before sheet/JSON/HTML export; missed events cannot authorize an old result.
    One button creates a sheet named
@@ -82,10 +89,10 @@ Changing settings requires a new run.
 | Cells per request | 50,000 | 1,000–50,000 |
 | Operation timeout | 120 seconds | 1–300 seconds |
 
-On demand turns off immediate value/format/calculation alerts; Run and export
+On demand turns off immediate value/format/calculation alerts; Run, navigation and export
 still verify the source. Current always describes the last verification time.
 Snapshot only evaluates one capture for inspection and stays unverified/Stale;
-current-result exports remain unavailable. Restore defaults returns to live events
+current-result exports and navigation remain unavailable. Restore defaults returns to live events
 and two matching captures. Neither option changes the financial rules.
 
 Unbound needs a source; Ready needs a run; Reading/Checking are in progress;

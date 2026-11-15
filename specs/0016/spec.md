@@ -1,8 +1,8 @@
 # 0016 — Excel add-in validation workflow
 
-**Status:** E-01/E-02 verified; E-03 configurable capture/freshness implemented;
-E-04–E-06 remain proposed. See [verification evidence](artifacts/README.md).
-**Updated:** 2026-11-14
+**Status:** E-01–E-04 implemented with focused native and automated evidence;
+E-05/E-06 remain proposed. See [verification evidence](artifacts/README.md).
+**Updated:** 2026-11-15
 **Owner:** finassert. Mac desktop is the first real-host acceptance target.
 
 ## Problem statement
@@ -188,6 +188,23 @@ names safely, including spaces and apostrophes; never construct executable
 formulas or external links from diagnostic text. Navigation changes selection
 and active sheet only. Sorting, resizing or deleting the source invalidates old
 targets. Keyboard users must have the same navigation action and status feedback.
+
+The E-04 bridge resolves native diagnostic labels in Python before JSON conversion.
+Its session-only navigation response accompanies live-range results; canonical
+report/artifact diagnostics and file/browser results remain unchanged. Only
+retained `row`, `previous_row` and `rows` examples produce targets. An explicit
+physical diagnostic column (including a single-column rule's metadata) selects
+a cell; otherwise navigation selects only the source columns of that row.
+Duplicate or serialized-collision business keys require a unique key and rerun;
+there is no candidate picker in this slice. Nonfinite/unsafe JSON numeric keys
+are also blocked, rather than rounded into a target. Missing/unresolvable keys
+require mapping review and rerun.
+
+The pane renders diagnostic text as text, with native buttons and a live status.
+Every navigation action uses the configured current-result capture preflight,
+then resolves the source by worksheet/table identity and checks captured geometry
+and numeric row/column bounds before host selection. This has the same
+between-request cancellation and non-atomic snapshot limits as R-02.
 
 ### R-04: Explicit date interpretation
 

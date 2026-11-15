@@ -1,7 +1,7 @@
 # 0016 — Excel add-in validation workflow: tasks
 
 **Status:** E-01/E-02 complete; E-03 implemented and verified with configurable
-session controls. E-04–E-06 pending.
+session controls. E-04 navigation implemented/verified; E-05/E-06 pending.
 
 ## Scoping delivery
 
@@ -58,10 +58,14 @@ without skipping its dependencies. Check completion only with recorded evidence.
   cannot publish and every current-result export rechecks. Existing output-name
   collisions are rejected unless the pane created the sheet; durable ownership,
   unique names and full source-provenance output remain E-05.
-- [ ] **E-04 — Diagnostic navigation** (R-03, AC-04/06): canonical sampled findings,
+- [x] **E-04 — Diagnostic navigation** (R-03, AC-04/06): canonical sampled findings,
   complete totals/caps; physical row/cell targets; business-key ambiguity, group
   context and missing targets; source verification and keyboard navigation.
   Test malicious text, quoted sheet names, sort/delete and changed row mappings.
+  Evidence: 13 identity tests and 19 browser cases, plus
+  [native F8 selection/correction/rerun](artifacts/e04-native-navigation.json).
+  Canonical counts/caps/samples and exported artifacts stay unchanged; ambiguous
+  keys require unique mapping/rerun and missing series have no fabricated target.
 - [ ] **E-05 — Evidence and export** (R-05, AC-03/06/08): optional input.excel source
   contract, current-result preflight, JSON/HTML/results-sheet parity, collision and
   source-overlap guards, text safety, protected destinations and partial-write
@@ -77,10 +81,10 @@ without skipping its dependencies. Check completion only with recorded evidence.
 | --- | --- | --- |
 | AC-01 | verified for E-02 | Browser guards/geometry fixtures and native table/range capture; see E-02 evidence |
 | AC-02 | verified for E-03 | Browser races/invalidation plus native edit → Stale → fresh Current run |
-| AC-03 | E-03 verified; E-05 pending | Browser interleaved/missing-event/cancel/timeout cases and all existing export preflights; navigation/output staging pending |
-| AC-04 | pending | Row/cell/ambiguous/group/missing navigation evidence |
+| AC-03 | E-03/E-04 verified; E-05 pending | Existing export and new navigation capture preflights; durable output staging pending |
+| AC-04 | verified for E-04 | 13 identity tests, 19 browser cases and focused native F8 navigation/correction/rerun |
 | AC-05 | verified for E-02 | Both explicit epochs produce 2026-01-01 in the browser and native Mac pane |
-| AC-06 | pending | Canonical JSON/HTML/sheet counts and unchanged source cells |
+| AC-06 | E-04 verified; E-05 pending | Canonical artifact samples unchanged and browser navigation preserves source; full output parity pending |
 | AC-07 | pending | Recorded real Mac correction/rerun/export and CLI comparison |
 | AC-08 | E-01–E-03 verified; E-05 pending | Capability/calculation/input/race errors covered; protected/partial output recovery pending |
 | AC-09 | pending | Full checks and CDN/bundled/offline regression runs |

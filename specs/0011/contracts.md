@@ -15,5 +15,8 @@ and Run rereads the bound source; Python/file APIs and financial outcomes stay
 compatible. E-03 now adds session-configurable monitoring/captures, calculation
 guards, generation-safe operations and current-result export preflight. Shared
 file results are cleared on input/policy changes. Financial outcomes, policy
-serialization and artifact schemas stay compatible. Navigation, versioned source
-provenance and owned-output/collision handling remain pending under E-04/E-05.
+serialization and artifact schemas stay compatible. E-04 adds live-only bounded
+diagnostic navigation, resolving retained native row identities before JSON and
+reverifying before selection. Its private response does not enter exported
+artifacts or file/browser results. Versioned source provenance and
+owned-output/collision handling remain pending under E-05.

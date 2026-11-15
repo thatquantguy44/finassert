@@ -1,7 +1,7 @@
 # 0016 — Excel add-in validation workflow: plan
 
-**Status:** E-01/E-02 verified; E-03 configurable freshness/capture implemented;
-E-04–E-06 pending. Verification is recorded in [artifacts](artifacts/README.md).
+**Status:** E-01–E-04 implemented and verified for their slices;
+E-05/E-06 pending. Verification is recorded in [artifacts](artifacts/README.md).
 
 ## Approach
 
@@ -23,8 +23,9 @@ ship an intermediate UI that labels unverified snapshots Current.
 The original 8–12-day aggregate was a planning range for one engineer. E-01's
 native Mac run is now complete: 1,062 ms engine startup, 561 ms read/preview and
 631 ms template check/render for 50,000 rows. This fixture does not motivate a
-service/worker fallback. E-02 is also verified; the remaining E-03–E-06 planning
-range is 6–9 engineering days, driven by race, navigation and output guarantees.
+service/worker fallback. After E-02, the E-03–E-06 planning range was 6–9
+engineering days, driven by race, navigation and output guarantees. E-03/E-04 are
+now verified for their slices; E-05/E-06 remain as estimated in the table above.
 The measurements establish neither a general latency guarantee nor full acceptance.
 
 ## Dependencies and affected areas

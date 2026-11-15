@@ -21,6 +21,51 @@
   let configError = "";
   const ownedSheetIds = new Set();
   const captureTools = window.finassertCapture;
+  let displayedOutcome = null;
+
+  function element(tag, text, parent) {
+    const node = document.createElement(tag);
+    node.textContent = text;
+    parent.appendChild(node);
+    return node;
+  }
+
+  function renderDiagnostics() {
+    const outcome = app().isLiveResult() ? app().result() : null;
+    const navigation = outcome && outcome.navigation;
+    $("excel-findings").hidden = !navigation;
+    if (displayedOutcome !== outcome) {
+      displayedOutcome = outcome;
+      $("excel-findings-list").replaceChildren();
+      $("excel-navigation-state").textContent = "";
+      if (navigation) navigation.results.forEach((result, ri) => {
+        const card = element("article", "", $("excel-findings-list"));
+        card.className = "excel-finding";
+        element("h4", `${result.title} — ${result.outcome} (${result.severity})`, card);
+        element("p", result.message, card);
+        if (!result.collections.length) element("p", "No retained diagnostic examples.", card);
+        result.collections.forEach((collection, ci) => {
+          element("p", `${collection.kind}: ${collection.count} total; example cap ${collection.limit}; ${collection.observations.length} shown; ${collection.truncated ? "truncated" : "not truncated"}.`, card);
+          collection.observations.forEach((sample, oi) => {
+            element("pre", JSON.stringify(sample.observation, null, 2), card).className = "excel-observation";
+            if (!sample.targets.length) element("p", "No source row", card);
+            sample.targets.forEach((target, ti) => {
+              if (target.status !== "resolved") {
+                element("p", `${target.role} ${JSON.stringify(target.label)}: ${target.reason}`, card);
+                return;
+              }
+              const button = element("button", `Select ${target.column_index === null ? "source row" : "cell in row"} ${target.row} (${target.role.toLowerCase()} ${JSON.stringify(target.label)})`, card);
+              button.type = "button";
+              button.addEventListener("click", () => navigate(outcome, ri, ci, oi, ti));
+            });
+          });
+        });
+      });
+    }
+    for (const button of $("excel-findings-list").querySelectorAll("button")) {
+      button.disabled = busy || freshness !== "Current" || !record || record.outcome !== outcome;
+    }
+  }
 
   const $ = (id) => document.getElementById(id);
   const app = () => window.finassertApp;
@@ -53,6 +98,7 @@
     }
     $("excel-cancel").disabled = !busy;
     sourceSummary();
+    renderDiagnostics();
   }
 
   function state(next, message) {
@@ -96,7 +142,7 @@
       manualAcknowledged: $("excel-manual-calculated").checked, cancelled: false };
     active = job;
     busy = true;
-    if (kind === "run" || kind === "read" || kind === "export") state("Reading", "Reading the bound source.");
+    if (["run", "read", "export", "navigate"].includes(kind)) state("Reading", "Reading the bound source.");
     else renderFreshness();
     try {
       if (configError) throw new Error(configError);
@@ -422,21 +468,21 @@
     }
     assertJob(job);
     record = { snapshot: first.snapshot, formula: first.formula, capturedAt: first.capturedAt,
-      verifiedAt, policyKey: job.policyKey, settingsKey: job.configKey, outcome };
+      verifiedAt, policyKey: job.policyKey, settingsKey: job.configKey, geometry: first.current, outcome };
     app().publishResult(outcome);
     $("excel-manual-calculated").checked = false;
     if (verifiedAt) state("Current", "The result matched its source at the last verification time.");
     else state("Stale", "Snapshot-only result: stable capture is disabled; current-result export is unavailable.");
   }
 
-  async function withCurrentResult(action) {
+  async function withCurrentResult(action, kind = "export") {
     if (!app().isLiveResult()) return operate("action", action);
     if (busy || freshness !== "Current" || !record || config.capture !== "verified") {
-      say("Rerun with stable capture enabled before exporting a current result.", true);
+      say("Rerun with stable capture enabled before exporting or navigating a current result.", true);
       return false;
     }
     const result = record;
-    return operate("export", async (job) => {
+    return operate(kind, async (job) => {
       if (result.policyKey !== job.policyKey || result.settingsKey !== job.configKey || app().result() !== result.outcome) {
         throw new Error("The result's policy or settings changed. Rerun before exporting.");
       }
@@ -446,11 +492,44 @@
         result.verifiedAt = current.capturedAt;
       }
       assertJob(job);
-      await action();
+      await action(job, result);
       assertJob(job);
       $("excel-manual-calculated").checked = false;
       state("Current", "Source and policy reverified before the action.");
     });
+  }
+
+  async function navigate(outcome, ri, ci, oi, ti) {
+    if (!record || record.outcome !== outcome || app().result() !== outcome || !app().isLiveResult()) return false;
+    const target = outcome.navigation?.results[ri]?.collections[ci]?.observations[oi]?.targets[ti];
+    if (!target || target.status !== "resolved") return false;
+    $("excel-navigation-state").textContent = "Verifying the source before navigation…";
+    const selected = await withCurrentResult(async (job, result) => {
+      await Excel.run(async (context) => {
+        const { range, sheet, table } = await resolvedRange(context, job.source, job);
+        if (JSON.stringify(descriptor(range, sheet, table)) !== JSON.stringify(result.geometry)) {
+          throw new Error("Source identity or bounds changed. Rerun before navigating.");
+        }
+        const row = target.row - 1;
+        const column = target.column_index;
+        if (!Number.isSafeInteger(row) || row <= range.rowIndex || row >= range.rowIndex + range.rowCount ||
+            (column !== null && (!Number.isSafeInteger(column) || column < 0 || column >= range.columnCount))) {
+          throw new Error("Diagnostic target is outside the captured source. Review the mapping and rerun.");
+        }
+        assertJob(job);
+        // Numeric indices and worksheet identity avoid parsing diagnostic text,
+        // quoted names, formulas, links or business keys as Excel addresses.
+        const destination = sheet.getRangeByIndexes(row, range.columnIndex + (column === null ? 0 : column),
+          1, column === null ? range.columnCount : 1);
+        sheet.activate();
+        destination.select();
+        await sync(context, job);
+      });
+    }, "navigate");
+    if (!closing) $("excel-navigation-state").textContent = selected
+      ? `Selected ${target.column_index === null ? "source row" : "cell in row"} ${target.row}. Source data was not changed.`
+      : `Navigation unavailable. ${reason}`;
+    return selected;
   }
 
   // Only sheets created in this pane session can be cleared. E-05 owns durable
@@ -807,6 +886,7 @@
     window.finassertExcel = {
       run: () => operate("run", runBound),
       withCurrentResult,
+      navigate,
       policyChanged(message) { invalidate(message); },
       inputChanged() { record = null; invalidate("Input changed. Run the bound source again for verified live results."); },
       status: () => ({ state: freshness, reason, busy, generation: revision, settings: { ...config },

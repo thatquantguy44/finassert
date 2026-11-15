@@ -253,3 +253,51 @@ by a macOS process sample), including a fresh-bytecode-cache attempt; it was
 stopped. The prior complete 3,624-test pass remains the runtime evidence; no
 Python runtime implementation changed afterward. Final served bytes matched the
 build and the latest native pane reopened Ready/Unbound with no epoch selected.
+
+## E-04 diagnostic navigation
+
+Implemented on `feature/excel-diagnostic-navigation` atop main `2515422`.
+The private Python bridge resolves only canonical retained examples before labels
+are serialized. The pane displays complete totals, caps and truncation, group
+context and missing-target explanations. Native buttons and live feedback use
+the same guarded action for keyboard and mouse. Duplicate/colliding business
+keys require a unique key and rerun. No public policy or artifact schema changed.
+
+[Focused native observations](e04-native-navigation.json) retain the actual build
+hash, fixture hash, policy fingerprint and host results. On the synthetic
+`'Holdings O''Brien'!C7:H9` source with explicit 1904 interpretation, a retained
+negative market-value finding selected F8 from F10; the formula bar still showed
+-400. Correcting F8 to 400 made the old target Stale/disabled, and rerunning
+returned Current with three passing checks. Native evidence establishes this
+focused action; the full [E-06 checklist](../acceptance.md) remains unexecuted.
+
+Automated identity tests cover physical gaps/offsets, effective mapping row keys,
+numeric business keys, duplicate/type-collision/unsafe keys, bounded group samples,
+zero caps and unchanged canonical artifact samples. The 19 E-04 browser cases
+cover cell/row selection and source preservation, keyboard/status parity,
+quoted/malicious text, missing series, silent edits/sort/delete/formula changes,
+worksheet/table replacement, table resize, stale/obsolete actions, cancellation,
+selection failure and on-demand/four-capture settings. The 72 existing browser
+regressions also passed in the full run; two newly written fixture expectations
+were corrected before all 19 E-04 cases passed. Those expectations attempted an
+unexposed grouped catalog setting and assumed a different missing-series reason;
+canonical financial behavior was preserved.
+
+Reproduce the focused cases using a bundled Pyodide 0.27.7 runtime:
+
+```bash
+PYTHONPATH="$PWD/src" .venv/bin/python scripts/build_excel.py \
+  --output-dir /tmp/finassert-e04-browser --bundle-pyodide download
+FINASSERT_EXCEL_PAGE=/tmp/finassert-e04-browser/taskpane.html \
+  PYTHONPATH="$PWD/src" uv run --with playwright==1.55.0 python -m pytest -q tests/browser
+PYTHONPATH="$PWD/src" .venv/bin/python -m pytest -q tests/unit/test_excel_navigation_identity.py
+```
+
+E-05 remains responsible for source provenance and durable output ownership;
+E-06 remains responsible for full native workflow, export parity and scale evidence.
+
+Final verification: 3,675 runtime tests passed, with the 91 browser cases skipped
+in that ordinary job. The 72 pre-existing browser cases passed in the full browser
+run and all 19 final E-04 cases passed together. Ruff lint/format, mypy (63 source
+files), CDN/bundled Excel smoke, shared browser/file smoke, Markdown links/anchors,
+strict MkDocs and installed wheel/source-distribution probes passed.

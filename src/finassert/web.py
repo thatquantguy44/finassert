@@ -15,6 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from finassert._excel_navigation import build_navigation
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
 from finassert.excel import (
@@ -194,6 +195,11 @@ def run(
             "html": render_artifact_html(artifact),
             "artifact_json": artifact_to_json(artifact) + "\n",
             "policy_yaml": dump_policy(policy),
+            **(
+                {"navigation": build_navigation(data, policy, report)}
+                if source_format == "excel-range" and isinstance(data, TableSource)
+                else {}
+            ),
         }
     )
 

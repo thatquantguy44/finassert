@@ -2,9 +2,10 @@
 
 ## Current state
 
-- **Status:** E-01–E-03 implemented and verified; E-04–E-06 pending.
+- **Status:** E-01–E-04 implemented and verified for their slices; E-05/E-06 pending.
   AC-01/02/05 verified for their slices; full acceptance remains pending.
-- **Branch:** main; PR #25 merged E-01–E-03 at 32cf4ab.
+- **Branch:** feature/excel-diagnostic-navigation from main 2515422;
+  E-04 is recorded in the current commit checkpoint. PR #25 merged E-01–E-03 at 32cf4ab.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -16,10 +17,44 @@
   See [evidence](artifacts/README.md).
 - **Native:** Excel 16.115 / Mac; 50,000-row baseline all PASS. Both epochs,
   hidden row, actual table totals and selection-preserving Run verified.
-- **Next:** E-04 bounded diagnostic navigation, then E-05 provenance/output
-  ownership and E-06 complete Mac acceptance.
+- **E-04:** Canonical findings, bounded physical cell/row targets, key ambiguity,
+  missing series, keyboard/live feedback and configured preflight implemented.
+  13 identity tests, 19 E-04 browser cases and focused native F8 selection pass.
+- **Native stopping point:** Current, three passed, disposable C7:H9 with explicit
+  1904 and F8 restored to 400. Full E-06 acceptance is still pending.
+- **Next:** User authorized E-05 on this same branch after committing/pushing E-04.
+  Follow the master: E-05 provenance/output ownership
+  and E-06 complete Mac acceptance.
 
 ## Entries
+
+### 2026-11-15 — E-04 commit checkpoint and E-05 continuation
+
+User requested commit/push and E-05 implementation on the same branch. E-04's
+verified implementation/evidence is recorded in this checkpoint; the following
+E-05 entry will record its actual commit. No runtime changes since verification.
+Continue with R-05 provenance, safe destinations, parity and write-failure recovery.
+The master's priorities remain authoritative; E-06 full native acceptance follows.
+
+### 2026-11-15 — E-04 implementation and focused native verification
+
+- **Work:** Native diagnostic labels are resolved in Python before serialization.
+  Only retained canonical samples yield targets; row keys never become addresses.
+  The pane shows counts/caps/truncation and group/missing/ambiguous context, with
+  native buttons/live status. Configured current-result preflight, captured host
+  IDs/geometry and numeric bounds guard selection. No artifact/public API changes.
+- **Verification:** 13 identity tests and 19 browser cases pass; 72 existing
+  browser regressions also passed. Full runtime: 3,675 passed, 91 browser cases
+  skipped in that ordinary job. Ruff/mypy and CDN/bundled/shared-browser smoke pass.
+  Strict docs, Markdown links/anchors, whitespace and installed-distribution
+  probes pass. The master records the final project verification and pickup.
+- **Native:** [Recorded build/fixture/policy evidence](artifacts/e04-native-navigation.json)
+  verifies F8 selection on an offset/apostrophe source, unchanged selected value,
+  correction → Stale/disabled target → fresh Current three-pass result. Automation
+  transcription/capture issues were recovered and recorded; no full E-06 claim.
+- **Stopping point:** Uncommitted reviewable E-04 work on the feature branch.
+  Review diff/evidence and prepare a refreshed master checkpoint before commit.
+  Follow the master's E-05 priority next. E-06 output/scale/CLI acceptance remains.
 
 ### 2026-11-15 — Implementation merged; E-04 resumes from main
 

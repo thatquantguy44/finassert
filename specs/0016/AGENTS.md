@@ -9,8 +9,8 @@ web/app.js, the Python web/Excel bridge, artifact source context, build scripts 
 Office stand-in/browser tests. Read owning 0011/0005/0007 instructions when changing
 their shared contracts; 0013 continues to own file readers.
 
-- E-01/E-02 and configurable E-03 have recorded implementation/evidence;
-  E-04–E-06 remain proposed. Do not claim real Excel
+- E-01–E-04 have recorded implementation/evidence;
+  E-05/E-06 remain proposed. Do not claim real Excel
   support, API availability, performance or completed work without actual evidence.
 - Keep one explicit source, generation-safe operations, and freshness separate from
   financial outcomes. Missing events never authorize trusting stale stored data.
