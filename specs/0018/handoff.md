@@ -3,12 +3,20 @@
 ## Current state
 
 The local reader, pinned Git API and Excel panel are implemented on
-`feature/quantsmith-readonly-docs`. The full Linux runtime and bundled browser
+`feature/quantsmith-readonly-docs`. Draft PR #28 now targets main after the
+earlier stacked PR merged into the already-merged Excel branch. The full Linux runtime and bundled browser
 suites pass, including synthetic Git/API and panel coverage. A private QuantSmith
 checkout is unavailable in this execution workspace, so no live private-file service or Mac Excel observation
 is claimed. Follow the master handoff for overall priority.
 
 ## Entries
+
+### 2026-11-15 — Direct delivery PR after stacked merge
+
+PR #26 merged Excel into main before PR #27 merged this reference into the
+Excel branch. Draft PR #28 now compares the same QuantSmith reader directly to
+main: 27 changed files, mergeable. No reader code changed in this
+checkpoint. Private-checkout and native Mac inspection remain pending.
 
 ### 2026-11-15 — Initial local pinned reader
 

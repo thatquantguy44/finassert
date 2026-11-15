@@ -23,11 +23,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Implemented an optional pinned QuantSmith reference reader for the Excel add-in; E-06 Mac acceptance remains open on the Excel branch.
+- **Last worked on:** Opened a direct QuantSmith delivery PR after the stacked PR merged into the Excel branch following its merge to main.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
-- **Verification:** 3,700 runtime and 107 bundled browser tests pass, including synthetic pinned Git/API and reference-panel coverage. Both Excel smoke modes, shared browser/file smoke, a 50,000-row Office stand-in diagnostic, Ruff/format, mypy, strict docs and isolated distribution probes pass. No private QuantSmith checkout or Mac Excel host was available for live reference/native acceptance.
-- **Branch:** `feature/quantsmith-readonly-docs`, based on `feature/excel-diagnostic-navigation` at `c4b169a` (draft PR #26); this checkpoint contains only the QuantSmith reference changes.
+- **Verification:** PR #28 shows the QuantSmith reader across 27 changed files against main and is mergeable. The prior combined branch passed 3,700 runtime and 107 bundled browser tests, smoke checks, Ruff/format, mypy, strict docs and distribution verification. This checkpoint changes only handoff documentation; private-checkout and Mac Excel checks remain pending.
+- **Branch:** `feature/quantsmith-readonly-docs`; [draft PR #28](https://github.com/thatquantguy44/finassert/pull/28) targets main. PR #26 merged Excel into main before PR #27 merged QuantSmith into the Excel branch.
   E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
   capture and spec 0017's Git-backed handoff guards are merged and verified.
 - **Implementation PR:** [#25](https://github.com/thatquantguy44/finassert/pull/25)
@@ -42,10 +42,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Scope:** finassert only; no release/tag or downstream application change.
 - **Remaining product scope:** E-01–E-05 have focused native/automated evidence.
   Full E-06 acceptance and external review remain; no broad support claim yet.
-- **Stopping point:** The optional QuantSmith reader is implemented in this checkpoint; private-checkout/live Excel reference verification and full E-06 Mac acceptance remain.
+- **Stopping point:** QuantSmith is pending review in direct-to-main draft PR #28; private-checkout/live Excel reference verification and full E-06 Mac acceptance remain.
 - **E-04 commit:** [6bbf6b9](https://github.com/thatquantguy44/finassert/commit/6bbf6b9bd44992ada89a901277f5a9eae54ee78e)
   precedes E-05 at `4862ce7`; E-06 Linux preflight is `c4b169a` on
-  [draft PR #26](https://github.com/thatquantguy44/finassert/pull/26).
+  [merged PR #26](https://github.com/thatquantguy44/finassert/pull/26).
 - **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
   describes both Git and filesystem modes for reuse elsewhere. Finassert's
   implemented checker remains Git-backed; no filesystem backend was added here.
@@ -87,8 +87,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "c4b169a242eec9d188cb5d0c87b266a789d08c56",
+  "prior_head": "73c1829214f872924c3ed1ebac79db0dbfe824b7",
   "recent_commits": [
+    {
+      "commit": "73c1829214f872924c3ed1ebac79db0dbfe824b7",
+      "subject": "feat(excel): add pinned QuantSmith reference reader"
+    },
     {
       "commit": "c4b169a242eec9d188cb5d0c87b266a789d08c56",
       "subject": "test(excel): record E-06 Linux preflight"
@@ -104,43 +108,14 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "251542222cf52a34fb00e89b60279581a3728c03",
       "subject": "docs: save reusable handoff enforcement prompt"
-    },
-    {
-      "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
-      "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
     }
   ],
   "changed_paths": [
-    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "docs/quantsmith-reference.md",
-    "docs/roadmap.md",
-    "integrations/quantsmith-docs.lock.json",
-    "mkdocs.yml",
-    "pyproject.toml",
-    "scripts/build_web.py",
-    "scripts/quantsmith_docs.py",
-    "scripts/serve_excel.py",
-    "specs/0011/contracts.md",
-    "specs/0011/handoff.md",
-    "specs/0011/spec.md",
-    "specs/0016/handoff.md",
-    "specs/0018/AGENTS.md",
-    "specs/0018/contracts.md",
-    "specs/0018/handoff.md",
-    "specs/0018/plan.md",
-    "specs/0018/roadmap.md",
-    "specs/0018/spec.md",
-    "specs/0018/tasks.md",
-    "specs/README.md",
-    "tests/browser/test_excel_quantsmith_reference.py",
-    "tests/unit/test_quantsmith_docs.py",
-    "web/app.css",
-    "web/excel-panel.html",
-    "web/quantsmith-docs.js"
+    "specs/0018/handoff.md"
   ],
-  "project_sha256": "d61f6e077314ff4278bdc6ca52403af6c947865960202421fc52ed83fa96b73c",
-  "reviewed_sections_sha256": "66abacc1f9e7c61e484d74ddb02627bcdf0ec975dd911d594554c3ea8b39908a"
+  "project_sha256": "cb73ce7b65171091543a03d0bebfcba7c37f004ca52e3b5b7e32434e79770de1",
+  "reviewed_sections_sha256": "91bd74196e64e7130ca2cd962d1565d264c776152069f3419513ad9d32d555a5"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -159,6 +134,15 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — Route QuantSmith directly to main
+
+- **Worked on:** Opened a direct QuantSmith delivery PR after the stacked PR merged into the Excel branch following its merge to main.
+- **Stopping point:** QuantSmith is pending review in direct-to-main draft PR #28; private-checkout/live Excel reference verification and full E-06 Mac acceptance remain.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Execute the pending real-host rows of 0016 acceptance.md on Mac Excel, including both epochs, CLI/export parity and 50,000-row native timings; obtain external review.
+- **Verification:** PR #28 shows the QuantSmith reader across 27 changed files against main and is mergeable. The prior combined branch passed 3,700 runtime and 107 bundled browser tests, smoke checks, Ruff/format, mypy, strict docs and distribution verification. This checkpoint changes only handoff documentation; private-checkout and Mac Excel checks remain pending.
+- **Branch / PR:** [Draft PR #28](https://github.com/thatquantguy44/finassert/pull/28) targets main from `feature/quantsmith-readonly-docs`. PR #26 merged into main first; PR #27 then merged the QuantSmith commit into the Excel branch. No revert or repeated implementation is needed.
 
 ### 2026-11-15 — Optional pinned QuantSmith reference in Excel
 
