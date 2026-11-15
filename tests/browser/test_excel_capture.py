@@ -139,8 +139,8 @@ def test_existing_unowned_sheets_are_never_cleared_by_name(pane, name, control):
         name,
     )
     pane.click(control)
-    workflow(pane, "Blocked")
-    expect(pane.locator("#status")).to_contain_text("not created in this pane session")
+    workflow(pane, "Current")
+    expect(pane.locator("#status")).to_contain_text(name + " (2)")
     assert pane.evaluate("name => window.__excel.sheets[name].cells", name) == [
         ["unrelated content"]
     ]

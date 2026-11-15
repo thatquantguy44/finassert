@@ -128,3 +128,7 @@ label.checkbox input { width: auto; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; }
+/* Live Excel diagnostic examples wrap to fit a narrow task pane. */
+.excel-finding { border-top: 1px solid #ccd3df; margin-top: 1rem; padding-top: .5rem; }
+.excel-observation { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; }
+.excel-finding button { display: block; margin: .4rem 0; white-space: normal; text-align: left; }

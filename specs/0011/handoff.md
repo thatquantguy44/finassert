@@ -5,9 +5,31 @@
 Initial policy, CLI, HTML, browser, assistant, and Excel add-in implementations exist on main.
 Live-workbook [0016](../0016/spec.md) now has verified E-01/E-02 native baseline
 and explicit source/date binding plus configurable E-03 freshness/capture.
-E-04–E-06 and full Mac acceptance remain pending.
+E-04 now adds bounded diagnostic navigation and focused native F8 evidence.
+E-05 adds verified provenance, canonical outputs, unique names, saved ownership and
+write-error recovery. Full E-06 acceptance remains pending; follow the master ordering.
 
 ## Entries
+
+### 2026-11-15 — E-05 verified exports and owned destinations
+
+Live exports now include scalar input.excel source provenance and use canonical
+retained samples/counts in HTML and results sheets. New outputs are uniquely named;
+replacement checks explicit saved worksheet IDs and never clears a bound source.
+Policy save/load is independent of freshness/capture settings. Failed/cancelled
+writes remain incomplete where the host permits recovery. Native saved ownership
+and exact quoted-address/source integrity were checked; 3,697 runtime and 106
+browser cases plus shared browser/file smoke pass. Full E-06 remains next.
+
+### 2026-11-15 — E-04 live diagnostic navigation
+
+Private live-range results now include bounded navigation metadata resolved from
+native canonical samples and the effective rule mapping before JSON conversion.
+The Excel pane renders text/buttons, checks currentness/source bounds and selects
+only a source cell or row rectangle. File/browser outputs, policy and artifacts
+remain compatible. Identity/browser/native evidence is recorded in
+[0016 artifacts](../0016/artifacts/README.md#e-04-diagnostic-navigation).
+Follow the master pickup for E-05; full Mac acceptance remains E-06.
 
 ### 2026-11-14 — E-03 shared application lifecycle
 

@@ -2,9 +2,11 @@
 
 ## Current state
 
-- **Status:** E-01–E-03 implemented and verified; E-04–E-06 pending.
-  AC-01/02/05 verified for their slices; full acceptance remains pending.
-- **Branch:** main; PR #25 merged E-01–E-03 at 32cf4ab.
+- **Status:** E-01–E-05 implemented and verified for their slices; full E-06 pending.
+  AC-01–06 and AC-08 have slice evidence; full acceptance remains pending.
+- **Branch:** feature/excel-diagnostic-navigation from main 2515422;
+  E-04 is pushed as 6bbf6b9; E-05 is in the enclosing checkpoint.
+  PR #25 merged E-01–E-03 at 32cf4ab.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -16,10 +18,89 @@
   See [evidence](artifacts/README.md).
 - **Native:** Excel 16.115 / Mac; 50,000-row baseline all PASS. Both epochs,
   hidden row, actual table totals and selection-preserving Run verified.
-- **Next:** E-04 bounded diagnostic navigation, then E-05 provenance/output
-  ownership and E-06 complete Mac acceptance.
+- **E-04:** Canonical findings, bounded physical cell/row targets, key ambiguity,
+  missing series, keyboard/live feedback and configured preflight implemented.
+  13 identity tests, 19 E-04 browser cases and focused native F8 selection pass.
+- **E-05:** Validated input.excel provenance, canonical output parity, unique
+  names, saved ownership/explicit replacement, policy picker/independence and
+  incomplete-write recovery. 22 unit and 15 E-05 browser cases; full runtime
+  3,697 and full browser 106 pass. Native export/reopen/integrity evidence retained.
+- **E-06 preflight:** On Linux at source `4862ce7`, 3,697 runtime and 106 bundled
+  browser tests passed. Excel bundled and CDN-page/local-runtime smoke, shared
+  browser/file smoke, 50,000-row Office stand-in diagnostic, quality/docs and
+  distribution checks passed after correcting hidden-DOM harness assertions.
+  See [acceptance](acceptance.md#2026-11-15-automated-preflight-linux).
+- **Native stopping point:** Current, three passed, disposable C7:H9/1904 with
+  final quote-preserving results saved. Full E-06 acceptance is still pending.
+- **Next:** Run the full acceptance checklist in Mac Excel when a host is
+  available, then obtain external review. No real-host row was completed here.
 
 ## Entries
+
+### 2026-11-15 — E-06 Linux preflight; Mac acceptance remains open
+
+- **Work:** Ran automated E-06 regressions against `4862ce7` and repaired
+  browser/smoke assertions that used `innerText` on hidden DOM elements. Added a
+  configurable 50,000-row Office stand-in diagnostic. No production behavior
+  changed.
+- **Verification:** 3,697 runtime and 106 bundled browser tests; both Excel
+  smoke modes, shared browser/file smoke, 50,000-row planted failures and source
+  integrity, Ruff/format, mypy, strict docs and isolated distribution probes pass.
+  Exact synthetic timings and bundle hashes are in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux).
+- **Stopping point:** No Mac Excel host was available. Full native E-06 workflow,
+  both epochs, CLI/export tie-out, 50,000-row native timings and review remain.
+- **Pickup:** Follow the master's E-06 priority: execute the pending real-host
+  rows on the same build and record actual fixture, policy and output evidence.
+
+### 2026-11-15 — E-05 verified source evidence and output lifecycle
+
+- **Branch:** E-04 committed/pushed as 6bbf6b9; user authorized E-05 on the same
+  feature branch. This checkpoint contains the complete E-05 implementation.
+- **Work:** Private strict input.excel context after verification; shared canonical
+  HTML/JSON/sheet results with captured/verified times and evaluated snapshot hash.
+  Outputs use unique names, saved add-in-scoped worksheet ID ownership and explicit
+  completed-results replacement. Source/role guards and preflight remain mandatory.
+  Stage text/rows before writes, preserve literal quotes/formula guards, and report
+  partial/protected/cancel failures without claiming atomicity/completion.
+- **Verification:** 3,697 runtime and 106 browser passes, including 22 new context
+  and 15 output cases. CDN/bundled/shared-browser smoke, Ruff/format and mypy pass.
+  Strict docs, 179 local Markdown links/anchors, whitespace and installed
+  distribution probes also pass; the master records final verification/pickup.
+- **Native:** [Evidence](artifacts/e05-native-exports.json) records actual build
+  hashes and both phases: saved unique outputs/explicit replacement/policy/ownership
+  reopening, then corrected literal apostrophe handling. Saved C7:H11 values,
+  number formats, cell types and hidden row match the original synthetic fixture.
+- **Pickup:** Review the stack and execute full E-06 acceptance.md, including
+  both epochs, CLI/export parity and 50,000-row workflow timings. No full E-06 or
+  broad platform support claim; no PR/merge/release requested in this continuation.
+
+### 2026-11-15 — E-04 commit checkpoint and E-05 continuation
+
+User requested commit/push and E-05 implementation on the same branch. E-04's
+verified implementation/evidence is recorded in this checkpoint; the following
+E-05 entry will record its actual commit. No runtime changes since verification.
+Continue with R-05 provenance, safe destinations, parity and write-failure recovery.
+The master's priorities remain authoritative; E-06 full native acceptance follows.
+
+### 2026-11-15 — E-04 implementation and focused native verification
+
+- **Work:** Native diagnostic labels are resolved in Python before serialization.
+  Only retained canonical samples yield targets; row keys never become addresses.
+  The pane shows counts/caps/truncation and group/missing/ambiguous context, with
+  native buttons/live status. Configured current-result preflight, captured host
+  IDs/geometry and numeric bounds guard selection. No artifact/public API changes.
+- **Verification:** 13 identity tests and 19 browser cases pass; 72 existing
+  browser regressions also passed. Full runtime: 3,675 passed, 91 browser cases
+  skipped in that ordinary job. Ruff/mypy and CDN/bundled/shared-browser smoke pass.
+  Strict docs, Markdown links/anchors, whitespace and installed-distribution
+  probes pass. The master records the final project verification and pickup.
+- **Native:** [Recorded build/fixture/policy evidence](artifacts/e04-native-navigation.json)
+  verifies F8 selection on an offset/apostrophe source, unchanged selected value,
+  correction → Stale/disabled target → fresh Current three-pass result. Automation
+  transcription/capture issues were recovered and recorded; no full E-06 claim.
+- **Stopping point:** Uncommitted reviewable E-04 work on the feature branch.
+  Review diff/evidence and prepare a refreshed master checkpoint before commit.
+  Follow the master's E-05 priority next. E-06 output/scale/CLI acceptance remains.
 
 ### 2026-11-15 — Implementation merged; E-04 resumes from main
 

@@ -22,9 +22,14 @@ does not define another version of the workflow.
   configure event/on-demand monitoring and verified/snapshot-only capture. Current
   export requires fresh comparisons in both monitoring modes; snapshot-only never
   becomes Current. Core outcomes and existing artifact schemas remain unchanged.
-- Proposed E-05: optional input.excel context is additive under artifact schema 1. Existing
+- E-04: a private live-only navigation response resolves retained native row labels
+  before JSON serialization. Exact counts/caps and canonical diagnostic samples
+  stay unchanged. Duplicate/colliding keys require a unique key and rerun;
+  missing groups/periods have no target. Selection uses source IDs, numeric bounds
+  and the configured current-result preflight. No public/artifact schema changes.
+- E-05: optional input.excel context is additive under artifact schema 1. Existing
   consumers may ignore it; artifacts without live context stay unchanged.
-- Proposed E-05: output collisions use a new unique sheet by default; replacement identifies an
+- E-05: output collisions use a new unique sheet by default; replacement identifies an
   owned destination explicitly and can never clear a bound source.
 
 E-02 implements the first two migrations. E-03 adds generation-safe capture,
@@ -33,9 +38,13 @@ actions. Its digest encoding and bounds are canonical in
 [R-02](spec.md#r-02-freshness-and-run-lifecycle) and
 [capture encoding](spec.md#canonical-capture-encoding-v1). Formula identity is
 private and separate from the evaluated snapshot digest. Parent 0011's shared
-application clears obsolete file results on policy/input changes. E-05 provenance,
-owned destination/collision handling and navigation remain pending; artifact
-changes will require the affected 0005/0011 contracts and legacy fixture checks.
+application clears obsolete file results on policy/input changes. E-04 now adds
+the bounded diagnostic panel and guarded selection. E-05 now validates/stamps
+provenance and uses saved ID-based ownership, explicit completed-results
+replacement, unique names, policy loading choices and incomplete-write recovery.
+HTML/sheet live views consume the canonical retained collections without extra
+hidden caps. File/CLI artifact shapes and rendering stay unchanged. See R-05 and
+data contracts for the normative ownership/provenance fields and limits.
 
 Range mode additionally requires stable ExcelApi 1.13 to detect merged headers;
 table mode retains the manifest's 1.7 floor. Hosts without 1.13 get an explicit

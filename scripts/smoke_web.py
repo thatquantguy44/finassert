@@ -84,9 +84,10 @@ def main(argv: list[str] | None = None) -> int:
             re.compile(r"^(Ready|The checking engine could not)"),
             timeout=arguments.timeout * 1000,
         )
-        if not status.inner_text().startswith("Ready"):
+        status_text = status.text_content() or ""
+        if not status_text.startswith("Ready"):
             browser.close()
-            print(f"FAIL: engine did not start: {status.inner_text()}")
+            print(f"FAIL: engine did not start: {status_text}")
             print("\n".join(console))
             return 1
         startup_requests = len(requests)
@@ -98,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
         expect(page.locator(".check")).to_have_count(2)
         page.click("#run")
         expect(page.locator("#results")).to_be_visible()
-        banner = page.locator("#result-banner").inner_text()
+        banner = page.locator("#result-banner").text_content() or ""
         print(f"result: {banner}")
         if banner != EXPECTED_BANNER:
             failures.append(f"unexpected result banner {banner!r}")
@@ -178,7 +179,7 @@ def _check_workbook(page: Any, scratch: Path, failures: list[str]) -> None:
     page.select_option("#sheet-select", "Positions")
     expect(page.locator("#data-name")).to_contain_text('sheet "Positions": 5 row(s)')
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"workbook result: {banner}")
     if banner != EXPECTED_BANNER:
         failures.append(f"unexpected workbook result {banner!r}")
@@ -200,9 +201,11 @@ def _check_cash_reconciliation(page: Any, scratch: Path, failures: list[str]) ->
     page.select_option("#template", "cash-reconciliation")
     expect(page.locator(".check")).to_have_count(1)
     expect(page.locator("fieldset.columns input:checked")).to_have_count(2)
-    expect(page.locator("fieldset.columns legend").first).to_be_visible()
+    expect(page.locator("fieldset.columns legend").first).to_have_text(
+        "Reconcile separately for each"
+    )
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"cash result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 0 passed.":
         failures.append(f"unexpected cash reconciliation result {banner!r}")
@@ -223,7 +226,7 @@ def _check_multi_portfolio(page: Any, failures: list[str]) -> None:
     page.select_option("#template", "multi-portfolio-holdings")
     expect(page.locator(".check")).to_have_count(4)
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"holdings result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 3 passed.":
         failures.append(f"unexpected multi-portfolio result {banner!r}")
@@ -238,7 +241,7 @@ def _check_limits_policy(page: Any, failures: list[str]) -> None:
     page.set_input_files("#policy-file", str(EXAMPLES / "limits-policy.yml"))
     expect(page.locator(".check")).to_have_count(3)
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"limits result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed.":
         failures.append(f"unexpected limits result {banner!r}")
@@ -257,7 +260,7 @@ def _check_limits_policy(page: Any, failures: list[str]) -> None:
     check.get_by_label("Largest allowed position (required)").fill("0.6")
     check.locator("fieldset.columns").first.get_by_label("portfolio").check()
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"hand-built limit result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 0 passed.":
         failures.append(f"unexpected hand-built limit result {banner!r}")
@@ -281,7 +284,7 @@ def _check_suggestions(page: Any, scratch: Path, failures: list[str]) -> None:
     expect(page.locator(".check")).to_have_count(4)
     expect(page.locator("#template-notes")).to_contain_text("Confirm the columns finassert matched")
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"matched-columns result: {banner}")
     if not banner.startswith("✓ Passed"):
         failures.append(f"unexpected matched-columns result {banner!r}")
@@ -303,7 +306,7 @@ def _check_warning_severity(page: Any, scratch: Path, failures: list[str]) -> No
     page.set_input_files("#policy-file", str(policy))
     expect(page.locator(".check")).to_have_count(2)
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"warning result: {banner}")
     if banner != "✓ Passed with 1 warning(s): 1 passed, 0 skipped.":
         failures.append(f"unexpected warning result {banner!r}")
@@ -319,7 +322,7 @@ def _check_portfolio_pack(page: Any, failures: list[str]) -> None:
     page.set_input_files("#policy-file", str(EXAMPLES / "rebalance-policy.yml"))
     expect(page.locator(".check")).to_have_count(4)
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"rebalance result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed. 1 more only warned.":
         failures.append(f"unexpected rebalance result {banner!r}")
@@ -332,7 +335,7 @@ def _check_portfolio_pack(page: Any, failures: list[str]) -> None:
     page.select_option("#template", "position-rollforward")
     expect(page.locator(".check")).to_have_count(3)
     page.click("#run")
-    banner = page.locator("#result-banner").inner_text()
+    banner = page.locator("#result-banner").text_content() or ""
     print(f"rollforward result: {banner}")
     if banner != "✗ Failed: 1 failed, 0 could not run, 2 passed.":
         failures.append(f"unexpected rollforward result {banner!r}")

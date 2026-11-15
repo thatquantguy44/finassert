@@ -88,6 +88,8 @@ def build(pyodide_url: str = PYODIDE_URL, *, excel: bool = False) -> str:
     excel_js = (
         (WEB / "excel-capture.js").read_text(encoding="utf-8")
         + "\n"
+        + (WEB / "excel-output.js").read_text(encoding="utf-8")
+        + "\n"
         + (WEB / "excel.js").read_text(encoding="utf-8")
         if excel
         else ""

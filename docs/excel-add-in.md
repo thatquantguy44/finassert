@@ -25,8 +25,9 @@ ADD_IN_VERSION in scripts/build_excel.py when releasing an updated manifest.
 The next delivery is scoped in
 [spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
 explicit source/date binding and configurable stable capture/freshness are
-implemented as E-02/E-03. Diagnostic navigation, source provenance, safe output
-ownership and complete Mac acceptance remain proposed as E-04–E-06.
+implemented as E-02/E-03. E-04 navigation and E-05 verified snapshot exports,
+unique destinations and saved ownership are implemented on the current feature
+branch. Complete E-06 Mac acceptance remains pending.
 
 ## What it does
 
@@ -46,26 +47,53 @@ ownership and complete Mac acceptance remain proposed as E-04–E-06.
    The pane shows Current only after matching stable captures around evaluation.
    Relevant edits, recalculation, policy or settings changes make old results
    historical. Currentness is separate from whether the financial checks passed.
-3. **Report.** The report names rows by the sheet's own row numbers, so "row 6" is row
-   6 in Excel, even when your selection starts lower down.
+3. **Report and navigate.** Diagnostic findings show complete counts, example
+   caps, truncation and retained row/group examples. Use **Select cell** or
+   **Select source row** with a mouse or keyboard. Navigation rechecks the source,
+   then selects one unambiguous cell or the source columns of a physical row.
+   Ordinary labels use Excel's physical row numbers, including gaps. Configured
+   business keys are resolved against the captured data; they are never treated
+   as worksheet row numbers. Duplicate/colliding keys require a unique key and
+   rerun. Missing groups/periods show **No source row**. Stale, blocked and
+   snapshot-only results cannot navigate; correct the cause and rerun.
 4. **Write results to a sheet.** A Current result is reread and compared again
    before sheet/JSON/HTML export; missed events cannot authorize an old result.
-   One button creates a sheet named
-   `finassert results`. It opens with a stamp that makes the sheet usable as evidence:
+   The default button creates `finassert results`, or a unique numbered name
+   when that name already exists. It opens with a snapshot stamp:
    the outcome, the policy's name and fingerprint, what was checked
-   (`Holdings!A3:E7`), the counts, the time (UTC), and the finassert version. Below it
-   is each check and each problem row.
+   (`Holdings!A3:E7`), source IDs/bounds, parsed and physical row counts, date
+   interpretation, evaluated snapshot digest, capture/verification times (UTC)
+   and the finassert version. Each check shows canonical counts/caps/truncation
+   and retained examples. **Refresh output sheets**, choose a completed owned
+   destination, then **Replace selected results sheet** to replace it explicitly.
+   Exported evidence describes its captured snapshot; later source edits require
+   a new run and never silently rewrite earlier output.
 5. **Save and load the checks.** "Save these checks in the workbook" writes the policy
-   to a sheet named `finassert policy`, one line per row, so the workbook carries its
+   to `finassert policy` or a new unique name, one line per row, so the workbook carries its
    own checks and a colleague can load them with "Load the checks saved in the
-   workbook". The sheet is plain text you can read and edit; the add-in reads column A
-   from row 3.
+   workbook". Choose the saved policy in the picker; use **Refresh saved policies**
+   after reopening. The sheet is plain text you can read and edit; the add-in reads
+   column A from row 3. Valid policy save/load and YAML download remain available
+   independently of result freshness or invalid capture settings. Legacy default
+   policy sheets can still be read without being adopted as writable destinations.
 
 **Your source data is never changed.** Normal output uses `finassert results`
-and `finassert policy`. Replacement is allowed only for sheets created in the
-current pane session, and never the bound source sheet. A pre-existing name
-collision reports an error; rename that sheet before retrying. Unique-name and
-durable output ownership controls remain E-05 work.
+and `finassert policy` with unique names on collision. Replacement requires a
+completed results sheet's saved ownership ID and can never clear a bound source
+sheet. Ownership is saved with the workbook, independently of session-only source
+and capture settings. Names alone, including outputs from older builds without
+ownership records, do not authorize replacement.
+
+## Output failures
+
+Rows and text limits are checked before creating or clearing a sheet. Excel output
+is limited to 5,000,000 cells, normal worksheet bounds and 32,767 characters per
+cell; use JSON/HTML for larger text. Protected sheets, host errors or cancellation
+report an export failure and may leave a clearly incomplete destination. Completion
+is recorded only after body/style writes succeed. Recovery marks the same owned
+operation incomplete where the host permits it; no partial sheet is deleted.
+Correct the cause, rerun checks for a Current result and create a new output.
+If completion cannot be confirmed, do not use that sheet as completed evidence.
 
 ## Freshness and capture settings
 
@@ -82,10 +110,10 @@ Changing settings requires a new run.
 | Cells per request | 50,000 | 1,000–50,000 |
 | Operation timeout | 120 seconds | 1–300 seconds |
 
-On demand turns off immediate value/format/calculation alerts; Run and export
+On demand turns off immediate value/format/calculation alerts; Run, navigation and export
 still verify the source. Current always describes the last verification time.
 Snapshot only evaluates one capture for inspection and stays unverified/Stale;
-current-result exports remain unavailable. Restore defaults returns to live events
+current-result exports and navigation remain unavailable. Restore defaults returns to live events
 and two matching captures. Neither option changes the financial rules.
 
 Unbound needs a source; Ready needs a run; Reading/Checking are in progress;

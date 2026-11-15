@@ -18,8 +18,9 @@ The next live-workbook milestone is scoped separately in
 binding, result freshness, diagnostic navigation, date interpretation and real
 Mac acceptance. E-01/E-02 now supply actual native baseline evidence and explicit
 source/date binding and E-03 session-configurable freshness/stable capture.
-Navigation, source provenance/output ownership and complete E-06 acceptance
-remain proposed; no broad platform support follows from the early Mac checks.
+E-04 navigation and E-05 verified snapshot provenance/safe output now have focused
+native and automated evidence. Complete E-06 acceptance remains proposed; no broad
+platform support follows from these focused Mac checks.
 
 ## Problem statement
 

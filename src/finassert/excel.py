@@ -19,11 +19,13 @@ row a person sees in Excel.
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Mapping, Sequence
 from decimal import Decimal
 from typing import Any
 
+from finassert._excel_evidence import context_rows
 from finassert._xlsx import _excel_date, _is_date_format, column_letter
 from finassert.core.exceptions import InvalidDataError
 from finassert.loaders import TableSource, parse_cell
@@ -147,7 +149,32 @@ def results_table(artifact: Mapping[str, Any]) -> list[list[Any]]:
     for position, result in enumerate(results):
         title = (titles[position] if position < len(titles) else None) or result["rule_name"]
         rows.append([title, _label(result), result["severity"], "", result["message"]])
-        rows.extend(_detail_rows(result.get("metadata") or {}, title))
+        if (artifact.get("input") or {}).get("excel"):
+            for collection in result.get("diagnostics", []):
+                rows.append(
+                    [
+                        title,
+                        "",
+                        "",
+                        "",
+                        f"{collection['kind']}: {collection['count']} total; "
+                        f"example cap {collection['limit']}; "
+                        f"{len(collection['observations'])} shown; "
+                        f"truncated: {collection['truncated']}",
+                    ]
+                )
+                for observation in collection["observations"]:
+                    rows.append(
+                        [
+                            title,
+                            "",
+                            "",
+                            _scalar(observation.get("row")),
+                            json.dumps(observation, ensure_ascii=False, allow_nan=False),
+                        ]
+                    )
+        else:
+            rows.extend(_detail_rows(result.get("metadata") or {}, title))
     return [[_safe(cell) for cell in row] for row in rows]
 
 
@@ -186,6 +213,8 @@ def results_sheet(artifact: Mapping[str, Any]) -> tuple[list[list[Any]], list[in
         ["Your data was not changed."],
         [],
     ]
+    if source.get("excel"):
+        stamp[-2:-2] = [list(row) for row in context_rows(source["excel"])]
     table = results_table(artifact)
     rows = [_pad(_safe_row(row)) for row in [*stamp, *table]]
     return rows, [0, len(stamp)]

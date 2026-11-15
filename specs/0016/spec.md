@@ -1,8 +1,8 @@
 # 0016 — Excel add-in validation workflow
 
-**Status:** E-01/E-02 verified; E-03 configurable capture/freshness implemented;
-E-04–E-06 remain proposed. See [verification evidence](artifacts/README.md).
-**Updated:** 2026-11-14
+**Status:** E-01–E-05 implemented with focused native and automated evidence;
+full E-06 acceptance remains proposed. See [verification evidence](artifacts/README.md).
+**Updated:** 2026-11-15
 **Owner:** finassert. Mac desktop is the first real-host acceptance target.
 
 ## Problem statement
@@ -189,6 +189,23 @@ formulas or external links from diagnostic text. Navigation changes selection
 and active sheet only. Sorting, resizing or deleting the source invalidates old
 targets. Keyboard users must have the same navigation action and status feedback.
 
+The E-04 bridge resolves native diagnostic labels in Python before JSON conversion.
+Its session-only navigation response accompanies live-range results; canonical
+report/artifact diagnostics and file/browser results remain unchanged. Only
+retained `row`, `previous_row` and `rows` examples produce targets. An explicit
+physical diagnostic column (including a single-column rule's metadata) selects
+a cell; otherwise navigation selects only the source columns of that row.
+Duplicate or serialized-collision business keys require a unique key and rerun;
+there is no candidate picker in this slice. Nonfinite/unsafe JSON numeric keys
+are also blocked, rather than rounded into a target. Missing/unresolvable keys
+require mapping review and rerun.
+
+The pane renders diagnostic text as text, with native buttons and a live status.
+Every navigation action uses the configured current-result capture preflight,
+then resolves the source by worksheet/table identity and checks captured geometry
+and numeric row/column bounds before host selection. This has the same
+between-request cancellation and non-atomic snapshot limits as R-02.
+
 ### R-04: Explicit date interpretation
 
 The live adapter passes date1904 explicitly and records whether it came from a
@@ -224,6 +241,31 @@ writes. Do not adopt arbitrary existing sheets as owned merely by their name.
 Stage output data before writes; a failed host write reports an export error and
 never marks an incomplete sheet as completed evidence. Excel writes are not
 claimed atomic. Preserve literal text and formula-injection protections.
+Range.values consumes one leading apostrophe in native Excel even for text cells;
+the output writer escapes that prefix so staged literal strings survive exactly.
+
+E-05 uses add-in-scoped workbook settings under `finassert.output.v1.<sheet-id>`
+for ownership schema 1: worksheet_id, role (results/policy), state
+(incomplete/complete) and an operation token. These records persist when the
+workbook is saved; they are lifecycle metadata, not an authentication mechanism.
+Only an explicitly selected completed owned results ID may be replaced. Recheck
+its role/ID and the bound source before clearing; names and old session caches
+never authorize replacement. Incomplete destinations require a new export.
+
+Every normal results or policy save defaults to a new unique name, including when
+an earlier owned output exists. The policy picker loads completed owned policies;
+the legacy `finassert policy` sheet remains readable without being adopted for
+writes. Policy save/load does not require a Current result or valid capture settings.
+
+Stage complete rows, canonical diagnostic counts/caps/examples and provenance
+before host mutation. Reject output above 5,000,000 cells, Excel's row/column
+limits, or 32,767 characters per cell; suggest JSON/HTML instead. Write literal
+text in bounded chunks, leave an INCOMPLETE marker and ownership state until all
+body/style requests succeed, then finalize. Cancellation stops body writes;
+failure/cancellation performs a best-effort incomplete-marker recovery only on
+the same owned operation and never a bound source. No new recovery calls start
+after pane shutdown. If recovery fails, report the destination and uncertainty;
+do not delete the partial sheet or claim atomicity/completion.
 
 ### R-06: Real-host acceptance
 
@@ -238,12 +280,13 @@ for the Mac run. No production support claim follows from a passing stub test.
 No new public financial factory, policy version, CLI command or stable Python
 evaluation API is proposed. Private app/Office bridge methods may accept a source
 descriptor and result generation. An additive optional input.excel artifact field
-is proposed under artifact schema 1; file/CLI artifacts that do not supply it stay
-unchanged. Final typed plumbing belongs in E-03/E-05, with contract regressions.
+is implemented under artifact schema 1; file/CLI artifacts that do not supply it stay
+unchanged. The private live bridge validates an allowlist of scalar fields and
+attaches it only after capture verification; no public evaluation signature changes.
 
 ## Data contracts
 
-The proposed input.excel object has source schema_version 1:
+The optional input.excel object has source schema_version 1:
 
 | Field | Meaning |
 | --- | --- |
@@ -252,10 +295,20 @@ The proposed input.excel object has source schema_version 1:
 | table_name / table_id | Present for a table; resolved again at use |
 | address / header_row | Exact captured rectangle and 1-based worksheet header |
 | data_row_count / column_count | Parsed data-row count and source width, excluding table totals |
+| physical_data_row_count | Selected physical body rows, including blank gaps, excluding table totals |
 | hidden_rows | include_all; filters do not reduce the validated population |
 | date_system / date_system_source | String enum 1900 or 1904; host or user |
 | captured_at / verified_at | UTC snapshot and last comparison timestamps |
 | snapshot_sha256 | Digest of the versioned canonical evaluated payload |
+
+Required counts are positive integers within captured/Excel limits; parsed rows
+cannot exceed physical rows. Table ID/name are required only for table sources.
+Timestamps use UTC ISO text ending in Z; verified_at cannot precede captured_at.
+Unknown/full-record/session-map fields are rejected. JSON and HTML downloads and
+results-sheet output share the same canonical report; each action refreshes only
+verified_at after preflight, leaving generated_at, captured_at and snapshot identity
+unchanged. HTML and sheet views show the retained canonical diagnostic samples,
+exact totals, caps and truncation without a second hidden example cap.
 
 E-03 defines the private capture encoding below, with [fixed vectors](artifacts/e03-capture-vectors.json).
 Include effective policy digest separately; it already belongs in the artifact.
@@ -288,7 +341,7 @@ Also compare a private formula fingerprint using the same scalar/grid encoding
 of ["finassert.excel.formulas", 1, typed_formulas_grid]. This detects formula-text
 changes even when evaluated values match. It is separate from snapshot_sha256;
 neither hash proves external dependency completeness or uninterrupted atomicity.
-Source provenance remains in session memory until E-05 adds artifact plumbing.
+E-05 exports evaluated source provenance; formula identity remains private.
 
 The source summary distinguishes physical body rows from parsed data rows when
 the existing reader drops wholly blank rows. The capture digest retains the full

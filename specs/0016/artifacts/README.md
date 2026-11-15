@@ -253,3 +253,106 @@ by a macOS process sample), including a fresh-bytecode-cache attempt; it was
 stopped. The prior complete 3,624-test pass remains the runtime evidence; no
 Python runtime implementation changed afterward. Final served bytes matched the
 build and the latest native pane reopened Ready/Unbound with no epoch selected.
+
+## E-04 diagnostic navigation
+
+Implemented on `feature/excel-diagnostic-navigation` atop main `2515422`.
+The private Python bridge resolves only canonical retained examples before labels
+are serialized. The pane displays complete totals, caps and truncation, group
+context and missing-target explanations. Native buttons and live feedback use
+the same guarded action for keyboard and mouse. Duplicate/colliding business
+keys require a unique key and rerun. No public policy or artifact schema changed.
+
+[Focused native observations](e04-native-navigation.json) retain the actual build
+hash, fixture hash, policy fingerprint and host results. On the synthetic
+`'Holdings O''Brien'!C7:H9` source with explicit 1904 interpretation, a retained
+negative market-value finding selected F8 from F10; the formula bar still showed
+-400. Correcting F8 to 400 made the old target Stale/disabled, and rerunning
+returned Current with three passing checks. Native evidence establishes this
+focused action; the full [E-06 checklist](../acceptance.md) remains unexecuted.
+
+Automated identity tests cover physical gaps/offsets, effective mapping row keys,
+numeric business keys, duplicate/type-collision/unsafe keys, bounded group samples,
+zero caps and unchanged canonical artifact samples. The 19 E-04 browser cases
+cover cell/row selection and source preservation, keyboard/status parity,
+quoted/malicious text, missing series, silent edits/sort/delete/formula changes,
+worksheet/table replacement, table resize, stale/obsolete actions, cancellation,
+selection failure and on-demand/four-capture settings. The 72 existing browser
+regressions also passed in the full run; two newly written fixture expectations
+were corrected before all 19 E-04 cases passed. Those expectations attempted an
+unexposed grouped catalog setting and assumed a different missing-series reason;
+canonical financial behavior was preserved.
+
+Reproduce the focused cases using a bundled Pyodide 0.27.7 runtime:
+
+```bash
+PYTHONPATH="$PWD/src" .venv/bin/python scripts/build_excel.py \
+  --output-dir /tmp/finassert-e04-browser --bundle-pyodide download
+FINASSERT_EXCEL_PAGE=/tmp/finassert-e04-browser/taskpane.html \
+  PYTHONPATH="$PWD/src" uv run --with playwright==1.55.0 python -m pytest -q tests/browser
+PYTHONPATH="$PWD/src" .venv/bin/python -m pytest -q tests/unit/test_excel_navigation_identity.py
+```
+
+E-05 remains responsible for source provenance and durable output ownership;
+E-06 remains responsible for full native workflow, export parity and scale evidence.
+
+Final verification: 3,675 runtime tests passed, with the 91 browser cases skipped
+in that ordinary job. The 72 pre-existing browser cases passed in the full browser
+run and all 19 final E-04 cases passed together. Ruff lint/format, mypy (63 source
+files), CDN/bundled Excel smoke, shared browser/file smoke, Markdown links/anchors,
+strict MkDocs and installed wheel/source-distribution probes passed.
+
+## E-05 evidence and safe output
+
+E-04 was committed and pushed as `6bbf6b9`; E-05 continues on that same branch.
+The private bridge validates source schema 1 and stamps optional input.excel only
+after stable capture. Exports retain generated_at/captured_at and canonical
+financial results; each preflight updates verified_at. Live HTML and worksheet
+views show canonical complete totals/caps/truncation and all retained samples,
+without a second hidden formatter cap. File/CLI artifacts stay unchanged.
+
+New outputs always use unique names. Completed owned results can be replaced only
+by explicit saved worksheet ID, with source/role checks repeated before clearing.
+Policy saves use new unique sheets and a saved-policy picker; valid policy-only
+actions work independently of capture settings/freshness. Ownership schema 1 is
+saved in add-in-scoped workbook settings. Body/style writes remain incomplete
+until acknowledged; failures/cancellation quarantine the same operation where the
+host permits it and otherwise report uncertainty. No partial sheet is deleted.
+
+[Native E-05 observations](e05-native-exports.json) identify the actual tested
+build and synthetic saved workbooks. Excel 16.115.26110837 / macOS 26.5.1 created
+two unique results sheets, replaced an explicitly owned destination and saved a
+policy. A saved-workbook ZIP contained two results ownership entries and one
+policy entry, all complete. Reopening discovered and loaded the saved policy;
+after rebinding/choosing 1904, saved-ID replacement succeeded again. The source
+C7:H11 values/formats/types and hidden row matched the original after both saves,
+including the excluded totals sentinels. Snapshot identity stayed unchanged.
+
+Saved-cell inspection caught native Range.values consuming a leading apostrophe
+even with text formatting. The final writer escapes literal leading apostrophes;
+the stand-in models that behavior. A fresh native run/export/save verifies that
+Checked and Excel address equal the exact quoted source text and are stored as
+strings. Source cells/formats/types and hidden state remain unchanged. The native
+record distinguishes initial ownership-case bytes from the corrected final build.
+
+Automated evidence adds 22 provenance/parity cases and 15 browser export cases:
+canonical JSON/embedded HTML/sheet parity and exact Decimal samples, no second
+sample cap, unknown/unsafe context rejection, unique/renamed/recreated sheets,
+bound-source rejection, protected/partial/after-write failures, cancellation and
+recovery, Excel cell limits, policy independence and saved ownership on a new
+pane. The full runtime suite passes 3,697 tests (106 browser cases run separately).
+An early full browser run had 104 passes and a test polling failure caused by
+the unchanged CSP; a deterministic promise replaced the polling expression and
+all export cases passed. The final whole suite passes 106 browser cases, including
+the native quote regression. CDN/bundled Excel and shared browser/file smoke tests
+pass. Final verification is also recorded in the master checkpoint.
+
+Reproduce with the E-04 bundled-runtime commands, changing the output folder to
+`/tmp/finassert-e05-browser`; the focused modules are
+`tests/unit/test_excel_evidence_context.py` and
+`tests/browser/test_excel_exports.py`. Full E-06 acceptance remains pending.
+
+Final static/distribution checks pass: Ruff lint/format (312 files), mypy (64
+source files), strict MkDocs, 21 changed Markdown files / 179 local links/anchors,
+whitespace, immutable handoff history/field consistency and installed wheel/source
+distribution probes. The final native build hash matches the recorded tested bytes.

@@ -13,6 +13,7 @@ from datetime import datetime
 from html import escape
 from typing import TYPE_CHECKING, Any
 
+from finassert._excel_evidence import context_rows
 from finassert.core.models import ValidationReport
 from finassert.reporting.artifact import build_artifact
 
@@ -191,7 +192,14 @@ def render_artifact_html(artifact: Mapping[str, Any], *, title: str | None = Non
     if not results:
         parts.append('<p class="meta">This policy contains no checks.</p>')
     for index, result in enumerate(results):
-        parts.append(_result_card(index, result, descriptions[index]))
+        parts.append(
+            _result_card(
+                index,
+                result,
+                descriptions[index],
+                canonical=bool((artifact.get("input") or {}).get("excel")),
+            )
+        )
     parts.extend(
         [
             "<footer>",
@@ -275,6 +283,8 @@ def _context(artifact: Mapping[str, Any]) -> str:
         rows.append(("Policy fingerprint", policy["digest"]))
     rows.append(("Generated (UTC)", artifact["generated_at"]))
     rows.append(("finassert version", artifact["tool"]["version"]))
+    if source.get("excel"):
+        rows.extend(context_rows(source["excel"]))
     body = "".join(f'<tr><th scope="row">{_text(k)}</th><td>{_text(v)}</td></tr>' for k, v in rows)
     return f'<h2>About this run</h2><div class="table-wrap"><table>{body}</table></div>'
 
@@ -311,7 +321,13 @@ def _rule_descriptions(
     return [{} for _ in results]
 
 
-def _result_card(index: int, result: Mapping[str, Any], description: Mapping[str, Any]) -> str:
+def _result_card(
+    index: int,
+    result: Mapping[str, Any],
+    description: Mapping[str, Any],
+    *,
+    canonical: bool = False,
+) -> str:
     outcome = result["outcome"]
     if outcome == "failed" and result.get("blocking") is False:
         outcome = "warning"
@@ -332,9 +348,28 @@ def _result_card(index: int, result: Mapping[str, Any], description: Mapping[str
         parts.append(f"<p>{_text(summary)}</p>")
     parts.append(f'<p class="message">{_text(result["message"])}</p>')
     parts.append(_measurements(result))
-    parts.append(_metadata(result.get("metadata") or {}, open_details=outcome != "passed"))
+    parts.append(
+        _canonical_diagnostics(result)
+        if canonical
+        else _metadata(result.get("metadata") or {}, open_details=outcome != "passed")
+    )
     parts.append("</article>")
     return "".join(part for part in parts if part)
+
+
+def _canonical_diagnostics(result: Mapping[str, Any]) -> str:
+    parts = []
+    for collection in result.get("diagnostics", []):
+        parts.append(
+            f"<p>{_text(collection['kind'])}: {collection['count']} total; "
+            f"example cap {collection['limit']}; {len(collection['observations'])} shown; "
+            f"truncated: {collection['truncated']}</p>"
+        )
+        parts.extend(
+            "<pre>" + _text(json.dumps(observation, ensure_ascii=False, allow_nan=False)) + "</pre>"
+            for observation in collection["observations"]
+        )
+    return "".join(parts)
 
 
 def _measurements(result: Mapping[str, Any]) -> str:

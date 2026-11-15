@@ -1,0 +1,44 @@
+{
+  "scope": "E-04 focused navigation verification; full E-06 acceptance remains pending",
+  "date": "2026-11-15",
+  "branch": "feature/excel-diagnostic-navigation",
+  "prior_head": "251542222cf52a34fb00e89b60279581a3728c03",
+  "build": {
+    "source_state": "uncommitted E-04 implementation atop prior_head",
+    "taskpane_sha256": "9aad4e664cfda1156486e51f5934f183bbdc8920da35e80aea2cbacf316bae71",
+    "navigation_python_sha256": "f5b0a43ce7f78fcd1171e13be7ee122200cfaa96a266fa351eb38aded928c8f9",
+    "excel_js_sha256": "af562966861b803ffad5f37bfcf9d5f1fd3dca0302270d508d4da3d21967caee",
+    "engine": "Pyodide 0.27.7, CDN build",
+    "loading_route": "Microsoft office-addin-debugging CLI, desktop Excel, existing trusted HTTPS localhost:3000"
+  },
+  "host": {
+    "platform": "Mac desktop Excel",
+    "version_context": "Existing E-01/E-03 environment: Excel 16.115 on macOS 26.5.1; no new version probe in this focused run",
+    "interaction": "Native Excel accessibility UI through computer use; no Office stand-in for these observations"
+  },
+  "fixture": {
+    "name": "e02-native-table-1904 synthetic fixture, CLI-created disposable copy",
+    "original_xlsx_sha256": "12b12974956864636ac9aeded9b0d913cd2459f76119b32ba1e5c83e4f41929e",
+    "source": "'Holdings O''Brien'!C7:H9",
+    "header_row": 7,
+    "physical_data_rows": [8, 9],
+    "columns": 6,
+    "date_system": "1904, explicit user choice",
+    "policy": "Long-only holdings template, matched existing column names",
+    "effective_policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533"
+  },
+  "observations": [
+    {"case": "Bind fixed offset/quoted source", "status": "PASS", "actual": "Pane Ready; C7:H9, header 7, two physical/parsed data rows, six columns, 1904; dates previewed as 2026-01-01."},
+    {"case": "Retained financial failure", "status": "PASS", "verified_at": "2026-11-15T10:19:47.859Z", "actual": "Set disposable F8 to -400. Current result: one failed, two passed. market_value violations: one total, cap 20, one shown, not truncated. Select cell in row 8 available."},
+    {"case": "Native navigation", "status": "PASS", "verified_at": "2026-11-15T10:19:59.655Z", "actual": "From selection F10, clicked the retained row-8 cell button. Status: Selected cell in row 8. Name Box: F8. Formula Bar: -400. Result remained Current after preflight."},
+    {"case": "Correct and invalidate", "status": "PASS", "actual": "Restored F8 to 400. Stale: Bound source cells changed. Historical banner; old row-8 navigation button disabled. Name Box F8 and Formula Bar 400 observed before rerun."},
+    {"case": "Rerun corrected source", "status": "PASS", "verified_at": "2026-11-15T10:23:22.043Z", "actual": "Current; Passed: three passed, zero skipped. Both nonnegative violations collections have zero total/shown. No retained cell button. F8 still 400."}
+  ],
+  "verification_limits": [
+    "Native observation proves the focused cell action and correction lifecycle, not a full workbook integrity audit or E-06 acceptance.",
+    "Keyboard selection, group rows, ambiguous/missing targets, malicious text, silent sort/delete/resize, cancellation and host failures are automated browser/identity-test evidence.",
+    "Two transient ScreenCaptureKit capture errors occurred after UI actions; fresh accessibility observations established the actual state.",
+    "A correction attempt appended digits, producing -400400. This was observed, replaced with 400 using cell keystrokes, and verified before the final passing run.",
+    "No output export, 50,000-row performance claim, broad platform support or atomic snapshot guarantee is asserted here."
+  ]
+}

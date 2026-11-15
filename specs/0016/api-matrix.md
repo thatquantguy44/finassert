@@ -98,3 +98,29 @@ on refresh/close in its [event lifecycle](https://learn.microsoft.com/en-us/offi
 No global event disabling or recalculation is used. The E-01 expected failures
 are now ordinary passing browser cases. Native E-03 evidence is retained
 [here](artifacts/e03-native-verification.json); complete E-06 remains pending.
+
+## E-04 selection audit and focused native evidence
+
+Rechecked 2026-11-15: stable
+[Range.select](https://learn.microsoft.com/en-us/javascript/api/excel/excel.range?view=excel-js-1.9#excel-excel-range-select-member(1))
+is ExcelApi 1.1. Worksheet activation is also 1.1; numeric
+[Worksheet.getRangeByIndexes](https://learn.microsoft.com/en-us/javascript/api/excel/excel.worksheet?view=excel-js-1.9#excel-excel-worksheet-getrangebyindexes-member(1))
+uses the existing 1.7 floor. E-04 introduces no requirement-set increase. It
+resolves worksheet/table IDs and validates captured geometry before selecting
+numeric source coordinates. The
+[focused Mac record](artifacts/e04-native-navigation.json) verifies actual F8
+selection on an offset source with an apostrophe in its sheet name; no preview
+API or text-derived A1 formula/link was used. Full E-06 remains pending.
+
+## E-05 saved ownership
+
+Reviewed 2026-11-15: Microsoft's stable
+[SettingCollection](https://learn.microsoft.com/en-us/javascript/api/excel/excel.settingcollection?view=excel-js-1.9)
+provides add/getItemOrNullObject in ExcelApi 1.4. A
+[Setting](https://learn.microsoft.com/en-us/javascript/api/excel/excel.setting?view=excel-js-1.9)
+persists per workbook/add-in when the document is saved. E-05 stores only output
+worksheet ID, role, state, schema version and an operation token, never secrets
+or source records. This introduces no requirement-set increase. Name collisions
+use WorksheetCollection.add with a new name, and replacement rechecks saved IDs.
+The focused native E-05 record tests real setting persistence/output operations;
+full workflow/scale acceptance remains E-06.
