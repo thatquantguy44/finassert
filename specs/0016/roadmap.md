@@ -8,12 +8,14 @@ are verified on feature/excel-source-binding-dates. E-03 adds configurable sessi
 monitoring/stable captures, calculation guards and current-result preflight.
 E-04 adds bounded diagnostic navigation with native F8 selection evidence on
 feature/excel-diagnostic-navigation; canonical artifacts remain unchanged.
+E-05 on that same branch adds optional source provenance and verified safe output
+with unique names, saved ownership and partial-write recovery.
 See [tasks.md](tasks.md) and
 [native evidence](artifacts/README.md#e-02-source-and-date-evidence).
 
 ## Next milestone
 
-Implement E-05 provenance/safe output, then E-06; retain the
+Complete E-06 full Mac workflow/scale/CLI acceptance; retain the
 acceptance evidence and review the implementation.
 Only then describe the tested Mac build as supported. Add Windows/web acceptance
 when those platforms become explicit delivery targets.

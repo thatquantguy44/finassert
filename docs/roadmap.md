@@ -5,7 +5,8 @@ and the next pickup. This roadmap supplies longer-term context. Spec 0017 adds
 commit/push/CI checkpoint guards. PR #25 merged Excel E-01–E-03 and these guards
 into main at 32cf4ab. E-04 navigation is implemented on
 feature/excel-diagnostic-navigation with focused native/automated evidence.
-Review that work, then pick up E-05 provenance/safe output before E-06 acceptance.
+E-05 now adds verified source provenance, canonical outputs, saved ownership and
+partial-write recovery on the same branch. Review the stack, then complete E-06 acceptance.
 
 The seven-priority delivery now provides corrected workbook input, shared
 adapter contracts, bounded diagnostics, verified cash/NAV parity, Excel report
@@ -27,7 +28,7 @@ Next engineering work:
    verified on feature/excel-source-binding-dates. E-03 now adds configurable
    session capture/freshness, calculation/event/policy guards and export preflight.
    E-04 now adds guarded bounded diagnostic navigation with native F8 evidence.
-   Next are E-05 safe evidence output and full E-06 Mac acceptance.
+   E-05 adds verified evidence/safe output. Next is full E-06 Mac acceptance.
    Range mode requires stable ExcelApi 1.13; table mode keeps the 1.7 floor.
 2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.

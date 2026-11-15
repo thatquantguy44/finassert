@@ -33,3 +33,10 @@ artifacts remain available. `--xlsx` adds an atomic Excel report without changin
 `--output` from JSON. Explicit Excel header/last-row bounds are recorded in run
 context. Errors and invariant failures still produce artifacts after evaluation;
 input/configuration failures do not create a falsely passing report.
+
+## E-05 compatibility — 2026-11-15
+
+0016's private live bridge adds optional input.excel under artifact schema 1 and
+canonical live HTML/sheet views. CLI/file artifacts do not supply this context;
+their shape, rendering, atomic writes, options and exit codes remain unchanged.
+No CLI provenance flag or public evaluation parameter was added.

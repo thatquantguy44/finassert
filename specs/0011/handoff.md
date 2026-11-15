@@ -6,9 +6,20 @@ Initial policy, CLI, HTML, browser, assistant, and Excel add-in implementations 
 Live-workbook [0016](../0016/spec.md) now has verified E-01/E-02 native baseline
 and explicit source/date binding plus configurable E-03 freshness/capture.
 E-04 now adds bounded diagnostic navigation and focused native F8 evidence.
-E-05/E-06 and full Mac acceptance remain pending; follow the master ordering.
+E-05 adds verified provenance, canonical outputs, unique names, saved ownership and
+write-error recovery. Full E-06 acceptance remains pending; follow the master ordering.
 
 ## Entries
+
+### 2026-11-15 — E-05 verified exports and owned destinations
+
+Live exports now include scalar input.excel source provenance and use canonical
+retained samples/counts in HTML and results sheets. New outputs are uniquely named;
+replacement checks explicit saved worksheet IDs and never clears a bound source.
+Policy save/load is independent of freshness/capture settings. Failed/cancelled
+writes remain incomplete where the host permits recovery. Native saved ownership
+and exact quoted-address/source integrity were checked; 3,697 runtime and 106
+browser cases plus shared browser/file smoke pass. Full E-06 remains next.
 
 ### 2026-11-15 — E-04 live diagnostic navigation
 

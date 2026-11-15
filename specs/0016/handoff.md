@@ -2,10 +2,11 @@
 
 ## Current state
 
-- **Status:** E-01–E-04 implemented and verified for their slices; E-05/E-06 pending.
-  AC-01/02/05 verified for their slices; full acceptance remains pending.
+- **Status:** E-01–E-05 implemented and verified for their slices; full E-06 pending.
+  AC-01–06 and AC-08 have slice evidence; full acceptance remains pending.
 - **Branch:** feature/excel-diagnostic-navigation from main 2515422;
-  E-04 is recorded in the current commit checkpoint. PR #25 merged E-01–E-03 at 32cf4ab.
+  E-04 is pushed as 6bbf6b9; E-05 is in the enclosing checkpoint.
+  PR #25 merged E-01–E-03 at 32cf4ab.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -20,13 +21,37 @@
 - **E-04:** Canonical findings, bounded physical cell/row targets, key ambiguity,
   missing series, keyboard/live feedback and configured preflight implemented.
   13 identity tests, 19 E-04 browser cases and focused native F8 selection pass.
-- **Native stopping point:** Current, three passed, disposable C7:H9 with explicit
-  1904 and F8 restored to 400. Full E-06 acceptance is still pending.
-- **Next:** User authorized E-05 on this same branch after committing/pushing E-04.
-  Follow the master: E-05 provenance/output ownership
-  and E-06 complete Mac acceptance.
+- **E-05:** Validated input.excel provenance, canonical output parity, unique
+  names, saved ownership/explicit replacement, policy picker/independence and
+  incomplete-write recovery. 22 unit and 15 E-05 browser cases; full runtime
+  3,697 and full browser 106 pass. Native export/reopen/integrity evidence retained.
+- **Native stopping point:** Current, three passed, disposable C7:H9/1904 with
+  final quote-preserving results saved. Full E-06 acceptance is still pending.
+- **Next:** Follow the master's E-06 acceptance pickup after reviewing this stack.
 
 ## Entries
+
+### 2026-11-15 — E-05 verified source evidence and output lifecycle
+
+- **Branch:** E-04 committed/pushed as 6bbf6b9; user authorized E-05 on the same
+  feature branch. This checkpoint contains the complete E-05 implementation.
+- **Work:** Private strict input.excel context after verification; shared canonical
+  HTML/JSON/sheet results with captured/verified times and evaluated snapshot hash.
+  Outputs use unique names, saved add-in-scoped worksheet ID ownership and explicit
+  completed-results replacement. Source/role guards and preflight remain mandatory.
+  Stage text/rows before writes, preserve literal quotes/formula guards, and report
+  partial/protected/cancel failures without claiming atomicity/completion.
+- **Verification:** 3,697 runtime and 106 browser passes, including 22 new context
+  and 15 output cases. CDN/bundled/shared-browser smoke, Ruff/format and mypy pass.
+  Strict docs, 179 local Markdown links/anchors, whitespace and installed
+  distribution probes also pass; the master records final verification/pickup.
+- **Native:** [Evidence](artifacts/e05-native-exports.json) records actual build
+  hashes and both phases: saved unique outputs/explicit replacement/policy/ownership
+  reopening, then corrected literal apostrophe handling. Saved C7:H11 values,
+  number formats, cell types and hidden row match the original synthetic fixture.
+- **Pickup:** Review the stack and execute full E-06 acceptance.md, including
+  both epochs, CLI/export parity and 50,000-row workflow timings. No full E-06 or
+  broad platform support claim; no PR/merge/release requested in this continuation.
 
 ### 2026-11-15 — E-04 commit checkpoint and E-05 continuation
 

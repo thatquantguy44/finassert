@@ -111,3 +111,16 @@ numeric source coordinates. The
 [focused Mac record](artifacts/e04-native-navigation.json) verifies actual F8
 selection on an offset source with an apostrophe in its sheet name; no preview
 API or text-derived A1 formula/link was used. Full E-06 remains pending.
+
+## E-05 saved ownership
+
+Reviewed 2026-11-15: Microsoft's stable
+[SettingCollection](https://learn.microsoft.com/en-us/javascript/api/excel/excel.settingcollection?view=excel-js-1.9)
+provides add/getItemOrNullObject in ExcelApi 1.4. A
+[Setting](https://learn.microsoft.com/en-us/javascript/api/excel/excel.setting?view=excel-js-1.9)
+persists per workbook/add-in when the document is saved. E-05 stores only output
+worksheet ID, role, state, schema version and an operation token, never secrets
+or source records. This introduces no requirement-set increase. Name collisions
+use WorksheetCollection.add with a new name, and replacement rechecks saved IDs.
+The focused native E-05 record tests real setting persistence/output operations;
+full workflow/scale acceptance remains E-06.

@@ -23,10 +23,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Implemented E-04 bounded diagnostic navigation with source verification, identity guards and native Mac evidence.
-- **Highest priority:** E-05 — Evidence and export.
-- **Next pickup:** Implement 0016 R-05 source provenance, safe output ownership and export parity on this same branch, as authorized.
-- **Verification:** 3,675 runtime tests, 72 existing browser cases and 19 E-04 cases pass; native F8/correction/rerun, Ruff/mypy, CDN/bundled/shared-browser smoke, strict docs/links and installed distribution probes pass.
+- **Last worked on:** Implemented E-05 verified snapshot provenance, canonical output parity, durable ownership and safe partial-write recovery.
+- **Highest priority:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Execute 0016 acceptance.md on the completed E-01–E-05 build, including full Mac workflow, CLI/export parity and 50,000-row timings.
+- **Verification:** 3,697 runtime and 106 browser tests pass; native exports/ownership/literal addresses/source integrity, Ruff/format, mypy, all smoke flows, strict docs/links and installed distribution probes pass.
 - **Branch:** `feature/excel-diagnostic-navigation`, based on main `2515422`.
   E-01/E-02 native baseline/source binding, configurable E-03 freshness/stable
   capture and spec 0017's Git-backed handoff guards are merged and verified.
@@ -40,22 +40,25 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Progress:** All six slices implemented and locally verified (3,624 tests). See the
   [delivery checklist](https://github.com/thatquantguy44/finassert/blob/main/specs/0015/tasks.md).
 - **Scope:** finassert only; no release/tag or downstream application change.
-- **Remaining product scope:** E-04 is implemented with focused native and
-  automated evidence. E-05 safe evidence/output and full E-06 acceptance remain.
-- **Stopping point:** E-04 implementation and evidence are recorded in this checkpoint; E-05 is authorized next on feature/excel-diagnostic-navigation.
-- **E-04/E-05 delivery:** Commit and push this E-04 checkpoint, then implement, verify and
-  commit E-05 on the same branch. No new PR has been requested for this work.
+- **Remaining product scope:** E-01–E-05 have focused native/automated evidence.
+  Full E-06 acceptance and external review remain; no broad support claim yet.
+- **Stopping point:** E-04 and E-05 are implemented and verified in this branch checkpoint; full E-06 acceptance remains.
+- **E-04 commit:** [6bbf6b9](https://github.com/thatquantguy44/finassert/commit/6bbf6b9bd44992ada89a901277f5a9eae54ee78e)
+  was committed/pushed before E-05 work. This enclosing checkpoint adds E-05 on
+  the same branch. User requested commit/push; no new PR/merge/release was requested.
 - **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
   describes both Git and filesystem modes for reuse elsewhere. Finassert's
   implemented checker remains Git-backed; no filesystem backend was added here.
 - **Native session:**
   The last observed native pane was Current, three passed, on disposable
-  `'Holdings O''Brien'!C7:H9`, explicit 1904; F8 restored to 400. Source, date
-  choice and capture settings remain session-only. Reopening requires rebinding.
-- **Verification context:** E-04's complete runtime pass is 3,675 tests. The
-  72 existing browser cases passed in the full run; the 19 final E-04 cases
-  passed together after correcting new fixture expectations. See
-  `specs/0016/artifacts/e04-native-navigation.json`.
+  `'Holdings O''Brien'!C7:H9`, explicit 1904, with a saved results snapshot from
+  the final quote-preserving build. Source/date/capture choices remain session-only;
+  ownership persists with the saved workbook. Reopening requires rebinding.
+- **Verification context:** The final complete runtime run is 3,697 tests and
+  the separate final browser run is 106 passes, including 15 new E-05 cases.
+  Native unique outputs, explicit replacement, saved policy/ownership reopening,
+  exact literal address correction and unchanged C7:H11 cells/formats/types are
+  recorded in `specs/0016/artifacts/e05-native-exports.json`.
 - **Scope PR:** [#22](https://github.com/thatquantguy44/finassert/pull/22) is merged.
 - **Native evidence:** Excel 16.115 opened the corrected pane via Microsoft's
   sideload CLI. All 50,000-row diagnostic steps passed; source/date binding was
@@ -64,15 +67,15 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Next up
 
-1. E-05 — Evidence and export.
-   E-04 is reviewed and verified for this checkpoint. Read 0016 R-05 and
-   its contracts/tasks: add optional versioned input.excel provenance, safe
-   unique/owned destinations, collision/source-overlap guards and partial-write
-   recovery. Preserve canonical JSON/HTML/sheet parity and policy-only actions.
-2. E-06 — Full Mac acceptance and regressions.
-   Complete acceptance.md, output/CLI parity and 50,000-row workflow evidence;
-   focused E-04 selection does not complete that checklist.
-3. Later: paired forecast accuracy (0012 U-08), then debt/issuance (U-09).
+1. E-06 — Full Mac acceptance and regressions.
+   Review the E-04/E-05 stack, then execute 0016 acceptance.md on the completed
+   build. Record the full Mac workflow with both date systems, output/CLI parity,
+   calculation/failure/structure cases and 50,000-row timings/input integrity.
+   Focused E-04/E-05 native evidence does not complete the acceptance checklist.
+2. Paired forecast accuracy — 0012 U-08.
+   Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
+3. Debt principal and issuance — 0012 U-09.
+   Finalize conventions and extend 0002 before promoting new public rules.
 
 ## Commit context
 
@@ -83,8 +86,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "251542222cf52a34fb00e89b60279581a3728c03",
+  "prior_head": "6bbf6b9bd44992ada89a901277f5a9eae54ee78e",
   "recent_commits": [
+    {
+      "commit": "6bbf6b9bd44992ada89a901277f5a9eae54ee78e",
+      "subject": "Add verified Excel diagnostic navigation"
+    },
     {
       "commit": "251542222cf52a34fb00e89b60279581a3728c03",
       "subject": "docs: save reusable handoff enforcement prompt"
@@ -100,25 +107,26 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "3b5a014394054d173e7be7cb29578848a3937981",
       "subject": "Merge pull request #22 from thatquantguy44/docs/spec-0016-excel-validation-workflow"
-    },
-    {
-      "commit": "8d96fdce17dce11bf4af56d5d7cb4749c51b18a8",
-      "subject": "Merge pull request #21 from thatquantguy44/feature/six-slice-upstream-delivery"
     }
   ],
   "changed_paths": [
     "docs/excel-add-in.md",
     "docs/handoff.md",
     "docs/roadmap.md",
+    "scripts/build_web.py",
     "scripts/excel_stub.js",
     "specs/0005/contracts.md",
     "specs/0005/handoff.md",
+    "specs/0005/spec.md",
+    "specs/0007/contracts.md",
+    "specs/0007/handoff.md",
     "specs/0011/contracts.md",
     "specs/0011/handoff.md",
+    "specs/0011/spec.md",
     "specs/0016/AGENTS.md",
     "specs/0016/api-matrix.md",
     "specs/0016/artifacts/README.md",
-    "specs/0016/artifacts/e04-native-navigation.json",
+    "specs/0016/artifacts/e05-native-exports.json",
     "specs/0016/contracts.md",
     "specs/0016/handoff.md",
     "specs/0016/plan.md",
@@ -126,16 +134,21 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     "specs/0016/spec.md",
     "specs/0016/tasks.md",
     "specs/README.md",
-    "src/finassert/_excel_navigation.py",
+    "src/finassert/_excel_evidence.py",
+    "src/finassert/excel.py",
+    "src/finassert/reporting/html.py",
     "src/finassert/web.py",
-    "tests/browser/test_excel_navigation.py",
-    "tests/unit/test_excel_navigation_identity.py",
-    "web/app.css",
+    "tests/browser/test_excel_capture.py",
+    "tests/browser/test_excel_exports.py",
+    "tests/unit/test_excel_evidence_context.py",
+    "web/app.js",
+    "web/excel-output.js",
+    "web/excel-policy.html",
     "web/excel-results.html",
     "web/excel.js"
   ],
-  "project_sha256": "7393744b7fea99003bcdb002a1a69a8274def9a841a891f9848ac0d61214b293",
-  "reviewed_sections_sha256": "20c98fd61a04521cd1cece72b173749a6d6b6071a0e38e7e5456d6cc0c381fe8"
+  "project_sha256": "2cd092829c3bb57cc3dc04051d461a093e7c731165d39038d05ca84ac0d75cac",
+  "reviewed_sections_sha256": "d00a02c3216c2282ea3e048690a7e5dcd8315cd3b44063625c48e37b2e9ed8ad"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -154,6 +167,25 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-15 — E-05 verified evidence and safe output on the E-04 branch
+
+- **Worked on:** Implemented E-05 verified snapshot provenance, canonical output parity, durable ownership and safe partial-write recovery.
+- **Stopping point:** E-04 and E-05 are implemented and verified in this branch checkpoint; full E-06 acceptance remains.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Execute 0016 acceptance.md on the completed E-01–E-05 build, including full Mac workflow, CLI/export parity and 50,000-row timings.
+- **Verification:** 3,697 runtime and 106 browser tests pass; native exports/ownership/literal addresses/source integrity, Ruff/format, mypy, all smoke flows, strict docs/links and installed distribution probes pass.
+- **Branch / commits:** feature/excel-diagnostic-navigation; E-04 6bbf6b9 is
+  pushed, E-05 is this enclosing checkpoint. Commit/push authorized on the same
+  branch; no PR, merge, release or branch-protection change requested.
+- **Decisions:** Optional scalar input.excel source schema 1; immutable canonical
+  financial results and captured snapshot identity. Unique outputs by default,
+  explicit saved-ID completed-results replacement, source/role guards, policy-only
+  independence and best-effort incomplete-write recovery. No source records or
+  session/navigation maps are exported; file/CLI behavior stays compatible.
+- **Native correction:** Saved-file inspection exposed Excel consuming a leading
+  apostrophe. The final writer preserves literal quotes; native stored addresses
+  now match exactly. Native/build/fixture evidence is in the E-05 artifact record.
 
 ### 2026-11-15 — E-04 commit checkpoint; E-05 authorized on this branch
 

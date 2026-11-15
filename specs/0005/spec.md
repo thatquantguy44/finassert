@@ -61,6 +61,13 @@ tokens or null. The version-1 artifact envelope already carries tool identity,
 UTC generation time, caller-supplied input context, and policy digest. Explicit
 generation timestamps must be timezone-aware. New diagnostic fields are additive.
 
+0016 E-05 adds optional `input.excel` source schema 1 under artifact schema 1,
+supplied through its private verified-live bridge. Its scalar allowlist and exact
+field meanings are canonical in [0016 data contracts](../0016/spec.md#data-contracts).
+Report results, policy digest, generation time and diagnostic collections remain
+unchanged. Live HTML/sheet views show the complete retained canonical samples and
+count/cap/truncation summaries; file/CLI views without this context remain compatible.
+
 ## Financial and numerical edge cases
 
 Preserve Decimal text and explicit currency/unit metadata. Do not emit NaN JSON.

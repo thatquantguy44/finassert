@@ -4,7 +4,8 @@
   const config = __CONFIG__;
   const sheets = {};
   const state = { selected: config.selected, sheets: {}, log: [], reads: [], handlers: [], selection: config.selection,
-    formulas: config.formulas || {}, numberFormats: config.numberFormats || [], activeRuns: 0, maxActiveRuns: 0 };
+    formulas: config.formulas || {}, numberFormats: config.numberFormats || [], activeRuns: 0, maxActiveRuns: 0,
+    settings: config.settings || {}, writes: [] };
   window.__excel = state;
   const supports = (version) => (config.requirements || {})[version] !== false;
   const eventMember = (version, sheet, event, tableId) => supports(version) ? { add(callback) {
@@ -35,8 +36,9 @@
   const kind = (v) => (v === "" || v == null ? "Empty" : typeof v === "number" ? "Double"
     : String(v).startsWith("#") ? "Error" : "String");
 
+  let nextSheetId = 0;
   function makeSheet(name, cells) {
-    const sheet = { id: `sheet-${name}-${Object.keys(sheets).length}`, name,
+    const sheet = { id: `sheet-${name}-${nextSheetId++}`, name,
       cells: cells.map((row) => row.slice()), formats: {}, bold: [], tables: [] };
     sheets[name] = sheet;
     state.sheets[name] = sheet;
@@ -50,6 +52,13 @@
   holdings.tables = config.table ? [{ id: "table-1", name: "HoldingsTable", r0: top, c0: left,
     rows: config.values.length, cols: width, totals: config.totals || false }] : [];
   state.recreateSheet = () => { holdings.id = "replacement-sheet"; };
+  state.renameSheet = (oldName, name) => {
+    const sheet = sheets[oldName];
+    delete sheets[oldName]; delete state.sheets[oldName];
+    sheet.name = name; sheets[name] = sheet; state.sheets[name] = sheet;
+  };
+  state.removeSheet = (name) => { delete sheets[name]; delete state.sheets[name]; };
+  for (const saved of config.existingSheets || []) Object.assign(makeSheet(saved.name, saved.cells), saved);
 
   function used(sheet) {
     let rows = 0, cols = 0, top = Infinity, left = Infinity;
@@ -90,7 +99,10 @@
     Object.defineProperty(r, "values", { configurable: true, writable: true, value: undefined });
     r.format = { font: {}, autofitColumns() {} };
     Object.defineProperty(r.format.font, "bold", { set(v) { sheet.bold.push(r0); } });
-    r.clear = () => { sheet.cells = []; };
+    r.clear = () => {
+      if (sheet.protected || state.failClear) throw new Error("Worksheet is protected");
+      sheet.cells = [];
+    };
     r.select = () => {
       if (state.failSelection) throw new Error("Selection is protected");
       state.navigation = { sheet: sheet.name, sheetId: sheet.id, r0, c0, rows, cols, address: r.address };
@@ -99,7 +111,13 @@
     return new Proxy(r, {
       set(target, prop, value) {
         if (prop === "values" && !target.__loading) {
-          value.forEach((row, i) => { sheet.cells[r0 + i] = sheet.cells[r0 + i] || []; row.forEach((v, j) => { sheet.cells[r0 + i][c0 + j] = v; }); });
+          state.writes.push({ sheet: sheet.name, id: sheet.id, r0, c0, rows, cols });
+          if (sheet.protected || state.failWriteAt === state.writes.length) throw new Error("Synthetic protected/write failure");
+          value.forEach((row, i) => { sheet.cells[r0 + i] = sheet.cells[r0 + i] || []; row.forEach((v, j) => {
+            sheet.cells[r0 + i][c0 + j] = typeof v === "string" && v.startsWith("'") ? v.slice(1) : v;
+          }); });
+          if (state.onWrite) state.onWrite(state.writes.at(-1));
+          if (state.failAfterWriteAt === state.writes.length) throw new Error("Synthetic failure after write");
           return true;
         }
         if (prop === "numberFormat") { sheet.formats[`${r0},${c0}`] = value; return true; }
@@ -165,9 +183,18 @@
         },
         application,
         workbook: {
+          settings: supports("1.4") ? {
+            getItemOrNullObject: (key) => ({ key, value: state.settings[key],
+              isNullObject: !Object.hasOwn(state.settings, key), load() {} }),
+            add(key, value) {
+              if (state.failSettings) throw new Error("Settings write failed");
+              state.settings[key] = JSON.parse(JSON.stringify(value));
+            },
+          } : undefined,
           getSelectedRange: () => {
+            const chosen = state.selectionSheet ? sheets[state.selectionSheet] : holdings;
             if (state.selected === "disjoint") throw new Error("InvalidSelection");
-            if (state.selection) { const s = state.selection; return range(holdings, s.r0, s.c0, s.rows, s.cols); }
+            if (state.selection) { const s = state.selection; return range(chosen, s.r0, s.c0, s.rows, s.cols); }
             if (state.selected === "single") return range(holdings, 3, 1, 1, 1); // B4
             return range(holdings, top, left, config.values.length, width);
           },
@@ -183,13 +210,18 @@
             },
           },
           worksheets: {
+            get items() { return Object.values(sheets).map(sheetApi); },
+            load() {},
             getActiveWorksheet: () => sheetApi(holdings),
             getItem: (name) => {
               const found = Object.values(sheets).find((s) => s.name === name || s.id === name);
               if (!found) throw new Error("The bound worksheet no longer exists; reselect the source.");
               return sheetApi(found);
             },
-            getItemOrNullObject: (name) => (sheets[name] ? Object.assign(sheetApi(sheets[name]), { isNullObject: false }) : { isNullObject: true }),
+            getItemOrNullObject: (name) => {
+              const found = Object.values(sheets).find((s) => s.name === name || s.id === name);
+              return found ? Object.assign(sheetApi(found), { isNullObject: false }) : { isNullObject: true };
+            },
             add: (name) => sheetApi(makeSheet(name, [])),
           },
         },

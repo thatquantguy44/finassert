@@ -1,5 +1,13 @@
 <button id="excel-write" type="button" hidden>Write results to a sheet</button>
 <p id="excel-result-state" class="hint"></p>
+<div id="excel-output-controls">
+  <p class="hint">New results always use a unique sheet. Replacement clears only the explicitly selected owned results sheet. Exported snapshots become historical after later edits.</p>
+  <button id="excel-output-refresh" type="button">Refresh output sheets</button>
+  <label for="excel-replace-target">Owned results sheet to replace</label>
+  <select id="excel-replace-target"><option value="">Choose a completed owned results sheet…</option></select>
+  <button id="excel-replace" type="button" disabled>Replace selected results sheet</button>
+  <p id="excel-output-status" role="status" aria-live="polite"></p>
+</div>
 <section id="excel-findings" aria-labelledby="excel-findings-title" hidden>
   <h3 id="excel-findings-title">Diagnostic findings</h3>
   <p class="hint">Only retained diagnostic examples are shown. Navigation rechecks the captured source and selects a cell or the source columns of a row.</p>

@@ -97,6 +97,7 @@
       $(id).disabled = busy;
     }
     $("excel-cancel").disabled = !busy;
+    renderOutputControls();
     sourceSummary();
     renderDiagnostics();
   }
@@ -121,7 +122,7 @@
   function assertJob(job) {
     if (closing || active !== job || job.cancelled || revision !== job.generation ||
         source !== job.source || epoch() !== job.dateSystem || app().policyKey() !== job.policyKey ||
-        configError || JSON.stringify(config) !== job.configKey ||
+        (configError && !job.independent) || JSON.stringify(config) !== job.configKey ||
         (job.dataVersion !== null && job.dataVersion !== app().dataVersion())) {
       throw new Error("The operation was cancelled or its source, policy or settings changed. Rerun the checks.");
     }
@@ -139,13 +140,14 @@
     const job = { kind, generation: revision, source, dateSystem: epoch(), policyKey: app().policyKey(),
       settings: config, configKey: JSON.stringify(config), dataVersion: null,
       deadline: performance.now() + config.timeoutSeconds * 1000,
-      manualAcknowledged: $("excel-manual-calculated").checked, cancelled: false };
+      manualAcknowledged: $("excel-manual-calculated").checked, cancelled: false,
+      independent: ["policy", "outputs"].includes(kind) };
     active = job;
     busy = true;
     if (["run", "read", "export", "navigate"].includes(kind)) state("Reading", "Reading the bound source.");
     else renderFreshness();
     try {
-      if (configError) throw new Error(configError);
+      if (configError && !job.independent) throw new Error(configError);
       await action(job);
       return true;
     } catch (error) {
@@ -468,7 +470,9 @@
     }
     assertJob(job);
     record = { snapshot: first.snapshot, formula: first.formula, capturedAt: first.capturedAt,
-      verifiedAt, policyKey: job.policyKey, settingsKey: job.configKey, geometry: first.current, outcome };
+      verifiedAt, policyKey: job.policyKey, settingsKey: job.configKey, geometry: first.current,
+      parsedRows: source.parsed_row_count, dateSystem: job.dateSystem, outcome };
+    if (verifiedAt) app().excelEvidence(outcome, excelContext(record));
     app().publishResult(outcome);
     $("excel-manual-calculated").checked = false;
     if (verifiedAt) state("Current", "The result matched its source at the last verification time.");
@@ -492,11 +496,54 @@
         result.verifiedAt = current.capturedAt;
       }
       assertJob(job);
+      app().excelEvidence(result.outcome, excelContext(result));
       await action(job, result);
       assertJob(job);
       $("excel-manual-calculated").checked = false;
       state("Current", "Source and policy reverified before the action.");
     });
+  }
+
+  function excelContext(result) {
+    const geometry = result.geometry;
+    return { schema_version: 1, kind: geometry.kind,
+      worksheet_id: geometry.worksheet_id, worksheet_name: geometry.worksheet_name,
+      ...(geometry.kind === "table" ? { table_id: geometry.table_id, table_name: geometry.table_name } : {}),
+      address: geometry.address, header_row: geometry.header_row,
+      data_row_count: result.parsedRows, physical_data_row_count: geometry.data_row_count,
+      column_count: geometry.column_count, hidden_rows: "include_all",
+      date_system: result.dateSystem, date_system_source: "user",
+      captured_at: result.capturedAt, verified_at: result.verifiedAt, snapshot_sha256: result.snapshot };
+  }
+
+  function renderOutputControls() {
+    $("excel-replace").disabled = busy || !$("excel-replace-target").value || !app().result() ||
+      (app().isLiveResult() && freshness !== "Current");
+    for (const id of ["excel-replace-target", "excel-output-refresh", "excel-policy-sheet", "excel-policy-refresh"]) $(id).disabled = busy;
+  }
+
+  async function refreshOutputs(job, preferredPolicy) {
+    const entries = await window.finassertOutput.list((context) => sync(context, job));
+    const selected = $("excel-replace-target").value;
+    const policy = preferredPolicy || $("excel-policy-sheet").value;
+    const eligible = entries.filter((entry) => entry.owner?.state === "complete");
+    $("excel-replace-target").replaceChildren(new Option("Choose a completed owned results sheet…", ""),
+      ...eligible.filter((entry) => entry.owner.role === "results" && (!source || entry.id !== source.worksheet_id))
+        .map((entry) => new Option(entry.name, entry.id)));
+    if ([...$("excel-replace-target").options].some((item) => item.value === selected)) $("excel-replace-target").value = selected;
+    const policies = entries.filter((entry) => entry.owner?.role === "policy" && entry.owner.state === "complete" ||
+      !entry.owner && entry.name === POLICY_SHEET);
+    $("excel-policy-sheet").replaceChildren(new Option("Choose a saved policy…", ""),
+      ...policies.map((entry) => new Option(entry.name, entry.id)));
+    $("excel-policy-sheet").value = policies.some((entry) => entry.id === policy) ? policy : policies.at(-1)?.id || "";
+    renderOutputControls();
+    return entries;
+  }
+
+  function outputOptions(job, replaceId) {
+    return { replaceId, sync: (context) => sync(context, job), check: () => { if (job) assertJob(job); },
+      isSource: (id) => source?.worksheet_id === id || job?.source?.worksheet_id === id,
+      canRecover: () => !closing };
   }
 
   async function navigate(outcome, ri, ci, oi, ti) {
@@ -532,8 +579,8 @@
     return selected;
   }
 
-  // Only sheets created in this pane session can be cleared. E-05 owns durable
-  // output ownership and unique-name/replacement UI; names alone confer no ownership.
+  // Synthetic diagnostics keep their separate session-owned scratch destination.
+  // Results and policy output use the durable ID-based lifecycle below.
   async function freshSheet(context, name) {
     let sheet = context.workbook.worksheets.getItemOrNullObject(name);
     await context.sync();
@@ -556,20 +603,11 @@
     return sheet;
   }
 
-  async function writeResults(sheetData) {
-    await Excel.run(async (context) => {
-      const sheet = await freshSheet(context, RESULTS_SHEET);
-      const { rows, boldRows } = sheetData;
-      const width = rows[0].length;
-      sheet.getRangeByIndexes(0, 0, rows.length, width).values = rows;
-      for (const row of boldRows) sheet.getRangeByIndexes(row, 0, 1, width).format.font.bold = true;
-      sheet.getUsedRange().format.autofitColumns();
-      sheet.activate();
-      await context.sync();
-    });
+  async function writeResults(sheetData, job, replaceId) {
+    return window.finassertOutput.write(sheetData, "results", outputOptions(job, replaceId));
   }
 
-  async function savePolicy() {
+  async function savePolicy(job) {
     if (!app().hasChecks()) {
       say("Add or open some checks first.", true);
       return;
@@ -577,32 +615,23 @@
     const yaml = app().policyYaml();
     if (yaml === null) return;
     const rows = app().policySheet(yaml);
-    await Excel.run(async (context) => {
-      const sheet = await freshSheet(context, POLICY_SHEET);
-      const column = sheet.getRangeByIndexes(0, 0, rows.length, 1);
-      column.numberFormat = rows.map(() => ["@"]); // text, so nothing is converted or calculated
-      column.values = rows;
-      sheet.getRangeByIndexes(0, 0, 1, 1).format.font.bold = true;
-      sheet.getUsedRange().format.autofitColumns();
-      await context.sync();
-    });
-    say(`Saved the checks on the sheet "${POLICY_SHEET}". Your data was not changed.`);
+    const sheet = await window.finassertOutput.write({ rows, boldRows: [0] }, "policy", outputOptions(job));
+    await refreshOutputs(job, sheet.id);
+    say(`Saved the checks on the sheet "${sheet.name}". Your data was not changed.`);
   }
 
-  async function loadPolicy() {
+  async function loadPolicy(job) {
+    const entries = await refreshOutputs(job);
+    const id = $("excel-policy-sheet").value;
+    const chosen = entries.find((entry) => entry.id === id);
+    if (!chosen) { say("No completed saved policy is available. Save a policy or refresh the list.", true); return; }
     const values = await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getItemOrNullObject(POLICY_SHEET);
-      await context.sync();
-      if (sheet.isNullObject) return null;
+      const sheet = context.workbook.worksheets.getItem(id);
       const used = sheet.getUsedRange(true);
       used.load("values");
-      await context.sync();
+      await sync(context, job);
       return used.values;
     });
-    if (values === null) {
-      say(`This workbook has no sheet named "${POLICY_SHEET}".`, true);
-      return;
-    }
     const text = app().policyFromSheet(values);
     if (!text.ok) {
       say(text.error, true);
@@ -620,12 +649,18 @@
     await bind("range", job);
   }
 
-  async function writeToSheet() {
+  async function writeToSheet(replaceId) {
     if (!app() || !app().result()) return;
-    return withCurrentResult(async () => {
-      await writeResults(app().resultsSheet());
-      say(`Results written to the sheet "${RESULTS_SHEET}". Your data was not changed.`);
+    $("excel-output-status").textContent = "Preparing and verifying the export…";
+    const done = await withCurrentResult(async (job) => {
+      const sheet = await writeResults(app().resultsSheet(), job, replaceId);
+      await refreshOutputs(job);
+      const text = `Results written to the sheet "${sheet.name}" as captured snapshot evidence. Your data was not changed.`;
+      $("excel-output-status").textContent = text;
+      say(text);
     });
+    if (!done && !closing) $("excel-output-status").textContent = reason;
+    return done;
   }
 
   function applySettings() {
@@ -878,9 +913,13 @@
         say("Choose the workbook's 1900 or 1904 date system before running.");
       }
     });
-    $("excel-write").addEventListener("click", writeToSheet);
-    $("excel-save-policy").addEventListener("click", guarded(savePolicy));
-    $("excel-load-policy").addEventListener("click", guarded(loadPolicy));
+    $("excel-write").addEventListener("click", () => writeToSheet());
+    $("excel-replace").addEventListener("click", () => writeToSheet($("excel-replace-target").value));
+    $("excel-replace-target").addEventListener("change", renderOutputControls);
+    $("excel-output-refresh").addEventListener("click", guarded(refreshOutputs, "outputs"));
+    $("excel-policy-refresh").addEventListener("click", guarded(refreshOutputs, "outputs"));
+    $("excel-save-policy").addEventListener("click", guarded(savePolicy, "policy"));
+    $("excel-load-policy").addEventListener("click", guarded(loadPolicy, "policy"));
     $("spike-run").addEventListener("click", guarded(spike, "diagnostics"));
     $("spike-copy").addEventListener("click", guarded(copyReport));
     window.finassertExcel = {

@@ -15,6 +15,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from finassert._excel_evidence import parse_context
 from finassert._excel_navigation import build_navigation
 from finassert._xlsx import SheetError
 from finassert.core.exceptions import InvalidDataError, PolicyError
@@ -208,6 +209,29 @@ def results_sheet(artifact_json: str) -> str:
     """Return a report as rows of cells for a results sheet in Excel, and the rows to bold."""
     rows, bold = excel_results_sheet(json.loads(artifact_json))
     return json.dumps({"rows": rows, "boldRows": bold})
+
+
+def excel_evidence(artifact_json: str, context_json: str) -> str:
+    """Attach verified host-supplied provenance without changing the report."""
+    try:
+        artifact = json.loads(artifact_json)
+        context = parse_context(json.loads(context_json))
+        if not isinstance(artifact, dict) or not isinstance(artifact.get("input"), dict):
+            raise ValueError("Excel evidence requires an artifact with input context")
+        source = artifact.get("input") or {}
+        if source.get("format") != "excel-range" or source.get("locator") != context["address"]:
+            raise ValueError("Excel provenance does not match the live artifact input")
+        source["excel"] = context
+        artifact["input"] = source
+        return json.dumps(
+            {
+                "ok": True,
+                "artifact_json": artifact_to_json(artifact) + "\n",
+                "html": render_artifact_html(artifact),
+            }
+        )
+    except (ValueError, TypeError, KeyError) as exc:
+        return json.dumps({"ok": False, "error": f"Invalid Excel evidence: {exc}"})
 
 
 def export_policy(policy_json: str) -> str:

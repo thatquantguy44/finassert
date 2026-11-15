@@ -6,14 +6,23 @@
 ## Current state
 
 - **Branch:** `feature/excel-diagnostic-navigation` for the 0016 compatibility work.
-- **Latest work:** E-04 consumes canonical native samples for session-only targets;
-  no diagnostic or artifact schema changes. Earlier gates are historical below.
-- **Evidence:** 13 identity tests and 19 E-04 browser cases pass; see
-  [0016 evidence](../0016/artifacts/README.md#e-04-diagnostic-navigation).
+- **Latest work:** E-05 adds optional input.excel context and canonical live
+  HTML/sheet output views; report/financial outcomes and artifact schema 1 stay compatible.
+- **Evidence:** 22 provenance/parity cases and 106 full browser passes; see
+  [0016 evidence](../0016/artifacts/README.md#e-05-evidence-and-safe-output).
 - **Next step:** Follow the [master handoff](../../docs/handoff.md#next-up),
-  beginning with E-05 source provenance/safe output and its reporting contract.
+  beginning with full E-06 Mac acceptance and output/CLI parity.
 
 ## Entries
+
+### 2026-11-15 — E-05 optional live context and canonical views
+
+Optional scalar input.excel schema 1 is validated in the private live bridge,
+without public signature or file/CLI artifact changes. Live HTML and worksheet
+views consume canonical retained observations and complete counts/caps/truncation,
+with no hidden second sample cap. Report, policy and generation time stay fixed;
+only verified_at refreshes after preflight. 22 focused parity/context tests,
+3,697 full runtime and 106 browser cases pass. Follow the master's E-06 pickup.
 
 ### 2026-11-15 — E-04 diagnostic compatibility
 

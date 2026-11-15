@@ -5,12 +5,19 @@
 
 ## Current state
 
-- **Branch:** `feature/seven-priority-roadmap`.
-- **Latest delivered work:** Atomic Excel reports and complete CLI file workflow.
-- **Evidence:** 200 workbook, CLI, loader, and strict-policy tests passed; Ruff, mypy, and strict documentation build passed.
-- **Next step:** Gate 6: typed money and ratios plus direct FX provenance.
+- **Branch:** feature/excel-diagnostic-navigation for 0016 E-05 compatibility.
+- **Latest work:** Optional live artifact context/views; no CLI/file behavior change.
+- **Evidence:** Full runtime 3,697 and browser 106 pass; earlier delivery evidence is historical below.
+- **Next step:** Follow the master E-06 acceptance/CLI parity pickup.
 
 ## Entries
+
+### 2026-11-15 — E-05 live artifact compatibility
+
+Recorded optional input.excel under artifact schema 1 and canonical live views.
+No CLI flag, public evaluation signature, exit-code, file-rendering or atomic
+file-write change. Legacy/file regressions pass in the 3,697-test runtime suite;
+full native output/CLI tie-out is an E-06 acceptance task. Follow the master order.
 
 ### 2026-11-13 — Gate 5: Atomic Excel reports and complete CLI file workflow
 

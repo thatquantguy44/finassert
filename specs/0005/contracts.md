@@ -41,3 +41,14 @@ Excel navigation response. Collection counts, limits, truncation, retained sampl
 and artifact schema 1 are unchanged. Session targets resolve physical source rows
 before serialization and never enter the artifact. No full failed population is
 reconstructed; ambiguous business keys require a unique key and rerun.
+
+## Migration note — 2026-11-15 E-05
+
+Optional `input.excel` source schema 1 is additive under artifact schema 1; only
+the verified live bridge supplies it. Source IDs/address, date interpretation,
+parsed/physical counts, captured/verified UTC times and the evaluated snapshot
+digest are allowlisted. No full records, navigation maps or formula source enter
+the artifact. Each export refreshes verified_at after preflight, not generated_at
+or financial results. Live HTML/sheet views use canonical retained diagnostics
+and complete cap/count summaries. Legacy artifacts and file/CLI rendering without
+input.excel retain their previous behavior. See 0016 R-05 for output failure rules.

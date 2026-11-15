@@ -1,0 +1,52 @@
+{
+  "scope": "E-05 focused native export/ownership verification; full E-06 acceptance remains pending",
+  "date": "2026-11-15",
+  "branch": "feature/excel-diagnostic-navigation",
+  "prior_head": "6bbf6b9bd44992ada89a901277f5a9eae54ee78e",
+  "source_state": "Uncommitted E-05 implementation atop the pushed E-04 checkpoint",
+  "build": {
+    "taskpane_sha256": "99af45eb75edcdfe7e0dd493316bd2eef9d4985e9e686a4d486943c59f730263",
+    "initial_ownership_cases_taskpane_sha256": "c20412e48f1063f6ea951c50f4b983d9abb89fcbd68bd04800e7a8047818f8d9",
+    "build_note": "Ownership/reopen cases used the initial build; the final build additionally escapes literal leading apostrophes. Its saved address/source integrity were verified separately below.",
+    "engine": "Pyodide 0.27.7, CDN build",
+    "loading_route": "Microsoft office-addin-debugging CLI, desktop Excel, existing trusted HTTPS localhost:3000"
+  },
+  "host": {
+    "excel_version": "16.115",
+    "excel_build": "16.115.26110837",
+    "macos": "26.5.1",
+    "version_evidence": "Local Excel Info.plist and sw_vers read during this verification",
+    "interaction": "Native accessibility UI; workbook ZIP/openpyxl inspection after saving the disposable fixture"
+  },
+  "fixture": {
+    "name": "E-02 1904 synthetic fixture, disposable CLI copy only",
+    "original_xlsx_sha256": "12b12974956864636ac9aeded9b0d913cd2459f76119b32ba1e5c83e4f41929e",
+    "saved_reopen_input_sha256": "8057cc11d729e4e7541ba5977a3aee24b75e3a5565bc980eed4f5ca611f0a09d",
+    "initial_post_reopen_saved_workbook_sha256": "afb172debee0c82880c8c1a5389f742c18ced83197a228b1dc4b02768060a4e5",
+    "final_saved_workbook_sha256": "eac144b7025aa2df0d000e31f93815988d6b11e48de502aa526f1d9d7a668525",
+    "source": "'Holdings O''Brien'!C7:H9",
+    "date_system": "1904, explicit user choice",
+    "parsed_rows": 2,
+    "physical_rows": 2,
+    "columns": 6,
+    "policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+    "snapshot_sha256": "sha256:a8a3da96f466546ebb050dc4e10599bb794f8c393b63c4ebd3f9503a7c1f2b28"
+  },
+  "observations": [
+    {"case": "Verified provenance", "status": "PASS", "captured_at": "2026-11-15T11:08:27.907Z", "verified_at": "2026-11-15T11:08:28.088Z", "actual": "Current, three passed. HTML report displayed source IDs/address, parsed/physical counts, 1904/user, capture/verification times and snapshot digest."},
+    {"case": "First results sheet", "status": "PASS", "verified_at": "2026-11-15T11:08:34.562Z", "actual": "Created finassert results, A1:E34. Pane reported captured snapshot evidence and Current; A1 completion title and canonical count/cap rows were visible."},
+    {"case": "Unique default output", "status": "PASS", "verified_at": "2026-11-15T11:09:01.030Z", "actual": "Second export created finassert results (2), leaving the original results sheet present."},
+    {"case": "Explicit owned replacement", "status": "PASS", "verified_at": "2026-11-15T11:09:30.966Z", "actual": "Chose finassert results in the owned destination picker and replaced it. Pane reported the exact destination and Current."},
+    {"case": "Policy save", "status": "PASS", "actual": "Saved finassert policy, A1:A19, with owned policy identity. Picker selected that sheet; no current-result reread was required."},
+    {"case": "Durable metadata", "status": "PASS", "actual": "Saved the disposable workbook. xl/webextensions/webextension1.xml contained three output ownership entries: two results and one policy, all complete."},
+    {"case": "New pane / saved policy", "status": "PASS", "actual": "Closed and reopened from the saved disposable workbook. Source/date were Unbound/unselected. Refresh saved policies discovered finassert policy; loading it restored three checks."},
+    {"case": "Owned replacement after reopen", "status": "PASS", "captured_at": "2026-11-15T11:19:27.289Z", "verified_at": "2026-11-15T11:19:58.532Z", "actual": "Rebound C7:H9, chose 1904, ran the saved policy: Current, three passed. Both saved results names appeared as owned targets; replacing finassert results (2) succeeded using saved identity."},
+    {"case": "Source integrity after saves", "status": "PASS", "actual": "Compared C7:H11 against the original fixture after both saves: values, number formats and cell types matched exactly, including both excluded totals sentinels. Row 9 hidden state matched. Original fixture checksum unchanged; evaluated snapshot digest unchanged across reopening."},
+    {"case": "Literal leading apostrophe correction", "status": "PASS after correction", "verified_at": "2026-11-15T11:33:55.884Z", "actual": "Initial saved Checked/Excel address cells lost their leading apostrophe through native Range.values semantics. The writer now escapes leading apostrophes before assignment. Rebuilt/reopened a fresh original fixture, ran Current/three passed and exported/saved. Final B5 and B10 both equal the exact string 'Holdings O''Brien'!C7:H9 and have string cell types; C7:H11 values/formats/types and row-9 visibility still match the original. The Office stand-in now models quote consumption and a dedicated regression passes."}
+  ],
+  "limits": [
+    "No user workbook was used or committed; saved workbook hashes identify temporary synthetic copies only.",
+    "Protected/partial/cancel/failure recovery, malicious text and JSON/HTML/sheet parity were exercised in browser/unit tests, not asserted native here.",
+    "Full E-06 workflow/CLI/50,000-row acceptance and external review remain pending; no broad platform or atomic-write guarantee follows."
+  ]
+}

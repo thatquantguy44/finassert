@@ -598,7 +598,7 @@
     if (!state.liveState) return;
     const live = state.liveState;
     const current = live.state === "Current" && !live.busy;
-    for (const id of ["download-html", "download-json", "excel-write"]) {
+    for (const id of ["download-html", "download-json", "excel-write", "excel-replace"]) {
       if ($(id)) $(id).disabled = !current;
     }
     if (current && state.resultBanner) {
@@ -728,6 +728,14 @@
     setLiveState(detail) { state.liveState = detail; updateLiveResult(); },
     result: () => state.result,
     resultsSheet: () => call("results_sheet", state.result.artifact_json),
+    excelEvidence(outcome, context) {
+      const evidence = call("excel_evidence", outcome.artifact_json, JSON.stringify(context));
+      if (!evidence.ok) throw new Error(evidence.error);
+      outcome.html = evidence.html;
+      outcome.artifact_json = evidence.artifact_json;
+      if (state.result === outcome) $("report-frame").srcdoc = outcome.html;
+      return outcome;
+    },
     // The checks as YAML, or null (with the problems shown) if they are not valid.
     policyYaml() {
       const exported = call("export_policy", JSON.stringify(policyDocument()));
