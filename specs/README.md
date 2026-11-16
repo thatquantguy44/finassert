@@ -40,7 +40,7 @@ required. Do not imply that scaffolding means implementation is complete.
 ## Creating a spec
 
 Copy [_template/](_template/spec.md) to the next unused numbered directory
-(currently `0018`). Replace the template prompts, set an explicit status, and add
+(currently `0019`). Replace the template prompts, set an explicit status, and add
 the spec to the catalog below. Numbers are permanent and are not reused. Keep
 draft planning and unresolved questions explicit instead of inventing completion.
 
@@ -69,6 +69,7 @@ cross-spec dependencies, and overall priorities in the
 | [0015 Verified upstream release bundles](0015/spec.md) | Implemented and verified; PR #21 merged |
 | [0016 Excel add-in validation workflow](0016/spec.md) | E-01–E-05 implemented with focused native/automated evidence; full E-06 acceptance proposed |
 | [0017 Canonical master handoff enforcement](0017/spec.md) | Implemented: staged commit, push and CI checkpoint guards; semantic review remains required |
+| [0018 Pinned QuantSmith reference in Excel](0018/spec.md) | Local reader implemented; native Excel acceptance pending |
 
 Changes to outcomes, rule identity, tolerance mathematics, serialization, or
 adapter row identity require a specification amendment and migration note.

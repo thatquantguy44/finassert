@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "repository": "thatquantguy44/QuantSmith",
+  "commit": "86eed7f47d2735964705ecd6d43be842f594ba2f",
+  "include": [
+    "README.md",
+    "AGENTS.md",
+    "agentic_dictionary.md",
+    "agents/README.md",
+    "agents/agent_registry.yaml",
+    "agents/**/README.md",
+    "agents/**/prompt.md",
+    "agents/**/instructions.md",
+    "agents/**/tasks.md",
+    "instructions/*.md",
+    "docs/*.md",
+    "docs/**/*.md",
+    "specs/**/spec.md",
+    "specs/**/plan.md",
+    "specs/**/tasks.md"
+  ]
+}

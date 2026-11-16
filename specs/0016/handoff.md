@@ -30,12 +30,22 @@
   browser/file smoke, 50,000-row Office stand-in diagnostic, quality/docs and
   distribution checks passed after correcting hidden-DOM harness assertions.
   See [acceptance](acceptance.md#2026-11-15-automated-preflight-linux).
+- **Optional reference:** Spec [0018](../0018/spec.md) adds a local on-demand
+  QuantSmith document reader. It does not change source capture, result
+  currentness or the pending E-06 real-host gate.
 - **Native stopping point:** Current, three passed, disposable C7:H9/1904 with
   final quote-preserving results saved. Full E-06 acceptance is still pending.
 - **Next:** Run the full acceptance checklist in Mac Excel when a host is
   available, then obtain external review. No real-host row was completed here.
 
 ## Entries
+
+### 2026-11-15 — Optional local reference beside the Excel workflow
+
+Spec [0018](../0018/spec.md) adds a reader for pinned QuantSmith documents
+to the pane. It fetches only on request and never sends workbook cells. The
+workbook capture/output contract and E-06 Mac acceptance gate are unchanged;
+the 0018 handoff owns reference evidence and later hosting decisions.
 
 ### 2026-11-15 — E-06 Linux preflight; Mac acceptance remains open
 

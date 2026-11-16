@@ -29,6 +29,11 @@ implemented as E-02/E-03. E-04 navigation and E-05 verified snapshot exports,
 unique destinations and saved ownership are implemented on the current feature
 branch. Complete E-06 Mac acceptance remains pending.
 
+An optional [QuantSmith reference](quantsmith-reference.md) panel can read
+allowlisted agent guides and documentation from a pinned local checkout through
+the add-in's same-origin, read-only API. It is loaded only when requested and
+does not send workbook data. Real Excel host acceptance of this panel is pending.
+
 ## What it does
 
 1. **Bind one source.** Choose a workbook table and press **Use this table**, or
