@@ -23,16 +23,16 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Prepared the verified E-06 native scale checkpoint for commit/push delivery; AC-07 native correction acceptance is the next task.
+- **Last worked on:** Worked through AC-07 native 1900 dates, exact offset binding, negative row-8 failure, F8 click navigation and failed-export/CLI parity after pushing the E-06 checkpoint.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
-- **Next pickup:** Inspect the live Excel dialog/selection, format H8:H9 as dates, bind C7:H9 and run the long-only negative-value → navigate → correct F8 to 400 → Stale → reread → pass → export/CLI workflow for AC-07.
-- **Verification:** Ten acceptance-harness controls passed again before delivery; Ruff/format, strict docs, links/anchors, distribution and checkpoint checks pass. Prior native 50,000-row diagnostics, actual JSON/HTML/worksheet/CLI equality and source/unrelated-cell integrity pass. AC-07 and the remaining full E-06 host cases are still pending.
-- **Stopping point:** E-06 scale evidence, acceptance tooling and documentation are in the enclosing checkpoint on feature/excel-e06-mac-acceptance. AC-07 resumes from the unsaved Sheet1!C7:H9 small source; date-format setup last timed out.
+- **Next pickup:** Bring the original Excel add-in 9877a12e disposable workbook to the foreground on the current desktop and dismiss dialogs. Recheck F8 -400, correct to 400, observe Stale/current exports disabled, reread/run three passing checks, then retain passing exports and strict CLI/integrity evidence for AC-07.
+- **Verification:** Native Short Date and saved 1900 workbook show 2026-01-01; C7:H9 binds two physical/parsed rows and six columns. Current failing run has one row-8 violation and two passes; clicking its action selects F8/-400. Actual failed JSON report/policy equal the CLI; saved before/after-navigation source values/types/formats match. Initial E-06 checkpoint checks remain passed; AC-07 is incomplete.
+- **Stopping point:** Initial changes are committed/pushed as 6328253. AC-07 date/binding/failure/navigation and failing JSON/CLI checks pass; correction/Stale/reread/pass/exports remain unexecuted after native capture returned cgWindowNotFound. Last confirmed F8 is -400.
 - **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
   Acceptance tooling, tests, evidence and documentation changed; runtime untouched.
-- **Last commits:** [67c3c1c](https://github.com/thatquantguy44/finassert/commit/67c3c1c6ea17bf0c88f4ab62bc927a292db058b6)
-  merged QuantSmith PR #28; `99698d8` was its delivery checkpoint; `7af01ff`
-  merged Excel PR #26. E-04 `6bbf6b9` and E-05 `4862ce7` are integrated.
+- **Last commits:** [6328253](https://github.com/thatquantguy44/finassert/commit/632825368ab69cf39d214a3d6bc6b01279bf7b43)
+  committed/pushed all E-06 scale/tooling/docs changes before AC-07.
+  Main `67c3c1c` merged QuantSmith PR #28; `7af01ff` merged Excel PR #26.
 - **Delivered:** E-01–E-05, canonical handoff enforcement and the pinned local
   reference reader are merged. Actual native E-06 scale/export/CLI and observed
   network/integrity evidence now verify AC-09/10 for this build. AC-07 and full
@@ -41,14 +41,21 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
   and [parity/integrity](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-scale-parity.json)
   retain actual host capabilities, timings, policy/snapshot/export/workbook hashes
   and exact findings. JSON/HTML exports are retained; workbooks remain temporary.
-- **Native state:** Current 50,000-row result was exported and saved. A small source
-  was then pasted into the live workbook's Sheet1!C7:H9; date-format setup timed
-  out. Do not infer H8:H9 formatting or later actions completed. Generated table
-  fixture repair remains unresolved; no experimental repair was promoted.
-- **Evidence/pickup:** [Current acceptance pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#current-pickup-and-retained-native-files)
-  gives the live state and exact retained-file verifier. Saved snapshots are
-  `/tmp/finassert-e06-scale-native-initial.xlsx` and
-  `/tmp/finassert-e06-scale-native-final.xlsx` (before the small paste).
+- **Native state:** Original disposable workbook has Sheet1!C7:H9 and formatted
+  H8:H9. It was saved; retained failing before/after-navigation workbook copies
+  are `/tmp/finassert-ac07-native-failed-before-nav.xlsx` and
+  `/tmp/finassert-ac07-native-failed-after-nav.xlsx`. Last observed result was
+  Current and failed; inspect live state again before editing. The unrelated
+  Book1 save prompt was canceled and that workbook was left untouched.
+- **Evidence/pickup:** [AC-07 progress](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#ac-07-immediate-pickup)
+  and `specs/0016/artifacts/ac07-native-progress.json` retain actual observations,
+  source/policy/export hashes and the correction pickup. The actual failed JSON
+  is retained. Previous native scale evidence remains valid and separate.
+- **Recovery attempt:** Isolated native-seed fixtures with retained web-extension
+  parts are prepared under `/tmp/finassert-ac07-native`, using temporary test
+  add-in `7710156b-0be4-5677-89fb-28358896cc33`. CLI/SDK reported launch; native
+  window opening was not established. Production add-in identity is unchanged;
+  no isolated result is counted as acceptance. Foreground assistance was requested.
 - **Host setup:** Microsoft's empty sideload template reliably opened the pane.
   Supplied-document launch does not add web-extension parts. Excel retained the
   old 3000 source address despite a 3002 manifest; the identified old development
@@ -61,13 +68,14 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
   covers Git/filesystem modes; this repository's implemented checker is Git-backed.
 
 
+
 ## Next up
 
 1. E-06 — Full Mac acceptance and regressions.
-   Inspect the live small source/date-format setup after the control timeout.
-   Finish negative → navigate → correct → Stale → rerun → export/CLI parity,
-   confirmed 1904, clean table/hidden and failure/race/keyboard cases, then review.
-   Native scale and export/CLI/integrity now pass; they do not complete AC-07.
+   Foreground the original disposable workbook and complete AC-07 from the last
+   confirmed F8 value -400: correct → Stale → reread/pass → exports/CLI parity.
+   Dates/bounds/failure/click navigation and failed-report CLI checks now pass.
+   Then finish 1904, clean table/hidden/failure/race/keyboard cases and review.
 2. Paired forecast accuracy — 0012 U-08.
    Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
 3. Debt principal and issuance — 0012 U-09.
@@ -82,8 +90,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
+  "prior_head": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
   "recent_commits": [
+    {
+      "commit": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
+      "subject": "test(excel): retain native E06 scale and export verification"
+    },
     {
       "commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
       "subject": "Merge pull request #28 from thatquantguy44/feature/quantsmith-readonly-docs"
@@ -99,34 +111,20 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
       "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
-    },
-    {
-      "commit": "00ce4d9d08ddce6ecb831ebe4063845a91dc839a",
-      "subject": "Merge pull request #24 from thatquantguy44/feature/excel-host-baseline"
     }
   ],
   "changed_paths": [
-    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "docs/roadmap.md",
     "specs/0016/acceptance.md",
     "specs/0016/artifacts/README.md",
-    "specs/0016/artifacts/e06-mac-preflight.json",
-    "specs/0016/artifacts/e06-native-diagnostics.json",
-    "specs/0016/artifacts/e06-native-scale-parity.json",
-    "specs/0016/artifacts/e06-native-scale-report.html",
-    "specs/0016/artifacts/e06-native-scale-report.json",
-    "specs/0016/artifacts/prepare_e06_fixtures.py",
-    "specs/0016/artifacts/verify_e06_exports.py",
+    "specs/0016/artifacts/ac07-native-failed-report.json",
+    "specs/0016/artifacts/ac07-native-progress.json",
     "specs/0016/handoff.md",
-    "specs/0016/plan.md",
     "specs/0016/roadmap.md",
-    "specs/0016/tasks.md",
-    "specs/README.md",
-    "tests/unit/test_excel_acceptance_tools.py"
+    "specs/0016/tasks.md"
   ],
-  "project_sha256": "5e493c9652aceccf669b4f4e3331b290652c15a9729e3a373efda7f4cfece557",
-  "reviewed_sections_sha256": "02cfdcec514717af3a497b3d203bacd0185303ccc3ccfb4186c76b074fbbe6c7"
+  "project_sha256": "2535c86aebb9638f66bea2c9471df24c93c143fbf5daa6a95313f6d20483d1ca",
+  "reviewed_sections_sha256": "7be48b512333207e0858a090fa131f7f25bbf71365753d8312d5f80937d847a2"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -145,6 +143,24 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-17 — AC-07 failing case and navigation; correction blocked
+
+- **Worked on:** Worked through AC-07 native 1900 dates, exact offset binding, negative row-8 failure, F8 click navigation and failed-export/CLI parity after pushing the E-06 checkpoint.
+- **Stopping point:** Initial changes are committed/pushed as 6328253. AC-07 date/binding/failure/navigation and failing JSON/CLI checks pass; correction/Stale/reread/pass/exports remain unexecuted after native capture returned cgWindowNotFound. Last confirmed F8 is -400.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Bring the original Excel add-in 9877a12e disposable workbook to the foreground on the current desktop and dismiss dialogs. Recheck F8 -400, correct to 400, observe Stale/current exports disabled, reread/run three passing checks, then retain passing exports and strict CLI/integrity evidence for AC-07.
+- **Verification:** Native Short Date and saved 1900 workbook show 2026-01-01; C7:H9 binds two physical/parsed rows and six columns. Current failing run has one row-8 violation and two passes; clicking its action selects F8/-400. Actual failed JSON report/policy equal the CLI; saved before/after-navigation source values/types/formats match. Initial E-06 checkpoint checks remain passed; AC-07 is incomplete.
+- **Delivery:** User-requested initial commit/push completed as `6328253` before
+  AC-07 began. This checkpoint retains the subsequent partial native evidence.
+- **Priority decision:** Reaffirm E-06 first, focusing on AC-07's remaining
+  correction/Stale/reread/pass/export loop. No completion or external sign-off
+  is inferred from the newly verified failing half of the workflow.
+- **Host findings:** Resolved a pending save sequence by saving the known test
+  workbook and canceling at unrelated Book1. Later native capture again failed;
+  user assistance to foreground the original test window was requested.
+  Isolated seed/manifest preparation and launch messages are setup evidence only.
+
 
 ### 2026-11-16 — Deliver native E-06 checkpoint before AC-07
 

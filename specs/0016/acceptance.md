@@ -2,8 +2,10 @@
 
 **Status:** E-06 partially verified on Mac. Native 50,000-row diagnostics,
 verified capture, JSON/HTML/results-sheet parity, CLI tie-out and source integrity
-passed on 2026-11-16. Small correction/date/table/failure/race cases remain open;
-native automation timed out during their setup. Automated preflights do not
+passed on 2026-11-16. AC-07 now has native 1900 date/offset/failure/navigation
+and failed-report CLI evidence; correction/Stale/rerun/pass remains unexecuted
+after native window capture failed. Table/1904/failure/race cases remain open.
+Automated preflights do not
 complete the remaining host rows.
 Early E-01/E-02 native evidence is retained separately in [artifacts](artifacts/README.md).
 E-03's partial native freshness/configuration checks are also recorded there;
@@ -37,14 +39,14 @@ rows pending. Repeat date-sensitive cases with both workbook epochs.
 | --- | --- | --- |
 | Install and load | Pane ready; capabilities recorded; unsupported host explained | PASS: current bundled pane Ready; capabilities through 1.13, calculation and startup recorded. Unsupported-host alternatives remain automated coverage. |
 | Explicit table | Correct headers/body/source summary; total row excluded | pending |
-| Fixed offset range | C7:H20-style bounds and physical row numbers preserved | Exact A1:E50001 scale binding passed; offset small-fixture case pending. |
+| Fixed offset range | C7:H20-style bounds and physical row numbers preserved | PASS: native Sheet1!C7:H9, header 7, two physical/parsed rows, six columns; retained failure points to row 8. |
 | Filter/hidden rows | All physical data rows included and policy visible | pending |
-| Financial failure | Negative market value fails at the correct row | pending |
-| Navigate | Click/keyboard selects that row/cell without changing values | pending |
+| Financial failure | Negative market value fails at the correct row | PASS: Current, one failed/two passed; market_value -400 at row 8, one retained violation/cap 20. |
+| Navigate | Click/keyboard selects that row/cell without changing values | Click PASS: retained row-8 finding selects F8/-400 with fresh preflight; saved source unchanged. Keyboard case pending. |
 | Correct in Excel | Old result visibly stale; current export disabled | pending |
 | Rerun | New source read; corrected input passes the intended policy | pending |
 | Policy/date edit | Prior result stale even when source values are unchanged | pending |
-| 1900 and 1904 | Same intended date, explicit interpretation in evidence | pending |
+| 1900 and 1904 | Same intended date, explicit interpretation in evidence | Native 1900 short-date cells/preview/saved file show 2026-01-01; 1904 case pending. |
 | Formula/calc state | Recalculation invalidates; pending/manual mode handled explicitly | Automatic/Done observed; formula/recalc/manual/pending cases pending. |
 | Mid-read edit | No mixed/obsolete candidate becomes Current | pending |
 | Delayed event | Export/navigation preflight detects changed source | pending |
@@ -54,7 +56,7 @@ rows pending. Repeat date-sensitive cases with both workbook epochs.
 | Export parity | JSON/HTML/results sheet match canonical findings and caps | PASS on native scale: actual downloads and all 41 worksheet rows match; exact counts/caps retained. |
 | Read-only/protected/collision | Clear export error or safe new sheet; source untouched | Unique results (2) preserved existing outputs/source on scale run; protected/read-only failures pending. |
 | Rebind/reopen pane | No duplicated events or cross-source result reuse | pending |
-| Python/CLI tie-out | Same normalized input/policy/labels produce identical results | PASS on native scale: strict canonical report/policy equality against actual CLI. Small correction/date tie-out pending. |
+| Python/CLI tie-out | Same normalized input/policy/labels produce identical results | PASS on scale and small failing 1900 case: strict canonical report/policy equality against actual CLI. Corrected passing/1904 tie-out pending. |
 | 50,000 rows × 5 columns | Exact planted failures; complete counts; timings retained | PASS: three weight and three NAV groups fail, two data checks pass; native timings and stable captures retained. |
 | Network/input integrity | No cell-data transmission or source value/format edits | PASS for observed native scale: resource/CSP diagnostic, local server trace, all source cells/types/formats and four unrelated sheets unchanged. |
 
@@ -68,13 +70,65 @@ rows pending. Repeat date-sensitive cases with both workbook epochs.
   establish a clean open. Earlier generator corrections were insufficient.
 - Tested platform support statement: focused earlier Mac evidence only; full E-06
   support is not promoted by this checkpoint.
-- Remaining limitations: small negative-value correction/rerun, both epochs,
-  table/hidden-row and failure/race cases remain. Native control timed out again
-  while setting up the small fixture; no completion of that action is inferred.
+- Remaining limitations: small correction/Stale/rerun/pass/export, 1904,
+  table/hidden-row and failure/race cases remain. Native window capture failed
+  after the failing export/navigation; no correction is inferred.
 - Reviewer/sign-off reference: external human review pending; no sign-off inferred.
 
 A successful Office stand-in run does not complete this record. Add Windows/web
 records separately if those platforms become delivery targets.
+
+## 2026-11-17 AC-07 progress; correction remains open
+
+The preceding E-06 checkpoint was committed/pushed as
+[`6328253`](https://github.com/thatquantguy44/finassert/commit/632825368ab69cf39d214a3d6bc6b01279bf7b43)
+before continuing AC-07. Production runtime remains unchanged. Actual native
+observations and hashes are in [ac07-native-progress.json](artifacts/ac07-native-progress.json);
+the [failed report](artifacts/ac07-native-failed-report.json) is an actual download.
+
+1. Applied native **Short Date** to selected H8:H9. Formula Bar H8 showed
+   `1/1/2026`; the saved workbook has the 1900 epoch and both dates 2026-01-01.
+2. Bound **Sheet1!C7:H9**. The pane reported header 7, two physical/parsed rows,
+   six columns, explicit 1900 and both preview dates 2026-01-01; rebinding cleared
+   the prior scale result. Applied the matched long-only template.
+3. Run reached Current at `2026-11-17T01:54:18.516Z`: one failed, two passed,
+   no errors/skips. Market value has one row-8 violation, cap 20, one shown.
+4. Clicked the retained row-8 cell action. At `2026-11-17T01:55:27.109Z` it
+   reported **Selected cell in row 8**; Name Box **F8**, Formula Bar **-400**.
+   Current remained after preflight. Saved before/after C7:H9 values, types and
+   formats match exactly.
+5. Saved the actual failed JSON after another preflight at
+   `2026-11-17T01:55:40.562Z`. Its complete canonical report/policy equals the
+   actual CLI against the same saved workbook/region and long-only policy.
+   CLI exit 1 is the expected invariant failure, not a harness error.
+
+Native capture then repeatedly returned `cgWindowNotFound`. A pending save
+sequence had earlier been resolved by saving only the known disposable workbook
+and canceling at the unrelated Book1 prompt. A later isolated test launch retained
+the known native E-02 seed's web-extension parts with a temporary test manifest;
+CLI/SDK launch messages did not establish a visible native window. No isolated
+fixture result is counted as acceptance evidence, and the production add-in ID
+was not changed. User assistance to foreground the original test workbook and
+dismiss dialogs was requested.
+
+### AC-07 immediate pickup
+
+The **last confirmed F8 value is -400**. Bring the original disposable
+`Excel add-in 9877a12e…` workbook forward on the current desktop, inspect any
+dialog, and recheck the bound source/policy and F8. Correct to **400** in Excel,
+observe **Stale** with current exports/navigation disabled, reread/run and verify
+**three passed**. Save actual JSON/HTML/results-sheet output, the policy and the
+native workbook; run the retained-export/CLI verifier and source-integrity check.
+AC-07 remains pending until that complete loop succeeds.
+
+Retained negative-source copies are
+`/tmp/finassert-ac07-native-failed-before-nav.xlsx` and
+`/tmp/finassert-ac07-native-failed-after-nav.xlsx`. The actual failed export is
+`/tmp/finassert-e06-fixtures/ac07-failed-1900.json`; CLI output is
+`/tmp/finassert-ac07-failed-cli.json`, with policy
+`/tmp/finassert-ac07-native/policy.yml`. Isolated 1900/1904 seed-derived fixtures
+and their identities are in `/tmp/finassert-ac07-native`; their native opening
+is unverified. The temporary test add-in ID is recorded in the progress artifact.
 
 ## 2026-11-16 native scale and export verification
 
@@ -112,6 +166,10 @@ current runtime identity. No certificate trust or application security changed.
   placed in a request. The optional reference panel was not opened in this run.
 
 ### Current pickup and retained native files
+
+**Current AC-07 pickup:** use the [later progress record](#ac-07-immediate-pickup).
+The scale files and earlier stopping point below remain useful historical context;
+date formatting, binding, failure and navigation have since been verified.
 
 Saved native snapshots are `/tmp/finassert-e06-scale-native-initial.xlsx` and
 `/tmp/finassert-e06-scale-native-final.xlsx`; their hashes are retained. Repeat the

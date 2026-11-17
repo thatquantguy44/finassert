@@ -7,7 +7,19 @@ E-03's session-configurable freshness/capture evidence is recorded
 [below](#e-03-configurable-freshness-and-stable-capture).
 E-04/E-05 focused evidence and the E-06 Mac preflight are retained below;
 the full host gate is still open. Current pickup is in the
-[acceptance record](../acceptance.md#current-pickup-and-retained-native-files).
+[acceptance record](../acceptance.md#ac-07-immediate-pickup).
+
+## AC-07 native progress
+
+[ac07-native-progress.json](ac07-native-progress.json) records native 1900 date
+formatting, C7:H9 bounds, the negative row-8 finding and F8 click navigation.
+The actual [failed JSON](ac07-native-failed-report.json) equals the CLI report and
+policy, and the source's values/types/formats are unchanged across navigation.
+The initial E-06 checkpoint was pushed as `6328253` before this work.
+
+Correction/Stale/reread/pass and passing exports remain **unexecuted** after
+native capture returned `cgWindowNotFound`. Foreground the original test workbook
+and follow the [immediate pickup](../acceptance.md#ac-07-immediate-pickup).
 
 ## E-06 native scale and exports
 

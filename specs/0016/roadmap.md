@@ -19,8 +19,8 @@ See [tasks.md](tasks.md) and
 
 ## Next milestone
 
-Inspect the live small source/date-format setup after the native timeout;
-follow the [current pickup](acceptance.md#current-pickup-and-retained-native-files).
+Resume AC-07 at F8 correction after native failure/navigation and failed-export
+CLI parity passed; follow the [immediate pickup](acceptance.md#ac-07-immediate-pickup).
 Complete E-06 full Mac workflow/scale/CLI acceptance; retain the
 acceptance evidence and review the implementation.
 Only then describe the tested Mac build as supported. Add Windows/web acceptance

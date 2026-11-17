@@ -90,10 +90,14 @@ without skipping its dependencies. Check completion only with recorded evidence.
   - [x] Run actual native 50,000-row diagnostics and verified capture; retain
     JSON/HTML/results-sheet and strict CLI parity plus complete source/unrelated
     cell integrity. See [native verification](acceptance.md#2026-11-16-native-scale-and-export-verification).
+  - [x] Start AC-07 on native 1900 source: dates, exact C7:H9 bounds, row-8
+    negative failure, F8 click navigation, unchanged source and actual failed
+    JSON/CLI equality. See [progress](acceptance.md#2026-11-17-ac-07-progress-correction-remains-open).
   - [ ] Complete the small negative-value correction/date workflow, clean table
-    opening, hidden/filtered and failure/race/keyboard cases. Native control timed
-    out during date-format setup after the small source was pasted; inspect that
-    live state before resuming. Record review separately.
+    opening, hidden/filtered and failure/race/keyboard cases. Native window capture
+    failed after AC-07's failing export/navigation. Correct F8 from the last
+    confirmed -400 to 400 and verify Stale/reread/pass/exports before completion.
+    Record review separately.
 
 ## Acceptance ledger
 
@@ -105,7 +109,7 @@ without skipping its dependencies. Check completion only with recorded evidence.
 | AC-04 | verified for E-04 | 13 identity tests, 19 browser cases and focused native F8 navigation/correction/rerun |
 | AC-05 | verified for E-02 | Both explicit epochs produce 2026-01-01 in the browser and native Mac pane |
 | AC-06 | verified for E-04/E-05 | Canonical JSON/HTML/sheet samples/counts/caps and unchanged source; full E-06 host/CLI acceptance remains |
-| AC-07 | pending | Recorded real Mac correction/rerun/export and CLI comparison |
+| AC-07 | partially verified; correction loop pending | Native 1900 dates/bounds/failure/F8 navigation and failed-report CLI parity recorded; correction/Stale/reread/pass/exports await a visible native window |
 | AC-08 | verified for E-01–E-05 | Input/capability/race guards plus owned/source/collision checks and protected/partial/cancel recovery |
 | AC-09 | verified for recorded build; browser retries disclosed | Runtime/browser, CDN-page/local-runtime and bundled smokes, quality/docs/distribution checks plus native resource/CSP diagnostic and startup-only server trace; no new core dependency |
 | AC-10 | verified on native Mac | 50,000 rows × 5 columns; exact 3+3 failed financial groups, two passing data checks, diagnostic caps, native timings, verified capture and complete source/unrelated-cell integrity; native records linked above |

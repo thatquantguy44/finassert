@@ -44,17 +44,39 @@
   match exactly. Source values/types/formats and four unrelated sheets are
   unchanged. See [diagnostic](artifacts/e06-native-diagnostics.json) and
   [parity/integrity](artifacts/e06-native-scale-parity.json).
-- **Native stopping point:** In the live disposable workbook, small synthetic
-  data was pasted into Sheet1!C7:H9. It is unsaved; the retained scale snapshot
-  predates that paste. Control then repeatedly timed out during Go To/date-format
-  setup. Generated table fixture repair remains unresolved; no clean-open claim.
-- **Next:** Inspect the live dialog/selection, format H8:H9 as dates and execute
-  the small negative-value correction/rerun with the long-only policy, then both
-  epochs, native table/hidden/failure/race/keyboard rows. Use the
-  [current pickup](acceptance.md#current-pickup-and-retained-native-files).
-  External human review remains separate; follow the master's ordering.
+- **AC-07 progress:** Initial E-06 checkpoint was committed/pushed as `6328253`.
+  Native H8:H9 Short Date, explicit 1900/Jan 1, C7:H9 bounds, one row-8 negative
+  failure/two passes and F8 click navigation now pass. Actual failed JSON report
+  and policy equal the CLI; source values/types/formats match across navigation.
+  See [progress](artifacts/ac07-native-progress.json).
+- **Native stopping point:** Original workbook was saved. Last confirmed F8 is
+  -400, with Current failing evidence; correction/Stale/reread/pass/exports have
+  not run. Native capture returned cgWindowNotFound; foreground assistance was
+  requested. The unrelated Book1 prompt was canceled without saving/discarding it.
+- **Next:** Foreground the original disposable workbook on the current desktop,
+  inspect dialogs and recheck F8, then complete the correction loop in the
+  [immediate pickup](acceptance.md#ac-07-immediate-pickup). Finish remaining
+  1904/table/hidden/failure/race/keyboard rows and review under master ordering.
 
 ## Entries
+
+### 2026-11-17 — AC-07 dates, failing run and native F8 navigation
+
+- **Work:** Pushed initial E-06 checkpoint `6328253`, then continued AC-07 on
+  the existing original disposable workbook. Applied native date formatting,
+  bound C7:H9, used long-only policy, retained one row-8 violation/two passes,
+  navigated to F8/-400 and downloaded the actual failed JSON.
+- **Verification:** Saved 1900 dates/preview show 2026-01-01; Current failure and
+  navigation preflights passed. Failed report/policy equal actual CLI; before/
+  after-navigation source cells/types/formats match. Native details and hashes
+  are in [progress](artifacts/ac07-native-progress.json).
+- **Stopping point:** Native capture failed before correction. Original workbook
+  saved; unrelated Book1 prompt canceled. Isolated native-seed/temporary-manifest
+  launch did not establish a visible window and is not host acceptance proof.
+- **Pickup:** Foreground the original workbook, verify F8 -400, correct to 400,
+  observe Stale/export guards, reread/pass and retain passing exports/CLI parity.
+  AC-07 and full E-06 remain open; record human review separately.
+
 
 ### 2026-11-16 — E-06 delivery checkpoint; AC-07 next
 
