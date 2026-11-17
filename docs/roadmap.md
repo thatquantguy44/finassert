@@ -6,7 +6,12 @@ commit/push/CI checkpoint guards. PR #25 merged Excel E-01–E-03 and these guar
 into main at 32cf4ab. E-04 navigation is implemented on
 feature/excel-diagnostic-navigation with focused native/automated evidence.
 E-05 now adds verified source provenance, canonical outputs, saved ownership and
-partial-write recovery on the same branch. Review the stack, then complete E-06 acceptance.
+partial-write recovery. Both slices and the QuantSmith reference reader are
+merged into main. E-06 now has synthetic fixtures, retained-export/CLI tooling
+and Mac automated preflight. Native scale, verified capture, exports/CLI parity
+and source integrity now pass. Finish the small correction/date workflow and
+remaining failure/race rows from the
+[current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#current-pickup-and-retained-native-files).
 Spec 0018 adds an optional local, read-only QuantSmith reference in the Excel
 pane. It does not change E-06's priority or claim shared hosting support.
 

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "slice": "E-06",
+  "recorded_on": "2026-11-15",
+  "status": "PARTIAL; native acceptance blocked by UI automation",
+  "branch": "feature/excel-e06-mac-acceptance",
+  "prior_head": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
+  "build": {
+    "source": "unmodified runtime at prior_head; local E-06 tooling/docs are separate",
+    "files": {
+      "taskpane.html": {
+        "sha256": "b0070aa2f2c3a2c846c1d930824c7c12a9773dd3b2bac5de0ea789b1d1cda1ba",
+        "size_bytes": 316212
+      },
+      "manifest.xml": {
+        "sha256": "d8d930527fc441f24e06173b0d401c80b78c20b1ff380455f7b6c257cbab5fed",
+        "size_bytes": 1076
+      }
+    },
+    "runtime": "bundled Pyodide 0.27.7",
+    "url": "https://localhost:3002/",
+    "route": "Microsoft office-addin-debugging CLI, desktop Excel, existing trusted localhost certificate"
+  },
+  "host": {
+    "os": "macOS 26.5.1 (25F80)",
+    "model": "Mac17,9",
+    "cpu": "Apple M5 Pro",
+    "memory_bytes": 25769803776,
+    "excel_installed_version": "16.115",
+    "excel_installed_build": "16.115.26110837",
+    "license_channel": "not observed",
+    "python": "3.11.17 arm64",
+    "new_build_native_capabilities": "not observed"
+  },
+  "prepared_fixtures": {
+    "status": "generated and Python/CLI harness verified; clean native opening not established",
+    "files": {
+      "ambiguous.json": {
+        "sha256": "573d0a06a058f193c90ee1b58139473ec1d8f75120ae81a06090b631c055828e",
+        "size_bytes": 97
+      },
+      "holdings-1900.xlsx": {
+        "sha256": "7e1bb144b58759b64d0432bace9f75443605f186882b7a14e097e9a0a930a268",
+        "size_bytes": 9199
+      },
+      "holdings-1904.xlsx": {
+        "sha256": "9f3fae4f52ede2d35ffd6fb786c54198ac5ee3747234c7c287978afcc9eaf43a",
+        "size_bytes": 9206
+      },
+      "long-only-holdings.yml": {
+        "sha256": "4ea32b1899100b4ed1786d323302273adcefe35dfeb92c6ea7318eb08617eafe",
+        "size_bytes": 966
+      },
+      "missing.json": {
+        "sha256": "3fa6f26be1074d3cbb3d3f1b1d2fda523e2ceb832f7eed22a5462f9d9eac3c5e",
+        "size_bytes": 271
+      },
+      "multi-portfolio-holdings.yml": {
+        "sha256": "8b4b184a4533defd5b65791ec1703f414021b2dcb221a7297f260a828192125b",
+        "size_bytes": 1566
+      }
+    },
+    "bounds": "'Holdings O''Brien'!C7:H9",
+    "table": "AcceptanceHoldings C7:H10; header 7; body 8-9; actual totals 10",
+    "seeded_failure": "F8 -400; correction is 400",
+    "hidden_row": 9,
+    "totals_sentinel": -99999,
+    "intended_date": "2026-01-01 in both workbook epochs",
+    "other_cases": [
+      "duplicate key 999",
+      "missing treasury scope/periods",
+      "formula error and evaluated formula",
+      "unrelated results-name collision",
+      "legacy saved policy"
+    ]
+  },
+  "native_attempts": [
+    {
+      "status": "OBSERVED",
+      "detail": "Prior E-05 disposable workbook was initially visible with the old localhost:3000 pane. This is historical state, not a current-build E-06 pass."
+    },
+    {
+      "status": "RECOVERED",
+      "detail": "First launch failed EEXIST on the existing finassert manifest. Microsoft debugging stop unregistered it; start then registered the new manifest and reported Started."
+    },
+    {
+      "status": "FAIL",
+      "detail": "First generated fixture triggered Excel content recovery. Table autoFilter was then corrected to exclude totals, totals labels made explicit, and the saved policy layout corrected. Final fixtures have not been cleanly opened in native Excel."
+    },
+    {
+      "status": "BLOCKED",
+      "detail": "Native dialog interactions repeatedly returned cgWindowNotFound, noWindowsAvailable or invalid element IDs, including after reconnecting automation. Last observed surface was an Open dialog with holdings-1900.xlsx selected. User was asked to dismiss dialogs and open the prepared fixture; no response recorded at this checkpoint."
+    }
+  ],
+  "checks": {
+    "existing_runtime": "3700 passed; 107 browser cases skipped and run separately",
+    "new_acceptance_harness": "10 passed (both epochs, real CLI subprocess, unchanged workbook, changed-source/report/sheet/epoch rejection)",
+    "bundled_browser": "104 passed, 3 engine-startup timeout errors; all 3 passed on focused retry",
+    "quality": "Ruff check/format and mypy 64 source files passed before final documentation edits; final results in acceptance.md",
+    "smokes": [
+      "bundled/served Excel including 50000 rows",
+      "CDN-page with local runtime (does not prove external CDN availability)",
+      "shared browser/file"
+    ],
+    "distribution": "wheel and sdist built and installed distribution probes passed; initial unexpected-end-of-data build failures retained as setup failures; stable retry succeeded",
+    "documentation": "strict MkDocs passed before final documentation update; final result in acceptance.md"
+  },
+  "stand_in_50000": {
+    "host": "Chromium/Office stand-in on this Mac; NOT native Excel",
+    "portfolios": 1000,
+    "rows": 50000,
+    "columns": 5,
+    "engine_startup_ms": 1813,
+    "write_ms": 8,
+    "read_ms": 1122,
+    "check_render_ms": 4312,
+    "integrity_check_ms": 336,
+    "weights_failed_groups": 3,
+    "nav_failed_groups": 3,
+    "data_checks": "passed",
+    "source_values_after": "identical",
+    "network": "no requests after engine ready; intercepted Office library and same-origin bundled runtime"
+  },
+  "quantsmith_local_http": {
+    "status": "PASS; native panel pending",
+    "catalog_documents": 1400,
+    "commit": "86eed7f47d2735964705ecd6d43be842f594ba2f",
+    "sample_path": "README.md",
+    "content_sha256": "a9bc3b7a8f596d792906a4bc75303b8acbd1dc82c008afbfd63ffbcb1514fb2b",
+    "actual": "Trusted localhost HTTPS response matched the pinned local Git blob; no private document text retained"
+  },
+  "limits": [
+    "No new native workflow/epoch/export/parity/scale acceptance row is completed by this attempt.",
+    "Generated harness artifacts are test fixtures, never native acceptance evidence.",
+    "Installed app metadata and a successful sideload launcher do not prove pane loading or stable API capabilities.",
+    "External human review and Windows/web acceptance remain pending."
+  ]
+}

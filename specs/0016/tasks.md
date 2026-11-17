@@ -80,7 +80,20 @@ without skipping its dependencies. Check completion only with recorded evidence.
   docs/support claims and the local/master handoffs. Record review status separately.
   Linux automated preflight and 50,000-row Office stand-in evidence are recorded
   in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux). The full
-  Mac workflow, native timings, CLI tie-out and external review remain pending.
+  small Mac correction/date workflow and external review remain pending. Native
+  scale timings, exports and CLI tie-out are now verified below.
+  - [x] Prepare synthetic 1900/1904 workbooks and policy identities; add a
+    retained-export verifier using the actual CLI. Ten controls verify both
+    epochs and reject changed source, report counts, worksheet output and epoch.
+  - [x] Run current-main Mac automated regressions, smoke/scale and package checks.
+    See [Mac preflight](acceptance.md#2026-11-15-mac-preflight-and-blocked-native-setup).
+  - [x] Run actual native 50,000-row diagnostics and verified capture; retain
+    JSON/HTML/results-sheet and strict CLI parity plus complete source/unrelated
+    cell integrity. See [native verification](acceptance.md#2026-11-16-native-scale-and-export-verification).
+  - [ ] Complete the small negative-value correction/date workflow, clean table
+    opening, hidden/filtered and failure/race/keyboard cases. Native control timed
+    out during date-format setup after the small source was pasted; inspect that
+    live state before resuming. Record review separately.
 
 ## Acceptance ledger
 
@@ -94,7 +107,7 @@ without skipping its dependencies. Check completion only with recorded evidence.
 | AC-06 | verified for E-04/E-05 | Canonical JSON/HTML/sheet samples/counts/caps and unchanged source; full E-06 host/CLI acceptance remains |
 | AC-07 | pending | Recorded real Mac correction/rerun/export and CLI comparison |
 | AC-08 | verified for E-01–E-05 | Input/capability/race guards plus owned/source/collision checks and protected/partial/cancel recovery |
-| AC-09 | pending | Full checks and CDN/bundled/offline regression runs |
-| AC-10 | pending | 50,000-row planted findings, timings, bounds and integrity |
+| AC-09 | verified for recorded build; browser retries disclosed | Runtime/browser, CDN-page/local-runtime and bundled smokes, quality/docs/distribution checks plus native resource/CSP diagnostic and startup-only server trace; no new core dependency |
+| AC-10 | verified on native Mac | 50,000 rows × 5 columns; exact 3+3 failed financial groups, two passing data checks, diagnostic caps, native timings, verified capture and complete source/unrelated-cell integrity; native records linked above |
 
 No acceptance row is complete merely because the baseline tests passed previously.

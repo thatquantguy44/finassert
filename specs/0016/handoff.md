@@ -4,9 +4,9 @@
 
 - **Status:** E-01–E-05 implemented and verified for their slices; full E-06 pending.
   AC-01–06 and AC-08 have slice evidence; full acceptance remains pending.
-- **Branch:** feature/excel-diagnostic-navigation from main 2515422;
-  E-04 is pushed as 6bbf6b9; E-05 is in the enclosing checkpoint.
-  PR #25 merged E-01–E-03 at 32cf4ab.
+- **Branch:** `feature/excel-e06-mac-acceptance` from merged main `67c3c1c`.
+  E-04/E-05 and QuantSmith PR #28 are merged. E-06 tooling/evidence is
+  included in the enclosing delivery checkpoint; production runtime is unchanged.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -33,12 +33,85 @@
 - **Optional reference:** Spec [0018](../0018/spec.md) adds a local on-demand
   QuantSmith document reader. It does not change source capture, result
   currentness or the pending E-06 real-host gate.
-- **Native stopping point:** Current, three passed, disposable C7:H9/1904 with
-  final quote-preserving results saved. Full E-06 acceptance is still pending.
-- **Next:** Run the full acceptance checklist in Mac Excel when a host is
-  available, then obtain external review. No real-host row was completed here.
+- **E-06 Mac preflight:** 3,700 existing runtime tests plus ten new harness
+  controls pass. Browser run: 104 pass and three startup timeouts, all three pass
+  on retry. Quality/docs, CDN-page/local-runtime and bundled/shared smokes,
+  50,000-row stand-in and installed distribution checks pass. See the
+  [structured record](artifacts/e06-mac-preflight.json).
+- **E-06 native scale:** All diagnostic steps pass on the current bundled build:
+  startup 1,351 ms; 50,000-row write/read/check-render 322/732/750 ms. Verified
+  capture reached Current; actual JSON/HTML/all 41 results-sheet rows and CLI
+  match exactly. Source values/types/formats and four unrelated sheets are
+  unchanged. See [diagnostic](artifacts/e06-native-diagnostics.json) and
+  [parity/integrity](artifacts/e06-native-scale-parity.json).
+- **Native stopping point:** In the live disposable workbook, small synthetic
+  data was pasted into Sheet1!C7:H9. It is unsaved; the retained scale snapshot
+  predates that paste. Control then repeatedly timed out during Go To/date-format
+  setup. Generated table fixture repair remains unresolved; no clean-open claim.
+- **Next:** Inspect the live dialog/selection, format H8:H9 as dates and execute
+  the small negative-value correction/rerun with the long-only policy, then both
+  epochs, native table/hidden/failure/race/keyboard rows. Use the
+  [current pickup](acceptance.md#current-pickup-and-retained-native-files).
+  External human review remains separate; follow the master's ordering.
 
 ## Entries
+
+### 2026-11-16 — E-06 delivery checkpoint; AC-07 next
+
+User requested commit/push of all current changes before AC-07. The enclosing
+checkpoint retains native scale/capture/export/CLI/integrity evidence, acceptance
+tools, ten passing harness controls and current documentation. The next native
+step remains the unsaved Sheet1!C7:H9 source and its date-format/correction loop;
+no new AC-07 completion is claimed by delivery. Follow the master ordering.
+
+
+### 2026-11-16 — Native scale, verified exports and CLI tie-out
+
+- **Work:** Opened the current build using Microsoft's empty sideload template;
+  replaced only the identified old localhost:3000 test server with the current
+  bundled build after Excel retained that cached source address. No security or
+  certificate trust changed. The CLI's supplied-document route does not inject
+  web-extension parts into a freshly generated workbook.
+- **Verification:** Native API support through 1.13, Automatic/Done and all
+  diagnostic steps pass. Scale read 732 ms/check-render 750 ms; exact three
+  failing weight and three NAV groups, two passing data checks. Verified capture
+  reached Current; actual JSON/HTML/canonical worksheet/CLI and input integrity
+  pass. [Retained evidence](artifacts/e06-native-scale-parity.json) includes hashes
+  and unchanged source/unrelated cells. This supersedes the previous preflight's
+  no-native-execution status for the executed scale/export cases only.
+- **Remaining findings:** Generated table still triggers repair (table part);
+  speculative filter/metadata fixes were not retained as a verified repair.
+  A single-cell binding attempt was safely rejected. Native Go To plus OK was
+  needed to select bounds; Name Box text alone did not do so.
+- **Stopping point:** Live Sheet1!C7:H9 small source pasted, unsaved; date-format
+  setup then timed out. Scale native snapshots/exports and policy are safely
+  retained under `/tmp/finassert-e06-*`; current server/build is localhost:3000
+  and `/tmp/finassert-e06-current`. The optional 3002 server remains separate.
+- **Pickup:** Inspect current live state; finish small negative/correction/1904
+  and remaining table/hidden/failure/race/keyboard cases, then record review.
+  E-06 is not complete merely because AC-09/10 now have recorded evidence.
+
+
+### 2026-11-16 — E-06 acceptance tooling and blocked Mac setup
+
+- **Work:** Prepared synthetic offset/hidden/table/totals fixtures for both epochs,
+  validated policies and byte identities; added native retained-export/CLI parity
+  verifier and ten positive/negative controls. No production behavior changed.
+- **Verification:** Current merged runtime 3,700 passes plus ten new controls;
+  browser 104 passes with three engine-startup errors, all three pass on retry;
+  quality/docs, both Excel runtime smokes, shared browser flow, 50,000-row stand-in
+  and isolated distributions pass. Actual pinned QuantSmith localhost response
+  matched its Git blob; native panel remains pending.
+- **Failures:** First sideload hit an existing manifest (resolved via official
+  stop/start); initial fixture triggered recovery. Corrected totals/filter and
+  policy layout, but native dialogs then repeatedly failed automation targeting.
+  Clean native opening and workflow were not established.
+- **Stopping point:** E-06 remains open. Last native Open dialog selected the
+  generated 1900 workbook. Prepared files/build remain under `/tmp/finassert-e06-*`.
+- **Pickup:** Restore native control, cleanly open the fixture, execute the
+  [host checklist](acceptance.md#resume-with-retained-files), retain actual exports,
+  run the parity verifier and native scale; record external review separately.
+
 
 ### 2026-11-15 — Optional local reference beside the Excel workflow
 

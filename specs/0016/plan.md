@@ -104,3 +104,11 @@ and the [real-host acceptance checklist](acceptance.md). Compare canonical repor
 results, not environment timestamps or differing input locators. Document failures,
 unsupported capabilities and actual Excel build/platform. External review remains
 separate from successful local or CI verification.
+
+E-06 supplies `artifacts/prepare_e06_fixtures.py` for disposable epoch fixtures
+and `artifacts/verify_e06_exports.py` for retained native files and an actual CLI
+comparison. The [current pickup](acceptance.md#current-pickup-and-retained-native-files)
+documents exact inputs and limits. Run the harness controls with
+`PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_excel_acceptance_tools.py`.
+Generated test exports establish harness behavior only; they cannot check off
+native rows or replace the visible host workflow and integrity observations.

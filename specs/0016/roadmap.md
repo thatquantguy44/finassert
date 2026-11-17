@@ -10,11 +10,17 @@ E-04 adds bounded diagnostic navigation with native F8 selection evidence on
 feature/excel-diagnostic-navigation; canonical artifacts remain unchanged.
 E-05 on that same branch adds optional source provenance and verified safe output
 with unique names, saved ownership and partial-write recovery.
+Those implementations are merged into main. E-06 now has reproducible fixtures,
+an export/CLI verifier and current Mac automated preflight. Native 50,000-row
+diagnostics, stable capture, retained exports/CLI parity and integrity are now
+verified. Small correction/date and failure/race cases keep the full host gate open.
 See [tasks.md](tasks.md) and
 [native evidence](artifacts/README.md#e-02-source-and-date-evidence).
 
 ## Next milestone
 
+Inspect the live small source/date-format setup after the native timeout;
+follow the [current pickup](acceptance.md#current-pickup-and-retained-native-files).
 Complete E-06 full Mac workflow/scale/CLI acceptance; retain the
 acceptance evidence and review the implementation.
 Only then describe the tested Mac build as supported. Add Windows/web acceptance

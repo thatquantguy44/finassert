@@ -9,7 +9,7 @@ opened the corrected sideloaded pane and passed the synthetic 50,000-row diagnos
 on 2026-11-13. Engine startup was 1,062 ms, reading/preview 561 ms and template
 checking/render 631 ms. This verifies that build and fixture; the complete
 freshness/navigation/output workflow and Windows/web acceptance remain pending.
-See the [evidence](https://github.com/thatquantguy44/finassert/blob/feature/excel-source-binding-dates/specs/0016/artifacts/README.md)
+See the [evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/README.md)
 and [real-host runbook](design/excel-spike.md).
 
 The manifest declares ExcelApi 1.7 because results/policy sheet writes use
@@ -26,8 +26,13 @@ The next delivery is scoped in
 [spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
 explicit source/date binding and configurable stable capture/freshness are
 implemented as E-02/E-03. E-04 navigation and E-05 verified snapshot exports,
-unique destinations and saved ownership are implemented on the current feature
-branch. Complete E-06 Mac acceptance remains pending.
+unique destinations and saved ownership are merged into main. E-06 has prepared
+synthetic fixtures and a retained-export/CLI verifier. On 2026-11-16 the current
+build passed native 50,000-row diagnostics, verified capture, actual JSON/HTML/
+worksheet parity, strict CLI comparison and source integrity. Native write/read/
+check-render timings were 322/732/750 ms. Small correction/date and failure/race
+cases remain pending; complete Mac acceptance is not claimed. Maintainers can
+follow the [current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#current-pickup-and-retained-native-files).
 
 An optional [QuantSmith reference](quantsmith-reference.md) panel can read
 allowlisted agent guides and documentation from a pinned local checkout through

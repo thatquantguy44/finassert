@@ -67,7 +67,7 @@ cross-spec dependencies, and overall priorities in the
 | [0013 Excel workbook files](0013/spec.md) | Reader, XLSX reports, and CLI extensions implemented (initial) |
 | [0014 Seven-priority delivery](0014/spec.md) | Seven gates delivered; PR #17 merged |
 | [0015 Verified upstream release bundles](0015/spec.md) | Implemented and verified; PR #21 merged |
-| [0016 Excel add-in validation workflow](0016/spec.md) | E-01–E-05 implemented with focused native/automated evidence; full E-06 acceptance proposed |
+| [0016 Excel add-in validation workflow](0016/spec.md) | E-01–E-05 implemented; E-06 native scale/export/CLI parity verified, full host acceptance pending |
 | [0017 Canonical master handoff enforcement](0017/spec.md) | Implemented: staged commit, push and CI checkpoint guards; semantic review remains required |
 | [0018 Pinned QuantSmith reference in Excel](0018/spec.md) | Local reader implemented; native Excel acceptance pending |
 

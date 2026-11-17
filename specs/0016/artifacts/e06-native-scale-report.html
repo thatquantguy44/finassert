@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="finassert">
+<title>Holdings of several portfolios — finassert</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #5d5d58;
+  --border: #dcdcd6; --pass: #1f7a3d; --pass-bg: #e6f4ea; --fail: #b3261e;
+  --fail-bg: #fce8e6; --error: #8a4b00; --error-bg: #fff1dc; --skip: #4d5562;
+  --skip-bg: #eceef1; --code: #f0f0ec; --warn: #7a5b00; --warn-bg: #fff6d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141413; --surface: #1e1e1c; --text: #ececea; --muted: #a8a8a2;
+    --border: #3a3a36; --pass: #7dd69b; --pass-bg: #173322; --fail: #f2a29b;
+    --fail-bg: #3d1a17; --error: #f5c27a; --error-bg: #3a2a12; --skip: #c3c8d0;
+    --skip-bg: #2a2d32; --code: #2a2a27; --warn: #f0d58a; --warn-bg: #3a3112;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+h3 { font-size: 1.05rem; margin: 0; }
+p { margin: 8px 0; }
+.subtitle { color: var(--muted); margin: 0 0 20px; }
+code {
+  font: 0.85em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--code); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere;
+}
+.banner {
+  border-radius: 10px; padding: 16px 20px; border: 1px solid var(--border);
+  display: flex; gap: 14px; align-items: center;
+}
+.banner .icon { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+.banner strong { display: block; font-size: 1.2rem; }
+.banner.passed { background: var(--pass-bg); color: var(--pass); }
+.banner.failed { background: var(--fail-bg); color: var(--fail); }
+.banner.warning { background: var(--warn-bg); color: var(--warn); }
+.banner p { color: var(--text); margin: 2px 0 0; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; }
+.counts li { list-style: none; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+  border-radius: 999px; font-size: 0.9rem; font-weight: 600; white-space: nowrap;
+}
+.pill.passed { background: var(--pass-bg); color: var(--pass); }
+.pill.failed { background: var(--fail-bg); color: var(--fail); }
+.pill.error { background: var(--error-bg); color: var(--error); }
+.pill.skipped { background: var(--skip-bg); color: var(--skip); }
+.pill.warning { background: var(--warn-bg); color: var(--warn); }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin: 12px 0;
+}
+.card.failed { border-left: 5px solid var(--fail); }
+.card.error { border-left: 5px solid var(--error); }
+.card.skipped { border-left: 5px solid var(--skip); }
+.card.warning { border-left: 5px solid var(--warn); }
+.card.passed { border-left: 5px solid var(--pass); }
+.card header { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.meta { color: var(--muted); font-size: 0.9rem; }
+.message { font-weight: 500; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.92rem; }
+th, td {
+  text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border);
+  vertical-align: top; overflow-wrap: anywhere;
+}
+th { color: var(--muted); font-weight: 600; width: 32%; overflow-wrap: normal; }
+.rows th { width: auto; }
+.table-wrap { overflow-x: auto; }
+details summary { cursor: pointer; color: var(--muted); margin-top: 8px; }
+dl.legend { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; }
+dl.legend dd { margin: 0; }
+ul.assumptions { margin: 4px 0; padding-left: 20px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 520px) {
+  main { padding: 20px 12px 40px; }
+  .card { padding: 14px; }
+  th { width: auto; min-width: 7.5em; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .card, .banner { break-inside: avoid; }
+  details { display: block; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Holdings of several portfolios</h1>
+<p class="subtitle">finassert validation report</p>
+<section class="banner failed" role="status" aria-live="polite"><span class="icon" aria-hidden="true">✗</span><div><strong>Failed</strong><p>2 check(s) failed out of 4.</p></div></section><ul class="counts" aria-label="Results by outcome"><li><span class="pill passed">Passed: 2</span></li><li><span class="pill failed">Failed: 2</span></li><li><span class="pill error">Could not run: 0</span></li><li><span class="pill skipped">Skipped: 0</span></li></ul>
+<h2>About this run</h2><div class="table-wrap"><table><tr><th scope="row">Input</th><td>&#x27;finassert spike data&#x27;!A1:E50001</td></tr><tr><th scope="row">Input format</th><td>excel-range</td></tr><tr><th scope="row">Policy description</th><td>Each portfolio&#x27;s weights add up to 1 and its holdings to its NAV.</td></tr><tr><th scope="row">Policy fingerprint</th><td>sha256:7675f9972a24cb314b9d837e0732fd4f20c1078082b83c3288c20bcc4db3dc37</td></tr><tr><th scope="row">Generated (UTC)</th><td>2026-11-16T09:48:31Z</td></tr><tr><th scope="row">finassert version</th><td>0.1.0</td></tr><tr><th scope="row">Evidence</th><td>Captured snapshot; later edits require a new run.</td></tr><tr><th scope="row">Excel address</th><td>&#x27;finassert spike data&#x27;!A1:E50001</td></tr><tr><th scope="row">Excel captured at</th><td>2026-11-16T09:48:30.028Z</td></tr><tr><th scope="row">Excel column count</th><td>5</td></tr><tr><th scope="row">Excel data row count</th><td>50000</td></tr><tr><th scope="row">Excel date system</th><td>1900</td></tr><tr><th scope="row">Excel date system source</th><td>user</td></tr><tr><th scope="row">Excel header row</th><td>1</td></tr><tr><th scope="row">Excel hidden rows</th><td>include_all</td></tr><tr><th scope="row">Excel kind</th><td>range</td></tr><tr><th scope="row">Excel physical data row count</th><td>50000</td></tr><tr><th scope="row">Excel schema version</th><td>1</td></tr><tr><th scope="row">Excel snapshot sha256</th><td>sha256:619eb4758f95011adc858417f91b455e5be895a3299ac1900d4079e54817066c</td></tr><tr><th scope="row">Excel verified at</th><td>2026-11-16T09:51:45.516Z</td></tr><tr><th scope="row">Excel worksheet id</th><td>{8CEA3536-8A95-4346-873E-BF5E2FC021D5}</td></tr><tr><th scope="row">Excel worksheet name</th><td>finassert spike data</td></tr></table></div>
+<h2>Assumptions</h2><p>These checks are only meaningful if the following hold:</p><ul class="assumptions"><li>Each row is one position of one portfolio, and every position, including cash and liabilities, is a row.</li><li>A security appears once per portfolio; several lots of one security are combined before this check.</li><li>Weights are fractions of the portfolio&#x27;s NAV (0.25, not 25).</li><li>Market values and NAV are in each portfolio&#x27;s base currency, and liabilities and short positions have negative market values.</li><li>The NAV is given on every row, or on at least one row, of each portfolio.</li></ul>
+<h2>How to read this report</h2><dl class="legend"><dt><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span></dt><dd>The data satisfied this check.</dd><dt><span class="pill failed"><span aria-hidden="true">✗</span> Failed</span></dt><dd>The data broke this check.</dd><dt><span class="pill error"><span aria-hidden="true">!</span> Could not run</span></dt><dd>The check did not run, so it is not a pass. This usually means a missing column or a value that could not be read.</dd><dt><span class="pill skipped"><span aria-hidden="true">○</span> Skipped</span></dt><dd>The check was not evaluated, as its settings allow.</dd><dt><span class="pill warning"><span aria-hidden="true">⚠</span> Warning</span></dt><dd>The data broke this check, which is set to warn: it does not fail the report.</dd></dl>
+<h2>Checks</h2>
+<article class="card passed" aria-labelledby="check-0"><header><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span><h3 id="check-0">1. Required fields are filled in</h3></header><p class="meta">Rule <code>data.required_fields</code> · severity error</p><p>Checks that none of the chosen columns has a blank cell.</p><p class="message">All 50000 row(s) have every required field filled in.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>0</td></tr><tr><th scope="row">Expected</th><td>0</td></tr></table></div><p>blank_cells: 0 total; example cap 20; 0 shown; truncated: False</p></article>
+<article class="card passed" aria-labelledby="check-1"><header><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span><h3 id="check-1">2. Each item appears only once</h3></header><p class="meta">Rule <code>data.no_duplicates</code> · severity error</p><p>Checks that no value, or combination of values, appears on more than one row.</p><p class="message">All 50000 row(s) have a unique portfolio/ticker.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>0</td></tr><tr><th scope="row">Expected</th><td>0</td></tr></table></div><p>duplicates: 0 total; example cap 20; 0 shown; truncated: False</p></article>
+<article class="card failed" aria-labelledby="check-2"><header><span class="pill failed"><span aria-hidden="true">✗</span> Failed</span><h3 id="check-2">3. Portfolio weights add up to 100%</h3></header><p class="meta">Rule <code>portfolio.weights_sum_to_one</code> · severity error</p><p>Checks that the values in a weight column add up to exactly 1, for the whole file or for each portfolio.</p><p class="message">3 of 1000 group(s) do not add up to 1.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>3</td></tr><tr><th scope="row">Expected</th><td>0</td></tr><tr><th scope="row">Allowed difference</th><td>Absolute 0.0001, Relative 0</td></tr></table></div><p>failed_groups: 3 total; example cap 20; 3 shown; truncated: False</p><pre>{&quot;difference&quot;: &quot;0.01&quot;, &quot;expected&quot;: &quot;1&quot;, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0001&quot;}, &quot;observed&quot;: &quot;1.01&quot;, &quot;reason&quot;: &quot;weights_do_not_sum_to_one&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], &quot;rows_truncated&quot;: true}</pre><pre>{&quot;difference&quot;: &quot;0.01&quot;, &quot;expected&quot;: &quot;1&quot;, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0002&quot;}, &quot;observed&quot;: &quot;1.01&quot;, &quot;reason&quot;: &quot;weights_do_not_sum_to_one&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71], &quot;rows_truncated&quot;: true}</pre><pre>{&quot;difference&quot;: &quot;0.01&quot;, &quot;expected&quot;: &quot;1&quot;, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0003&quot;}, &quot;observed&quot;: &quot;1.01&quot;, &quot;reason&quot;: &quot;weights_do_not_sum_to_one&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121], &quot;rows_truncated&quot;: true}</pre></article>
+<article class="card failed" aria-labelledby="check-3"><header><span class="pill failed"><span aria-hidden="true">✗</span> Failed</span><h3 id="check-3">4. Market values add up to the NAV</h3></header><p class="meta">Rule <code>accounting.nav_reconciles</code> · severity error</p><p>Checks that the market values of every line in a portfolio add up to its reported net asset value (NAV).</p><p class="message">3 of 1000 group(s) do not reconcile.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>3</td></tr><tr><th scope="row">Expected</th><td>0</td></tr><tr><th scope="row">Allowed difference</th><td>Absolute 0.01, Relative 0</td></tr></table></div><p>failed_groups: 3 total; example cap 20; 3 shown; truncated: False</p><pre>{&quot;difference&quot;: 10000, &quot;expected&quot;: 1000000, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0001&quot;}, &quot;observed&quot;: 1010000, &quot;reason&quot;: &quot;does_not_reconcile&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], &quot;rows_truncated&quot;: true}</pre><pre>{&quot;difference&quot;: 10000, &quot;expected&quot;: 1000000, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0002&quot;}, &quot;observed&quot;: 1010000, &quot;reason&quot;: &quot;does_not_reconcile&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71], &quot;rows_truncated&quot;: true}</pre><pre>{&quot;difference&quot;: 10000, &quot;expected&quot;: 1000000, &quot;group&quot;: {&quot;portfolio&quot;: &quot;P0003&quot;}, &quot;observed&quot;: 1010000, &quot;reason&quot;: &quot;does_not_reconcile&quot;, &quot;row_count&quot;: 50, &quot;rows&quot;: [102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121], &quot;rows_truncated&quot;: true}</pre></article>
+<footer>
+<p>Generated by finassert 0.1.0. The machine-readable report is embedded in this file as <code>script#finassert-report</code>.</p>
+</footer>
+</main>
+<script type="application/json" id="finassert-report">
+{
+  "generated_at": "2026-11-16T09:48:31Z",
+  "input": {
+    "excel": {
+      "address": "'finassert spike data'!A1:E50001",
+      "captured_at": "2026-11-16T09:48:30.028Z",
+      "column_count": 5,
+      "data_row_count": 50000,
+      "date_system": "1900",
+      "date_system_source": "user",
+      "header_row": 1,
+      "hidden_rows": "include_all",
+      "kind": "range",
+      "physical_data_row_count": 50000,
+      "schema_version": 1,
+      "snapshot_sha256": "sha256:619eb4758f95011adc858417f91b455e5be895a3299ac1900d4079e54817066c",
+      "verified_at": "2026-11-16T09:51:45.516Z",
+      "worksheet_id": "{8CEA3536-8A95-4346-873E-BF5E2FC021D5}",
+      "worksheet_name": "finassert spike data"
+    },
+    "format": "excel-range",
+    "locator": "'finassert spike data'!A1:E50001"
+  },
+  "policy": {
+    "assumptions": [
+      "Each row is one position of one portfolio, and every position, including cash and liabilities, is a row.",
+      "A security appears once per portfolio; several lots of one security are combined before this check.",
+      "Weights are fractions of the portfolio's NAV (0.25, not 25).",
+      "Market values and NAV are in each portfolio's base currency, and liabilities and short positions have negative market values.",
+      "The NAV is given on every row, or on at least one row, of each portfolio."
+    ],
+    "description": "Each portfolio's weights add up to 1 and its holdings to its NAV.",
+    "digest": "sha256:7675f9972a24cb314b9d837e0732fd4f20c1078082b83c3288c20bcc4db3dc37",
+    "name": "Holdings of several portfolios",
+    "rules": [
+      {
+        "factory": "required_fields",
+        "rule_id": "data.required_fields",
+        "summary": "Checks that none of the chosen columns has a blank cell.",
+        "title": "Required fields are filled in"
+      },
+      {
+        "factory": "no_duplicates",
+        "rule_id": "data.no_duplicates",
+        "summary": "Checks that no value, or combination of values, appears on more than one row.",
+        "title": "Each item appears only once"
+      },
+      {
+        "factory": "weights_sum_to_one",
+        "rule_id": "portfolio.weights_sum_to_one",
+        "summary": "Checks that the values in a weight column add up to exactly 1, for the whole file or for each portfolio.",
+        "title": "Portfolio weights add up to 100%"
+      },
+      {
+        "factory": "nav_reconciles",
+        "rule_id": "accounting.nav_reconciles",
+        "summary": "Checks that the market values of every line in a portfolio add up to its reported net asset value (NAV).",
+        "title": "Market values add up to the NAV"
+      }
+    ],
+    "version": 1
+  },
+  "report": {
+    "blocking_failures": 2,
+    "counts_by_outcome": {
+      "error": 0,
+      "failed": 2,
+      "passed": 2,
+      "skipped": 0
+    },
+    "counts_by_severity": {
+      "error": 4,
+      "info": 0,
+      "warning": 0
+    },
+    "passed": false,
+    "results": [
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "blank_cells",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 50000 row(s) have every required field filled in.",
+        "metadata": {
+          "blank_cell_count": 0,
+          "blank_cells": [],
+          "blank_column_count": 0,
+          "columns": [
+            "portfolio",
+            "ticker",
+            "weight",
+            "market_value"
+          ],
+          "row_count": 50000
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "data.required_fields",
+        "rule_name": "Required fields are filled in",
+        "severity": "error",
+        "tolerance": null
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "duplicates",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 50000 row(s) have a unique portfolio/ticker.",
+        "metadata": {
+          "checked_count": 50000,
+          "columns": [
+            "portfolio",
+            "ticker"
+          ],
+          "duplicate_key_count": 0,
+          "duplicate_row_count": 0,
+          "duplicates": [],
+          "duplicates_truncated": false,
+          "row_count": 50000
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "data.no_duplicates",
+        "rule_name": "Each item appears only once",
+        "severity": "error",
+        "tolerance": null
+      },
+      {
+        "blocking": true,
+        "diagnostics": [
+          {
+            "count": 3,
+            "kind": "failed_groups",
+            "limit": 20,
+            "observations": [
+              {
+                "difference": "0.01",
+                "expected": "1",
+                "group": {
+                  "portfolio": "P0001"
+                },
+                "observed": "1.01",
+                "reason": "weights_do_not_sum_to_one",
+                "row_count": 50,
+                "rows": [
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "rows_truncated": true
+              },
+              {
+                "difference": "0.01",
+                "expected": "1",
+                "group": {
+                  "portfolio": "P0002"
+                },
+                "observed": "1.01",
+                "reason": "weights_do_not_sum_to_one",
+                "row_count": 50,
+                "rows": [
+                  52,
+                  53,
+                  54,
+                  55,
+                  56,
+                  57,
+                  58,
+                  59,
+                  60,
+                  61,
+                  62,
+                  63,
+                  64,
+                  65,
+                  66,
+                  67,
+                  68,
+                  69,
+                  70,
+                  71
+                ],
+                "rows_truncated": true
+              },
+              {
+                "difference": "0.01",
+                "expected": "1",
+                "group": {
+                  "portfolio": "P0003"
+                },
+                "observed": "1.01",
+                "reason": "weights_do_not_sum_to_one",
+                "row_count": 50,
+                "rows": [
+                  102,
+                  103,
+                  104,
+                  105,
+                  106,
+                  107,
+                  108,
+                  109,
+                  110,
+                  111,
+                  112,
+                  113,
+                  114,
+                  115,
+                  116,
+                  117,
+                  118,
+                  119,
+                  120,
+                  121
+                ],
+                "rows_truncated": true
+              }
+            ],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "3 of 1000 group(s) do not add up to 1.",
+        "metadata": {
+          "column": "weight",
+          "equation": "sum(weight) = 1",
+          "failed_group_count": 3,
+          "failed_groups": [
+            {
+              "difference": "0.01",
+              "expected": "1",
+              "group": {
+                "portfolio": "P0001"
+              },
+              "observed": "1.01",
+              "reason": "weights_do_not_sum_to_one",
+              "row_count": 50,
+              "rows": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "rows_truncated": true
+            },
+            {
+              "difference": "0.01",
+              "expected": "1",
+              "group": {
+                "portfolio": "P0002"
+              },
+              "observed": "1.01",
+              "reason": "weights_do_not_sum_to_one",
+              "row_count": 50,
+              "rows": [
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63,
+                64,
+                65,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71
+              ],
+              "rows_truncated": true
+            },
+            {
+              "difference": "0.01",
+              "expected": "1",
+              "group": {
+                "portfolio": "P0003"
+              },
+              "observed": "1.01",
+              "reason": "weights_do_not_sum_to_one",
+              "row_count": 50,
+              "rows": [
+                102,
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112,
+                113,
+                114,
+                115,
+                116,
+                117,
+                118,
+                119,
+                120,
+                121
+              ],
+              "rows_truncated": true
+            }
+          ],
+          "failed_groups_truncated": false,
+          "group_by": [
+            "portfolio"
+          ],
+          "group_count": 1000,
+          "group_keys": [
+            "portfolio"
+          ],
+          "row_count": 50000
+        },
+        "observed": 3,
+        "outcome": "failed",
+        "passed": false,
+        "rule_id": "portfolio.weights_sum_to_one",
+        "rule_name": "Portfolio weights sum to one",
+        "severity": "error",
+        "tolerance": {
+          "absolute": "0.0001",
+          "relative": 0
+        }
+      },
+      {
+        "blocking": true,
+        "diagnostics": [
+          {
+            "count": 3,
+            "kind": "failed_groups",
+            "limit": 20,
+            "observations": [
+              {
+                "difference": 10000,
+                "expected": 1000000,
+                "group": {
+                  "portfolio": "P0001"
+                },
+                "observed": 1010000,
+                "reason": "does_not_reconcile",
+                "row_count": 50,
+                "rows": [
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "rows_truncated": true
+              },
+              {
+                "difference": 10000,
+                "expected": 1000000,
+                "group": {
+                  "portfolio": "P0002"
+                },
+                "observed": 1010000,
+                "reason": "does_not_reconcile",
+                "row_count": 50,
+                "rows": [
+                  52,
+                  53,
+                  54,
+                  55,
+                  56,
+                  57,
+                  58,
+                  59,
+                  60,
+                  61,
+                  62,
+                  63,
+                  64,
+                  65,
+                  66,
+                  67,
+                  68,
+                  69,
+                  70,
+                  71
+                ],
+                "rows_truncated": true
+              },
+              {
+                "difference": 10000,
+                "expected": 1000000,
+                "group": {
+                  "portfolio": "P0003"
+                },
+                "observed": 1010000,
+                "reason": "does_not_reconcile",
+                "row_count": 50,
+                "rows": [
+                  102,
+                  103,
+                  104,
+                  105,
+                  106,
+                  107,
+                  108,
+                  109,
+                  110,
+                  111,
+                  112,
+                  113,
+                  114,
+                  115,
+                  116,
+                  117,
+                  118,
+                  119,
+                  120,
+                  121
+                ],
+                "rows_truncated": true
+              }
+            ],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "3 of 1000 group(s) do not reconcile.",
+        "metadata": {
+          "currency": "not grouped by currency: assumes all amounts in a group share one currency",
+          "equation": "sum(market_value) = nav",
+          "failed_group_count": 3,
+          "failed_groups": [
+            {
+              "difference": 10000,
+              "expected": 1000000,
+              "group": {
+                "portfolio": "P0001"
+              },
+              "observed": 1010000,
+              "reason": "does_not_reconcile",
+              "row_count": 50,
+              "rows": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "rows_truncated": true
+            },
+            {
+              "difference": 10000,
+              "expected": 1000000,
+              "group": {
+                "portfolio": "P0002"
+              },
+              "observed": 1010000,
+              "reason": "does_not_reconcile",
+              "row_count": 50,
+              "rows": [
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63,
+                64,
+                65,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71
+              ],
+              "rows_truncated": true
+            },
+            {
+              "difference": 10000,
+              "expected": 1000000,
+              "group": {
+                "portfolio": "P0003"
+              },
+              "observed": 1010000,
+              "reason": "does_not_reconcile",
+              "row_count": 50,
+              "rows": [
+                102,
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112,
+                113,
+                114,
+                115,
+                116,
+                117,
+                118,
+                119,
+                120,
+                121
+              ],
+              "rows_truncated": true
+            }
+          ],
+          "failed_groups_truncated": false,
+          "group_count": 1000,
+          "group_keys": [
+            "portfolio"
+          ],
+          "row_count": 50000
+        },
+        "observed": 3,
+        "outcome": "failed",
+        "passed": false,
+        "rule_id": "accounting.nav_reconciles",
+        "rule_name": "Market values add up to the reported NAV",
+        "severity": "error",
+        "tolerance": {
+          "absolute": "0.01",
+          "relative": 0
+        }
+      }
+    ],
+    "warnings": 0
+  },
+  "schema_version": 1,
+  "tool": {
+    "name": "finassert",
+    "version": "0.1.0"
+  }
+}
+</script>
+</body>
+</html>
