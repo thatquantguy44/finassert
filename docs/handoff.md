@@ -23,7 +23,7 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Completed distinct native pane names/headings, clear failure-action labels, the PDF/API user guide and demo/checkpoint work for branch delivery.
+- **Last worked on:** Marked generated PDFs as binary artifacts and finalized the authorized branch delivery.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
 - **Verification:** 3,743 runtime and 111 browser tests pass; lint/format, mypy (65 modules), Microsoft manifest validation, browser/file and 50,000-row bundled Excel smoke, installed distributions, strict docs, links/anchors and diff checks pass. Native tab names/top headings, guarded replacement of the demo results sheet, saved three-pass failure labels and preserved C7:H9/1904 source are verified. All 47 PDF pages, 105 bookmarks, deterministic rebuild and live trusted HTTPS GET/HEAD downloads pass.
@@ -31,9 +31,10 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
   Delivery includes pane/report UI, native evidence, the guide/API and explicit
   filesystem checkpoint support, with tests and documentation.
-- **Last commits:** `60ea433` retained the earlier AC-07 failing/navigation checkpoint;
-  `6328253` delivered initial E-06 scale/export evidence. This new checkpoint
-  belongs to the enclosing user-authorized branch delivery commit.
+- **Last commits:** `ad2a173` delivers the named panes, clear failure actions,
+  downloadable guide and all earlier authorized branch work. `60ea433` retains
+  the earlier AC-07 failing/navigation checkpoint. This binary-asset follow-up
+  has its own enclosing user-authorized delivery checkpoint.
 - **Delivered:** E-01–E-05 and the pinned local reference reader are merged.
   Native scale/exports/CLI/integrity and the small 1900 correction loop are verified.
   Native ribbon visibility and both launch routes are now observed. Full E-06,
@@ -92,8 +93,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "60ea433e161f0672193a97cce15d51c9f307130a",
+  "prior_head": "ad2a173ba913330df616b59f074a9a017b23dcad",
   "recent_commits": [
+    {
+      "commit": "ad2a173ba913330df616b59f074a9a017b23dcad",
+      "subject": "feat(excel): clarify validation UI and add downloadable user guide"
+    },
     {
       "commit": "60ea433e161f0672193a97cce15d51c9f307130a",
       "subject": "test(excel): record AC07 native failure and navigation evidence"
@@ -109,94 +114,15 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "7af01ffcee0a5bccfe5c27d2740da0aea9ac593d",
       "subject": "Merge pull request #26 from thatquantguy44/feature/excel-diagnostic-navigation"
-    },
-    {
-      "commit": "251542222cf52a34fb00e89b60279581a3728c03",
-      "subject": "docs: save reusable handoff enforcement prompt"
     }
   ],
   "changed_paths": [
-    ".gitignore",
-    "AGENTS.md",
-    "CONTRIBUTING.md",
-    "README.md",
-    "docs/assets/finassert-user-guide.json",
-    "docs/assets/finassert-user-guide.pdf",
-    "docs/excel-add-in.md",
+    ".gitattributes",
     "docs/handoff.md",
-    "docs/index.md",
-    "docs/roadmap.md",
-    "docs/user-guide.md",
-    "mkdocs.yml",
-    "scripts/build_excel.py",
-    "scripts/build_user_guide.py",
-    "scripts/check_handoff.py",
-    "scripts/serve_excel.py",
-    "scripts/user_guide.py",
-    "specs/0005/contracts.md",
-    "specs/0005/handoff.md",
-    "specs/0005/spec.md",
-    "specs/0005/tasks.md",
-    "specs/0011/handoff.md",
-    "specs/0011/spec.md",
-    "specs/0011/tasks.md",
-    "specs/0016/acceptance.md",
-    "specs/0016/artifacts/README.md",
-    "specs/0016/artifacts/ac07-native-1904-passed-report.html",
-    "specs/0016/artifacts/ac07-native-1904-passed-report.json",
-    "specs/0016/artifacts/ac07-native-1904-policy.yml",
-    "specs/0016/artifacts/ac07-native-completion.json",
-    "specs/0016/artifacts/ac07-native-passed-report.html",
-    "specs/0016/artifacts/ac07-native-passed-report.json",
-    "specs/0016/artifacts/e06-native-demo-diagnostics.txt",
-    "specs/0016/artifacts/e06-native-demo-validation.json",
-    "specs/0016/artifacts/pane-titles-and-failure-actions.json",
-    "specs/0016/artifacts/prepare_ac07_fixture.py",
-    "specs/0016/contracts.md",
-    "specs/0016/handoff.md",
-    "specs/0016/plan.md",
-    "specs/0016/roadmap.md",
-    "specs/0016/spec.md",
-    "specs/0016/tasks.md",
-    "specs/0017/AGENTS.md",
-    "specs/0017/contracts.md",
-    "specs/0017/handoff.md",
-    "specs/0017/plan.md",
-    "specs/0017/roadmap.md",
-    "specs/0017/spec.md",
-    "specs/0017/tasks.md",
-    "specs/0019/AGENTS.md",
-    "specs/0019/artifacts/verification.json",
-    "specs/0019/contracts.md",
-    "specs/0019/handoff.md",
-    "specs/0019/plan.md",
-    "specs/0019/roadmap.md",
-    "specs/0019/spec.md",
-    "specs/0019/tasks.md",
-    "specs/README.md",
-    "src/finassert/excel.py",
-    "src/finassert/reporting/_labels.py",
-    "src/finassert/reporting/html.py",
-    "tests/browser/test_excel_capture.py",
-    "tests/browser/test_excel_exports.py",
-    "tests/browser/test_excel_navigation.py",
-    "tests/browser/test_excel_user_guide.py",
-    "tests/unit/test_build_excel.py",
-    "tests/unit/test_excel.py",
-    "tests/unit/test_excel_acceptance_tools.py",
-    "tests/unit/test_handoff.py",
-    "tests/unit/test_html_report.py",
-    "tests/unit/test_user_guide.py",
-    "tests/unit/test_web_bridge.py",
-    "web/app.css",
-    "web/app.js",
-    "web/excel-panel.html",
-    "web/excel-results.html",
-    "web/excel.js",
-    "web/index.html"
+    "specs/0019/handoff.md"
   ],
-  "project_sha256": "9e71f7c0f6f0ea9def666c4b5b92fe45fee1ab658d75462c21470c982c30ec29",
-  "reviewed_sections_sha256": "3b81eeae38e6c75751c6237b7694b25ada4a0dc48d76f2c217433b964413d189"
+  "project_sha256": "0e8d1c448851897886ff9599624f939b1d796f65ffa41ec526557863293bcd83",
+  "reviewed_sections_sha256": "2125b4907381d7274cee429c67bc01ee600039674742f61f1486fd1d0db65a86"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -215,6 +141,22 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-20 — Preserve PDF assets as binary in Git
+
+- **Worked on:** Marked generated PDFs as binary artifacts and finalized the authorized branch delivery.
+- **Stopping point:** The saved demo has three passed checks with If check fails / Block validation, and both named panes are open. The verified guide API runs on HTTPS localhost:3002. This checkpoint packages all authorized branch changes; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,743 runtime and 111 browser tests pass; lint/format, mypy (65 modules), Microsoft manifest validation, browser/file and 50,000-row bundled Excel smoke, installed distributions, strict docs, links/anchors and diff checks pass. Native tab names/top headings, guarded replacement of the demo results sheet, saved three-pass failure labels and preserved C7:H9/1904 source are verified. All 47 PDF pages, 105 bookmarks, deterministic rebuild and live trusted HTTPS GET/HEAD downloads pass.
+- **Correction:** The staged whitespace check detected PDF syntax because Git
+  guessed the generated PDF was text. Added an explicit binary attribute, preserving
+  its exact reviewed bytes and hashes. Staged diff/whitespace and checkpoint checks
+  now pass. Runtime behavior is unchanged; prior full runtime/browser/native/PDF
+  evidence remains valid. Strict docs and link checks pass.
+- **Delivery:** The feature delivery is commit ad2a173. This follow-up records the
+  binary attribute with its own required checkpoint before the authorized push.
+  E-06, then 0012 U-08 and U-09 remain the reviewed project priorities.
 
 ### 2026-11-20 — Named panes, clear failure actions and authorized branch delivery
 

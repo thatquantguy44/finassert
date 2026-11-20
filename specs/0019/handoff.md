@@ -10,6 +10,14 @@
 
 ## Entries
 
+### 2026-11-20 — Track PDF assets as binary
+
+Added the repository PDF binary attribute after Git guessed the generated asset
+was text during staged whitespace checking. The reviewed PDF bytes, API hashes,
+source/catalog identities and runtime behavior are unchanged. Staged whitespace,
+checkpoint and strict docs checks pass. The feature commit is ad2a173; this
+follow-up is part of the user-authorized push. Master priorities remain unchanged.
+
 ### 2026-11-20 — Refresh the guide for clear failure-action wording
 
 Added the human-facing failure-action terminology without changing canonical

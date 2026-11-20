@@ -1,0 +1,2 @@
+# Preserve generated PDF bytes and keep them out of text whitespace checks.
+*.pdf binary
