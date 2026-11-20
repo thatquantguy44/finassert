@@ -1,0 +1,89 @@
+{
+  "recorded_on": "2026-11-17",
+  "criterion": "0016 AC-07",
+  "status": "PARTIAL; correction/Stale/rerun/pass/export not executed",
+  "branch": "feature/excel-e06-mac-acceptance",
+  "pushed_checkpoint": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
+  "runtime_source_commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
+  "taskpane_sha256": "b0070aa2f2c3a2c846c1d930824c7c12a9773dd3b2bac5de0ea789b1d1cda1ba",
+  "host": "Native Mac Excel 16.115, existing trusted localhost:3000 bundled build",
+  "used_addin_id": "9877a12e-190a-55a7-a7ae-ec7ff259a761",
+  "source": {
+    "address": "Sheet1!C7:H9",
+    "captured_at": "2026-11-17T01:54:18.454Z",
+    "column_count": 6,
+    "data_row_count": 2,
+    "date_system": "1900",
+    "date_system_source": "user",
+    "header_row": 7,
+    "hidden_rows": "include_all",
+    "kind": "range",
+    "physical_data_row_count": 2,
+    "schema_version": 1,
+    "snapshot_sha256": "sha256:83ee530b970d78e6ac1b6f848a53d02b318ef1c842deab20aab171fae983753a",
+    "verified_at": "2026-11-17T01:55:40.562Z",
+    "worksheet_id": "{00000000-0001-0000-0000-000000000000}",
+    "worksheet_name": "Sheet1"
+  },
+  "policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+  "observations": [
+    {
+      "case": "date format",
+      "status": "PASS",
+      "actual": "H8:H9 selected; native Short Date applied. Formula Bar H8 showed 1/1/2026. Saved workbook has both dates 2026-01-01 and the 1900 epoch."
+    },
+    {
+      "case": "offset binding and preview",
+      "status": "PASS",
+      "actual": "Sheet1!C7:H9, header 7, two physical/parsed rows, six columns, explicit user 1900. Both preview dates 2026-01-01. The old scale result cleared on rebinding."
+    },
+    {
+      "case": "financial failure",
+      "status": "PASS",
+      "verified_at": "2026-11-17T01:54:18.516Z",
+      "actual": "Current, one failed/two passed/no errors/skips. market_value at row 8 is -400; violations count 1, limit 20, one shown, not truncated."
+    },
+    {
+      "case": "native click navigation",
+      "status": "PASS",
+      "verified_at": "2026-11-17T01:55:27.109Z",
+      "actual": "Clicked retained row-8 cell action. Status Selected cell in row 8. Name Box F8, Formula Bar -400; Current preserved after preflight."
+    },
+    {
+      "case": "failed JSON and CLI",
+      "status": "PASS",
+      "verified_at": "2026-11-17T01:55:40.562Z",
+      "actual": "Actual JSON download retained; canonical report/policy exactly match actual CLI on the same saved workbook, sheet/header/max-row and long-only policy. CLI exit 1 is the expected invariant failure."
+    },
+    {
+      "case": "navigation source integrity",
+      "status": "PASS",
+      "actual": "Saved before/after-navigation C7:H9 values, types and formats are identical."
+    },
+    {
+      "case": "correction, stale/export guard, rerun and passing exports",
+      "status": "NOT RUN",
+      "actual": "Native window capture failed before correction. F8 remains -400 in the retained last-confirmed workbook; AC07 is incomplete."
+    }
+  ],
+  "navigation_source_values_types_formats_sha256": "958332af083754aa9154ec6eff9f89a0a1907d11e26ff15173b7e63f7a3664a3",
+  "integrity_encoding": "SHA-256 of compact JSON nested rows of (cell.value, cell.data_type, cell.number_format), default=str for datetimes",
+  "failed_native_cli_report_equal": true,
+  "failed_native_cli_policy_equal": true,
+  "retained_export": "ac07-native-failed-report.json",
+  "files_sha256": {
+    "finassert-ac07-native-failed-before-nav.xlsx": "09fb921a537f469a158a5025509c4601f87abbd1456395b83cb56f2339c402e2",
+    "finassert-ac07-native-failed-after-nav.xlsx": "09fb921a537f469a158a5025509c4601f87abbd1456395b83cb56f2339c402e2",
+    "policy.yml": "4ea32b1899100b4ed1786d323302273adcefe35dfeb92c6ea7318eb08617eafe",
+    "ac07-failed-1900.json": "c7d3a8ece4cb5d301e521ddbbb320dfe75ca807be7aa8aa3b6e9922155aed30b"
+  },
+  "blocker": "Repeated cgWindowNotFound after saving; Dock activation also timed out. User was asked to foreground the disposable workbook and dismiss dialogs. No correction was inferred.",
+  "recovery": {
+    "observed_dialogs": "Saved the known disposable workbook when prompted, then canceled the save sequence at unrelated Book1, leaving that workbook untouched.",
+    "isolated_prepared_fixture": "Native E02 seed, SHA-256 12b12974956864636ac9aeded9b0d913cd2459f76119b32ba1e5c83e4f41929e, was copied with numeric/date edits only and existing native web-extension parts retained.",
+    "temporary_test_addin_id": "7710156b-0be4-5677-89fb-28358896cc33",
+    "isolated_attempt": "CLI and launch-only SDK reported launch; native isolated window opening was not established. Actual verified observations above used the original add-in ID and workbook.",
+    "temporary_files": "/tmp/finassert-ac07-native/ac07-1900.xlsx and ac07-1904.xlsx, policy.yml and identities.json. Production manifest identity unchanged."
+  },
+  "next_pickup": "Bring original disposable Excel add-in 9877a12e workbook forward. Inspect any dialog, verify F8 -400 and bound C7:H9/long-only policy. Correct F8 to 400, observe Stale/export disabled, reread/run three passing checks, retain JSON/HTML/results sheet and strict CLI/integrity parity. Do not use isolated launch messages as native evidence."
+}

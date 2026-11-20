@@ -1,0 +1,159 @@
+{
+  "recorded_on": "2026-11-19",
+  "criterion": "0016 AC-07",
+  "status": "PASS for the native 1900 correction workflow; full E-06 remains pending",
+  "host": {
+    "application": "Microsoft Excel",
+    "version": "16.115",
+    "build": "16.115.26110837",
+    "platform": "Mac"
+  },
+  "runtime_source_commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
+  "taskpane_sha256": "b0070aa2f2c3a2c846c1d930824c7c12a9773dd3b2bac5de0ea789b1d1cda1ba",
+  "addin_id": "9877a12e-190a-55a7-a7ae-ec7ff259a761",
+  "local_origin": "https://localhost:3002",
+  "source": {
+    "address": "Sheet1!C7:H9",
+    "captured_at": "2026-11-20T02:43:54.877Z",
+    "column_count": 6,
+    "data_row_count": 2,
+    "date_system": "1900",
+    "date_system_source": "user",
+    "header_row": 7,
+    "hidden_rows": "include_all",
+    "kind": "range",
+    "physical_data_row_count": 2,
+    "schema_version": 1,
+    "snapshot_sha256": "sha256:f118b92691044a65310997c819128f677765297e466768756db9b744df066685",
+    "verified_at": "2026-11-20T02:45:42.635Z",
+    "worksheet_id": "{00000000-0001-0000-0000-000000000000}",
+    "worksheet_name": "Sheet1"
+  },
+  "policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+  "observations": [
+    {
+      "case": "native fixture opening",
+      "status": "PASS",
+      "actual": "Regenerated 1900 offset fixture opened with C7:H9 selected, dates formatted, and the original finassert pane Ready. No content-repair prompt appeared."
+    },
+    {
+      "case": "negative control",
+      "status": "PASS",
+      "verified_at": "2026-11-20T02:37:22.099Z",
+      "actual": "Current: one failed, two passed. One retained market_value violation at physical row 8 with value -400; cap 20, one shown, not truncated."
+    },
+    {
+      "case": "native navigation",
+      "status": "PASS",
+      "verified_at": "2026-11-20T02:37:41.075Z",
+      "actual": "Clicked Select cell in row 8; Name Box F8 and Formula Bar -400. Saved before/after source values, types and formats are identical."
+    },
+    {
+      "case": "native edit and freshness guards",
+      "status": "PASS",
+      "actual": "Editing F8 produced Stale \u2014 Bound source cells changed. HTML/JSON/results exports and the row-8 navigation action were disabled. Policy YAML remained enabled."
+    },
+    {
+      "case": "correction and reread",
+      "status": "PASS",
+      "actual": "Initial formula-bar entry appended 400, producing -400400; the preview caught it. Native Go To F8, clear, and paste replaced the cell with numeric 400. Reread displayed 400 and both dates 2026-01-01. This input mistake was corrected before passing evidence."
+    },
+    {
+      "case": "native passing run",
+      "status": "PASS",
+      "verified_at": "2026-11-20T02:39:55.230Z",
+      "actual": "Current: three passed, zero skipped; exports enabled."
+    },
+    {
+      "case": "final consistent export run",
+      "status": "PASS",
+      "verified_at": "2026-11-20T02:43:55.061Z",
+      "actual": "Source binding changed during the first export sequence; the old result cleared. Rebound C7:H9 and reran three passing checks. Final JSON/HTML/results-sheet exports all belong to this later run."
+    },
+    {
+      "case": "native worksheet export",
+      "status": "PASS",
+      "verified_at": "2026-11-20T02:44:56.168Z",
+      "actual": "New owned finassert results worksheet, 34 rows by five columns, with explicit completed-output message. Saved native workbook contains the sheet."
+    },
+    {
+      "case": "actual downloads and CLI",
+      "status": "PASS",
+      "actual": "Retained actual native JSON and HTML downloads; all canonical results-sheet cells and actual CLI report/policy match. Only per-action verified_at differs between views."
+    }
+  ],
+  "parity": {
+    "status": "PASS",
+    "scope": "Retained files and CLI; host execution recorded separately",
+    "source": "Sheet1!C7:H9",
+    "date_system": "1900",
+    "policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+    "snapshot_sha256": "sha256:f118b92691044a65310997c819128f677765297e466768756db9b744df066685",
+    "files_sha256": {
+      "ac07-final-1900.json": "ebac124e939334b99ec004aaa2f9aecf5a1f8718941fe63347e0e3b270555dc7",
+      "ac07-final-1900.html": "6ab551c7157bc40e220ab393b149194edd059fbccd52c1b136ff43013f1f87f3",
+      "native-final-1900.xlsx": "6d5ccdfd3e768705681ec8ad8e6d07e5db00e8813d5cb8d1106dd7d62cad94e6",
+      "long-only-holdings.yml": "4ea32b1899100b4ed1786d323302273adcefe35dfeb92c6ea7318eb08617eafe"
+    }
+  },
+  "integrity": {
+    "status": "PASS",
+    "encoding": "SHA-256 of sorted compact JSON coordinate-to-(value,type,number_format) maps; datetimes default=str",
+    "navigation_source_unchanged": true,
+    "intentional_source_changes": {
+      "Sheet1!F8": {
+        "before": -400,
+        "after": 400,
+        "type_and_format_unchanged": true
+      }
+    },
+    "all_preexisting_sheets_unchanged_during_final_exports": [
+      "Sheet2",
+      "Sheet1"
+    ],
+    "before_exports_sha256": {
+      "Sheet2": "da31398b72664c09a6a8d49dca704b0f41d9267c9d2bc86f682c92f888a58717",
+      "Sheet1": "1359c1c2b7fcd6972fcd54f21058ff5c063506bcc6150f11a10336b891e12833"
+    },
+    "after_exports_sha256": {
+      "Sheet2": "da31398b72664c09a6a8d49dca704b0f41d9267c9d2bc86f682c92f888a58717",
+      "Sheet1": "1359c1c2b7fcd6972fcd54f21058ff5c063506bcc6150f11a10336b891e12833"
+    },
+    "new_output_sheet": "finassert results",
+    "output_dimensions": [
+      34,
+      5
+    ]
+  },
+  "setup_recovery": {
+    "missing_original": "The old temporary workbook and bundled build were absent; the old Recents entry reported deleted or inaccessible.",
+    "port_conflict": "Dagster served plain HTTP on localhost:3000. Restored finassert HTTPS on local-only port 3002 using the existing valid development certificate.",
+    "manifests": "Backed up both existing original-ID development manifests and updated both to port 3002. The extra finassert.xml had retained port 3000. User saved/closed Book1 and restarted Excel; the original pane then loaded.",
+    "isolated_identity": "Temporary 3c7eefcb-7ade-504d-96dc-ed0638c3d351 registration did not establish a working pane before restart and was removed after successful original-ID recovery.",
+    "automation_limits": "ScreenCaptureKit -3811, a UI timeout, and user-change guards interrupted some actions. Reconnection and fresh accessibility state recovered; no timed-out action was counted without later visible and saved-file evidence.",
+    "fixture_tool": "prepare_ac07_fixture.py retains explicitly supplied Office-generated task-pane parts while creating a simple source without a table. Both epoch fixtures reproduce the historical failed report/policy through the CLI; only 1900 was opened natively in this session."
+  },
+  "retained_exports": [
+    "ac07-native-passed-report.json",
+    "ac07-native-passed-report.html"
+  ],
+  "temporary_workbook_directory": "/tmp/finassert-ac07-recovery",
+  "remaining": [
+    "Repeat the small native workflow with the 1904 fixture",
+    "Clean native table/hidden/filtered acceptance",
+    "Remaining failure/race/keyboard cases",
+    "External human review"
+  ],
+  "repository_verification": {
+    "acceptance_harness": "13 passed, including three new fixture-recovery controls",
+    "initial_runtime_attempt": "3669 passed, 41 failed, 3 errors; relative PYTHONPATH broke subprocess imports and the sandbox denied local test-server sockets",
+    "corrected_runtime_attempt": "3712 passed, 1 failed with absolute PYTHONPATH and local socket access; remaining failure was the MCP subprocess import through the hidden editable-install path",
+    "mcp_retry": "1 passed after installing the built wheel into the local .venv; no repository runtime workaround",
+    "lint_and_format": "Ruff check passed; all 327 files formatted",
+    "typing": "mypy passed for 64 source files",
+    "documentation": "strict MkDocs build passed; 116 local/repository links and anchors passed in eight changed Markdown files",
+    "packaging": "uv built wheel and sdist; verify_dist.py passed in a fresh installed environment",
+    "browser_regressions": "Not repeated in this session; production browser/Office/runtime code is unchanged",
+    "delivery": "Uncommitted working-tree changes; no push or release"
+  }
+}

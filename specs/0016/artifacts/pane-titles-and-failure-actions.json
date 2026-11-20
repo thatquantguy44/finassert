@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "status": "PASS",
+  "manifest_deployment": "1.0.0.1",
+  "tab_names": [
+    "finassert Validation",
+    "finassert Settings"
+  ],
+  "first_headings": [
+    "Validation",
+    "Settings"
+  ],
+  "native_observation": "Both host tab names and each first heading observed through native Excel accessibility after the user-approved save/restart/reopen",
+  "native_demo": {
+    "path": "dist/demo/finassert-demo.xlsx",
+    "date_system": "1904",
+    "source": "Sheet1!C7:H9",
+    "passed_checks": 3,
+    "check_table_header": [
+      "Check",
+      "Result",
+      "If check fails",
+      "Row",
+      "Details"
+    ],
+    "all_three_failure_actions": "Block validation",
+    "guarded_owned_results_replacement": true,
+    "saved_workbook_inspected": true,
+    "expected_source_values_dates_epoch_preserved": true
+  },
+  "compatibility": {
+    "policy_json_severity": "unchanged",
+    "technical_cli_xlsx_severity": "unchanged",
+    "blocking_and_outcomes": "unchanged",
+    "add_in_id_permissions_certificate": "unchanged"
+  },
+  "tests": {
+    "runtime_passed": 3743,
+    "browser_passed": 111,
+    "build_bridge_passed": 43,
+    "capture_browser_passed": 45
+  },
+  "additional_checks": [
+    "Microsoft manifest validator: valid",
+    "lint/format; mypy 65 modules",
+    "browser/file smoke; bundled Excel 50000-row smoke",
+    "installed distributions; strict docs/links; diff"
+  ],
+  "limits": [
+    "Full E-06 and external review remain open",
+    "Other-host support not newly claimed",
+    "Native tab titles identify ribbon launch; in-pane headings follow the active subview"
+  ]
+}

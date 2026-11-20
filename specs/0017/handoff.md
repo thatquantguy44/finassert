@@ -2,13 +2,27 @@
 
 ## Current state
 
-- **Status:** Implemented; 38 Git regression tests and 3,662 full-suite tests pass.
-- **Branch:** main; PR #25 merged the implementation at 32cf4ab.
-- **Next step:** Follow the master's highest priority: 0016 E-04 diagnostic
-  navigation on a new feature branch from main. Required remote status
-  administration remains separate from this implementation.
+- **Status:** Git safeguards remain implemented; the explicit filesystem-only
+  baseline/checkpoint workflow is now implemented and covered by non-Git fixtures.
+- **Branch:** `feature/excel-e06-mac-acceptance`; filesystem work is uncommitted
+  beside the current add-in work.
+- **Next step:** Follow the master's highest priority: 0016 E-06 full Mac
+  acceptance and regressions. Required remote status administration remains
+  separate from this implementation.
 
 ## Entries
+
+### 2026-11-19 — Complete non-Git filesystem checkpoint workflow
+
+The portable prompt's previously missing filesystem mode is now implemented in
+`check_handoff.py`. A non-Git project can explicitly initialize a versioned local
+baseline, refresh only generated Filesystem checkpoint context, run a read-only
+check and atomically accept a fresh checkpoint. State retains configured content
+hashes and the accepted master snapshot under ignored `.finassert-handoff/`.
+Damaged/missing state fails closed; recovery requires an explicit confirmation and
+does not claim prior local history was verified. The seven new filesystem fixtures
+run with Git absent from `PATH`; Git hooks, CI and Git-mode behavior remain intact.
+The master still owns project priority, so E-06 remains the next product pickup.
 
 ### 2026-11-15 — Save portable prompt on main
 

@@ -41,7 +41,8 @@
       if (navigation) navigation.results.forEach((result, ri) => {
         const card = element("article", "", $("excel-findings-list"));
         card.className = "excel-finding";
-        element("h4", `${result.title} — ${result.outcome} (${result.severity})`, card);
+        element("h4", `${result.title} — ${result.outcome === "error" ? "could not run" : result.outcome}`, card);
+        element("p", `If check fails: ${app().failureAction(result.severity)}.`, card).className = "hint";
         element("p", result.message, card);
         if (!result.collections.length) element("p", "No retained diagnostic examples.", card);
         result.collections.forEach((collection, ci) => {
@@ -69,6 +70,30 @@
 
   const $ = (id) => document.getElementById(id);
   const app = () => window.finassertApp;
+
+  function setPaneView(view, updateRoute = false) {
+    const settings = view === "settings";
+    $("excel-validation-view").hidden = settings;
+    $("excel-settings-view").hidden = !settings;
+    document.body.classList.add("excel-pane");
+    document.body.classList.toggle("excel-settings-route", settings);
+    const title = settings ? "Settings" : "Validation";
+    document.title = `finassert ${title}`;
+    $("app-title").textContent = title;
+    $("app-lede").textContent = settings
+      ? "Settings panel. Configure how finassert reads and verifies this workbook."
+      : "Main validation panel. Choose your source, run checks, and review the results.";
+    if (updateRoute) {
+      const url = new URL(window.location.href);
+      if (settings) url.searchParams.set("view", "settings");
+      else url.searchParams.delete("view");
+      window.history.replaceState({}, "", url);
+    }
+    window.scrollTo(0, 0);
+    if (updateRoute) {
+      $("app-title").focus({ preventScroll: true });
+    }
+  }
 
   function say(text, isError) {
     if (app()) app().setStatus(text, isError);
@@ -894,11 +919,22 @@
     say("Report copied.");
   }
   async function start() {
+    setPaneView(new URLSearchParams(window.location.search).get("view"));
     if (typeof Office === "undefined" || !Office.onReady) return;
     const info = await Office.onReady();
     if (info.host !== Office.HostType.Excel) return;
+    // The add-in works from one explicit workbook source. Keep the browser-only
+    // file picker out of this host so there is one clear starting point.
+    document.body.classList.add("excel-host");
+    $("data-drop").hidden = true;
+    $("sheet-picker").hidden = true;
     $("excel-panel").hidden = false;
     for (const id of ["excel-write", "excel-save-policy", "excel-load-policy"]) $(id).hidden = false;
+    $("excel-open-settings").addEventListener("click", () => setPaneView("settings", true));
+    $("excel-back-to-validation").addEventListener("click", () => setPaneView("validation", true));
+    window.addEventListener("popstate", () => {
+      setPaneView(new URLSearchParams(window.location.search).get("view"));
+    });
     $("excel-read").addEventListener("click", guarded(useSelection, "bind"));
     $("excel-tables-refresh").addEventListener("click", guarded(refreshTables));
     $("excel-bind-table").addEventListener("click", guarded((job) => bind("table", job), "bind"));

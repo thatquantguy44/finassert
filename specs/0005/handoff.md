@@ -15,6 +15,17 @@
 
 ## Entries
 
+### 2026-11-20 — Human failure-action wording preserves canonical results
+
+Human-facing HTML and add-in sheet views now explain configured severity as
+**If check fails** with **Block validation**, **Show warning**, or **Show information**.
+Passed/failed/could-not-run outcomes remain separate. Embedded JSON, policy values,
+technical CLI XLSX severity fields, numerical results and blocking are unchanged.
+Existing output/escaping tests now cover the new labels and passing blocking rules;
+warning/info labels preserve their original canonical severity. Full runtime 3,743
+and browser 111 pass, as do smoke/quality/docs/distributions. The native saved demo
+has three passed checks with Block validation. E-06 remains the master pickup.
+
 ### 2026-11-15 — E-05 optional live context and canonical views
 
 Optional scalar input.excel schema 1 is validated in the private live bridge,

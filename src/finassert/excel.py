@@ -29,6 +29,7 @@ from finassert._excel_evidence import context_rows
 from finassert._xlsx import _excel_date, _is_date_format, column_letter
 from finassert.core.exceptions import InvalidDataError
 from finassert.loaders import TableSource, parse_cell
+from finassert.reporting._labels import failure_action
 from finassert.reporting.xlsx import write_report_xlsx
 from finassert.workbook import ExcelError, WorkbookSource, read_workbook
 
@@ -145,10 +146,12 @@ def results_table(artifact: Mapping[str, Any]) -> list[list[Any]]:
     results = report["results"]
     described = (artifact.get("policy") or {}).get("rules") or []
     titles = [item.get("title") for item in described] if len(described) == len(results) else []
-    rows: list[list[Any]] = [["Check", "Result", "Severity", "Row", "Details"]]
+    rows: list[list[Any]] = [["Check", "Result", "If check fails", "Row", "Details"]]
     for position, result in enumerate(results):
         title = (titles[position] if position < len(titles) else None) or result["rule_name"]
-        rows.append([title, _label(result), result["severity"], "", result["message"]])
+        rows.append(
+            [title, _label(result), failure_action(result["severity"]), "", result["message"]]
+        )
         if (artifact.get("input") or {}).get("excel"):
             for collection in result.get("diagnostics", []):
                 rows.append(

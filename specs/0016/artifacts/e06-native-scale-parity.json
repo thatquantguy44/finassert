@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "scope": "Actual native JSON/HTML/results-sheet and CLI comparison on the saved 50000-row workbook; other host cases remain pending",
+  "source": "'finassert spike data'!A1:E50001",
+  "date_system": "1900",
+  "policy_digest": "sha256:7675f9972a24cb314b9d837e0732fd4f20c1078082b83c3288c20bcc4db3dc37",
+  "snapshot_sha256": "sha256:619eb4758f95011adc858417f91b455e5be895a3299ac1900d4079e54817066c",
+  "files_sha256": {
+    "e06-native-scale.json": "73129c9fc4fc6c3f1d2a1aaace619e417de33c3ec365bc7fd608ed9b270ff560",
+    "e06-native-scale.html": "c9cd15611f84e7f096acd1facb454cd556b0a99e9ef2ad25b89aee3842e9128e",
+    "finassert-e06-scale-native-final.xlsx": "67387c4ff7e35c18364bd9f5757fbe1bb93d34e6de12f62edbbf3fc0cbfe0c56",
+    "finassert-e06-scale-policy.yml": "b231f3d38394fc2e1d519062ad1526e8ba84ab89f285a398c54979835ad7a677"
+  },
+  "source_values_types_formats_sha256": "ceffa28c12518b5c2f3160f602a16022fe5be85d6444c561416b103d9c27f474",
+  "source_before_after_equal": true,
+  "recorded_on": "2026-11-16",
+  "host": "native Mac Excel 16.115",
+  "source_commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
+  "first_current_verified_at": "2026-11-16T09:48:31.590Z",
+  "captured_at": "2026-11-16T09:48:30.028Z",
+  "capture_to_first_current_interval_ms": 1562,
+  "timing_limit": "Interval begins at captured_at; it is not total Run-button latency",
+  "worksheet_output": "finassert results (2), 41 rows by 5 columns",
+  "outcomes": {
+    "passed": 2,
+    "failed": 2,
+    "error": 0,
+    "skipped": 0
+  },
+  "failed_groups_per_check": 3,
+  "diagnostic_example_cap": 20,
+  "source_bounds": {
+    "rows_including_header": 50001,
+    "columns": 5
+  },
+  "retained_exports": {
+    "json": "e06-native-scale-report.json",
+    "html": "e06-native-scale-report.html"
+  },
+  "unrelated_sheet_cells_before_after_equal": true,
+  "unrelated_sheet_values_types_formats_sha256": {
+    "Sheet1": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finassert results": "08041016b1f08d7fc042afc53ea600c690a61011e9fe6c2eddff23885ecea32a",
+    "Sheet2": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finassert policy": "8ce42b690aeb6b385ccf88fbdc413f3fd291038ef47f7c48664ff3bd82bcb8f5"
+  },
+  "initial_workbook_sha256": "79180165588616d0f7638db01ea4aa5716a55dee3f78f4ca9b82cb90c92d142e",
+  "integrity_encoding": "SHA-256 updated for each row with JSON [(cell.value, cell.data_type, cell.number_format), ...], compact separators, UTF-8, no row delimiter; source rectangle A1:E50001"
+}

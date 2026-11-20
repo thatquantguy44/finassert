@@ -11,10 +11,10 @@ full E-06 acceptance pending.
 - [x] Sequence implementation and identify meaningful automated/manual evidence.
 - [x] Verify documentation links/anchors, workspace completeness, whitespace and strict build.
 
-Scope evidence: 16 Markdown files and 80 local links/anchors checked; all seven
-required files, six requirements/tasks and ten acceptance rows present. Strict
-MkDocs and git diff --check passed. Runtime tests were not rerun for this
-documentation-only proposal; no new runtime capability is claimed.
+Historical scope evidence: 16 Markdown files and 80 local links/anchors checked;
+all seven required files, six requirements/tasks and ten acceptance rows were present.
+Strict MkDocs and git diff --check passed. R-07/AC-11 are later implementation work
+with their own checks below; no earlier runtime capability is implied.
 
 ## Ordered implementation
 
@@ -74,13 +74,43 @@ without skipping its dependencies. Check completion only with recorded evidence.
   Evidence: 22 provenance/parity tests and 15 E-05 browser cases, existing browser
   regressions, and focused native unique-sheet/replacement/policy/ownership
   persistence evidence. See [E-05 evidence](artifacts/README.md#e-05-evidence-and-safe-output).
-- [ ] **E-06 — Mac acceptance and regressions** (R-06, AC-07/09/10): execute
+- [ ] **E-06 — Mac acceptance and regressions** (R-06/07, AC-07/09/10/11): execute
   acceptance.md, retain synthetic fixture/policy identities and actual results;
   run 50,000 rows, all repository checks and both runtime smoke modes; update user
   docs/support claims and the local/master handoffs. Record review status separately.
   Linux automated preflight and 50,000-row Office stand-in evidence are recorded
-  in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux). The full
-  Mac workflow, native timings, CLI tie-out and external review remain pending.
+  in [acceptance.md](acceptance.md#2026-11-15-automated-preflight-linux). The remaining
+  table/hidden/failure/race/keyboard workflow and external review remain pending. Native
+  scale timings, exports and CLI tie-out are now verified below.
+  - [x] Prepare synthetic 1900/1904 workbooks and policy identities; add a
+    retained-export verifier using the actual CLI. Ten controls verify both
+    epochs and reject changed source, report counts, worksheet output and epoch.
+  - [x] Run current-main Mac automated regressions, smoke/scale and package checks.
+    See [Mac preflight](acceptance.md#2026-11-15-mac-preflight-and-blocked-native-setup).
+  - [x] Run actual native 50,000-row diagnostics and verified capture; retain
+    JSON/HTML/results-sheet and strict CLI parity plus complete source/unrelated
+    cell integrity. See [native verification](acceptance.md#2026-11-16-native-scale-and-export-verification).
+  - [x] Start AC-07 on native 1900 source: dates, exact C7:H9 bounds, row-8
+    negative failure, F8 click navigation, unchanged source and actual failed
+    JSON/CLI equality. See [progress](acceptance.md#2026-11-17-ac-07-progress-correction-remains-open).
+  - [x] Complete AC-07's native 1900 negative-value → navigate → correct → Stale →
+    reread/pass/export workflow. Actual JSON/HTML/all 34 results-sheet rows and CLI
+    match; source and existing-sheet integrity pass. Recovered local HTTPS on
+    port 3002 and added a reproducible sideload-preserving fixture builder with
+    three controls (13 harness checks total). See [completion](artifacts/ac07-native-completion.json).
+  - [x] Add schema-valid Home-ribbon **Open validation** and **Settings** commands.
+    The latter opens a distinct in-pane session-settings view with a return to
+    validation; generated-manifest controls, a controlled browser-route check and
+    Microsoft validation pass. Native Home visibility and both launch routes
+    were observed on 2026-11-20; see the acceptance record below.
+  - [x] Repeat the native 1904 small loop: exact C7:H9/date interpretation,
+    negative F8 finding/navigation, correction/Stale/export guards, three fresh
+    passes, actual JSON/HTML/34-row sheet and CLI equality, exact export input
+    integrity. Native 50,000-row diagnostics pass again. All 3,724 runtime and
+    110 browser regressions pass after test-navigation/fixture-seed repairs;
+    see [demo validation](artifacts/e06-native-demo-validation.json).
+  - [ ] Complete clean table opening, hidden/filtered and remaining native
+    failure/race/keyboard cases. Record review separately.
 
 ## Acceptance ledger
 
@@ -92,9 +122,20 @@ without skipping its dependencies. Check completion only with recorded evidence.
 | AC-04 | verified for E-04 | 13 identity tests, 19 browser cases and focused native F8 navigation/correction/rerun |
 | AC-05 | verified for E-02 | Both explicit epochs produce 2026-01-01 in the browser and native Mac pane |
 | AC-06 | verified for E-04/E-05 | Canonical JSON/HTML/sheet samples/counts/caps and unchanged source; full E-06 host/CLI acceptance remains |
-| AC-07 | pending | Recorded real Mac correction/rerun/export and CLI comparison |
+| AC-07 | verified on native 1900 and 1904 fixtures | Failure/F8 navigation/correction/Stale/reread/three passes and actual JSON/HTML/results-sheet/CLI parity; source integrity retained. See the [1904 record](artifacts/e06-native-demo-validation.json). |
 | AC-08 | verified for E-01–E-05 | Input/capability/race guards plus owned/source/collision checks and protected/partial/cancel recovery |
-| AC-09 | pending | Full checks and CDN/bundled/offline regression runs |
-| AC-10 | pending | 50,000-row planted findings, timings, bounds and integrity |
+| AC-09 | verified for recorded build; browser retries disclosed | Runtime/browser, CDN-page/local-runtime and bundled smokes, quality/docs/distribution checks plus native resource/CSP diagnostic and startup-only server trace; no new core dependency |
+| AC-10 | verified on native Mac | 50,000 rows × 5 columns; exact 3+3 failed financial groups, two passing data checks, diagnostic caps, native timings, verified capture and complete source/unrelated-cell integrity; native records linked above |
+| AC-11 | verified for the recorded Mac build | Static manifest/browser-route checks plus native Home visibility, Settings' focused view and Open validation's normal workflow/engine Ready on 2026-11-20; see [native launch record](acceptance.md#2026-11-20-local-startup-and-native-home-ribbon-launches) |
 
 No acceptance row is complete merely because the baseline tests passed previously.
+
+## Pane identity and report wording follow-up
+
+- [x] Give the ribbon-launched panes distinct manifest Titles and first visible
+  headings; Microsoft validation and controlled route/session checks pass. Both
+  names/headings observed in native Excel after the user's approved restart.
+- [x] Render failure actions separately from outcomes and refresh the demo through
+  guarded owned-output replacement; saved three-pass labels and expected C7:H9 /
+  1904 source pass. Full 3,743 runtime/111 browser and required smoke/quality/docs/
+  package checks pass. See [evidence](artifacts/pane-titles-and-failure-actions.json).

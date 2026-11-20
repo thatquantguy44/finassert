@@ -2,7 +2,7 @@
 
 **Status:** E-01–E-05 implemented with focused native and automated evidence;
 full E-06 acceptance remains proposed. See [verification evidence](artifacts/README.md).
-**Updated:** 2026-11-15
+**Updated:** 2026-11-19
 **Owner:** finassert. Mac desktop is the first real-host acceptance target.
 
 ## Problem statement
@@ -34,12 +34,13 @@ with the same engine and policy digest as Python and the CLI.
 - Run against a newly read, stable snapshot and distinguish freshness from outcome.
 - Navigate bounded findings to valid source locations without editing input cells.
 - Resolve the 1900/1904 date system explicitly and retain source/run provenance.
+- Provide clear Home-ribbon entry points for validation and session settings.
 - Verify the complete workflow in real Excel on Mac and in automated regressions.
 
 ## Non-goals
 
 New financial rules, automatic fixes, cell highlighting/comments, automatic
-validation on every edit, custom worksheet functions, ribbon/AppSource work,
+validation on every edit, custom worksheet functions, AppSource work,
 central deployment, hosted services, account systems, LLM policy generation,
 multi-table execution and cross-workbook orchestration are outside this slice.
 Saved source configurations across sessions and a Web Worker for interruptible
@@ -275,6 +276,34 @@ synthetic inputs and retains the evidence in acceptance.md and artifacts/.
 Existing stand-in/CDN/bundled-runtime CI remains mandatory and cannot substitute
 for the Mac run. No production support claim follows from a passing stub test.
 
+### R-07: Home-ribbon entry points
+
+The generated task-pane manifest includes additive TaskPane VersionOverrides 1.0
+commands in a **finassert** group on Excel's built-in Home tab. **Open validation**
+opens the ordinary validation workflow. **Settings** opens a visually distinct,
+focused settings view within the same task pane. That view contains the
+session-only Freshness and capture controls, hides the validation/policy/run
+workflow, and provides an explicit return to validation without reloading or
+discarding the pane session. Both are `ShowTaskpane` actions served from the
+existing local HTTPS origin. They run no function command, do not read or write
+workbook cells, and do not persist a setting.
+
+Each action supplies a distinct manifest Title: **finassert Validation** and
+**finassert Settings**. The first visible content in either pane is a prominent
+level-one **Validation** or **Settings** heading and a short explanation of that
+panel. Its document title follows the active view, including in-pane navigation;
+focus returns to that first heading on view changes. Generic branding must not
+precede or hide the view heading. Host tab titles identify the ribbon launch;
+in-pane navigation preserves the existing session. Manifest deployment 1.0.0.1
+adds these names without changing the add-in ID, permissions or HTTPS origin.
+
+The base task-pane manifest remains the fallback where add-in commands are not
+available. The ribbon's schema, resource identifiers and settings route require
+automated build/manifest coverage; its visibility and both launch actions require
+a recorded real-Excel run before any platform support claim. Custom commands,
+contextual tabs, keyboard shortcuts and shared-runtime behavior remain out of
+scope.
+
 ## Public API design
 
 No new public financial factory, policy version, CLI command or stable Python
@@ -426,6 +455,7 @@ remain pending. Session-only pane settings were explicitly selected by the user.
 | AC-08 | Unsupported capabilities, formula errors, pending/manual calculation, read-only/protected destinations and failed writes have explicit nonpassing workflow states and recovery | E-01, E-03, E-05 |
 | AC-09 | Existing Python/CLI/browser/file-reader and CDN/bundled-runtime smoke tests pass; no new core dependency or post-load data transmission | E-06 |
 | AC-10 | Fifty-thousand-row/five-column synthetic run retains exact planted findings, bounded diagnostics and input integrity; timings and host limits recorded | E-06 |
+| AC-11 | Home-ribbon validation/settings commands have a schema-valid manifest, preserve the base task-pane fallback, and visibly open the validation workflow and distinct settings view in recorded native Excel | E-06 |
 
 ## Testing requirements
 
@@ -436,6 +466,10 @@ tracking; merely returning supported=true is insufficient capability coverage.
 Golden vectors verify capture/digest/date/row alignment. Browser tests exercise
 actual pane controls and report currentness, including shared-app invalidation.
 Regression-test the file/browser paths when touching shared app or bridge code.
+Test Home-ribbon resource IDs, URLs and `ShowTaskpane` actions in the generated
+manifest. Browser coverage must show that the Settings route hides validation
+workflow controls, exposes settings and returns without losing session settings;
+record native visibility and both launch routes separately.
 Real-host evidence remains pending until executed; use [acceptance.md](acceptance.md).
 
 ## Dependencies on other specifications
@@ -452,5 +486,5 @@ provides build identity; release publication is not required for local acceptanc
 
 Persisted multi-source workbook configurations, automatic/debounced validation,
 interruptible worker execution, visible-only input, automatic fixes/highlights,
-collaborative policy approvals, ribbon commands/UDFs, AppSource/central rollout,
+collaborative policy approvals, custom ribbon commands/UDFs, AppSource/central rollout,
 signed installer automation and new financial workflows each need later scope.

@@ -1,0 +1,17 @@
+# finassert policy
+version: 1
+name: "Long-only holdings"
+description: "Holdings of a single long-only portfolio."
+assumptions:
+  - "The file holds exactly one portfolio."
+  - "Weights are fractions of total portfolio value (0.25, not 25)."
+  - "Cash is a position in the file, so weights include it."
+  - "The portfolio holds no short positions and no instruments that can have a negative market value, such as swaps or futures."
+rules:
+  - rule: weights_sum_to_one
+    column: "weight"
+    tolerance: "0.0001"
+  - rule: non_negative
+    column: "weight"
+  - rule: non_negative
+    column: "market_value"

@@ -8,7 +8,9 @@ __pycache__/
 .ruff_cache/
 .uv-cache/
 .venv/
+.finassert-handoff/
 build/
 dist/
+output/
 site/
 .DS_Store

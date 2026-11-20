@@ -1,7 +1,7 @@
 <button id="excel-write" type="button" hidden>Write results to a sheet</button>
-<p id="excel-result-state" class="hint"></p>
-<div id="excel-output-controls">
-  <p class="hint">New results always use a unique sheet. Replacement clears only the explicitly selected owned results sheet. Exported snapshots become historical after later edits.</p>
+<p id="excel-result-state" class="result-state hint"></p>
+<div id="excel-output-controls" class="output-controls">
+  <p class="hint">A new results sheet is created every time. You can replace only a sheet this add-in previously created. Later workbook edits make exported snapshots historical.</p>
   <button id="excel-output-refresh" type="button">Refresh output sheets</button>
   <label for="excel-replace-target">Owned results sheet to replace</label>
   <select id="excel-replace-target"><option value="">Choose a completed owned results sheet…</option></select>

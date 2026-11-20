@@ -195,9 +195,10 @@ def test_cancellation_during_output_quarantines_partial_sheet(pane):
 
 
 def test_valid_policy_save_load_is_independent_of_bad_capture_settings(pane):
-    pane.locator("#excel-workflow-settings summary").click()
+    pane.locator("#excel-open-settings").click()
     pane.locator("#excel-confirmations").fill("1")
     expect(pane.locator("#excel-freshness")).to_have_attribute("data-state", "Blocked")
+    pane.locator("#excel-back-to-validation").click()
     pane.click("#excel-save-policy")
     expect(pane.locator("#status")).to_contain_text("Saved the checks")
     assert owner(pane, "finassert policy")["state"] == "complete"

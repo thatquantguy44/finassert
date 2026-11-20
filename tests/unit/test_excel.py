@@ -209,17 +209,24 @@ def artifact_for(severity: str = "error") -> dict[str, Any]:
 def test_the_results_sheet_lists_each_check_and_each_problem_row() -> None:
     rows = results_table(artifact_for())
 
-    assert rows[0] == ["Check", "Result", "Severity", "Row", "Details"]
-    assert rows[1][:3] == ["No negative values", "Failed", "error"]
+    assert rows[0] == ["Check", "Result", "If check fails", "Row", "Details"]
+    assert rows[1][:3] == ["No negative values", "Failed", "Block validation"]
+    assert next(row for row in rows[1:] if row[1] == "Passed")[2] == "Block validation"
     assert rows[2][:4] == ["No negative values", "", "", 5]
     assert "value: -0.25" in rows[2][4]
     assert [row[1] for row in rows[1:] if row[1]] == ["Failed", "Passed"]
 
 
-def test_a_check_that_only_warns_is_labelled_a_warning() -> None:
-    rows = results_table(artifact_for("warning"))
+@pytest.mark.parametrize(
+    ("severity", "action"), [("warning", "Show warning"), ("info", "Show information")]
+)
+def test_a_check_that_only_warns_is_labelled_a_warning(severity: str, action: str) -> None:
+    artifact = artifact_for(severity)
+    rows = results_table(artifact)
 
     assert rows[1][1] == "Warning"
+    assert rows[1][2] == action
+    assert artifact["report"]["results"][0]["severity"] == severity
 
 
 def test_results_cells_that_could_be_formulas_are_kept_as_text() -> None:
@@ -239,7 +246,7 @@ def test_results_cells_that_could_be_formulas_are_kept_as_text() -> None:
 
     (_, row) = results_table(artifact)
 
-    assert row == ["'=HYPERLINK(1)", "Could not run", "error", "", "'+cmd|calc"]
+    assert row == ["'=HYPERLINK(1)", "Could not run", "Block validation", "", "'+cmd|calc"]
 
 
 def test_detail_rows_are_capped() -> None:
@@ -332,8 +339,8 @@ def test_every_results_row_has_the_same_width_and_the_table_follows_the_stamp() 
     rows, bold = stamped()
 
     assert {len(row) for row in rows} == {excel.RESULTS_WIDTH}
-    assert rows[bold[1]] == ["Check", "Result", "Severity", "Row", "Details"]
-    assert rows[bold[1] + 1][:3] == ["No negative values", "Failed", "error"]
+    assert rows[bold[1]] == ["Check", "Result", "If check fails", "Row", "Details"]
+    assert rows[bold[1] + 1][:3] == ["No negative values", "Failed", "Block validation"]
     assert rows[bold[1] + 2][3] == 5
 
 

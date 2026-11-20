@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-11-20T02:43:54Z",
+  "input": {
+    "excel": {
+      "address": "Sheet1!C7:H9",
+      "captured_at": "2026-11-20T02:43:54.877Z",
+      "column_count": 6,
+      "data_row_count": 2,
+      "date_system": "1900",
+      "date_system_source": "user",
+      "header_row": 7,
+      "hidden_rows": "include_all",
+      "kind": "range",
+      "physical_data_row_count": 2,
+      "schema_version": 1,
+      "snapshot_sha256": "sha256:f118b92691044a65310997c819128f677765297e466768756db9b744df066685",
+      "verified_at": "2026-11-20T02:45:42.635Z",
+      "worksheet_id": "{00000000-0001-0000-0000-000000000000}",
+      "worksheet_name": "Sheet1"
+    },
+    "format": "excel-range",
+    "locator": "Sheet1!C7:H9"
+  },
+  "policy": {
+    "assumptions": [
+      "The file holds exactly one portfolio.",
+      "Weights are fractions of total portfolio value (0.25, not 25).",
+      "Cash is a position in the file, so weights include it.",
+      "The portfolio holds no short positions and no instruments that can have a negative market value, such as swaps or futures."
+    ],
+    "description": "Holdings of a single long-only portfolio.",
+    "digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+    "name": "Long-only holdings",
+    "rules": [
+      {
+        "factory": "weights_sum_to_one",
+        "rule_id": "portfolio.weights_sum_to_one",
+        "summary": "Checks that the values in a weight column add up to exactly 1, for the whole file or for each portfolio.",
+        "title": "Portfolio weights add up to 100%"
+      },
+      {
+        "factory": "non_negative",
+        "rule_id": "arithmetic.non_negative",
+        "summary": "Checks that no value in a column is below zero.",
+        "title": "No negative values"
+      },
+      {
+        "factory": "non_negative",
+        "rule_id": "arithmetic.non_negative",
+        "summary": "Checks that no value in a column is below zero.",
+        "title": "No negative values"
+      }
+    ],
+    "version": 1
+  },
+  "report": {
+    "blocking_failures": 0,
+    "counts_by_outcome": {
+      "error": 0,
+      "failed": 0,
+      "passed": 3,
+      "skipped": 0
+    },
+    "counts_by_severity": {
+      "error": 3,
+      "info": 0,
+      "warning": 0
+    },
+    "passed": true,
+    "results": [
+      {
+        "blocking": false,
+        "diagnostics": [],
+        "expected": "1",
+        "message": "Weight total 1.0 is within tolerance of 1.",
+        "metadata": {
+          "column": "weight",
+          "observation_count": 2
+        },
+        "observed": "1.0",
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "portfolio.weights_sum_to_one",
+        "rule_name": "Portfolio weights sum to one",
+        "severity": "error",
+        "tolerance": {
+          "absolute": "0.0001",
+          "relative": 0
+        }
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "invalid_rows",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          },
+          {
+            "count": 0,
+            "kind": "violations",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 2 checked value(s) in 'weight' are nonnegative.",
+        "metadata": {
+          "checked_count": 2,
+          "column": "weight",
+          "invalid_row_count": 0,
+          "invalid_rows": [],
+          "violation_count": 0,
+          "violations": [],
+          "violations_truncated": false
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "invalid_rows",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          },
+          {
+            "count": 0,
+            "kind": "violations",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 2 checked value(s) in 'market_value' are nonnegative.",
+        "metadata": {
+          "checked_count": 2,
+          "column": "market_value",
+          "invalid_row_count": 0,
+          "invalid_rows": [],
+          "violation_count": 0,
+          "violations": [],
+          "violations_truncated": false
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      }
+    ],
+    "warnings": 0
+  },
+  "schema_version": 1,
+  "tool": {
+    "name": "finassert",
+    "version": "0.1.0"
+  }
+}

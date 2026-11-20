@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any
 
 from finassert._excel_evidence import context_rows
 from finassert.core.models import ValidationReport
+from finassert.reporting._labels import failure_action
 from finassert.reporting.artifact import build_artifact
 
 if TYPE_CHECKING:
@@ -341,8 +342,8 @@ def _result_card(
         f"{_text(label)}</span>",
         f'<h3 id="check-{index}">{index + 1}. {_text(title)}</h3>',
         "</header>",
-        f'<p class="meta">Rule <code>{_text(result["rule_id"])}</code> · severity '
-        f"{_text(result['severity'])}</p>",
+        f'<p class="meta">Rule <code>{_text(result["rule_id"])}</code> · If check fails: '
+        f"{_text(failure_action(result['severity']))}</p>",
     ]
     if summary:
         parts.append(f"<p>{_text(summary)}</p>")
