@@ -23,18 +23,14 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Configured the supplied QuantSmith checkout as the default local reader, repinned the allowlist to its reviewed commit, and added a selected GitHub Git-object mode for owners who need it.
+- **Last worked on:** Scoped proposed spec 0020 for performance and backtest integrity.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
-- **Verification:** 3,744 runtime and 111 browser tests pass; the focused reader, guide and server slice has 38 passing checks. The local HTTPS API returns source `local`, the pinned `d090cc3e7ddd6066fdef14bdfa76262f37c5ff50` commit and 1,426 allowlisted documents. The regenerated 47-page PDF renders cleanly on its changed page, rebuilds byte-identically and matches its live HTTPS download.
-- **Stopping point:** HTTPS localhost:3002 serves the fully bundled Excel build, current guide and 1,426-document local catalog. The native developer-add-in list shows only finassert; its pane was not reopened for this reference slice. Changes remain uncommitted.
-- **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
-  Delivery includes pane/report UI, native evidence, the guide/API and explicit
-  filesystem checkpoint support, with tests and documentation.
-- **Last commits:** `ad2a173` delivers the named panes, clear failure actions,
-  downloadable guide and all earlier authorized branch work. `60ea433` retains
-  the earlier AC-07 failing/navigation checkpoint. This binary-asset follow-up
-  has its own enclosing user-authorized delivery checkpoint.
+- **Verification:** Seven spec files, 46 local links and anchors, exact decimal arithmetic for the worked example, the strict docs build, and whitespace checks pass.
+- **Stopping point:** Spec 0020 defines the first performance workbook and audit. Runtime implementation remains proposed.
+- **Branch:** `spec/0020-quant-model-assurance`, from `origin/main` at `8f14c66`.
+- **Last commits:** `8f14c66` merged QuantSmith configuration PR #30. `dcc2362`
+  merged the Excel UI, demo evidence and guide in PR #29.
 - **Delivered:** E-01–E-05 and the pinned local reference reader are merged.
   Native scale/exports/CLI/integrity and the small 1900 correction loop are verified.
   Native ribbon visibility and both launch routes are now observed. Full E-06,
@@ -81,9 +77,13 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
    Home-ribbon launches and the native 1904 correction/export loop also pass.
    Finish clean table/hidden/filtered and remaining failure/race/keyboard cases;
    retain actual evidence and record external review.
-2. Paired forecast accuracy — 0012 U-08.
+2. Performance and backtest integrity — 0020.
+   Review the monthly strategy/benchmark contract and independent fixtures before
+   implementing the reference calculations and worked Excel audit. Point-in-time
+   checks and optimization assurance are proposed follow-on milestones.
+3. Paired forecast accuracy — 0012 U-08.
    Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
-3. Debt principal and issuance — 0012 U-09.
+4. Debt principal and issuance — 0012 U-09.
    Finalize conventions and extend 0002 before promoting new public rules.
 
 ## Commit context
@@ -95,54 +95,43 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
+  "prior_head": "8f14c66dc34a909a22a478607f7e0fe0ed377225",
   "recent_commits": [
     {
-      "commit": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
-      "subject": "chore: track generated PDF assets as binary"
+      "commit": "8f14c66dc34a909a22a478607f7e0fe0ed377225",
+      "subject": "Merge pull request #30 from thatquantguy44/feature/excel-e06-mac-acceptance"
     },
     {
-      "commit": "ad2a173ba913330df616b59f074a9a017b23dcad",
-      "subject": "feat(excel): clarify validation UI and add downloadable user guide"
-    },
-    {
-      "commit": "60ea433e161f0672193a97cce15d51c9f307130a",
-      "subject": "test(excel): record AC07 native failure and navigation evidence"
-    },
-    {
-      "commit": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
-      "subject": "test(excel): retain native E06 scale and export verification"
+      "commit": "dcc2362db7c69dc12fc2212477943b99aaf92fcf",
+      "subject": "Merge pull request #29 from thatquantguy44/feature/excel-e06-mac-acceptance"
     },
     {
       "commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
       "subject": "Merge pull request #28 from thatquantguy44/feature/quantsmith-readonly-docs"
+    },
+    {
+      "commit": "7af01ffcee0a5bccfe5c27d2740da0aea9ac593d",
+      "subject": "Merge pull request #26 from thatquantguy44/feature/excel-diagnostic-navigation"
+    },
+    {
+      "commit": "251542222cf52a34fb00e89b60279581a3728c03",
+      "subject": "docs: save reusable handoff enforcement prompt"
     }
   ],
   "changed_paths": [
-    "docs/assets/finassert-user-guide.json",
-    "docs/assets/finassert-user-guide.pdf",
-    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "docs/quantsmith-reference.md",
     "docs/roadmap.md",
-    "docs/user-guide.md",
-    "integrations/quantsmith-docs.lock.json",
-    "scripts/quantsmith_docs.py",
-    "scripts/serve_excel.py",
-    "specs/0018/contracts.md",
-    "specs/0018/handoff.md",
-    "specs/0018/plan.md",
-    "specs/0018/roadmap.md",
-    "specs/0018/spec.md",
-    "specs/0018/tasks.md",
-    "specs/0019/artifacts/verification.json",
-    "tests/browser/test_excel_quantsmith_reference.py",
-    "tests/unit/test_quantsmith_docs.py",
-    "web/excel-panel.html",
-    "web/quantsmith-docs.js"
+    "specs/0020/AGENTS.md",
+    "specs/0020/contracts.md",
+    "specs/0020/handoff.md",
+    "specs/0020/plan.md",
+    "specs/0020/roadmap.md",
+    "specs/0020/spec.md",
+    "specs/0020/tasks.md",
+    "specs/README.md"
   ],
-  "project_sha256": "debb33365b13fa6ad5f031836a7c8eefd9b0be7ed2d1c629bd9c9c34b0c649c6",
-  "reviewed_sections_sha256": "ad5ff0dd106c88f6d3758b66cb9b06dd374ab65c0d389b865068cfe1fd6aab16"
+  "project_sha256": "78d666de1b2a94b6183d403b6374fa57407c8482ddd226d8ce06283383aa02bf",
+  "reviewed_sections_sha256": "65bc78c84c96ac758c0c0c562c574152a67846740ba93f85a4f3e23886a879f8"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -161,6 +150,20 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-20 — Scope performance and backtest integrity
+
+- **Worked on:** Scoped proposed spec 0020 for performance and backtest integrity.
+- **Stopping point:** Spec 0020 defines the first performance workbook and audit. Runtime implementation remains proposed.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** Seven spec files, 46 local links and anchors, exact decimal arithmetic for the worked example, the strict docs build, and whitespace checks pass.
+- **Branch:** `spec/0020-quant-model-assurance`, from `origin/main` at `8f14c66`.
+- **Priority decision:** Keep E-06 first. Spec 0020 is the next proposed product
+  extension, ahead of the two existing treasury follow-ups. Its first milestone
+  uses supplied monthly returns, one benchmark, and the existing single-source
+  Excel workflow. Backtest decision evidence and minimum-variance optimization
+  have separate proposed milestones. The proposal lives at `specs/0020/spec.md`.
 
 ### 2026-11-20 — Local-default QuantSmith reference with explicit GitHub mode
 

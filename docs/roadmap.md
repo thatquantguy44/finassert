@@ -54,11 +54,15 @@ Next engineering work:
    1904 repeat. Next are clean table/hidden/filtered and remaining
    failure/race/keyboard cases.
    Range mode requires stable ExcelApi 1.13; table mode keeps the 1.7 floor.
-2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
+2. Deliver the first [0020 performance and backtest integrity](handoff.md#2026-11-20-scope-performance-and-backtest-integrity)
+   milestone. Review the monthly strategy/benchmark contract, then implement
+   reference calculations and reconciliation with a worked Excel workbook and
+   CLI replay. Point-in-time checks and optimization follow as proposed milestones.
+3. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
-3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
+4. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
    conventions and extend 0002 before promoting new public financial rules.
-4. Extend platform pilots and remaining adapter/grouped-rule requests based on
+5. Extend platform pilots and remaining adapter/grouped-rule requests based on
    demonstrated inputs. Local QuantSmith installation/orchestration belongs in its
    own repository and consumes the verified finassert bundle.
 
