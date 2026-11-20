@@ -28,6 +28,7 @@ def test_reader_loads_on_request_and_renders_document_as_text(pane) -> None:
             body = {
                 "repository": "thatquantguy44/QuantSmith",
                 "commit": commit,
+                "source": "local",
                 "documents": [{"id": identifier, "path": path, "title": "prompt.md", "bytes": 28}],
             }
         else:
@@ -45,6 +46,7 @@ def test_reader_loads_on_request_and_renders_document_as_text(pane) -> None:
     pane.click("#quantsmith-reference summary")
     pane.click("#quantsmith-load")
     expect(pane.locator("#quantsmith-status")).to_contain_text("1 document(s) match")
+    expect(pane.locator("#quantsmith-status")).to_contain_text("Source: local checkout")
     pane.fill("#quantsmith-search", "risk")
     expect(pane.locator("#quantsmith-list button")).to_have_count(1)
     pane.click("#quantsmith-list button")

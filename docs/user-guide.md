@@ -1081,8 +1081,9 @@ The Excel pane offers **Download user guide (PDF)** as an explicit action.
 The live engine executes in the Excel pane; the browser engine executes in its
 tab. Startup loads the documented runtime/Office resources. The guide and the
 optional reference panel make explicit local documentation requests without
-reading/sending cells. The optional QuantSmith reader additionally requires a
-pinned allowlisted checkout and stays separate from public guide downloads.
+reading/sending cells. The optional QuantSmith reader uses a pinned allowlisted
+local checkout by default; its local owner may explicitly choose the matching
+GitHub source. It stays separate from public guide downloads.
 
 There is no automatic correction, source-cell highlighting, custom worksheet
 function such as `FINASSERT.CHECK`, cross-workbook/multitable execution, saved

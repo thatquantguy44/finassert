@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import functools
 import json
+import os
 import ssl
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -25,17 +26,24 @@ from pathlib import Path
 from typing import ClassVar
 from urllib.parse import urlsplit
 
-from quantsmith_docs import Catalog
+from quantsmith_docs import Catalog, GitHubCatalog
 from user_guide import API_PATH, PDF_PATH, GuideAssetError, read_asset
 
 ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_QUANTSMITH_CHECKOUT = Path(
+    os.environ.get(
+        "FINASSERT_QUANTSMITH_LOCAL_PATH",
+        "/Users/joshualutkemuller/Documents/Quant Sandbox/agentic_workflows/qf_workflow_sdk_public",
+    )
+)
 
 
 class Handler(SimpleHTTPRequestHandler):
     """Serves files with the content types Office and WebAssembly need, and no caching."""
 
     quiet: ClassVar[bool] = False
-    docs_catalog: ClassVar[Catalog | None] = None
+    docs_catalog: ClassVar[Catalog | GitHubCatalog | None] = None
+    docs_error: ClassVar[str | None] = None
     extensions_map: ClassVar[dict[str, str]] = {
         **SimpleHTTPRequestHandler.extensions_map,
         ".wasm": "application/wasm",
@@ -69,7 +77,10 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_GET()
             return
         if self.docs_catalog is None:
-            self.send_error(404)
+            if self.docs_error is None:
+                self.send_error(404)
+            else:
+                self.send_error(503, "Pinned reference unavailable")
             return
         host = self.headers.get("Host", "")
         try:
@@ -154,27 +165,43 @@ def make_server(
     keyfile: Path | None = None,
     *,
     quiet: bool = False,
+    quantsmith_source: str = "disabled",
     quantsmith_checkout: Path | None = None,
     quantsmith_lock: Path | None = None,
+    quantsmith_github_token: str | None = None,
 ) -> ThreadingHTTPServer:
     """Return a server for ``directory``; HTTPS when a certificate and key are given."""
     if (certfile is None) != (keyfile is None):
         raise ValueError("give both a certificate and a key, or neither")
     if not directory.is_dir():
         raise ValueError(f"{directory} is not a folder; build the add-in first")
-    if quantsmith_checkout is None and quantsmith_lock is not None:
-        raise ValueError("give a QuantSmith checkout with the lockfile")
-    if quantsmith_checkout is not None and host not in {"127.0.0.1", "localhost", "::1"}:
+    if quantsmith_source not in {"disabled", "local", "github"}:
+        raise ValueError("QuantSmith source must be disabled, local, or github")
+    if quantsmith_source == "disabled" and (
+        quantsmith_checkout is not None or quantsmith_lock is not None or quantsmith_github_token
+    ):
+        raise ValueError("choose a QuantSmith source before configuring it")
+    if quantsmith_source != "disabled" and host not in {"127.0.0.1", "localhost", "::1"}:
         raise ValueError("the private QuantSmith reference is local-only")
-    catalog = (
-        Catalog(
-            quantsmith_checkout,
-            quantsmith_lock or ROOT / "integrations" / "quantsmith-docs.lock.json",
-        )
-        if quantsmith_checkout is not None
-        else None
+    catalog: Catalog | GitHubCatalog | None = None
+    docs_error: str | None = None
+    if quantsmith_source != "disabled":
+        try:
+            lock = quantsmith_lock or ROOT / "integrations" / "quantsmith-docs.lock.json"
+            if quantsmith_source == "local":
+                catalog = Catalog(quantsmith_checkout or DEFAULT_QUANTSMITH_CHECKOUT, lock)
+            else:
+                catalog = GitHubCatalog(lock, quantsmith_github_token)
+        except ValueError:
+            # Preserve the validation pane when a local checkout is absent or the
+            # explicitly selected GitHub source cannot authenticate.  The API
+            # returns 503 rather than silently exposing a different revision.
+            docs_error = "Pinned reference unavailable"
+    base = type(
+        "ReferenceHandler",
+        (Handler,),
+        {"quiet": quiet, "docs_catalog": catalog, "docs_error": docs_error},
     )
-    base = type("ReferenceHandler", (Handler,), {"quiet": quiet, "docs_catalog": catalog})
     handler = functools.partial(base, directory=str(directory))
     server = ThreadingHTTPServer((host, port), handler)
     if certfile is not None and keyfile is not None:
@@ -193,14 +220,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cert", type=Path, help="TLS certificate (PEM) for HTTPS")
     parser.add_argument("--key", type=Path, help="TLS private key (PEM) for HTTPS")
     parser.add_argument(
+        "--quantsmith-source",
+        choices=("local", "github", "disabled"),
+        default=os.environ.get("FINASSERT_QUANTSMITH_SOURCE", "local"),
+        help="reference source (default: local; GitHub is explicit and read-only)",
+    )
+    parser.add_argument(
         "--quantsmith-checkout",
         type=Path,
-        help="opt in to the pinned local QuantSmith reference API",
+        default=DEFAULT_QUANTSMITH_CHECKOUT,
+        help=f"pinned local checkout (default: {DEFAULT_QUANTSMITH_CHECKOUT})",
     )
     parser.add_argument(
         "--quantsmith-lock",
         type=Path,
         help="override the pinned reference manifest",
+    )
+    parser.add_argument(
+        "--quantsmith-github-token-env",
+        default="FINASSERT_QUANTSMITH_GITHUB_TOKEN",
+        help="environment variable with a GitHub Contents-read token for GitHub mode",
     )
     arguments = parser.parse_args(argv)
     try:
@@ -210,8 +249,16 @@ def main(argv: list[str] | None = None) -> int:
             arguments.port,
             arguments.cert,
             arguments.key,
-            quantsmith_checkout=arguments.quantsmith_checkout,
+            quantsmith_source=arguments.quantsmith_source,
+            quantsmith_checkout=(
+                arguments.quantsmith_checkout if arguments.quantsmith_source == "local" else None
+            ),
             quantsmith_lock=arguments.quantsmith_lock,
+            quantsmith_github_token=(
+                os.environ.get(arguments.quantsmith_github_token_env)
+                if arguments.quantsmith_source == "github"
+                else None
+            ),
         )
     except (ValueError, OSError, ssl.SSLError) as exc:
         parser.error(str(exc))
@@ -222,6 +269,10 @@ def main(argv: list[str] | None = None) -> int:
         print("plain HTTP: fine for a browser, but Excel needs HTTPS (see --cert and --key)")
     if arguments.host not in {"127.0.0.1", "localhost", "::1"}:
         print(f"warning: anyone who can reach {arguments.host} can read these files")
+    if arguments.quantsmith_source == "local":
+        print(f"QuantSmith reference: local checkout {arguments.quantsmith_checkout}")
+    elif arguments.quantsmith_source == "github":
+        print("QuantSmith reference: GitHub API at the pinned commit")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "thatquantguy44/QuantSmith",
-  "commit": "86eed7f47d2735964705ecd6d43be842f594ba2f",
+  "commit": "d090cc3e7ddd6066fdef14bdfa76262f37c5ff50",
   "include": [
     "README.md",
     "AGENTS.md",
