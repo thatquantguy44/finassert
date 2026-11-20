@@ -68,6 +68,12 @@ Report results, policy digest, generation time and diagnostic collections remain
 unchanged. Live HTML/sheet views show the complete retained canonical samples and
 count/cap/truncation summaries; file/CLI views without this context remain compatible.
 
+Human-facing HTML cards explain **If check fails** using **Block validation**,
+**Show warning**, or **Show information** for configured error/warning/info
+severity. These are presentation labels, separate from the actual outcome.
+The embedded artifact and technical JSON/XLSX severity values remain unchanged;
+a passing error-severity check still passes, and evaluation errors still block.
+
 ## Financial and numerical edge cases
 
 Preserve Decimal text and explicit currency/unit metadata. Do not emit NaN JSON.

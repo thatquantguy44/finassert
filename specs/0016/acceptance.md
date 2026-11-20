@@ -2,9 +2,13 @@
 
 **Status:** E-06 partially verified on Mac. Native 50,000-row diagnostics,
 verified capture, JSON/HTML/results-sheet parity, CLI tie-out and source integrity
-passed on 2026-11-16. AC-07 now has native 1900 date/offset/failure/navigation
-and failed-report CLI evidence; correction/Stale/rerun/pass remains unexecuted
-after native window capture failed. Table/1904/failure/race cases remain open.
+passed on 2026-11-16. AC-07's native 1900 correction/Stale/reread/pass/export loop
+passed on 2026-11-19, including actual JSON/HTML/worksheet/CLI equality and source
+integrity. The native 1904 repeat passed on 2026-11-20; table/hidden/failure/race/
+keyboard cases remain open.
+The Home-ribbon validation/settings manifest is schema-valid and has controlled
+browser-host route coverage for distinct validation and settings states; native
+Home visibility and both launch actions passed on 2026-11-20 (AC-11).
 Automated preflights do not
 complete the remaining host rows.
 Early E-01/E-02 native evidence is retained separately in [artifacts](artifacts/README.md).
@@ -24,11 +28,11 @@ commit user workbooks, contents, absolute personal paths or credentials.
 | Tested source commit and build/bundle identity | Runtime `67c3c1c`; bundled pane `b0070aa2…`; manifest `3eb69c50…`; full hashes in [native diagnostic](artifacts/e06-native-diagnostics.json) |
 | macOS version / hardware summary | 26.5.1 (25F80); Mac17,9, Apple M5 Pro, 24 GiB |
 | Excel version/build / license channel | Installed 16.115 / 16.115.26110837; license channel not observed |
-| Add-in loading route / stable API capabilities | Microsoft empty sideload template; trusted localhost:3000; stable API sets through 1.13 reported supported |
+| Add-in loading route / stable API capabilities | Microsoft sideload template; scale used localhost:3000, recovered AC-07 uses trusted HTTPS localhost:3002; stable API sets through 1.13 reported supported |
 | CDN or bundled Pyodide / engine version | Bundled Pyodide 0.27.7; finassert 0.1.0 |
 | Calculation mode / date system and source | Native Automatic/Done; explicit user 1900, matching the saved scale workbook; 1904 case pending |
 | Fixture / effective policy digest | Native 50,000-row source, retained exports and policy identities in [parity record](artifacts/e06-native-scale-parity.json) |
-| Run date / tester / review status | 2026-11-15–16; Codex automated/native UI verification; external human review pending |
+| Run date / tester / review status | 2026-11-15–20; Codex automated/native UI verification; external human review pending |
 
 ## Workflow checklist
 
@@ -38,45 +42,178 @@ rows pending. Repeat date-sensitive cases with both workbook epochs.
 | Case | Expected observation | Actual |
 | --- | --- | --- |
 | Install and load | Pane ready; capabilities recorded; unsupported host explained | PASS: current bundled pane Ready; capabilities through 1.13, calculation and startup recorded. Unsupported-host alternatives remain automated coverage. |
+| Home ribbon | finassert group exposes validation and settings; validation opens the workflow and Settings opens its distinct settings view | PASS: static manifest/browser coverage plus native Home buttons and both launch routes on 2026-11-20; validation engine Ready. |
 | Explicit table | Correct headers/body/source summary; total row excluded | pending |
 | Fixed offset range | C7:H20-style bounds and physical row numbers preserved | PASS: native Sheet1!C7:H9, header 7, two physical/parsed rows, six columns; retained failure points to row 8. |
 | Filter/hidden rows | All physical data rows included and policy visible | pending |
 | Financial failure | Negative market value fails at the correct row | PASS: Current, one failed/two passed; market_value -400 at row 8, one retained violation/cap 20. |
 | Navigate | Click/keyboard selects that row/cell without changing values | Click PASS: retained row-8 finding selects F8/-400 with fresh preflight; saved source unchanged. Keyboard case pending. |
-| Correct in Excel | Old result visibly stale; current export disabled | pending |
-| Rerun | New source read; corrected input passes the intended policy | pending |
+| Correct in Excel | Old result visibly stale; current export disabled | PASS: native F8 edit produced Stale; HTML/JSON/results export and navigation disabled. Corrected numeric F8=400 verified by reread and saved file. |
+| Rerun | New source read; corrected input passes the intended policy | PASS: 1900 source reread displayed 400 and both dates 2026-01-01; Current with three passes. |
 | Policy/date edit | Prior result stale even when source values are unchanged | pending |
-| 1900 and 1904 | Same intended date, explicit interpretation in evidence | Native 1900 short-date cells/preview/saved file show 2026-01-01; 1904 case pending. |
+| 1900 and 1904 | Same intended date, explicit interpretation in evidence | PASS: both native epochs show 2026-01-01; 1904 full small loop and export/CLI parity retained in the demo record. |
 | Formula/calc state | Recalculation invalidates; pending/manual mode handled explicitly | Automatic/Done observed; formula/recalc/manual/pending cases pending. |
 | Mid-read edit | No mixed/obsolete candidate becomes Current | pending |
 | Delayed event | Export/navigation preflight detects changed source | pending |
 | Sort/resize/delete | Old targets rejected; table/range binding follows its contract | pending |
 | Duplicate/missing key | Ambiguous or absent target explained; no guessed address | pending |
 | Missing treasury series | Group/period context shown without a fabricated row | pending |
-| Export parity | JSON/HTML/results sheet match canonical findings and caps | PASS on native scale: actual downloads and all 41 worksheet rows match; exact counts/caps retained. |
+| Export parity | JSON/HTML/results sheet match canonical findings and caps | PASS on native scale and corrected AC-07: actual downloads and all 41/34 respective worksheet rows match; exact counts/caps retained. |
 | Read-only/protected/collision | Clear export error or safe new sheet; source untouched | Unique results (2) preserved existing outputs/source on scale run; protected/read-only failures pending. |
 | Rebind/reopen pane | No duplicated events or cross-source result reuse | pending |
-| Python/CLI tie-out | Same normalized input/policy/labels produce identical results | PASS on scale and small failing 1900 case: strict canonical report/policy equality against actual CLI. Corrected passing/1904 tie-out pending. |
+| Python/CLI tie-out | Same normalized input/policy/labels produce identical results | PASS on scale and small failing/passing 1900 cases: strict canonical report/policy equality against actual CLI. Native 1904 tie-out also passes in the 2026-11-20 demo record. |
 | 50,000 rows × 5 columns | Exact planted failures; complete counts; timings retained | PASS: three weight and three NAV groups fail, two data checks pass; native timings and stable captures retained. |
 | Network/input integrity | No cell-data transmission or source value/format edits | PASS for observed native scale: resource/CSP diagnostic, local server trace, all source cells/types/formats and four unrelated sheets unchanged. |
 
 ## Completion record
 
 - Automated preflight: Mac checks/tooling and historical Linux checks below.
-- Native verification: scale diagnostics/capture/export/CLI/integrity pass; see
-  [the native record](#2026-11-16-native-scale-and-export-verification).
+- Native verification: scale diagnostics/capture/export/CLI/integrity and the
+  [small 1900 correction loop](#2026-11-19-ac-07-native-correction-and-export-completion) pass.
 - Manual failures: generated table fixture still prompts repair; an actual repair
   log identified its table part. Experimental metadata/filter variants did not
   establish a clean open. Earlier generator corrections were insufficient.
 - Tested platform support statement: focused earlier Mac evidence only; full E-06
   support is not promoted by this checkpoint.
-- Remaining limitations: small correction/Stale/rerun/pass/export, 1904,
-  table/hidden-row and failure/race cases remain. Native window capture failed
-  after the failing export/navigation; no correction is inferred.
+- Remaining limitations: native table/hidden-row and remaining failure/race/keyboard
+  cases remain. Window-capture interruptions recovered during the 1900 loop;
+  only observed actions and retained actual exports are counted.
 - Reviewer/sign-off reference: external human review pending; no sign-off inferred.
 
 A successful Office stand-in run does not complete this record. Add Windows/web
 records separately if those platforms become delivery targets.
+
+## 2026-11-20 full regression and native demo validation
+
+[Retained evidence](artifacts/e06-native-demo-validation.json) records all 3,724
+runtime and 110 browser tests passing; lint/format, mypy (64 source modules),
+both Excel smoke modes, shared browser and isolated installed distribution checks
+also pass. The tests now use the focused Settings view and return before actions
+in validation. Recovery fixtures accept native numbered web-extension names by
+content type, with 14 harness controls. Initial failures and their repairs are
+recorded explicitly; no runtime financial/capture/export semantics changed.
+
+Native Mac Excel's [50,000-row diagnostic](artifacts/e06-native-demo-diagnostics.txt)
+passed every step: 951 ms startup, 241 ms write, 631 ms read and 692 ms check/render.
+It found the exact three weight and three NAV groups, passed both data checks,
+round-tripped the policy and confirmed unchanged source cells.
+
+The 1904 source opened cleanly at Sheet1!C7:H9 and previewed both dates as
+2026-01-01. A fresh run failed market_value at row 8 (-400) with two passes;
+the finding selected F8. Explicit selection and replacement with numeric 400
+produced Stale and disabled JSON/HTML/sheet exports and navigation. Run reread
+the source and reached Current with three passes. Actual
+[JSON](artifacts/ac07-native-1904-passed-report.json),
+[HTML](artifacts/ac07-native-1904-passed-report.html),
+[YAML](artifacts/ac07-native-1904-policy.yml), all 34 × 5 result-sheet cells and
+an actual CLI run match. Every source value/type/number format is identical
+across the native pre-export/final workbook snapshots.
+
+`dist/demo/finassert-demo.xlsx` is saved with the passing result and completed
+results/policy sheets. Its source has no stray populated cells; F8 is the only
+changed value from the synthetic fixture. Excel's save normalized literal date
+format escapes without changing dates; native export snapshots compare exactly.
+Native capture/foreground interruptions and excluded selection attempts are
+recorded in the evidence. These observations complete the 1904 small loop,
+not the remaining table/hidden/failure/race/keyboard cases or external review.
+
+## 2026-11-20 local startup and native Home-ribbon launches
+
+Rebuilt the absent temporary add-in with the current working tree and
+hash-verified bundled Pyodide 0.27.7, then restarted HTTPS localhost:3002 using
+the existing development certificate. The generated manifest exactly matches
+installed finassert.xml; no registration or certificate-trust change was needed.
+Pane SHA-256 is `bb36604fe553c371a88a407208017885f6c192001ff15278824783a12818f04f`;
+manifest SHA-256 is `561a804dfdd3b12d047e3ba14cb006427cc0e085e4d29c2f249c221f9fca4972`.
+
+Native observations in the already open blank Book1:
+
+1. Retry loaded the validation workflow and engine Ready.
+2. Home visibly exposes Open validation and Settings.
+3. Settings opened `taskpane.html?view=settings` with capture/freshness/request
+   controls and Back to validation; policy/run/source workflow controls were hidden.
+4. Home Open validation opened the normal source/policy/run workflow and its
+   engine reached Ready. The final native screenshot also shows both Home buttons.
+
+These observations complete AC-11's native launch slice. No source was bound,
+cells edited, financial checks run or exports created in this startup session.
+Settings return/session preservation retains its earlier controlled-browser
+coverage; it was not retested natively. Full E-06 and external review remain open.
+The previous temporary recovery workbook/fixtures are gone and must be recreated
+before the native 1904 repeat. The server remains running for user testing.
+
+## 2026-11-19 interface and Home-ribbon preparation
+
+The task pane has a narrower, workbook-first presentation: a single explicit
+workbook-source workflow, clear Current/Stale status treatment, grouped exports
+and collapsible advanced/report content. The browser file picker is hidden in an
+Excel host so it cannot compete with source binding.
+
+The generated manifest now includes an additive **finassert** group on Excel
+Home. **Open validation** uses the normal task-pane URL; **Settings** uses the
+same URL with `view=settings`, which expands the existing freshness/capture
+controls. The generated manifest passed Microsoft `office-addin-manifest validate`;
+unit coverage checks both `ShowTaskpane` actions, resource URLs and generated icon
+assets. A controlled 390-pixel Office stand-in reached Current through the normal
+workflow and confirmed the settings route and absent browser file picker.
+
+This is build/static and controlled-browser evidence only. Manifest reload plus
+native Home-tab visibility and both launch actions must be observed in Excel before
+AC-11 can be marked verified.
+
+## 2026-11-19 AC-07 native correction and export completion
+
+[Completion evidence](artifacts/ac07-native-completion.json) records the actual
+Mac 1900 workflow. The [JSON](artifacts/ac07-native-passed-report.json) and
+[HTML](artifacts/ac07-native-passed-report.html) are actual native downloads.
+All 34 × 5 cells of the saved `finassert results` sheet and the real CLI match
+the same run; only each action's `verified_at` differs. F8 is now numeric **400**.
+Navigation left the source unchanged, and the final export sequence preserved
+every pre-existing cell's value, type and number format on Sheet1 and Sheet2.
+Across the initial failing source and final source, only F8 changed (-400 → 400).
+
+The old temporary workbook/build were gone. Port 3000 belonged to a plain HTTP
+Dagster server; the existing finassert development manifests still requested
+HTTPS there. Rebuilt the identical bundled pane (`b0070aa2…`), served it locally
+on **HTTPS port 3002** with the existing development certificate, and updated
+both original-ID development manifests after backing them up. After the user
+saved/closed Book1 and restarted Excel, the original-ID pane reached Ready.
+An isolated test registration was removed after that recovery.
+
+[prepare_ac07_fixture.py](artifacts/prepare_ac07_fixture.py) recreates simple
+1900/1904 C7:H9 fixtures from an explicitly supplied Office-generated sideload
+workbook, retaining its task-pane parts. It does not register an add-in, open
+Excel, or count generated data as native evidence. Thirteen harness checks pass,
+including pane-part preservation, both epochs/physical row labels, rejection of
+a plain workbook and protection against overwriting the seed. Both generated
+fixtures reproduce the historical failed native report/policy through the CLI;
+only the 1900 fixture was opened natively in this session.
+
+```bash
+PYTHONPATH=src .venv/bin/python specs/0016/artifacts/prepare_ac07_fixture.py \
+  /tmp/finassert-ac07-recovery --sideload-seed "$FINASSERT_SIDELOAD_SEED"
+```
+
+Set `FINASSERT_SIDELOAD_SEED` to the disposable workbook generated by Microsoft's
+sideload tool for the registered local manifest. Do not use a user workbook.
+Current native snapshots, matching final downloads and policy remain under
+`/tmp/finassert-ac07-recovery`; replay their strict comparison with:
+
+```bash
+PYTHONPATH=src .venv/bin/python specs/0016/artifacts/verify_e06_exports.py \
+  --json /tmp/finassert-ac07-recovery/ac07-final-1900.json \
+  --html /tmp/finassert-ac07-recovery/ac07-final-1900.html \
+  --workbook /tmp/finassert-ac07-recovery/native-final-1900.xlsx \
+  --policy /tmp/finassert-ac07-recovery/long-only-holdings.yml \
+  --results-sheet 'finassert results'
+```
+
+The initial formula-bar entry appended text, yielding -400400; rereading caught
+it. Native Go To F8, clear and paste corrected it to numeric 400 before the
+passing evidence. Capture errors and a binding change interrupted the first
+export sequence. Rebinding/rerunning produced the consistent final evidence;
+no timed-out action was counted without later visible and saved-file proof.
+Full E-06 and external human review remain open.
 
 ## 2026-11-17 AC-07 progress; correction remains open
 
@@ -113,13 +250,15 @@ dismiss dialogs was requested.
 
 ### AC-07 immediate pickup
 
-The **last confirmed F8 value is -400**. Bring the original disposable
-`Excel add-in 9877a12e…` workbook forward on the current desktop, inspect any
-dialog, and recheck the bound source/policy and F8. Correct to **400** in Excel,
-observe **Stale** with current exports/navigation disabled, reread/run and verify
-**three passed**. Save actual JSON/HTML/results-sheet output, the policy and the
-native workbook; run the retained-export/CLI verifier and source-integrity check.
-AC-07 remains pending until that complete loop succeeds.
+The historical 1900 pickup above is superseded by the
+[completed correction/export loop](#2026-11-19-ac-07-native-correction-and-export-completion).
+F8 is saved as **400** and actual passing exports/CLI/integrity checks pass.
+The native **1904** repeat is now also verified, including actual exports,
+epoch/date/CLI evidence and exact source integrity; see the
+[demo validation](#2026-11-20-full-regression-and-native-demo-validation).
+Next complete clean table/hidden/filtered and remaining failure/race/keyboard cases. The local server
+currently serves `/tmp/finassert-ac07-build` at **https://localhost:3002**;
+full E-06 acceptance and external review remain open.
 
 Retained negative-source copies are
 `/tmp/finassert-ac07-native-failed-before-nav.xlsx` and
@@ -302,3 +441,14 @@ PYTHONPATH=src .venv/bin/python specs/0016/artifacts/prepare_e06_fixtures.py /tm
 - No Mac Excel host is attached to this session. Environment, workflow,
   calculation, parity, 50,000-row timing and source-integrity rows above remain
   pending; prior focused native E-01–E-05 evidence is not substituted for E-06.
+
+## 2026-11-20 named panes and human failure actions
+
+Observed **finassert Validation** and **finassert Settings** as distinct native
+Excel tabs after the approved save/restart/reopen. Each view begins with its
+matching level-one heading. The updated native demo read C7:H9 with explicit 1904,
+loaded the saved three-rule policy, passed all three checks, and replaced only its
+completed owned results sheet after source/policy revalidation. Saved inspection
+finds **If check fails** / **Block validation** beside the three passed outcomes
+and the expected original source cells/dates/epoch. See
+[evidence](artifacts/pane-titles-and-failure-actions.json). Full E-06 and review remain open.

@@ -2,9 +2,9 @@
 
 ## Current milestone
 
-Commit/push/CI enforcement is implemented, with 38 passing real Git tests.
-The initial master checkpoint passes the actual local hooks. Full suite:
-3,662 passed; no Excel or financial behavior changed.
+Commit/push/CI enforcement and the explicit non-Git filesystem workflow are
+implemented, with Git fixtures plus seven filesystem fixtures. The initial master
+checkpoint passes the actual local hooks. No Excel or financial behavior changed.
 
 ## Next milestone
 

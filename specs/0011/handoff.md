@@ -8,10 +8,76 @@ and explicit source/date binding plus configurable E-03 freshness/capture.
 E-04 now adds bounded diagnostic navigation and focused native F8 evidence.
 E-05 adds verified provenance, canonical outputs, unique names, saved ownership and
 write-error recovery. Full E-06 acceptance remains pending; follow the master ordering.
+Spec [0019](../0019/spec.md) adds the complete PDF guide, local download API
+and explicit Excel-pane link; source/examples/downloads are verified.
 The optional 0018 local QuantSmith reference is implemented for the Excel pane;
 it does not change workbook validation or the offline file/browser application.
+The shared pane shell now uses a workbook-first visual hierarchy in Excel, while
+the browser keeps its file-input flow. Spec 0016 owns the new Home-ribbon launcher:
+validation opens the normal workflow and Settings opens a focused in-pane view that
+returns without discarding the session. Native acceptance remains pending there.
 
 ## Entries
+
+### 2026-11-20 — Clear pane identity and configured failure actions
+
+Spec 0016 supplies distinct native Validation/Settings tab titles and first
+headings; both are observed after the approved Excel restart. The human-facing
+results sheet now uses **If check fails** with **Block validation**, **Show warning**
+and **Show information**. HTML cards, diagnostic explanations and policy editor
+option labels match. Outcome/result labels and policy/JSON option values remain
+canonical; technical CLI XLSX output stays compatible. The saved native demo has
+three passed rows with Block validation and unchanged expected source cells.
+Full 3,743 runtime/111 browser tests and all smoke/quality/docs/package checks pass.
+The user requested committing and pushing all current-branch changes. E-06 stays next.
+
+### 2026-11-20 — Full Validation Report navigation
+
+Renamed the shared report disclosure to **Open Full Validation Report** and placed
+**View Full Validation Report** directly beneath the run outcome banner. The link
+opens the report, moves focus to its summary and scrolls there; it respects reduced
+motion and is hidden with absent results. Historical results remain inspectable
+with their export guards intact. The canonical interface requirement is in spec.md.
+
+Verified actual pointer/Enter activation, report content and scroll position at
+390 × 700, including reduced motion, no extra workbook reads/writes or changed
+artifact, historical export guards and hiding on result invalidation. Reviewed
+the resulting pane screenshot. The ad-hoc QA harness was adjusted for the page's
+CSP and ordinary end-of-document scroll clamping; production behavior did not
+require a workaround. The 39 affected unit and 28 existing browser regressions,
+browser/file smoke and bundled Excel smoke pass; lint/format, docs/links and diff
+checks pass. No new financial/public artifact contract or offline request changed.
+
+Updated the currently served pane atomically with unchanged manifest, runtime and
+PDF assets. Native clicking is not newly claimed; E-06 remains the master pickup.
+No workbook edits, staging, commit, push or CI were performed by this UI task.
+
+### 2026-11-20 — Complete user guide and explicit PDF download
+
+Spec [0019](../0019/spec.md) supplies the comprehensive source/PDF guide and
+GET/HEAD metadata/download routes on the existing local server. The Excel pane
+exposes an explicit download link, verified with exact bytes in Playwright and
+live HTTPS. All 3,742 runtime and 111 browser tests pass. Downloading does not
+read cells; the standalone file/browser app remains offline after its normal
+startup. No financial policy/report contract or private-reader boundary changed.
+Native pane-link acceptance and full E-06 are not claimed; follow the master.
+
+### 2026-11-19 — Distinct session-settings view
+
+The shared Excel pane now renders Settings as a focused view rather than an expanded
+section of validation. It hides the validation, policy and run workflow, keeps its
+session-only settings in memory when returning, and changes no policy, financial,
+artifact or file/browser contract. Spec 0016 retains the generated-manifest and
+browser-route evidence; native ribbon launch observation remains pending.
+
+### 2026-11-19 — Workbook-first pane presentation and ribbon launcher
+
+The shared static UI now separates browser file input from the live Excel source
+flow, makes freshness/currentness and export actions easier to scan, and keeps
+advanced controls collapsible. No policy, rule, artifact or file/browser outcome
+contract changed. Spec 0016 adds the manifest's additive Home-ribbon Open
+validation/Settings commands; static validation and controlled browser coverage
+pass, while real Excel visibility/launch remains pending there.
 
 ### 2026-11-15 — Optional pinned QuantSmith reader
 

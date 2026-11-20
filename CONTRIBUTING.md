@@ -33,6 +33,25 @@ uv build
 uv run python scripts/verify_dist.py dist
 ```
 
+## User guide PDF
+
+`docs/user-guide.md` owns the comprehensive guide. Its marked reference appendix
+is generated from the current registered rule catalog and starter templates.
+Rebuild the PDF and identity sidecar after guide/catalog/version/renderer changes:
+
+```bash
+uv run --with reportlab==4.4.9 --with Markdown==3.11 \
+  python scripts/build_user_guide.py --update-reference
+```
+
+The pinned tools are build-only; no PDF dependency enters core imports. Review
+the rendered PDF after layout/content changes. Keep the PDF and JSON sidecar in
+`docs/assets/` together. The add-in builder rejects stale source/catalog/version/
+renderer identities before copying the assets. Its local server provides GET/HEAD
+metadata and attachment routes under `/api/finassert/v1/user-guide`; see the
+[guide's API chapter](docs/user-guide.md#17-retrieve-this-guide-through-the-api).
+Do not enable the private QuantSmith reader just to serve this public guide.
+
 ## Master handoff checkpoints
 
 [docs/handoff.md](docs/handoff.md) is canonical for project status, ordered future
@@ -87,6 +106,46 @@ Hooks can be bypassed locally and cannot judge whether prose is true. Contributo
 must review priorities, describe the actual work and report verification honestly;
 the checks enforce checkpoint presence, consistency and snapshot integrity.
 See [spec 0017](specs/0017/spec.md) for the exact contract.
+
+### Filesystem-only checkpoints
+
+Use filesystem mode only when the project must operate without Git. It is explicit
+local bookkeeping, not a replacement for a commit, push, hook or CI result. The
+mode never calls Git, so a project can run these commands with no Git executable:
+
+```bash
+python3 scripts/check_handoff.py --filesystem-init --filesystem-root /path/to/project
+# After real project work and a complete new master-handoff entry:
+python3 scripts/check_handoff.py --filesystem-refresh-context --filesystem-root /path/to/project
+python3 scripts/check_handoff.py --filesystem-check --filesystem-root /path/to/project
+python3 scripts/check_handoff.py --filesystem-checkpoint --filesystem-root /path/to/project
+```
+
+Initialization writes the versioned accepted baseline to
+`.finassert-handoff/state.json`. It stores the exact accepted master handoff and
+content hashes for configured relative files. By default it excludes version-control
+metadata, virtual environments, caches, build/distribution/site outputs, dependency
+directories and the state directory itself. Configure a different initial scope
+with repeated options such as `--filesystem-include 'src/**'` and
+`--filesystem-exclude 'scratch/**'`; later commands use the saved rules and reject
+silent rule changes.
+
+`--filesystem-refresh-context` updates only the machine-owned **Filesystem
+checkpoint context** in `docs/handoff.md`; it does not advance the baseline.
+`--filesystem-check` is read-only and detects added, changed, deleted or renamed
+included files, rewritten handoff history, stale context and changed content after
+refresh. `--filesystem-checkpoint` rechecks before atomically accepting the new
+baseline. A missing or damaged state file fails closed. After reviewing the project,
+start a new baseline only with:
+
+```bash
+python3 scripts/check_handoff.py --filesystem-recover \
+  --confirm-filesystem-recovery --filesystem-root /path/to/project
+```
+
+Recovery does not verify or recreate discarded local history. Filesystem enforcement
+occurs only when these explicit commands run; it cannot block arbitrary edits in a
+directory with no Git hooks or CI.
 
 Maintainers: see [releasing](docs/releasing.md).
 

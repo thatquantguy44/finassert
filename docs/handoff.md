@@ -23,59 +23,61 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Worked through AC-07 native 1900 dates, exact offset binding, negative row-8 failure, F8 click navigation and failed-export/CLI parity after pushing the E-06 checkpoint.
+- **Last worked on:** Completed distinct native pane names/headings, clear failure-action labels, the PDF/API user guide and demo/checkpoint work for branch delivery.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
-- **Next pickup:** Bring the original Excel add-in 9877a12e disposable workbook to the foreground on the current desktop and dismiss dialogs. Recheck F8 -400, correct to 400, observe Stale/current exports disabled, reread/run three passing checks, then retain passing exports and strict CLI/integrity evidence for AC-07.
-- **Verification:** Native Short Date and saved 1900 workbook show 2026-01-01; C7:H9 binds two physical/parsed rows and six columns. Current failing run has one row-8 violation and two passes; clicking its action selects F8/-400. Actual failed JSON report/policy equal the CLI; saved before/after-navigation source values/types/formats match. Initial E-06 checkpoint checks remain passed; AC-07 is incomplete.
-- **Stopping point:** Initial changes are committed/pushed as 6328253. AC-07 date/binding/failure/navigation and failing JSON/CLI checks pass; correction/Stale/reread/pass/exports remain unexecuted after native capture returned cgWindowNotFound. Last confirmed F8 is -400.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,743 runtime and 111 browser tests pass; lint/format, mypy (65 modules), Microsoft manifest validation, browser/file and 50,000-row bundled Excel smoke, installed distributions, strict docs, links/anchors and diff checks pass. Native tab names/top headings, guarded replacement of the demo results sheet, saved three-pass failure labels and preserved C7:H9/1904 source are verified. All 47 PDF pages, 105 bookmarks, deterministic rebuild and live trusted HTTPS GET/HEAD downloads pass.
+- **Stopping point:** The saved demo has three passed checks with If check fails / Block validation, and both named panes are open. The verified guide API runs on HTTPS localhost:3002. This checkpoint packages all authorized branch changes; full E-06 remains open.
 - **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
-  Acceptance tooling, tests, evidence and documentation changed; runtime untouched.
-- **Last commits:** [6328253](https://github.com/thatquantguy44/finassert/commit/632825368ab69cf39d214a3d6bc6b01279bf7b43)
-  committed/pushed all E-06 scale/tooling/docs changes before AC-07.
-  Main `67c3c1c` merged QuantSmith PR #28; `7af01ff` merged Excel PR #26.
-- **Delivered:** E-01–E-05, canonical handoff enforcement and the pinned local
-  reference reader are merged. Actual native E-06 scale/export/CLI and observed
-  network/integrity evidence now verify AC-09/10 for this build. AC-07 and full
-  host acceptance remain open; external human review stays separate.
-- **Native evidence:** [Diagnostic](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-diagnostics.json)
-  and [parity/integrity](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-scale-parity.json)
-  retain actual host capabilities, timings, policy/snapshot/export/workbook hashes
-  and exact findings. JSON/HTML exports are retained; workbooks remain temporary.
-- **Native state:** Original disposable workbook has Sheet1!C7:H9 and formatted
-  H8:H9. It was saved; retained failing before/after-navigation workbook copies
-  are `/tmp/finassert-ac07-native-failed-before-nav.xlsx` and
-  `/tmp/finassert-ac07-native-failed-after-nav.xlsx`. Last observed result was
-  Current and failed; inspect live state again before editing. The unrelated
-  Book1 save prompt was canceled and that workbook was left untouched.
-- **Evidence/pickup:** [AC-07 progress](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#ac-07-immediate-pickup)
-  and `specs/0016/artifacts/ac07-native-progress.json` retain actual observations,
-  source/policy/export hashes and the correction pickup. The actual failed JSON
-  is retained. Previous native scale evidence remains valid and separate.
-- **Recovery attempt:** Isolated native-seed fixtures with retained web-extension
-  parts are prepared under `/tmp/finassert-ac07-native`, using temporary test
-  add-in `7710156b-0be4-5677-89fb-28358896cc33`. CLI/SDK reported launch; native
-  window opening was not established. Production add-in identity is unchanged;
-  no isolated result is counted as acceptance. Foreground assistance was requested.
-- **Host setup:** Microsoft's empty sideload template reliably opened the pane.
-  Supplied-document launch does not add web-extension parts. Excel retained the
-  old 3000 source address despite a 3002 manifest; the identified old development
-  server was replaced by current code at trusted localhost:3000. Build directory
-  is `/tmp/finassert-e06-current`. No security or certificate trust changed.
-- **Scope/review:** No broad Mac support or Windows/web acceptance claimed.
-  No core dependency, financial semantics, remote protection, release/tag or
-  downstream application changed. Native reference-panel acceptance remains open.
-- **Reusable prompt:** [prompts/master_handoff.md](https://github.com/thatquantguy44/finassert/blob/main/prompts/master_handoff.md)
-  covers Git/filesystem modes; this repository's implemented checker is Git-backed.
-
-
+  Delivery includes pane/report UI, native evidence, the guide/API and explicit
+  filesystem checkpoint support, with tests and documentation.
+- **Last commits:** `60ea433` retained the earlier AC-07 failing/navigation checkpoint;
+  `6328253` delivered initial E-06 scale/export evidence. This new checkpoint
+  belongs to the enclosing user-authorized branch delivery commit.
+- **Delivered:** E-01–E-05 and the pinned local reference reader are merged.
+  Native scale/exports/CLI/integrity and the small 1900 correction loop are verified.
+  Native ribbon visibility and both launch routes are now observed. Full E-06,
+  native table/hidden/failure/race/keyboard coverage and external review remain.
+- **AC-07 evidence:** [Completion](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/ac07-native-completion.json),
+  actual [JSON](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/ac07-native-passed-report.json)
+  and [HTML](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/ac07-native-passed-report.html)
+  retain canonical passing results, hashes and actual observations. Earlier partial
+  evidence and handoffs remain historical.
+- **Native state:** `finassert-demo.xlsx` has Sheet1!C7:H9, numeric F8=400,
+  explicit 1904 dates, three passing checks and completed results/policy sheets.
+  Actual JSON/HTML/YAML and the workbook are under `dist/demo/`. Retained
+  [demo evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-demo-validation.json)
+  records native 50,000-row diagnostics, 1904 correction/Stale/reread/export,
+  canonical CLI parity, exact source integrity and targeting interruptions.
+- **Local host:** HTTPS `https://localhost:3002` now serves the guide-enabled
+  bundled build at `/tmp/finassert-guide-build` with the existing development
+  certificate and installed manifest deployment 1.0.0.1. The verified PDF is available at
+  `/api/finassert/v1/user-guide.pdf`; metadata is at `/api/finassert/v1/user-guide`.
+  The pane offers an explicit download link. Both native host tabs now have
+  distinct names and first headings. Certificate trust and add-in permissions
+  remain unchanged; the saved demo results sheet has the new failure-action labels.
+- **Fixture recovery:** The explicit seed-preserving tool now recognizes
+  web-extension parts by content type, including Excel's saved numbered names.
+  Fourteen harness controls pass. Synthetic 1904 opened cleanly and completed
+  the small native loop; clean table opening remains a separate pending case.
+- **Verification recovery:** The guide delivery rerun passes 3,742 runtime and
+  all 111 Python Playwright tests. The earlier demo repair updated old tests to
+  leave the focused Settings view and use its current controls. A missing installed package caused one MCP
+  subprocess failure on the earlier rerun; installing the built wheel locally
+  resolved it. All failed/interrupted attempts are disclosed in the demo record.
+- **Scope/review:** No full Mac, Windows/web, reference-panel or external review
+  claim. The user-requested UI and additive Home-ribbon commands change no financial
+  semantics, core dependencies, release/tag or downstream application. Spec 0019
+  adds only the public local guide API; private QuantSmith routes stay unchanged.
+  Follow the [current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#ac-07-immediate-pickup).
 
 ## Next up
 
 1. E-06 — Full Mac acceptance and regressions.
-   Foreground the original disposable workbook and complete AC-07 from the last
-   confirmed F8 value -400: correct → Stale → reread/pass → exports/CLI parity.
-   Dates/bounds/failure/click navigation and failed-report CLI checks now pass.
-   Then finish 1904, clean table/hidden/failure/race/keyboard cases and review.
+   The small 1900 correction/Stale/reread/pass/export/CLI loop now passes.
+   Home-ribbon launches and the native 1904 correction/export loop also pass.
+   Finish clean table/hidden/filtered and remaining failure/race/keyboard cases;
+   retain actual evidence and record external review.
 2. Paired forecast accuracy — 0012 U-08.
    Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
 3. Debt principal and issuance — 0012 U-09.
@@ -90,8 +92,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
+  "prior_head": "60ea433e161f0672193a97cce15d51c9f307130a",
   "recent_commits": [
+    {
+      "commit": "60ea433e161f0672193a97cce15d51c9f307130a",
+      "subject": "test(excel): record AC07 native failure and navigation evidence"
+    },
     {
       "commit": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
       "subject": "test(excel): retain native E06 scale and export verification"
@@ -107,24 +113,90 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "251542222cf52a34fb00e89b60279581a3728c03",
       "subject": "docs: save reusable handoff enforcement prompt"
-    },
-    {
-      "commit": "32cf4aba736ec05eec4668df7b0d19261699c16c",
-      "subject": "Merge pull request #25 from thatquantguy44/feature/excel-source-binding-dates"
     }
   ],
   "changed_paths": [
+    ".gitignore",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "docs/assets/finassert-user-guide.json",
+    "docs/assets/finassert-user-guide.pdf",
+    "docs/excel-add-in.md",
     "docs/handoff.md",
+    "docs/index.md",
+    "docs/roadmap.md",
+    "docs/user-guide.md",
+    "mkdocs.yml",
+    "scripts/build_excel.py",
+    "scripts/build_user_guide.py",
+    "scripts/check_handoff.py",
+    "scripts/serve_excel.py",
+    "scripts/user_guide.py",
+    "specs/0005/contracts.md",
+    "specs/0005/handoff.md",
+    "specs/0005/spec.md",
+    "specs/0005/tasks.md",
+    "specs/0011/handoff.md",
+    "specs/0011/spec.md",
+    "specs/0011/tasks.md",
     "specs/0016/acceptance.md",
     "specs/0016/artifacts/README.md",
-    "specs/0016/artifacts/ac07-native-failed-report.json",
-    "specs/0016/artifacts/ac07-native-progress.json",
+    "specs/0016/artifacts/ac07-native-1904-passed-report.html",
+    "specs/0016/artifacts/ac07-native-1904-passed-report.json",
+    "specs/0016/artifacts/ac07-native-1904-policy.yml",
+    "specs/0016/artifacts/ac07-native-completion.json",
+    "specs/0016/artifacts/ac07-native-passed-report.html",
+    "specs/0016/artifacts/ac07-native-passed-report.json",
+    "specs/0016/artifacts/e06-native-demo-diagnostics.txt",
+    "specs/0016/artifacts/e06-native-demo-validation.json",
+    "specs/0016/artifacts/pane-titles-and-failure-actions.json",
+    "specs/0016/artifacts/prepare_ac07_fixture.py",
+    "specs/0016/contracts.md",
     "specs/0016/handoff.md",
+    "specs/0016/plan.md",
     "specs/0016/roadmap.md",
-    "specs/0016/tasks.md"
+    "specs/0016/spec.md",
+    "specs/0016/tasks.md",
+    "specs/0017/AGENTS.md",
+    "specs/0017/contracts.md",
+    "specs/0017/handoff.md",
+    "specs/0017/plan.md",
+    "specs/0017/roadmap.md",
+    "specs/0017/spec.md",
+    "specs/0017/tasks.md",
+    "specs/0019/AGENTS.md",
+    "specs/0019/artifacts/verification.json",
+    "specs/0019/contracts.md",
+    "specs/0019/handoff.md",
+    "specs/0019/plan.md",
+    "specs/0019/roadmap.md",
+    "specs/0019/spec.md",
+    "specs/0019/tasks.md",
+    "specs/README.md",
+    "src/finassert/excel.py",
+    "src/finassert/reporting/_labels.py",
+    "src/finassert/reporting/html.py",
+    "tests/browser/test_excel_capture.py",
+    "tests/browser/test_excel_exports.py",
+    "tests/browser/test_excel_navigation.py",
+    "tests/browser/test_excel_user_guide.py",
+    "tests/unit/test_build_excel.py",
+    "tests/unit/test_excel.py",
+    "tests/unit/test_excel_acceptance_tools.py",
+    "tests/unit/test_handoff.py",
+    "tests/unit/test_html_report.py",
+    "tests/unit/test_user_guide.py",
+    "tests/unit/test_web_bridge.py",
+    "web/app.css",
+    "web/app.js",
+    "web/excel-panel.html",
+    "web/excel-results.html",
+    "web/excel.js",
+    "web/index.html"
   ],
-  "project_sha256": "2535c86aebb9638f66bea2c9471df24c93c143fbf5daa6a95313f6d20483d1ca",
-  "reviewed_sections_sha256": "7be48b512333207e0858a090fa131f7f25bbf71365753d8312d5f80937d847a2"
+  "project_sha256": "9e71f7c0f6f0ea9def666c4b5b92fe45fee1ab658d75462c21470c982c30ec29",
+  "reviewed_sections_sha256": "3b81eeae38e6c75751c6237b7694b25ada4a0dc48d76f2c217433b964413d189"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -143,6 +215,189 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-20 — Named panes, clear failure actions and authorized branch delivery
+
+- **Worked on:** Completed distinct native pane names/headings, clear failure-action labels, the PDF/API user guide and demo/checkpoint work for branch delivery.
+- **Stopping point:** The saved demo has three passed checks with If check fails / Block validation, and both named panes are open. The verified guide API runs on HTTPS localhost:3002. This checkpoint packages all authorized branch changes; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,743 runtime and 111 browser tests pass; lint/format, mypy (65 modules), Microsoft manifest validation, browser/file and 50,000-row bundled Excel smoke, installed distributions, strict docs, links/anchors and diff checks pass. Native tab names/top headings, guarded replacement of the demo results sheet, saved three-pass failure labels and preserved C7:H9/1904 source are verified. All 47 PDF pages, 105 bookmarks, deterministic rebuild and live trusted HTTPS GET/HEAD downloads pass.
+- **Native delivery:** Added ShowTaskpane Title resources for **finassert Validation**
+  and **finassert Settings**, deployment 1.0.0.1, and first visible level-one headings.
+  After the user's explicit restart approval, saved/reopened the demo and observed
+  both named native tabs and both top headings. The pane still preserves its session
+  during internal navigation. Full E-06 and other-platform acceptance remain open.
+- **Failure wording:** Human-facing sheets/reports/editor labels now explain
+  **If check fails** as **Block validation**, **Show warning**, or **Show information**.
+  Result, canonical policy/JSON severity, technical CLI XLSX columns and blocking
+  semantics are unchanged. The demo sheet was replaced through its owned-output
+  guard and saved; exact expected source values/dates and the 1904 epoch remain.
+- **Guide/evidence:** Updated and reviewed the 47-page guide and live PDF/metadata.
+  [Native UI evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/pane-titles-and-failure-actions.json)
+  and [guide verification](https://github.com/thatquantguy44/finassert/blob/main/specs/0019/artifacts/verification.json)
+  retain the actual checks. An obsolete 60-page duplicate PDF is preserved in
+  ignored output/pdf/ rather than included as a second canonical guide.
+- **Delivery scope:** The user explicitly requested committing and pushing all
+  current-branch changes. This includes the earlier workbook-first UI, report
+  jump link, native demo/fixture repair and explicit filesystem-checkpoint work.
+  No remote main merge, release/tag or broader host certification is claimed.
+- **Git recovery:** Fetch initially failed on the malformed local duplicate
+  refs/heads/feature/excel-source-binding-dates 2. Inspected and preserved its
+  exact bytes outside Git in /tmp/finassert-git-ref-backups, leaving the valid
+  branch and current branch unchanged. Fetch then passed; no force update needed.
+- **Priority decision:** E-06 remains first, then 0012 U-08 and U-09.
+
+### 2026-11-20 — Full Validation Report naming and jump link
+
+- **Worked on:** Renamed the full-report action and added a result-summary link that opens, focuses and scrolls to the Full Validation Report.
+- **Stopping point:** The updated report UI is served at HTTPS localhost:3002; the Excel demo and PDF guide API are preserved. Changes remain uncommitted; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 39 affected unit and 28 browser regressions pass, plus browser/file and bundled Excel smoke checks. At 390 pixels, actual pointer/keyboard/reduced-motion navigation, report visibility, unchanged workbook/results, historical export guards and hidden-without-result behavior pass. Lint/format, strict docs, links/anchors and diff checks pass.
+- **Behavior:** The shared Excel/browser summary now has **View Full Validation
+  Report** directly beneath its outcome banner. It opens the section named **Open
+  Full Validation Report**, focuses the summary and scrolls the pane there. The
+  link appears with any displayed result and respects reduced motion.
+- **Compatibility:** This is display navigation only; workbook reads/writes,
+  financial outcomes, currentness, exports and the guide API remain unchanged.
+  The running build was updated atomically without restarting or changing its
+  manifest/certificate. Reload the pane to load the new UI; native clicking is
+  not newly claimed. No staging, commit, push or CI performed.
+- **Priority decision:** Completed the scoped UI request; E-06 remains first,
+  then 0012 U-08 and U-09. Prior full-suite/PDF/native evidence remains historical.
+
+### 2026-11-20 — Comprehensive user guide and PDF download API
+
+- **Worked on:** Created the comprehensive user guide, reviewed PDF, local download API and Excel pane download link.
+- **Stopping point:** The 47-page guide and JSON metadata are available on HTTPS localhost:3002; the Excel demo is preserved. All checks pass and changes remain uncommitted; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,742 runtime and 111 browser tests pass; guide examples and live HTTPS GET/HEAD downloads pass. All 47 PDF pages were rendered/reviewed; 105 bookmark destinations and byte-identical rebuild/download checks pass. Lint/format, mypy (64 modules), bundled Excel smoke/50,000-row stand-in, isolated distributions, strict docs, local links/anchors and diff checks pass.
+- **Delivery:** [Spec 0019](https://github.com/thatquantguy44/finassert/blob/main/specs/0019/spec.md)
+  retains the API/build contract. The [guide](user-guide.md) covers current
+  Excel/browser/Python/CLI workflows, policy authoring, all 20 rules and 10
+  templates, units/FX, treasury, reports, MCP, troubleshooting and demonstrations.
+  The deterministic PDF has clickable contents, bookmarks and searchable text.
+- **Evidence:** [Structured verification](https://github.com/thatquantguy44/finassert/blob/main/specs/0019/artifacts/verification.json)
+  records source/PDF identity, visual/structural QA, actual TLS/header/byte checks,
+  executable examples, test counts and package isolation. The builder rejects stale
+  guide/catalog/version/renderer assets; absent/invalid API assets return 404/503.
+- **Compatibility:** No financial engine, workbook, private reader, core dependency
+  or standalone browser offline contract changed. The native demo remains saved;
+  the new pane link was exercised in Playwright, not newly accepted in native Excel.
+- **Priority decision:** Completed the user's scoped guide request. E-06 remains
+  first, then 0012 U-08 and U-09. No full host acceptance, remote deployment,
+  staging, commit, push, CI or release is claimed.
+
+### 2026-11-20 — Full automated validation and native Excel demo
+
+- **Worked on:** Validated the Excel demo end to end; repaired Settings-view test navigation and native fixture recovery.
+- **Stopping point:** The demo is saved at dist/demo/finassert-demo.xlsx with three passing checks, completed results/policy sheets and actual JSON/HTML/YAML exports; HTTPS localhost:3002 remains running. Changes remain uncommitted; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,724 runtime and 110 browser tests pass; lint/format, mypy (64 modules), both Excel smoke modes, shared browser and installed distribution checks pass. Native 50,000-row diagnostics and the 1904 correction/export/CLI/source-integrity loop pass. Strict docs, 235 links/anchors and diff checks pass.
+- **Repairs:** Updated browser test navigation for the focused Settings view;
+  accepted numbered native web-extension seed names by their content type.
+  No production financial, capture, freshness or export semantics changed.
+- **Evidence:** [Native demo validation](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-demo-validation.json)
+  retains actual export/CLI hashes, exact input integrity, test counts and
+  native targeting/recovery limits. The 1904 source dates are 2026-01-01.
+- **Priority decision:** E-06 remains first, then 0012 U-08 and U-09. Native
+  1904 and Home-ribbon launch slices are verified; full E-06 and external review
+  stay open. No staging, commit, push, CI or release was performed.
+
+### 2026-11-20 — Start local Excel testing and observe ribbon launches
+
+- **Worked on:** Rebuilt and started the bundled local Excel add-in; observed both Home-ribbon launch routes in native Excel.
+- **Stopping point:** Bundled HTTPS server is running at localhost:3002 and Book1 has validation open with engine Ready and no bound source. Existing changes and this startup record remain uncommitted; full E-06 and native 1904 coverage remain open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Recreate a disposable native 1904 fixture and repeat the small correction/export workflow, then complete clean table/hidden/filtered plus remaining failure/race/keyboard cases; retain actual exports and record external review separately.
+- **Verification:** Pinned-runtime integrity checks pass; rebuilt manifest exactly matches installed finassert.xml; native Home buttons, distinct Settings view, validation launch and engine Ready observed. Strict docs, 84 local/repository links and anchors, and diff checks pass.
+- **Setup:** The old temporary build and recovery fixtures were absent. Rebuilt
+  from the current working tree and reused the installed manifest/certificate.
+  Sandbox DNS/socket restrictions required approved network/server execution.
+  No workbook cells, certificate trust, registration, commit, push or CI changed.
+- **Priority decision:** E-06 remains first, then 0012 U-08 and U-09. AC-11's
+  native visibility/launch slice is recorded in the local acceptance log; the
+  remaining host cases and external review are still open.
+
+### 2026-11-19 — Implement non-Git filesystem checkpoint enforcement
+
+- **Worked on:** Implemented the explicit non-Git filesystem checkpoint workflow
+  alongside the existing Git safeguards.
+- **Stopping point:** Filesystem checkpoint support and its documentation are
+  implemented but uncommitted alongside existing add-in UI work; no Git checkpoint,
+  commit, push or CI result is claimed for this local filesystem implementation.
+  E-06 acceptance and native 1904 coverage remain open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Reload the revised local manifest, observe the Home-ribbon
+  validation workflow and distinct Settings view in native Excel, then repeat the
+  small correction/export workflow with the prepared native 1904 fixture and
+  complete clean table/hidden/filtered plus remaining failure/race/keyboard cases;
+  retain actual exports and record external review separately.
+- **Verification:** 45 handoff regression tests pass (38 Git and seven non-Git
+  filesystem cases); Python compilation and targeted Ruff/format checks pass.
+- **Scope:** The new local state is ignored under `.finassert-handoff/`; Git hooks
+  and CI behavior remain intact. No financial, workbook, policy, public API,
+  dependency, release or product-priority change is claimed.
+
+### 2026-11-19 — Distinct Home-ribbon Settings view
+
+- **Worked on:** Replaced Settings' subtle expanded-controls behavior with a focused
+  task-pane settings view. The route hides validation, policy and run controls and
+  provides **Back to validation** without discarding the pane-session settings.
+- **Stopping point:** UI, manifest, acceptance tooling/evidence and documentation
+  are uncommitted. Native Excel has not yet visibly loaded either Home-ribbon route;
+  full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Reload the local build and observe Open validation and Settings
+  in native Excel, then continue native 1904 and the remaining E-06 cases.
+- **Verification:** 23 focused checks, JavaScript syntax, targeted Ruff/format and
+  diff checks pass. Microsoft validates the generated manifest. A controlled
+  390-pixel Office stand-in confirms direct Settings launch, isolated settings
+  controls, return to validation and preserved monitoring selection. Full Python
+  Playwright remains blocked by the local environment's missing package.
+- **Scope:** No financial, workbook, policy, artifact, public API, dependency,
+  release or platform-support change.
+
+### 2026-11-19 — Task-pane clarity and Home-ribbon commands
+
+- **Worked on:** Refined the add-in into a workbook-first task pane and added the
+  user-requested Home-ribbon **finassert** group. Open validation opens the normal
+  pane; Settings opens that pane with existing session controls expanded.
+- **Stopping point:** UI/manifest/tests/docs and the earlier AC-07 evidence are
+  uncommitted. The generated commands pass static validation but have not yet been
+  reloaded or observed in native Excel; full E-06 remains open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Reload the local manifest, observe Home-ribbon visibility and
+  both launch routes in native Excel, then repeat native 1904 and finish the
+  remaining table/hidden/failure/race/keyboard rows.
+- **Verification:** Generated manifest/build coverage plus 13 acceptance-tool
+  controls pass; Microsoft manifest schema validation passes. A controlled
+  390-pixel Office stand-in reached Current, hid browser file input in Excel and
+  opened the existing controls through the Settings route. Targeted Ruff/format,
+  JavaScript syntax and diff checks pass; full repository Ruff still has unrelated
+  pre-existing UP038 warnings.
+- **Scope:** No financial or public API change, no new dependency and no platform
+  support or external-review claim. The top priority remains E-06.
+
+### 2026-11-19 — AC-07 native correction and export completion
+
+- **Worked on:** Completed AC-07 native 1900 correction/Stale/reread/pass/export acceptance, recovered the local add-in on HTTPS port 3002, and added repeatable sideload-preserving fixtures.
+- **Stopping point:** AC-07 is verified on the native 1900 fixture; F8 is saved as numeric 400 with a completed finassert results sheet and retained passing exports. Acceptance tooling/evidence/docs are uncommitted; full E-06 and native 1904 coverage remain open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Repeat the small correction/export workflow with the prepared native 1904 fixture, then complete clean table/hidden/filtered and remaining failure/race/keyboard cases; retain actual exports and record external review separately.
+- **Verification:** Native 1900 dates/bounds/failure/F8 navigation/correction/Stale/three passes succeed. Actual JSON/HTML/all 34 results-sheet rows and CLI match; source and existing-sheet values/types/formats are unchanged during export. Thirteen harness checks, Ruff/format, mypy (64 modules), strict docs, 116 local/repository links/anchors and distribution verification pass. Corrected runtime run: 3,712 passed; its one MCP import failure passed on focused retry after installing the built wheel locally.
+- **Priority decision:** Reaffirm E-06 first, followed by 0012 U-08 and U-09.
+  The 1900 correction slice is complete; full host acceptance is not inferred.
+- **Setup and limits:** Recovered missing temporary inputs and an HTTP/HTTPS port
+  conflict without changing Dagster or certificate trust. The user handled unsaved
+  Book1 and restarted Excel. Native capture/input interruptions and the initial
+  appended-value mistake were corrected and disclosed in the completion record.
+- **Evidence:** Actual downloads, exact sheet/CLI parity and input-integrity hashes
+  are in [AC-07 completion](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/ac07-native-completion.json).
+  The earlier 2026-11-17 stopping point remains historical. No commit/push performed.
 
 ### 2026-11-17 — AC-07 failing case and navigation; correction blocked
 

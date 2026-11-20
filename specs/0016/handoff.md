@@ -6,7 +6,8 @@
   AC-01–06 and AC-08 have slice evidence; full acceptance remains pending.
 - **Branch:** `feature/excel-e06-mac-acceptance` from merged main `67c3c1c`.
   E-04/E-05 and QuantSmith PR #28 are merged. E-06 tooling/evidence is
-  included in the enclosing delivery checkpoint; production runtime is unchanged.
+  included in the enclosing delivery checkpoint; the task-pane presentation and
+  additive Home-ribbon manifest commands are uncommitted.
 - **Earlier PRs:** [#22](https://github.com/thatquantguy44/finassert/pull/22) and
   [#24](https://github.com/thatquantguy44/finassert/pull/24) are merged.
 - **Issue:** [#23](https://github.com/thatquantguy44/finassert/issues/23) has no
@@ -44,21 +45,191 @@
   match exactly. Source values/types/formats and four unrelated sheets are
   unchanged. See [diagnostic](artifacts/e06-native-diagnostics.json) and
   [parity/integrity](artifacts/e06-native-scale-parity.json).
-- **AC-07 progress:** Initial E-06 checkpoint was committed/pushed as `6328253`.
-  Native H8:H9 Short Date, explicit 1900/Jan 1, C7:H9 bounds, one row-8 negative
-  failure/two passes and F8 click navigation now pass. Actual failed JSON report
-  and policy equal the CLI; source values/types/formats match across navigation.
-  See [progress](artifacts/ac07-native-progress.json).
-- **Native stopping point:** Original workbook was saved. Last confirmed F8 is
-  -400, with Current failing evidence; correction/Stale/reread/pass/exports have
-  not run. Native capture returned cgWindowNotFound; foreground assistance was
-  requested. The unrelated Book1 prompt was canceled without saving/discarding it.
-- **Next:** Foreground the original disposable workbook on the current desktop,
-  inspect dialogs and recheck F8, then complete the correction loop in the
-  [immediate pickup](acceptance.md#ac-07-immediate-pickup). Finish remaining
-  1904/table/hidden/failure/race/keyboard rows and review under master ordering.
+- **AC-07 completion:** The native 1900 failure/F8 navigation/correction/Stale/
+  reread/three passes/export loop now succeeds. Actual JSON/HTML/all 34 × 5
+  results-sheet cells and CLI match; source and existing-sheet integrity pass.
+  See [completion](artifacts/ac07-native-completion.json). Prior partial evidence
+  and entries remain historical; full E-06 and external review stay open.
+- **Native stopping point:** `dist/demo/finassert-demo.xlsx` is open with a
+  Current three-pass 1904 result, completed results/policy sheets and actual
+  downloaded JSON/HTML/YAML. Canonical exports/CLI and exact source integrity pass.
+  Native 50,000-row diagnostics also pass again. See the
+  [demo record](artifacts/e06-native-demo-validation.json).
+- **Setup recovery:** HTTPS port 3002 now serves `/tmp/finassert-guide-build` with the
+  existing development certificate. The native AC-07 evidence retains its original
+  bundled-page hash; the current pane includes the 0019 guide download link.
+  On 2026-11-20 the absent build was recreated with verified bundled Pyodide,
+  native ribbon launches were observed, then the guide-enabled build was served.
+  The manifest still exactly matches installed finassert.xml; no registration or
+  certificate-trust change was needed. Native clicking of the guide link is separate.
+- **Tooling/checks:** `prepare_ac07_fixture.py` preserves the task-pane parts of
+  an explicitly supplied Office-generated seed. Thirteen harness checks, Ruff/
+  format, mypy (64 modules), strict docs, 116 local/repository links/anchors and
+  distribution verification pass.
+  Runtime retry: 3,712 passed; its one MCP import failure passed on focused retry
+  after local built-wheel installation. Production runtime/browser code is unchanged.
+- **Presentation/ribbon:** The pane now separates its workbook source from
+  browser-only file input, exposes clear source/status/export hierarchy and keeps
+  advanced/report content collapsible. The generated manifest adds Home-tab
+  **Open validation** and **Settings** `ShowTaskpane` commands. Settings now opens
+  a focused in-pane view, hides validation/policy/run controls and returns to
+  validation without losing its session configuration. Microsoft schema validation,
+  generated-manifest tests and a controlled 390-pixel browser host pass. Native
+  Home visibility, Settings' distinct view and Open validation's normal workflow
+  were observed on 2026-11-20; the validation engine reached Ready.
+- **Demo regressions:** All 3,724 runtime and 110 browser tests pass, plus
+  lint/format, mypy, both Excel smoke modes, shared browser and installed packages.
+  Updated tests to enter/leave the focused Settings view. Seed recovery now accepts
+  native numbered web-extension parts by content type (14 harness controls).
+- **Next:** Finish clean table/hidden/filtered and remaining native failure/race/
+  keyboard cases and record review under master ordering. The 1904 small loop
+  and Home-ribbon launches are now verified; full E-06 remains open.
 
 ## Entries
+
+### 2026-11-20 — Named native panes and clearer failure actions
+
+Implemented distinct ShowTaskpane Titles **finassert Validation** / **finassert
+Settings**, manifest deployment 1.0.0.1 with the original ID/permissions/HTTPS,
+and first visible **Validation** / **Settings** level-one headings. Document
+headings/titles and focus follow internal view changes without session reset.
+Microsoft validation, 43 build/bridge tests and all 45 capture browser tests pass.
+After explicit user approval, saved the demo, restarted Excel, reopened the demo
+and observed both native tab names and both first headings. Earlier registration
+cache delays and UI targeting interruptions were resolved without deleting caches.
+
+The shared human results view now uses **If check fails** / **Block validation**
+and corresponding warning/info labels. A fresh native 1904 C7:H9 read, saved policy,
+three-pass run and guarded replacement of the existing owned results sheet pass.
+Saved workbook inspection verifies all three passed rows have the new labels and
+the exact expected source values/dates/1904 epoch remain. See
+[structured evidence](artifacts/pane-titles-and-failure-actions.json).
+Full runtime 3,743/browser 111, smoke/scale, docs/quality and distributions pass.
+The user authorized commit/push of all branch changes. Full E-06 and external
+review remain open under the master ordering; no broader host claim is made.
+
+### 2026-11-20 — Result-summary link to the Full Validation Report
+
+The shared [0011 interface](../0011/handoff.md#2026-11-20-full-validation-report-navigation)
+now labels the report action **Open Full Validation Report** and offers a **View
+Full Validation Report** link below the outcome banner. It opens/focuses/scrolls
+within the pane without Office calls, validation or export actions. Actual narrow
+browser click/keyboard/reduced-motion and historical-result checks pass; 39
+unit/28 existing browser regressions plus browser/file and bundled Excel smoke
+pass. The running local pane is updated with the same manifest, certificate,
+runtime and PDF API. No new native acceptance is claimed; full E-06 remains open.
+
+### 2026-11-20 — Guide delivery preserves native acceptance scope
+
+Completed the user-requested [0019 guide/PDF API](../0019/handoff.md). The current
+bundled server at HTTPS localhost:3002 includes the explicit pane download link
+and verified PDF/metadata. Existing certificate, manifest and native demo workbook
+are preserved. The 3,742 runtime and 111 browser cases pass, including download
+byte identity, plus bundled Excel smoke and the 50,000-row Office stand-in.
+No source/capture/freshness/navigation/financial/export semantics changed.
+The pane link has controlled browser evidence; no new native host acceptance is
+claimed. Continue the existing E-06 table/hidden/filtered/failure/race/keyboard
+pickup and external review under the master priority ordering.
+
+### 2026-11-20 — Complete automated regression and native demo validation
+
+- **Work:** Completed a native 50,000-row diagnostic and the 1904 small
+  failure/F8 navigation/correction/Stale/reread/pass/export workflow. Saved the
+  reusable demo workbook, actual JSON/HTML/YAML and results/policy sheets.
+- **Verification:** All 3,724 runtime and 110 browser tests pass; lint/format,
+  mypy (64 modules), both Excel smokes, shared browser and isolated installed
+  distributions pass. Actual JSON/HTML/all 34 × 5 output cells and real CLI
+  match. Every pre-export source value/type/number format remains unchanged.
+- **Repairs:** Browser tests now return from Settings before validation actions
+  and use its current entry control. Fixture recovery accepts numbered native
+  web-extension names by content type, preserving bytes and the seed.
+- **Limits:** Native targeting/capture interruptions and excluded attempts are
+  disclosed in [the retained record](artifacts/e06-native-demo-validation.json).
+  Excel normalizes date-format literal escapes on save; native export snapshots
+  compare exactly. The final source has no stray populated cells and F8 is the
+  only changed value. Initial MCP environment and browser-selector failures were
+  resolved and rerun, without production financial/capture/export changes.
+- **Stopping point:** `dist/demo/finassert-demo.xlsx` has three passing checks;
+  HTTPS localhost:3002 remains available. All work is uncommitted. No full E-06,
+  external review, Windows/web/reference-panel, CI or release claim.
+- **Pickup:** Complete clean native table/hidden/filtered and remaining failure/
+  race/keyboard cases, then external review. Treasury priorities remain later.
+
+### 2026-11-20 — Local testing startup and native ribbon launch check
+
+- **Work:** Rebuilt the missing bundled add-in and started the existing local HTTPS
+  address. Excel's Retry recovered the pane in the already open blank Book1.
+- **Verification:** Bundler integrity checks pass; pane SHA-256
+  `bb36604fe553c371a88a407208017885f6c192001ff15278824783a12818f04f`,
+  manifest `561a804dfdd3b12d047e3ba14cb006427cc0e085e4d29c2f249c221f9fca4972`.
+  Manifest bytes match installed finassert.xml. Native Home has Open validation
+  and Settings; Settings launches `?view=settings` with only settings controls
+  and Back to validation. Open validation launches the ordinary source/policy/run
+  workflow, which reached engine Ready. Server startup/runtime GETs returned 200.
+- **Stopping point:** Server remains at HTTPS localhost:3002; validation is open
+  in Book1 with no bound source. Workbook cells and existing registration/trust
+  were unchanged. No financial validation, new export, native 1904, full E-06,
+  external review, commit, push or CI result is claimed.
+- **Pickup:** Recreate disposable 1904 input, then complete the remaining native
+  cases under the master ordering. Prior temporary fixture paths are gone.
+
+### 2026-11-19 — Focused ribbon Settings view
+
+- **Work:** Replaced the subtle expanded-controls route with a distinct in-pane
+  Settings view. The Home **Settings** command now hides validation, policy and run
+  controls, displays only session freshness/capture/request controls, and offers
+  **Back to validation** without recreating the session.
+- **Verification:** 23 focused generated-manifest/acceptance-tool checks, JavaScript
+  syntax, targeted Ruff/format and diff checks pass. A controlled 390-pixel Office
+  stand-in confirms direct Settings launch, hidden validation/policy/run controls,
+  return to validation and preserved on-demand monitoring. Microsoft manifest
+  validation passes. Python Playwright remains unavailable in the local `.venv`.
+- **Stopping point:** The updated pane/build and documentation are uncommitted.
+  Native Home-ribbon visibility and both actual command launches still require an
+  Excel observation; no platform-support claim changes.
+- **Pickup:** Reload the local manifest/build, observe both commands in Excel, then
+  resume native 1904 and remaining E-06 coverage under the master ordering.
+
+### 2026-11-19 — Task-pane clarity and Home-ribbon entry points
+
+- **Work:** Refined the workbook-first task-pane layout without changing policy,
+  capture, validation or export semantics. Added the user-requested Home-ribbon
+  **finassert** group: Open validation opens the normal pane, and Settings opens
+  the same pane with its existing Freshness and capture controls expanded.
+- **Verification:** Generated-manifest resource/action coverage, build tests and
+  13 acceptance-tool controls pass (23 focused checks total). Microsoft
+  `office-addin-manifest validate` reports a valid schema. A controlled 390-pixel
+  Office stand-in completed the normal Current workflow, hid browser file input
+  in Excel, and confirmed the Settings route opens its controls. Targeted Ruff,
+  formatting, JavaScript syntax and diff checks pass. The repository-wide Ruff
+  baseline still reports pre-existing UP038 warnings in unrelated source files.
+- **Stopping point:** The Home commands have not yet been reloaded or observed in
+  native Excel; no real-host support claim is added. UI, manifest, test and
+  documentation edits remain uncommitted alongside the earlier AC-07 evidence.
+- **Pickup:** Refresh the local manifest/build in Excel, observe the Home-tab
+  group and both command routes, then return to native 1904 and the remaining
+  E-06 table/hidden/failure/race/keyboard coverage.
+
+### 2026-11-19 — AC-07 correction/exports complete; local add-in recovered
+
+- **Work:** Recovered the local add-in after missing temporary files and an
+  HTTP/HTTPS port conflict. Recreated the exact offset/date source with retained
+  Office sideload parts, then executed the native 1900 negative/click navigation/
+  correction/Stale/reread/pass/export workflow on the original add-in identity.
+- **Verification:** Actual JSON/HTML/all 34 × 5 worksheet cells and real CLI
+  report/policy match. Navigation preserves source cells; export preserves every
+  existing value/type/format on Sheet1 and Sheet2. F8 -400 → 400 is the sole source
+  change from the initial failing fixture. Thirteen harness checks and quality/
+  docs/distribution checks pass; 3,712 runtime checks plus the focused MCP retry pass.
+- **Recovery detail:** The user saved/closed Book1 and restarted Excel after both
+  local manifests moved to HTTPS 3002. Capture interruptions, an appended numeric
+  entry and a later binding change were corrected before retaining final evidence.
+  The completion artifact discloses the exact chronology and verification limits.
+- **Stopping point:** 1900 AC-07 is verified; generated 1904 fixture has CLI
+  controls only. Full E-06, native table/hidden/failure/race/keyboard cases and
+  external review remain. Changes are uncommitted; no push or release.
+- **Pickup:** Repeat the native small loop with 1904, then continue remaining
+  E-06 cases in master order. Keep the current HTTPS server available.
 
 ### 2026-11-17 — AC-07 dates, failing run and native F8 navigation
 

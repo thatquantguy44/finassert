@@ -133,9 +133,91 @@ class GitFixture:
         self.env["PATH"] = str(bindir) + os.pathsep + self.env["PATH"]
 
 
+class FilesystemFixture:
+    """Run the filesystem checkpoint commands in a directory that is not a Git repository."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self.root.mkdir()
+        self.write("app.py", "print('baseline')\n")
+        self.write("remove.txt", "remove me\n")
+        self.write_master("Initial filesystem baseline")
+        self.no_git_env = {**os.environ, "PATH": str(root / "no-git-on-path")}
+
+    @property
+    def document(self) -> str:
+        return (self.root / "docs/handoff.md").read_text()
+
+    @property
+    def state_path(self) -> Path:
+        return self.root / ".finassert-handoff/state.json"
+
+    def write(self, path: str, text: str) -> None:
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text)
+
+    def write_master(self, work: str) -> None:
+        if (self.root / "docs/handoff.md").exists():
+            history = self.document.split("## Entries\n", 1)[1].lstrip("\n")
+        else:
+            history = ""
+        self.write(
+            "docs/handoff.md",
+            f"""# Master handoff
+
+## Current state
+
+- **Last worked on:** {work}
+- **Stopping point:** This filesystem change is ready for review.
+- **Highest priority:** E-04 navigation
+- **Next pickup:** Implement bounded physical row navigation.
+- **Verification:** Filesystem guard checks passed.
+
+## Next up
+
+1. E-04 navigation
+   Reuse source verification before selection.
+2. E-05 provenance
+
+## Entries
+
+### 2026-11-19 — {work}
+
+- **Worked on:** {work}
+- **Stopping point:** This filesystem change is ready for review.
+- **Priorities:** E-04 navigation
+- **Next pickup:** Implement bounded physical row navigation.
+- **Verification:** Filesystem guard checks passed.
+
+{history}""",
+        )
+
+    def guard(self, *args: str, check: bool = True):
+        return subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                *args,
+                "--filesystem-root",
+                str(self.root),
+            ],
+            cwd=self.root,
+            env=self.no_git_env,
+            text=True,
+            capture_output=True,
+            check=check,
+        )
+
+
 @pytest.fixture
 def repo(tmp_path):
     return GitFixture(tmp_path)
+
+
+@pytest.fixture
+def filesystem(tmp_path):
+    return FilesystemFixture(tmp_path / "filesystem-project")
 
 
 def failure(result, fragment):
@@ -494,3 +576,108 @@ def test_boolean_is_not_a_checkpoint_schema_version(repo):
     repo.write("docs/handoff.md", repo.document.replace('"version": 1', '"version": true'))
     repo.git("add", "docs/handoff.md")
     failure(repo.guard("--staged", check=False), "schema")
+
+
+def filesystem_context(filesystem):
+    return json.loads(filesystem.document.split("```json\n", 1)[1].split("\n```", 1)[0])
+
+
+def test_filesystem_mode_initializes_and_checkpoints_without_git(filesystem):
+    result = filesystem.guard("--filesystem-init")
+    assert "initialized" in result.stdout
+    initial = json.loads(filesystem.state_path.read_text())
+    assert initial["mode"] == "filesystem"
+    assert "prior_head" not in initial["baseline"]
+    filesystem.guard("--filesystem-check")
+
+    filesystem.write("app.py", "print('changed')\n")
+    failure(filesystem.guard("--filesystem-check", check=False), "updated docs/handoff.md")
+    filesystem.write_master("Track a filesystem-only change")
+    state_before_refresh = filesystem.state_path.read_text()
+    filesystem.guard("--filesystem-refresh-context")
+    assert filesystem.state_path.read_text() == state_before_refresh
+    context = filesystem_context(filesystem)
+    assert context["mode"] == "filesystem"
+    assert context["changed_paths"] == ["app.py", "docs/handoff.md"]
+    filesystem.guard("--filesystem-check")
+    filesystem.guard("--filesystem-checkpoint")
+    accepted = json.loads(filesystem.state_path.read_text())
+    assert accepted["baseline"]["checkpoint_id"] == context["checkpoint_id"]
+    filesystem.guard("--filesystem-check")
+
+
+def test_filesystem_mode_detects_added_deleted_and_renamed_files(filesystem):
+    filesystem.write("src/old.py", "old\n")
+    filesystem.guard("--filesystem-init")
+    (filesystem.root / "src/old.py").rename(filesystem.root / "src/new.py")
+    (filesystem.root / "remove.txt").unlink()
+    filesystem.write("added.txt", "added\n")
+    filesystem.write_master("Record filesystem rename and deletion")
+    filesystem.guard("--filesystem-refresh-context")
+    assert filesystem_context(filesystem)["changed_paths"] == [
+        "added.txt",
+        "docs/handoff.md",
+        "remove.txt",
+        "src/new.py",
+        "src/old.py",
+    ]
+
+
+def test_filesystem_mode_uses_configured_rules_and_ignores_its_state(filesystem):
+    filesystem.guard(
+        "--filesystem-init",
+        "--filesystem-include",
+        "src/**",
+        "--filesystem-include",
+        "docs/**",
+    )
+    filesystem.write("dist/generated.txt", "ignored\n")
+    filesystem.guard("--filesystem-check")
+    filesystem.write("src/checked.py", "tracked\n")
+    filesystem.write_master("Track configured source files")
+    filesystem.guard("--filesystem-refresh-context")
+    assert filesystem_context(filesystem)["changed_paths"] == [
+        "docs/handoff.md",
+        "src/checked.py",
+    ]
+
+
+def test_filesystem_mode_rejects_rewritten_history_and_stale_context(filesystem):
+    filesystem.guard("--filesystem-init")
+    filesystem.write("app.py", "print('first change')\n")
+    filesystem.write_master("Create a checkpoint")
+    filesystem.guard("--filesystem-refresh-context")
+    state_before_stale_check = filesystem.state_path.read_text()
+    filesystem.write("later.py", "changed after refresh\n")
+    failure(filesystem.guard("--filesystem-check", check=False), "stale")
+    failure(filesystem.guard("--filesystem-checkpoint", check=False), "stale")
+    assert filesystem.state_path.read_text() == state_before_stale_check
+
+    filesystem.write_master("Replace the stale checkpoint")
+    rewritten = filesystem.document.replace("Initial filesystem baseline", "Rewritten history")
+    filesystem.write("docs/handoff.md", rewritten)
+    failure(filesystem.guard("--filesystem-refresh-context", check=False), "verbatim")
+
+
+@pytest.mark.parametrize("damage", ["missing", "invalid"])
+def test_filesystem_mode_requires_explicit_recovery_for_missing_or_damaged_state(
+    filesystem, damage
+):
+    filesystem.guard("--filesystem-init")
+    if damage == "missing":
+        filesystem.state_path.unlink()
+    else:
+        filesystem.state_path.write_text("not json")
+    failure(filesystem.guard("--filesystem-check", check=False), "damaged")
+    failure(filesystem.guard("--filesystem-recover", check=False), "explicit")
+    filesystem.guard("--filesystem-recover", "--confirm-filesystem-recovery")
+    filesystem.guard("--filesystem-check")
+
+
+def test_filesystem_check_is_read_only_and_checkpoint_requires_fresh_context(filesystem):
+    filesystem.guard("--filesystem-init")
+    state_before = filesystem.state_path.read_text()
+    filesystem.guard("--filesystem-check")
+    assert filesystem.state_path.read_text() == state_before
+    failure(filesystem.guard("--filesystem-checkpoint", check=False), "No refreshed")
+    assert filesystem.state_path.read_text() == state_before

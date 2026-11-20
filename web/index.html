@@ -10,18 +10,19 @@
 </head>
 <body>
 <main>
-  <h1>Check a financial data file</h1>
-  <p class="lede">Pick a file, choose the checks it must pass, and get a report you can share.</p>
+  <header id="app-hero" class="app-hero">
+    <div class="brand-lockup"><span class="brand-mark" aria-hidden="true">f</span><span>finassert</span></div>
+    <h1 id="app-title" tabindex="-1">Validate financial data with confidence</h1>
+    <p id="app-lede" class="lede">Choose your source, set the checks, and keep a clear record of what passed.</p>
+  </header>
   <div class="privacy">
-    <span aria-hidden="true">🔒</span>
-    <p><strong>Your files never leave this computer.</strong> Everything runs inside this
-    browser tab. Once the checking engine has loaded, the page makes no network requests,
-    and its security policy blocks it from contacting any site other than the one that
-    supplies the engine.</p>
+    <span class="privacy-mark" aria-hidden="true">✓</span>
+    <p><strong>Private by design.</strong> Your data stays in this browser or workbook. Once the
+    checking engine is ready, it does not send your data to another service.</p>
   </div>
   <p id="status" class="status" role="status" aria-live="polite">Loading the checking engine…</p>
 
-  <section class="step" aria-labelledby="step-data">
+  <section id="data-step" class="step" aria-labelledby="step-data">
     <div class="step-head"><span class="step-number" aria-hidden="true">1</span>
       <div><h2 id="step-data">Choose your data</h2>
       <p class="hint">An Excel workbook (.xlsx) or a CSV file whose first row holds the
@@ -44,7 +45,7 @@
     <div id="data-error" class="issues" role="alert" hidden></div>
   </section>
 
-  <section class="step" aria-labelledby="step-checks">
+  <section id="checks-step" class="step" aria-labelledby="step-checks">
     <div class="step-head"><span class="step-number" aria-hidden="true">2</span>
       <div><h2 id="step-checks">Choose the checks</h2>
       <p class="hint">Start from a template, add checks one by one, or open a policy file someone has shared with you.</p></div></div>
@@ -76,19 +77,24 @@
     <div id="policy-issues" class="issues" role="alert" hidden></div>
   </section>
 
-  <section class="step" aria-labelledby="step-run">
+  <section id="run-step" class="step" aria-labelledby="step-run">
     <div class="step-head"><span class="step-number" aria-hidden="true">3</span>
       <div><h2 id="step-run">Run the checks</h2>
       <p class="hint">Download the report to share it, and the policy file to run the same
       checks again later or in an automated pipeline.</p></div></div>
-    <div class="toolbar"><button id="run" class="primary" type="button" disabled>Run checks</button></div>
+    <div class="run-row"><button id="run" class="primary" type="button" disabled>Run checks</button>
+      <span class="hint">Each run uses a fresh read of your selected data.</span></div>
     <div id="results" hidden>
       <p id="result-banner" class="result-banner"></p>
-      <div class="toolbar">
+      <p class="report-jump"><a id="view-full-report" href="#full-validation-report">View Full Validation Report</a></p>
+      <div class="result-actions">
+        <p class="section-kicker">Share or save this run</p>
+        <div class="toolbar">
         <button id="download-html" type="button">Download report (HTML)</button>
         <button id="download-json" type="button">Download report (JSON)</button>
         <button id="download-policy" type="button">Download policy (YAML)</button>
         {{EXCEL_RESULTS}}
+        </div>
       </div>
       <details><summary>Run these exact checks from the command line</summary>
         <p>Save the policy file, then run:</p>
@@ -96,7 +102,10 @@
         <p id="cli-note" class="hint" hidden>The file or sheet name has special characters, so
         the command is quoted for macOS and Linux shells. On Windows, rename the file first.</p>
       </details>
-      <iframe id="report-frame" title="Validation report" sandbox></iframe>
+      <details id="full-validation-report" class="full-report">
+        <summary id="full-validation-report-title">Open Full Validation Report</summary>
+        <iframe id="report-frame" title="Validation report" sandbox></iframe>
+      </details>
     </div>
   </section>
   <footer>finassert {{VERSION}} · running on Pyodide {{PYODIDE_VERSION}}</footer>

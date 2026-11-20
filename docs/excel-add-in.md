@@ -1,5 +1,11 @@
 # Excel add-in (initial)
 
+Read the [comprehensive user guide](user-guide.md) or choose **Download user guide
+(PDF)** in the pane. The local server exposes matching metadata at
+`GET /api/finassert/v1/user-guide` and the attachment at
+`GET /api/finassert/v1/user-guide.pdf`. The guide is a public, read-only document;
+downloading it does not read workbook cells or enable the private reference reader.
+
 The add-in checks data inside Excel without saving a file first. It is a task pane
 that runs the same engine as the [browser app](browser-app.md): choose a template or
 open a policy, run the checks, and read the report, all in a pane beside the sheet.
@@ -18,9 +24,19 @@ record calculation mode/state and check event members without changing settings.
 Range binding additionally needs stable ExcelApi 1.13 for merged-header detection;
 on earlier hosts, choose a table or update Excel. Live capture requires ExcelApi
 1.9, settled calculation and a required date-system choice.
-The manifest deployment version is 1.0.0.0 to satisfy Office validation; the pane
+The manifest deployment version is 1.0.0.1; the pane
 and reports retain the actual finassert package version. Maintainers bump
 ADD_IN_VERSION in scripts/build_excel.py when releasing an updated manifest.
+
+The two Home commands open tabs named **finassert Validation** and **finassert
+Settings**. Each pane starts with a large **Validation** or **Settings** heading
+and an explanation of that panel. After updating an installed manifest, restart
+Excel if it still displays cached tab names. Save work before restarting.
+
+In results sheets, **Result** is what happened. **If check fails** describes the
+policy action: **Block validation**, **Show warning**, or **Show information**.
+A passed check can be configured to block if it fails. The underlying JSON and
+policy still use severity values `error`, `warning`, and `info`.
 
 The next delivery is scoped in
 [spec 0016](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/spec.md):
@@ -30,8 +46,9 @@ unique destinations and saved ownership are merged into main. E-06 has prepared
 synthetic fixtures and a retained-export/CLI verifier. On 2026-11-16 the current
 build passed native 50,000-row diagnostics, verified capture, actual JSON/HTML/
 worksheet parity, strict CLI comparison and source integrity. Native write/read/
-check-render timings were 322/732/750 ms. Small correction/date and failure/race
-cases remain pending; complete Mac acceptance is not claimed. Maintainers can
+check-render timings were 322/732/750 ms. The small correction/date loop now passes on native 1900 and 1904, with actual
+exports/CLI parity and source integrity. Table/hidden/failure/race/keyboard cases
+remain pending; complete Mac acceptance is not claimed. Maintainers can
 follow the [current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#current-pickup-and-retained-native-files).
 
 An optional [QuantSmith reference](quantsmith-reference.md) panel can read
@@ -210,9 +227,20 @@ against the one the add-in expects. The pane's content security policy then allo
 - Text written to the results sheet that Excel could read as a formula (starting with
   `=`, `+`, `-`, or `@`) is prefixed so it stays text.
 
+## Ribbon access
+
+The generated manifest adds a **finassert** group to Excel's **Home** ribbon with
+**Open validation** and **Settings**. **Open validation** opens the normal workflow.
+**Settings** opens a separate, focused settings view in the task pane with the
+freshness, capture and request-limit controls; it hides the validation workflow and
+has a **Back to validation** action that preserves the open pane's session. These
+commands do not run checks or change workbook cells by themselves. The manifest
+passes static Office schema validation. Native Mac Home visibility, both launch
+routes and validation engine Ready were observed on 2026-11-20. Full Mac acceptance
+and broader platform support remain pending.
+
 ## Not yet built
 
 Highlighting failing cells (changes made by an add-in cannot be undone with Ctrl+Z, so
 this needs a clear opt-in and a way to restore), worksheet functions such as
-`=FINASSERT.CHECK(...)`, a ribbon button (the manifest only registers the task pane,
-opened from Insert › My Add-ins), and AppSource publication.
+`=FINASSERT.CHECK(...)`, custom/contextual ribbon workflows, and AppSource publication.

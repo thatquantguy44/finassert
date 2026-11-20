@@ -1,53 +1,56 @@
-<div id="excel-panel" class="drop" hidden>
-      <div class="field"><label for="excel-table">Workbook table</label>
-        <select id="excel-table"><option value="">Choose a table…</option></select></div>
-      <button id="excel-tables-refresh" type="button">Refresh tables</button>
-      <button id="excel-bind-table" type="button">Use this table</button>
-      <button id="excel-read" class="primary" type="button">Use selected range</button>
-      <p class="hint">Select one rectangle with column names in its first row and at least one
-      data row. Range bounds are fixed: exclude any totals yourself. A table uses its header
-      and data body and excludes its totals. Moving the selection does not change the source.</p>
-      <div class="field"><label for="excel-date-system">Workbook date system (required)</label>
-        <select id="excel-date-system">
-          <option value="">Choose 1900 or 1904…</option>
-          <option value="1900">1900</option><option value="1904">1904</option>
-        </select></div>
-      <p class="hint">Match Excel's workbook date setting. This choice only interprets the
-      captured cells; it does not change the workbook setting or write dates.</p>
-      <p id="excel-source-summary" role="status" aria-live="polite">No source bound.</p>
-      <p id="excel-freshness" role="status" aria-live="polite">Unbound — choose a source.</p>
-      <button id="excel-source-read" type="button" disabled>Read bound source</button>
-      <button id="excel-cancel" type="button" disabled>Cancel operation</button>
-      <details id="excel-workflow-settings">
-        <summary>Freshness and capture settings</summary>
-        <p class="hint">Settings apply to this pane session. Changing them requires a new run.</p>
-        <div class="field"><label for="excel-monitoring">Change monitoring</label>
-          <select id="excel-monitoring"><option value="events">Live workbook events</option>
-            <option value="on-demand">On demand — verify when using a result</option></select></div>
-        <div class="field"><label for="excel-capture-mode">Capture verification</label>
-          <select id="excel-capture-mode"><option value="verified">Verify stable captures</option>
-            <option value="snapshot">Snapshot only — unverified, no current-result export</option></select></div>
-        <div class="field"><label for="excel-confirmations">Matching captures per run</label>
-          <input id="excel-confirmations" type="number" min="2" max="4" value="2"></div>
-        <div class="field"><label for="excel-block-rows">Maximum rows per request</label>
-          <input id="excel-block-rows" type="number" min="1" max="5000" value="5000"></div>
-        <div class="field"><label for="excel-block-cells">Maximum cells per request</label>
-          <input id="excel-block-cells" type="number" min="1000" max="50000" value="50000"></div>
-        <div class="field"><label for="excel-capture-timeout">Operation timeout (seconds)</label>
-          <input id="excel-capture-timeout" type="number" min="1" max="300" value="120"></div>
-        <button id="excel-settings-reset" type="button">Restore default settings</button>
-        <p id="excel-settings-status" class="hint" role="status" aria-live="polite"></p>
-        <p class="hint">Verification rereads the source after checking. Cancellation and timeout
-        take effect between host requests; a running host request or Python check cannot be interrupted.
-        Calculation must be settled. In manual mode, calculate in Excel and confirm below.</p>
-        <label><input id="excel-manual-calculated" type="checkbox"> I calculated this workbook in Excel</label>
-      </details>
-      <p class="hint">All hidden and filtered data rows are included. Row numbers in the
-      report are the sheet's own row numbers. Source binding lasts for this pane session.</p>
-      <p class="hint">Your cells are read in this window and never sent anywhere. This pane
-      loads Microsoft's Office library to talk to Excel.</p>
-      <details id="quantsmith-reference">
-        <summary>QuantSmith reference</summary>
+<div id="excel-panel" class="excel-workflow" hidden>
+      <p class="hint"><a id="excel-user-guide" href="/api/finassert/v1/user-guide.pdf"
+        download="finassert-user-guide.pdf">Download user guide (PDF)</a></p>
+      <div id="excel-validation-view">
+      <div class="workbook-panel-heading">
+        <div>
+          <p class="section-kicker">Workbook source</p>
+          <h3 id="excel-validation-title" tabindex="-1">Choose what to validate</h3>
+        </div>
+        <span class="excel-scope">This workbook only</span>
+      </div>
+      <p class="hint excel-intro">Use a structured Excel table or a fixed selection with a header row.
+      The add-in reads the source; it never edits it.</p>
+      <div class="excel-source-choices">
+        <section class="source-choice" aria-labelledby="excel-table-title">
+          <div class="source-choice-heading"><span class="choice-number" aria-hidden="true">A</span>
+            <div><h4 id="excel-table-title">Use a workbook table</h4><p class="hint">Best when your data is already formatted as a table.</p></div></div>
+          <div class="field"><label for="excel-table">Available table</label>
+            <select id="excel-table"><option value="">Choose a table…</option></select></div>
+          <div class="toolbar compact-actions"><button id="excel-tables-refresh" type="button">Refresh</button>
+            <button id="excel-bind-table" type="button">Use this table</button></div>
+        </section>
+        <div class="source-divider" aria-hidden="true"><span>or</span></div>
+        <section class="source-choice" aria-labelledby="excel-range-title">
+          <div class="source-choice-heading"><span class="choice-number" aria-hidden="true">B</span>
+            <div><h4 id="excel-range-title">Use your selection</h4><p class="hint">Select the header and data rows in Excel, then bind that exact range.</p></div></div>
+          <button id="excel-read" class="primary source-action" type="button">Use selected range</button>
+          <p class="hint source-note">Range bounds are fixed. Exclude totals before selecting; moving the selection later does not change the source.</p>
+        </section>
+      </div>
+      <div class="excel-date-row">
+        <div class="field"><label for="excel-date-system">Workbook date system <span class="required">Required</span></label>
+          <select id="excel-date-system">
+            <option value="">Choose 1900 or 1904…</option>
+            <option value="1900">1900</option><option value="1904">1904</option>
+          </select></div>
+        <p class="hint">Match Excel's workbook setting. This only interprets captured cells; it never changes dates in your file.</p>
+      </div>
+      <div class="source-status-card">
+        <p class="section-kicker">Bound source</p>
+        <p id="excel-source-summary" role="status" aria-live="polite">No source bound.</p>
+      </div>
+      <div class="freshness-card">
+        <div><p class="section-kicker">Validation status</p>
+          <p id="excel-freshness" role="status" aria-live="polite">Unbound — choose a source.</p></div>
+        <div class="toolbar compact-actions"><button id="excel-source-read" type="button" disabled>Read source again</button>
+          <button id="excel-cancel" class="quiet-action" type="button" disabled>Cancel</button></div>
+      </div>
+      <button id="excel-open-settings" class="link settings-link" type="button">Open settings</button>
+      <p class="workflow-note"><strong>Heads up:</strong> Hidden and filtered data rows are included. Row numbers in the
+      report are Excel's own row numbers, and this source binding lasts only while this pane is open.</p>
+      <details id="quantsmith-reference" class="workflow-disclosure">
+        <summary>QuantSmith reference library</summary>
         <p class="hint">Read agent guides and documentation from a pinned local
         QuantSmith checkout. Opening a document does not read or send workbook cells.</p>
         <button id="quantsmith-load" type="button">Load reference</button>
@@ -59,8 +62,8 @@
         <p id="quantsmith-source" class="hint"></p>
         <pre id="quantsmith-content" class="quantsmith-content" aria-label="Reference document"></pre>
       </details>
-      <details id="excel-spike">
-        <summary>Diagnostics for testers</summary>
+      <details id="excel-spike" class="workflow-disclosure tester-disclosure">
+        <summary>Diagnostics for testing and support</summary>
         <p class="hint">Runs the checklist from the add-in's real-Excel test: environment, security
         policy, network use, reading and checking a large generated book, writing the results
         sheet, saving and loading checks, and confirming your data was not changed. It creates
@@ -77,4 +80,43 @@
         <button id="spike-copy" type="button">Copy the report</button>
         <textarea id="spike-report" readonly rows="14" aria-label="Diagnostics report"></textarea>
       </details>
+      </div>
+      <section id="excel-settings-view" class="excel-settings-view" aria-labelledby="excel-settings-title" hidden>
+        <div class="settings-view-heading">
+          <div><p class="section-kicker">finassert pane</p>
+            <h3 id="excel-settings-title" tabindex="-1">Session settings</h3></div>
+          <button id="excel-back-to-validation" class="quiet-action" type="button">Back to validation</button>
+        </div>
+        <p class="hint settings-intro">Choose how this pane reads and verifies the current workbook. These settings apply only while this pane stays open.</p>
+        <section id="excel-workflow-settings" class="settings-section" aria-labelledby="capture-settings-title">
+          <h4 id="capture-settings-title">Capture and freshness</h4>
+          <p class="hint">Changing a setting requires a new run. It never changes your workbook or policy.</p>
+        <div class="field"><label for="excel-monitoring">Change monitoring</label>
+          <select id="excel-monitoring"><option value="events">Live workbook events</option>
+            <option value="on-demand">On demand — verify when using a result</option></select></div>
+        <div class="field"><label for="excel-capture-mode">Capture verification</label>
+          <select id="excel-capture-mode"><option value="verified">Verify stable captures</option>
+            <option value="snapshot">Snapshot only — unverified, no current-result export</option></select></div>
+        </section>
+        <section class="settings-section" aria-labelledby="request-settings-title">
+          <h4 id="request-settings-title">Request limits</h4>
+          <p class="hint">Keep these within the limits Excel can read reliably.</p>
+        <div class="field"><label for="excel-confirmations">Matching captures per run</label>
+          <input id="excel-confirmations" type="number" min="2" max="4" value="2"></div>
+        <div class="field"><label for="excel-block-rows">Maximum rows per request</label>
+          <input id="excel-block-rows" type="number" min="1" max="5000" value="5000"></div>
+        <div class="field"><label for="excel-block-cells">Maximum cells per request</label>
+          <input id="excel-block-cells" type="number" min="1000" max="50000" value="50000"></div>
+        <div class="field"><label for="excel-capture-timeout">Operation timeout (seconds)</label>
+          <input id="excel-capture-timeout" type="number" min="1" max="300" value="120"></div>
+        </section>
+        <button id="excel-settings-reset" type="button">Restore default settings</button>
+        <p id="excel-settings-status" class="hint" role="status" aria-live="polite"></p>
+        <div class="settings-manual">
+          <p class="hint">Verification rereads the source after checking. Cancellation and timeout
+          take effect between host requests; a running host request or Python check cannot be interrupted.
+          Calculation must be settled. In manual mode, calculate in Excel and confirm below.</p>
+          <label><input id="excel-manual-calculated" type="checkbox"> I calculated this workbook in Excel</label>
+        </div>
+      </section>
     </div>

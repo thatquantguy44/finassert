@@ -12,6 +12,8 @@ Deterministic checks for the financial relationships your data must satisfy.
 
 **[Get started](#quick-start)** · **[Choose a workflow](#choose-your-workflow)** · **[Explore checks](#explore-the-checks)** · **[Treasury walkthrough](#try-a-13-week-cash-forecast)**
 
+**[Comprehensive user guide](docs/user-guide.md)** · **[Download PDF](docs/assets/finassert-user-guide.pdf)**
+
 </div>
 
 ![finassert: bring your data, define checks, inspect the evidence. Illustrative cash-continuity exception: opening 100 versus prior closing 110, difference -10.](docs/assets/readme-hero.svg)
@@ -39,7 +41,7 @@ Each result explains what was checked, what was observed, and where it broke.
 | **Gate a pipeline or scheduled job** | [CLI and policies](docs/command-line.md) | Versioned policies, JSON artifacts, and distinct exit codes. |
 | **Review a treasury forecast** | [13-week walkthrough](#try-a-13-week-cash-forecast) | Schedule coverage and cash continuity by series and currency. |
 | **Use an AI assistant** | [Assistant tool server](docs/assistant.md) | The same checks through MCP, within folders you allow. |
-| **Work inside Excel** | [Excel add-in](docs/excel-add-in.md) | An initial task pane; real-Excel verification remains outstanding. |
+| **Work inside Excel** | [Excel add-in](docs/excel-add-in.md) | An initial task pane with focused native Mac evidence; full host acceptance remains open. |
 | **Export an Excel review workbook** | [CLI and workbook reports](docs/command-line.md) | Atomic Summary, Results, and bounded Diagnostics sheets. |
 | **Validate typed currencies and FX** | [Financial units](docs/financial-units.md) | Explicit quantities, rate-age checks, and retained provenance. |
 

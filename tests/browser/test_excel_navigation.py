@@ -180,8 +180,9 @@ def test_policy_change_and_snapshot_only_disable_targets(pane):
     button = failing_result(pane)
     pane.select_option("#template", "long-only-holdings")
     expect(button).to_be_disabled()
-    pane.locator("#excel-workflow-settings summary").click()
+    pane.locator("#excel-open-settings").click()
     pane.select_option("#excel-capture-mode", "snapshot")
+    pane.locator("#excel-back-to-validation").click()
     pane.click("#run")
     expect(pane.locator("#excel-freshness")).to_have_attribute("data-state", "Stale")
     for button in pane.locator("#excel-findings-list button").all():
@@ -236,9 +237,10 @@ def test_old_result_callbacks_do_not_navigate_a_new_result(pane):
 
 def test_navigation_honors_on_demand_and_four_capture_settings(pane):
     failing_result(pane)
-    pane.locator("#excel-workflow-settings summary").click()
+    pane.locator("#excel-open-settings").click()
     pane.select_option("#excel-monitoring", "on-demand")
     pane.locator("#excel-confirmations").fill("4")
+    pane.locator("#excel-back-to-validation").click()
     pane.click("#run")
     expect(pane.locator("#excel-freshness")).to_have_attribute("data-state", "Current")
     reads = pane.evaluate("window.__excel.reads.length")

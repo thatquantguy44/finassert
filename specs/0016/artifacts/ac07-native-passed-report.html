@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="finassert">
+<title>Long-only holdings — finassert</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #5d5d58;
+  --border: #dcdcd6; --pass: #1f7a3d; --pass-bg: #e6f4ea; --fail: #b3261e;
+  --fail-bg: #fce8e6; --error: #8a4b00; --error-bg: #fff1dc; --skip: #4d5562;
+  --skip-bg: #eceef1; --code: #f0f0ec; --warn: #7a5b00; --warn-bg: #fff6d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141413; --surface: #1e1e1c; --text: #ececea; --muted: #a8a8a2;
+    --border: #3a3a36; --pass: #7dd69b; --pass-bg: #173322; --fail: #f2a29b;
+    --fail-bg: #3d1a17; --error: #f5c27a; --error-bg: #3a2a12; --skip: #c3c8d0;
+    --skip-bg: #2a2d32; --code: #2a2a27; --warn: #f0d58a; --warn-bg: #3a3112;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 960px; margin: 0 auto; padding: 32px 16px 48px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+h3 { font-size: 1.05rem; margin: 0; }
+p { margin: 8px 0; }
+.subtitle { color: var(--muted); margin: 0 0 20px; }
+code {
+  font: 0.85em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--code); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere;
+}
+.banner {
+  border-radius: 10px; padding: 16px 20px; border: 1px solid var(--border);
+  display: flex; gap: 14px; align-items: center;
+}
+.banner .icon { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+.banner strong { display: block; font-size: 1.2rem; }
+.banner.passed { background: var(--pass-bg); color: var(--pass); }
+.banner.failed { background: var(--fail-bg); color: var(--fail); }
+.banner.warning { background: var(--warn-bg); color: var(--warn); }
+.banner p { color: var(--text); margin: 2px 0 0; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; }
+.counts li { list-style: none; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+  border-radius: 999px; font-size: 0.9rem; font-weight: 600; white-space: nowrap;
+}
+.pill.passed { background: var(--pass-bg); color: var(--pass); }
+.pill.failed { background: var(--fail-bg); color: var(--fail); }
+.pill.error { background: var(--error-bg); color: var(--error); }
+.pill.skipped { background: var(--skip-bg); color: var(--skip); }
+.pill.warning { background: var(--warn-bg); color: var(--warn); }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 20px; margin: 12px 0;
+}
+.card.failed { border-left: 5px solid var(--fail); }
+.card.error { border-left: 5px solid var(--error); }
+.card.skipped { border-left: 5px solid var(--skip); }
+.card.warning { border-left: 5px solid var(--warn); }
+.card.passed { border-left: 5px solid var(--pass); }
+.card header { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.meta { color: var(--muted); font-size: 0.9rem; }
+.message { font-weight: 500; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.92rem; }
+th, td {
+  text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border);
+  vertical-align: top; overflow-wrap: anywhere;
+}
+th { color: var(--muted); font-weight: 600; width: 32%; overflow-wrap: normal; }
+.rows th { width: auto; }
+.table-wrap { overflow-x: auto; }
+details summary { cursor: pointer; color: var(--muted); margin-top: 8px; }
+dl.legend { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; }
+dl.legend dd { margin: 0; }
+ul.assumptions { margin: 4px 0; padding-left: 20px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 520px) {
+  main { padding: 20px 12px 40px; }
+  .card { padding: 14px; }
+  th { width: auto; min-width: 7.5em; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .card, .banner { break-inside: avoid; }
+  details { display: block; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Long-only holdings</h1>
+<p class="subtitle">finassert validation report</p>
+<section class="banner passed" role="status" aria-live="polite"><span class="icon" aria-hidden="true">✓</span><div><strong>Passed</strong><p>All 3 check(s) passed.</p></div></section><ul class="counts" aria-label="Results by outcome"><li><span class="pill passed">Passed: 3</span></li><li><span class="pill failed">Failed: 0</span></li><li><span class="pill error">Could not run: 0</span></li><li><span class="pill skipped">Skipped: 0</span></li></ul>
+<h2>About this run</h2><div class="table-wrap"><table><tr><th scope="row">Input</th><td>Sheet1!C7:H9</td></tr><tr><th scope="row">Input format</th><td>excel-range</td></tr><tr><th scope="row">Policy description</th><td>Holdings of a single long-only portfolio.</td></tr><tr><th scope="row">Policy fingerprint</th><td>sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533</td></tr><tr><th scope="row">Generated (UTC)</th><td>2026-11-20T02:43:54Z</td></tr><tr><th scope="row">finassert version</th><td>0.1.0</td></tr><tr><th scope="row">Evidence</th><td>Captured snapshot; later edits require a new run.</td></tr><tr><th scope="row">Excel address</th><td>Sheet1!C7:H9</td></tr><tr><th scope="row">Excel captured at</th><td>2026-11-20T02:43:54.877Z</td></tr><tr><th scope="row">Excel column count</th><td>6</td></tr><tr><th scope="row">Excel data row count</th><td>2</td></tr><tr><th scope="row">Excel date system</th><td>1900</td></tr><tr><th scope="row">Excel date system source</th><td>user</td></tr><tr><th scope="row">Excel header row</th><td>7</td></tr><tr><th scope="row">Excel hidden rows</th><td>include_all</td></tr><tr><th scope="row">Excel kind</th><td>range</td></tr><tr><th scope="row">Excel physical data row count</th><td>2</td></tr><tr><th scope="row">Excel schema version</th><td>1</td></tr><tr><th scope="row">Excel snapshot sha256</th><td>sha256:f118b92691044a65310997c819128f677765297e466768756db9b744df066685</td></tr><tr><th scope="row">Excel verified at</th><td>2026-11-20T02:46:27.535Z</td></tr><tr><th scope="row">Excel worksheet id</th><td>{00000000-0001-0000-0000-000000000000}</td></tr><tr><th scope="row">Excel worksheet name</th><td>Sheet1</td></tr></table></div>
+<h2>Assumptions</h2><p>These checks are only meaningful if the following hold:</p><ul class="assumptions"><li>The file holds exactly one portfolio.</li><li>Weights are fractions of total portfolio value (0.25, not 25).</li><li>Cash is a position in the file, so weights include it.</li><li>The portfolio holds no short positions and no instruments that can have a negative market value, such as swaps or futures.</li></ul>
+<h2>How to read this report</h2><dl class="legend"><dt><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span></dt><dd>The data satisfied this check.</dd><dt><span class="pill failed"><span aria-hidden="true">✗</span> Failed</span></dt><dd>The data broke this check.</dd><dt><span class="pill error"><span aria-hidden="true">!</span> Could not run</span></dt><dd>The check did not run, so it is not a pass. This usually means a missing column or a value that could not be read.</dd><dt><span class="pill skipped"><span aria-hidden="true">○</span> Skipped</span></dt><dd>The check was not evaluated, as its settings allow.</dd><dt><span class="pill warning"><span aria-hidden="true">⚠</span> Warning</span></dt><dd>The data broke this check, which is set to warn: it does not fail the report.</dd></dl>
+<h2>Checks</h2>
+<article class="card passed" aria-labelledby="check-0"><header><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span><h3 id="check-0">1. Portfolio weights add up to 100%</h3></header><p class="meta">Rule <code>portfolio.weights_sum_to_one</code> · severity error</p><p>Checks that the values in a weight column add up to exactly 1, for the whole file or for each portfolio.</p><p class="message">Weight total 1.0 is within tolerance of 1.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>1.0</td></tr><tr><th scope="row">Expected</th><td>1</td></tr><tr><th scope="row">Allowed difference</th><td>Absolute 0.0001, Relative 0</td></tr></table></div></article>
+<article class="card passed" aria-labelledby="check-1"><header><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span><h3 id="check-1">2. No negative values</h3></header><p class="meta">Rule <code>arithmetic.non_negative</code> · severity error</p><p>Checks that no value in a column is below zero.</p><p class="message">All 2 checked value(s) in &#x27;weight&#x27; are nonnegative.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>0</td></tr><tr><th scope="row">Expected</th><td>0</td></tr><tr><th scope="row">Allowed difference</th><td>Absolute 0, Relative 0</td></tr></table></div><p>invalid_rows: 0 total; example cap 20; 0 shown; truncated: False</p><p>violations: 0 total; example cap 20; 0 shown; truncated: False</p></article>
+<article class="card passed" aria-labelledby="check-2"><header><span class="pill passed"><span aria-hidden="true">✓</span> Passed</span><h3 id="check-2">3. No negative values</h3></header><p class="meta">Rule <code>arithmetic.non_negative</code> · severity error</p><p>Checks that no value in a column is below zero.</p><p class="message">All 2 checked value(s) in &#x27;market_value&#x27; are nonnegative.</p><div class="table-wrap"><table><tr><th scope="row">Observed</th><td>0</td></tr><tr><th scope="row">Expected</th><td>0</td></tr><tr><th scope="row">Allowed difference</th><td>Absolute 0, Relative 0</td></tr></table></div><p>invalid_rows: 0 total; example cap 20; 0 shown; truncated: False</p><p>violations: 0 total; example cap 20; 0 shown; truncated: False</p></article>
+<footer>
+<p>Generated by finassert 0.1.0. The machine-readable report is embedded in this file as <code>script#finassert-report</code>.</p>
+</footer>
+</main>
+<script type="application/json" id="finassert-report">
+{
+  "generated_at": "2026-11-20T02:43:54Z",
+  "input": {
+    "excel": {
+      "address": "Sheet1!C7:H9",
+      "captured_at": "2026-11-20T02:43:54.877Z",
+      "column_count": 6,
+      "data_row_count": 2,
+      "date_system": "1900",
+      "date_system_source": "user",
+      "header_row": 7,
+      "hidden_rows": "include_all",
+      "kind": "range",
+      "physical_data_row_count": 2,
+      "schema_version": 1,
+      "snapshot_sha256": "sha256:f118b92691044a65310997c819128f677765297e466768756db9b744df066685",
+      "verified_at": "2026-11-20T02:46:27.535Z",
+      "worksheet_id": "{00000000-0001-0000-0000-000000000000}",
+      "worksheet_name": "Sheet1"
+    },
+    "format": "excel-range",
+    "locator": "Sheet1!C7:H9"
+  },
+  "policy": {
+    "assumptions": [
+      "The file holds exactly one portfolio.",
+      "Weights are fractions of total portfolio value (0.25, not 25).",
+      "Cash is a position in the file, so weights include it.",
+      "The portfolio holds no short positions and no instruments that can have a negative market value, such as swaps or futures."
+    ],
+    "description": "Holdings of a single long-only portfolio.",
+    "digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+    "name": "Long-only holdings",
+    "rules": [
+      {
+        "factory": "weights_sum_to_one",
+        "rule_id": "portfolio.weights_sum_to_one",
+        "summary": "Checks that the values in a weight column add up to exactly 1, for the whole file or for each portfolio.",
+        "title": "Portfolio weights add up to 100%"
+      },
+      {
+        "factory": "non_negative",
+        "rule_id": "arithmetic.non_negative",
+        "summary": "Checks that no value in a column is below zero.",
+        "title": "No negative values"
+      },
+      {
+        "factory": "non_negative",
+        "rule_id": "arithmetic.non_negative",
+        "summary": "Checks that no value in a column is below zero.",
+        "title": "No negative values"
+      }
+    ],
+    "version": 1
+  },
+  "report": {
+    "blocking_failures": 0,
+    "counts_by_outcome": {
+      "error": 0,
+      "failed": 0,
+      "passed": 3,
+      "skipped": 0
+    },
+    "counts_by_severity": {
+      "error": 3,
+      "info": 0,
+      "warning": 0
+    },
+    "passed": true,
+    "results": [
+      {
+        "blocking": false,
+        "diagnostics": [],
+        "expected": "1",
+        "message": "Weight total 1.0 is within tolerance of 1.",
+        "metadata": {
+          "column": "weight",
+          "observation_count": 2
+        },
+        "observed": "1.0",
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "portfolio.weights_sum_to_one",
+        "rule_name": "Portfolio weights sum to one",
+        "severity": "error",
+        "tolerance": {
+          "absolute": "0.0001",
+          "relative": 0
+        }
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "invalid_rows",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          },
+          {
+            "count": 0,
+            "kind": "violations",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 2 checked value(s) in 'weight' are nonnegative.",
+        "metadata": {
+          "checked_count": 2,
+          "column": "weight",
+          "invalid_row_count": 0,
+          "invalid_rows": [],
+          "violation_count": 0,
+          "violations": [],
+          "violations_truncated": false
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      },
+      {
+        "blocking": false,
+        "diagnostics": [
+          {
+            "count": 0,
+            "kind": "invalid_rows",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          },
+          {
+            "count": 0,
+            "kind": "violations",
+            "limit": 20,
+            "observations": [],
+            "truncated": false
+          }
+        ],
+        "expected": 0,
+        "message": "All 2 checked value(s) in 'market_value' are nonnegative.",
+        "metadata": {
+          "checked_count": 2,
+          "column": "market_value",
+          "invalid_row_count": 0,
+          "invalid_rows": [],
+          "violation_count": 0,
+          "violations": [],
+          "violations_truncated": false
+        },
+        "observed": 0,
+        "outcome": "passed",
+        "passed": true,
+        "rule_id": "arithmetic.non_negative",
+        "rule_name": "Financial values are nonnegative",
+        "severity": "error",
+        "tolerance": {
+          "absolute": 0,
+          "relative": 0
+        }
+      }
+    ],
+    "warnings": 0
+  },
+  "schema_version": 1,
+  "tool": {
+    "name": "finassert",
+    "version": "0.1.0"
+  }
+}
+</script>
+</body>
+</html>

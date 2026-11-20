@@ -18,6 +18,10 @@
 
   const $ = (id) => document.getElementById(id);
 
+  function failureAction(severity) {
+    return { error: "Block validation", warning: "Show warning", info: "Show information" }[severity] || severity;
+  }
+
   function setStatus(text, isError) {
     const node = $("status");
     node.textContent = text;
@@ -304,7 +308,7 @@
       const prompt = parameter.default == null ? [option("", "Choose…", !value)] : [];
       control = element("select", { id }, [
         ...prompt,
-        ...parameter.choices.map((c) => option(c, c, c === value)),
+        ...parameter.choices.map((c) => option(c, parameter.name === "severity" ? failureAction(c) : c, c === value)),
       ]);
       control.addEventListener("change", () => set(control.value));
     } else if (parameter.kind === "columns") {
@@ -677,6 +681,16 @@
     if (state.data && state.data.format === "excel-range" && window.finassertExcel) await window.finassertExcel.run();
     else run();
   }));
+  $("view-full-report").addEventListener("click", (event) => {
+    event.preventDefault();
+    const report = $("full-validation-report");
+    report.open = true;
+    $("full-validation-report-title").focus({ preventScroll: true });
+    report.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  });
   for (const [id, key, suffix, type] of [
     ["download-html", "html", "html", "text/html"],
     ["download-json", "artifact_json", "json", "application/json"],
@@ -698,6 +712,7 @@
   // application cells read from the workbook and writes results back.
   window.finassertApp = {
     ready: () => Boolean(state.web),
+    failureAction,
     useData(name, content, format, internal = false) {
       state.dataVersion++;
       if (!internal && window.finassertExcel) window.finassertExcel.inputChanged();

@@ -23,3 +23,7 @@ acceptance certification.
 - [ ] Design redaction hooks after the artifact and diagnostic contracts are settled.
 
 Record evidence in [handoff.md](handoff.md) before checking off work.
+
+- [x] Clarify human failure-action labels without changing canonical severity or
+  outcome/blocking semantics; full 3,743 runtime/111 browser cases, escaping/parity,
+  native saved-sheet and installed distribution checks pass (2026-11-20).

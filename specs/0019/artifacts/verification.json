@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "status": "PASS",
+  "scope": "Comprehensive offline user guide and read-only local PDF/metadata API; no financial semantics change",
+  "guide_source": "docs/user-guide.md",
+  "pdf_asset": "docs/assets/finassert-user-guide.pdf",
+  "metadata_asset": "docs/assets/finassert-user-guide.json",
+  "metadata": {
+    "schema_version": 1,
+    "title": "finassert User Guide",
+    "tool": {
+      "name": "finassert",
+      "version": "0.1.0"
+    },
+    "revision": "2026-11-20",
+    "filename": "finassert-user-guide.pdf",
+    "content_type": "application/pdf",
+    "download_url": "/api/finassert/v1/user-guide.pdf",
+    "bytes": 193735,
+    "pages": 47,
+    "sha256": "2c1c3b20f42c9dbf6fcc043b325e25b3144a703bd91fdb0f784ff65a685ca63f",
+    "source_sha256": "3393ea8f0a1240662410731f8003f380b3c0d0922954dd58899a387eb3926f93",
+    "catalog_sha256": "0c6fbe938c8779fb076191989c5cdbaaaa51a1b238873f7be61735618f2ae7cb",
+    "builder_sha256": "39e257009c41b81f1eed34a97da24a91cc9c50d55061093097a73b23cb8f60c1",
+    "rule_count": 20,
+    "template_count": 10
+  },
+  "pdf_quality": {
+    "pages": 47,
+    "rendered_pages": 47,
+    "contents_links": 44,
+    "verified_outline_destinations": 105,
+    "out_of_margin_characters": 0,
+    "replacement_or_black_square_glyphs": 0,
+    "independent_rebuild_byte_identical": true,
+    "downloaded_output_byte_identical": true,
+    "pdf_sha256": "2c1c3b20f42c9dbf6fcc043b325e25b3144a703bd91fdb0f784ff65a685ca63f",
+    "visual_review": "All 47 final rendered pages inspected in four contact sheets; 105 outline destinations and zero out-of-margin/replacement glyphs verified",
+    "renderer": "ReportLab 4.4.9; Markdown 3.11",
+    "inspection": "Poppler; pypdf 6.10.0; pdfplumber 0.11.9",
+    "searchable_text": true,
+    "embedded_fonts": true
+  },
+  "runtime": {
+    "tests": 3743,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "tests": 111,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_final": {
+    "unit_api_build_private_reader_passed": 31,
+    "browser_download_passed": 1,
+    "actual_python_doc_examples_executed": 6,
+    "actual_cli_doc_workflow_executed": true,
+    "native_tab_names_and_failure_actions_verified": true
+  },
+  "live_https": {
+    "origin": "https://localhost:3002",
+    "get_and_head": "PASS",
+    "trusted_tls": true,
+    "metadata": {
+      "schema_version": 1,
+      "title": "finassert User Guide",
+      "tool": {
+        "name": "finassert",
+        "version": "0.1.0"
+      },
+      "revision": "2026-11-20",
+      "filename": "finassert-user-guide.pdf",
+      "content_type": "application/pdf",
+      "download_url": "/api/finassert/v1/user-guide.pdf",
+      "bytes": 193735,
+      "pages": 47,
+      "sha256": "2c1c3b20f42c9dbf6fcc043b325e25b3144a703bd91fdb0f784ff65a685ca63f",
+      "source_sha256": "3393ea8f0a1240662410731f8003f380b3c0d0922954dd58899a387eb3926f93",
+      "catalog_sha256": "0c6fbe938c8779fb076191989c5cdbaaaa51a1b238873f7be61735618f2ae7cb",
+      "builder_sha256": "39e257009c41b81f1eed34a97da24a91cc9c50d55061093097a73b23cb8f60c1",
+      "rule_count": 20,
+      "template_count": 10
+    },
+    "exact_pdf_bytes": true
+  },
+  "additional_checks": [
+    "ruff check and format pass",
+    "mypy: 64 source modules pass",
+    "bundled Excel startup/Office stand-in smoke passes, including 50,000-row diagnostic",
+    "strict MkDocs passes; changed/new Markdown local/repository links and anchors pass",
+    "fresh source distribution and wheel build; isolated installed workflow passes",
+    "sdist contains exact guide source/PDF/sidecar/build helpers; wheel has no core or PDF-generation dependencies",
+    "git diff --check passes"
+  ],
+  "automated_download": {
+    "visible_pane_link": true,
+    "suggested_filename": "finassert-user-guide.pdf",
+    "metadata_sha256_and_size_match": true,
+    "no_extra_workbook_reads_or_source_edits": true
+  },
+  "failure_controls": [
+    "404 missing PDF/metadata",
+    "503 invalid signature/metadata/size/hash",
+    "404 unknown guide API route",
+    "stale source/catalog/version/renderer rejected at add-in build",
+    "private reader stays disabled unless explicitly configured"
+  ],
+  "limits": [
+    "Local server only; no hosted/public internet deployment",
+    "Native pane-link click was not separately observed",
+    "Full E-06 and external review remain open",
+    "No tagged-PDF accessibility certification"
+  ],
+  "documentation_links": {
+    "markdown_files": 38,
+    "local_and_repository_links_and_anchors_checked": 343,
+    "errors": []
+  }
+}

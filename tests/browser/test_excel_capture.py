@@ -20,9 +20,48 @@ def workflow(page, state):
     expect(page.locator("#excel-freshness")).to_have_attribute("data-state", state)
 
 
+def test_excel_host_starts_with_one_clear_workbook_source(pane):
+    """The task pane does not mix its live-workbook flow with browser file input."""
+    expect(pane.locator("#excel-panel")).to_be_visible()
+    expect(pane.locator("#data-drop")).to_be_hidden()
+
+
+def test_settings_ribbon_target_opens_a_distinct_settings_view(pane):
+    """The Home-ribbon Settings command opens the focused settings view."""
+    pane.goto(pane.url + "?view=settings")
+    expect(pane.locator("#status")).to_have_text("Ready. Nothing you open here is uploaded.")
+    expect(pane.locator("#excel-settings-view")).to_be_visible()
+    expect(pane.locator("#excel-settings-title")).to_have_text("Session settings")
+    expect(pane.get_by_role("heading", level=1)).to_have_text("Settings")
+    expect(pane).to_have_title("finassert Settings")
+    expect(pane.locator("#excel-validation-view")).to_be_hidden()
+    expect(pane.locator("#checks-step")).to_be_hidden()
+    expect(pane.locator("#run-step")).to_be_hidden()
+    pane.locator("#excel-back-to-validation").click()
+    expect(pane.locator("#excel-validation-view")).to_be_visible()
+    expect(pane.locator("#excel-settings-view")).to_be_hidden()
+    expect(pane.get_by_role("heading", level=1)).to_have_text("Validation")
+    expect(pane).to_have_title("finassert Validation")
+
+
 def settings(page):
-    if page.locator("#excel-workflow-settings").get_attribute("open") is None:
-        page.locator("#excel-workflow-settings summary").click()
+    if page.locator("#excel-settings-view").is_hidden():
+        page.locator("#excel-open-settings").click()
+
+
+def validation(page):
+    if page.locator("#excel-validation-view").is_hidden():
+        page.locator("#excel-back-to-validation").click()
+    expect(page.locator("#excel-validation-view")).to_be_visible()
+
+
+def test_settings_can_be_reopened_without_losing_session_configuration(pane):
+    settings(pane)
+    pane.select_option("#excel-monitoring", "on-demand")
+    pane.locator("#excel-back-to-validation").click()
+    expect(pane.locator("#excel-validation-view")).to_be_visible()
+    settings(pane)
+    assert pane.locator("#excel-monitoring").input_value() == "on-demand"
 
 
 def pause_next_read(page):
@@ -74,6 +113,7 @@ def test_monitoring_is_configurable_but_exports_always_reverify(pane):
     settings(pane)
     pane.select_option("#excel-monitoring", "on-demand")
     workflow(pane, "Stale")
+    validation(pane)
     pane.click("#run")
     workflow(pane, "Current")
     pane.evaluate("""() => {
@@ -159,6 +199,7 @@ def test_failed_parse_never_turns_a_live_result_into_a_file_export(pane):
 def test_a_single_wide_row_cannot_exceed_the_configured_cell_limit(pane):
     settings(pane)
     pane.locator("#excel-block-cells").fill("1000")
+    validation(pane)
     pane.evaluate("window.__excel.selection = {r0:0,c0:0,rows:2,cols:1001}")
     pane.select_option("#excel-date-system", "1900")
     pane.click("#excel-read")
@@ -172,6 +213,7 @@ def test_configurable_snapshot_only_never_becomes_current(pane):
     pane.select_option("#excel-capture-mode", "snapshot")
     workflow(pane, "Stale")
     before = pane.evaluate("window.__excel.reads.length")
+    validation(pane)
     pane.click("#run")
     expect(pane.locator("#excel-freshness")).to_contain_text("Snapshot-only result")
     workflow(pane, "Stale")
@@ -179,7 +221,9 @@ def test_configurable_snapshot_only_never_becomes_current(pane):
     assert pane.evaluate("window.finassertApp.result().passed") is True
     assert pane.evaluate("window.finassertExcel.status().snapshot.verifiedAt") is None
     expect(pane.locator("#excel-write")).to_be_disabled()
+    settings(pane)
     pane.click("#excel-settings-reset")
+    validation(pane)
     pane.click("#run")
     workflow(pane, "Current")
 
@@ -189,6 +233,7 @@ def test_confirmation_count_and_request_bounds_are_configurable(pane):
     pane.locator("#excel-confirmations").fill("4")
     pane.locator("#excel-block-rows").fill("2")
     before = pane.evaluate("window.__excel.reads.length")
+    validation(pane)
     pane.click("#run")
     workflow(pane, "Current")
     reads = pane.evaluate(f"window.__excel.reads.slice({before})")
@@ -211,6 +256,7 @@ def test_invalid_settings_block_and_defaults_recover(pane, control, value):
     expect(pane.locator("#run")).to_be_disabled()
     expect(pane.locator("#excel-write")).to_be_disabled()
     pane.click("#excel-settings-reset")
+    validation(pane)
     pane.click("#run")
     workflow(pane, "Current")
 
@@ -246,6 +292,7 @@ def test_superseded_reads_cannot_publish_or_overlap(pane, change):
 def test_a_mixed_chunk_capture_is_discarded_without_an_event(pane):
     settings(pane)
     pane.locator("#excel-block-rows").fill("2")
+    validation(pane)
     pane.evaluate("""() => { window.__excel.onRead = () => {
       window.__excel.sheets.Holdings.cells[3][3] = -1;
       window.__excel.onRead = null;
@@ -283,6 +330,7 @@ def test_changes_during_evaluation_reject_the_candidate(pane, change):
 def test_timeout_applies_after_a_pending_host_request_returns(pane):
     settings(pane)
     pane.locator("#excel-capture-timeout").fill("1")
+    validation(pane)
     pause_next_read(pane)
     pane.wait_for_timeout(1100)
     pane.evaluate("window.__excel.resume()")
@@ -291,7 +339,6 @@ def test_timeout_applies_after_a_pending_host_request_returns(pane):
 
 
 def test_calculation_guards_require_settled_values_and_manual_confirmation(pane):
-    settings(pane)
     pane.evaluate("window.__excel.application.calculationState='Pending'")
     pane.click("#run")
     workflow(pane, "Blocked")
@@ -301,13 +348,17 @@ def test_calculation_guards_require_settled_values_and_manual_confirmation(pane)
     }""")
     pane.click("#run")
     expect(pane.locator("#excel-freshness")).to_contain_text("Manual calculation mode")
+    settings(pane)
     pane.locator("#excel-manual-calculated").check()
+    validation(pane)
     pane.click("#run")
     workflow(pane, "Current")
     assert not pane.locator("#excel-manual-calculated").is_checked()
     assert pane.evaluate("window.__excel.application.calculationMode") == "Manual"
+    settings(pane)
     pane.locator("#excel-manual-calculated").check()
     workflow(pane, "Current")
+    validation(pane)
     pane.click("#excel-write")
     workflow(pane, "Current")
     assert not pane.locator("#excel-manual-calculated").is_checked()

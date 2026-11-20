@@ -14,6 +14,12 @@
   checks passed. Full suite: 3,662 passed / 72 browser cases skipped; Ruff/format,
   mypy (62 files), strict docs and 100 local links/anchors passed. Delivery uses
   the same guarded commit/push path; the enclosing commit is available in Git.
+- [x] H-04: implement an explicit filesystem baseline/checkpoint workflow for
+  non-Git directories. State retains configured hashes and prior handoff text;
+  refresh is context-only, check is read-only, checkpoint advances atomically and
+  recovery requires confirmation. Evidence: seven non-Git fixture cases cover init,
+  no-Git execution, add/delete/rename, rules/exclusions, history/stale rejection,
+  read-only checks and damaged-state recovery.
 
 Remote branch-protection administration and a main-branch merge are outside this
 implementation; require the new CI status there to enforce server-side merging.

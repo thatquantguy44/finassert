@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-20",
+  "status": "PASS for executed automated and native demo checks; full E-06 remains open",
+  "source_head": "60ea433",
+  "source_scope": "Current uncommitted working tree; no commit, push, CI, release or external review claimed",
+  "build": {
+    "pane_sha256": "bb36604fe553c371a88a407208017885f6c192001ff15278824783a12818f04f",
+    "manifest_sha256": "561a804dfdd3b12d047e3ba14cb006427cc0e085e4d29c2f249c221f9fca4972",
+    "origin": "https://localhost:3002",
+    "pyodide": "0.27.7 bundled and integrity checked",
+    "finassert": "0.1.0"
+  },
+  "automated": {
+    "tests": {
+      "runtime": {
+        "tests": "3724",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "36.157"
+      },
+      "browser": {
+        "tests": "110",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "166.981"
+      }
+    },
+    "ruff": "PASS; lint and 327 files formatted",
+    "mypy": "PASS; 64 source modules",
+    "excel_bundled_smoke": "PASS including 50,000 rows in Office stand-in",
+    "excel_cdn_page_local_runtime_smoke": "PASS; runtime remapped locally, not an external CDN outage test",
+    "shared_browser_smoke": "PASS",
+    "package_install_and_cli_workbook_units_fx": "PASS; repeated on final wheel/sdist containing test and fixture repairs",
+    "recovered_failures": [
+      "Initial browser run interrupted after repeated hidden Run-button timeouts; focused reproduction confirmed old tests did not leave the new Settings view.",
+      "Next browser run stopped at 3 stale settings-summary selectors after 83 passes. Updated test navigation and all 110 then passed.",
+      "A final runtime attempt had 3723 passes and one MCP import failure because the subprocess could not see the editable install. Installed the built wheel locally; all 3724 then passed.",
+      "The no-isolation package build lacked hatchling; the normal isolated uv build and distribution verification passed."
+    ],
+    "documentation": "PASS; strict MkDocs build, 235 local/repository links and anchors across 22 changed Markdown files, and git diff --check"
+  },
+  "native": {
+    "host": "Excel on Mac 16.115.1108.0",
+    "home_ribbon": "Both commands visible; Settings distinct controls and Open validation normal workflow/Ready observed",
+    "scale": {
+      "report": "e06-native-demo-diagnostics.txt",
+      "rows": 50000,
+      "columns": 5,
+      "startup_ms": 951,
+      "write_ms": 241,
+      "read_ms": 631,
+      "check_render_ms": 692,
+      "status": "All diagnostic steps passed; exact 3 weight and 3 NAV groups, data checks passed, source unchanged"
+    },
+    "correction": {
+      "workbook": "dist/demo/finassert-demo.xlsx",
+      "source": "Sheet1!C7:H9",
+      "date_system": "1904",
+      "displayed_dates": [
+        "2026-01-01",
+        "2026-01-01"
+      ],
+      "initial": "Current; one failed and two passed; row 8 market_value -400",
+      "navigation": "Finding action selected F8 and formula bar showed -400",
+      "edit": "F8 replaced with numeric 400 after explicit Go To selection",
+      "invalidation": "Stale; JSON, HTML, results-sheet export and navigation disabled",
+      "rerun": "Current; three passed, zero skipped; reread preview showed 400 and both intended dates",
+      "policy": "Saved in workbook and downloaded as YAML",
+      "exports": "Actual native JSON, HTML and all 34 x 5 canonical results-sheet cells match; actual CLI canonical report and policy match",
+      "integrity": {
+        "status": "PASS; every source value/type/number format unchanged from native pre-export snapshot",
+        "source_cells_sha256": "03077d4df432a8b6fd72eba793c816d8aa0fdd9ada8e6df1332e5303f42f4887",
+        "no_stray_populated_cells": true,
+        "only_source_value_change_from_fixture": "F8 -400 to numeric 400"
+      },
+      "observation_limits": [
+        "Screen capture and foreground targeting interrupted some actions; these attempts are not counted as acceptance.",
+        "A worksheet-area click lost the intended selection. Recovered with explicit Go To and checked F8 before the successful correction. Saved final input contains no stray populated cells.",
+        "Native Excel save escaped literal date-format hyphens (yyyy-mm-dd to yyyy\\-mm\\-dd) without changing intended dates. Export integrity compares native saved before/after snapshots exactly.",
+        "The diagnostic workbook scratch report was undone in memory during target recovery; the previously saved copy and retained diagnostic text remain intact."
+      ]
+    }
+  },
+  "retained_verification": {
+    "status": "PASS",
+    "scope": "Retained files and CLI; host execution recorded separately",
+    "source": "Sheet1!C7:H9",
+    "date_system": "1904",
+    "policy_digest": "sha256:bb520ce4d7329de5bad106fdfb35aae5fb91673be8679b542557b71c09d13533",
+    "snapshot_sha256": "sha256:a94c1c8de41f067fa7787c59386e8a5d8435ef16a5b222c0e47040347c8d8a15",
+    "files_sha256": {
+      "demo-report.json": "ff3427296a7620a56e129fb411dcfd7a4655a70266a6d02da3c93b3db8c191d7",
+      "demo-report.html": "b19225a5462f1c88182aa9329e16ad6810b95547650a3f8d5ad5f1ebcfb2f45c",
+      "finassert-demo.xlsx": "d43737bbb59d67d9db4a9449bb6cc07d9c7f31ccc103cbb0df844cf58c8c4c7c",
+      "demo-policy.yml": "833d8e2b2f7044f5ae7a04287e92671869808caf671b9fcab9a1ed6ee2b9bb42"
+    }
+  },
+  "retained_files_sha256": {
+    "ac07-native-1904-passed-report.json": "ff3427296a7620a56e129fb411dcfd7a4655a70266a6d02da3c93b3db8c191d7",
+    "ac07-native-1904-passed-report.html": "b19225a5462f1c88182aa9329e16ad6810b95547650a3f8d5ad5f1ebcfb2f45c",
+    "ac07-native-1904-policy.yml": "833d8e2b2f7044f5ae7a04287e92671869808caf671b9fcab9a1ed6ee2b9bb42",
+    "e06-native-demo-diagnostics.txt": "b3590e23b150812c3992d241eb010bef7eee2cd2d396afe6e1c99b1d104a7576"
+  },
+  "remaining": [
+    "Clean table/hidden/filtered native cases",
+    "Remaining native failure/race/keyboard cases",
+    "External review",
+    "Windows/web and optional reference panel real-host acceptance"
+  ]
+}

@@ -9,6 +9,7 @@ does not define another version of the workflow.
 - [Date interpretation](spec.md#r-04-explicit-date-interpretation)
 - [Evidence and output](spec.md#r-05-evidence-and-safe-output)
 - [Real-host acceptance](spec.md#r-06-real-host-acceptance)
+- [Home-ribbon entry points](spec.md#r-07-home-ribbon-entry-points)
 - [Public API](spec.md#public-api-design), [data contracts](spec.md#data-contracts)
 - [Failure semantics](spec.md#failure-semantics), [acceptance](spec.md#acceptance-criteria)
 
@@ -31,6 +32,11 @@ does not define another version of the workflow.
   consumers may ignore it; artifacts without live context stay unchanged.
 - E-05: output collisions use a new unique sheet by default; replacement identifies an
   owned destination explicitly and can never clear a bound source.
+- E-06 adds additive TaskPane VersionOverrides 1.0 commands on Excel Home. Both
+  commands only show the existing task pane; the Settings route renders a focused
+  in-pane settings view and preserves the in-memory session when it returns to
+  validation. The base manifest remains a fallback, and no workbook, policy,
+  artifact, public API or financial-outcome contract changes.
 
 E-02 implements the first two migrations. E-03 adds generation-safe capture,
 calculation/event/policy invalidation and preflight for the existing sheet/JSON/HTML
@@ -73,7 +79,7 @@ E-01 corrects the existing prototype's declared minimum to ExcelApi 1.7, matchin
 getRangeByIndexes in its sheet writer. Generated manifests now enforce that floor;
 hosts below it can no longer load the prototype. The future 1.9 workflow remains
 proposed. No financial, date-reader, artifact or row-identity contract changes here.
-The manifest deployment version is separately maintained at 1.0.0.0 because
+The manifest deployment version initially used 1.0.0.0 because
 Microsoft's validator rejected the package-derived 0.1.0.0 as below its minimum.
 The add-in ID and actual package/report version are unchanged. The later native
 baseline establishes a working CLI sideload route; the disabled menu's cause
@@ -82,3 +88,6 @@ remains unknown. E-03 live capture enforces 1.9 at runtime.
 No stable workbook date-system getter is assumed. E-01 must substantiate any
 automatic path; user selection is the defined baseline. A search hit or a preview
 type declaration cannot establish a supported-host contract.
+
+Deployment 1.0.0.1 adds distinct ShowTaskpane Titles under R-07. The original
+add-in ID, permissions, local origin and financial/runtime contracts stay unchanged.

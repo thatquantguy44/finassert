@@ -4,18 +4,45 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
-from datetime import date
+import tempfile
+import uuid
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 HANDOFF = "docs/handoff.md"
 START = "<!-- finassert-handoff-checkpoint:v1 -->"
 END = "<!-- /finassert-handoff-checkpoint -->"
+FILESYSTEM_CONTEXT = "Filesystem checkpoint context"
+FILESYSTEM_START = "<!-- finassert-filesystem-checkpoint:v1 -->"
+FILESYSTEM_END = "<!-- /finassert-filesystem-checkpoint -->"
+FILESYSTEM_STATE_DIR = ".finassert-handoff"
+FILESYSTEM_STATE_FILE = "state.json"
+FILESYSTEM_VERSION = 1
+FILESYSTEM_DEFAULT_EXCLUDES = (
+    ".git/**",
+    ".hg/**",
+    ".svn/**",
+    ".venv/**",
+    "venv/**",
+    "__pycache__/**",
+    "**/__pycache__/**",
+    ".pytest_cache/**",
+    ".mypy_cache/**",
+    ".ruff_cache/**",
+    "build/**",
+    "dist/**",
+    "site/**",
+    "node_modules/**",
+)
 OID = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
+SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 FIELDS = {
     "Last worked on": "Worked on",
     "Stopping point": "Stopping point",
@@ -27,6 +54,12 @@ RECOVERY = (
     "Update docs/handoff.md Current state and Next up; prepend a complete dated entry.\n"
     "Stage intended changes, run python3 scripts/check_handoff.py --refresh,\n"
     "then git add -- docs/handoff.md and retry. Historical entries must stay unchanged."
+)
+FILESYSTEM_RECOVERY = (
+    "Use --filesystem-check to inspect the current checkpoint. If the saved filesystem "
+    "baseline is missing or damaged, review the project and run --filesystem-recover "
+    "--confirm-filesystem-recovery. Recovery starts a new local baseline; it does not "
+    "verify or recreate prior filesystem history."
 )
 
 
@@ -407,6 +440,481 @@ def check_range(repo: Repository, base: str | None, tip: str) -> int:
     return len(commits)
 
 
+def _sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+
+
+def _utc_now() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _valid_timestamp(value: object) -> bool:
+    if not isinstance(value, str) or not value.endswith("Z"):
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return True
+
+
+def _filesystem_id() -> str:
+    return "fs-" + uuid.uuid4().hex
+
+
+def _valid_filesystem_id(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"fs-[0-9a-f]{32}", value) is not None
+
+
+def _valid_sha256(value: object) -> bool:
+    return isinstance(value, str) and SHA256.fullmatch(value) is not None
+
+
+class FilesystemRepository:
+    """Snapshot project files and retain one explicit local checkpoint baseline."""
+
+    def __init__(self, root: Path, state_dir: Path) -> None:
+        self.root = root.resolve()
+        if not self.root.is_dir():
+            raise HandoffError(f"Filesystem root is not a directory: {self.root}")
+        candidate = state_dir if state_dir.is_absolute() else self.root / state_dir
+        self.state_dir = candidate.resolve()
+        try:
+            self.state_rel = self.state_dir.relative_to(self.root).as_posix()
+        except ValueError as error:
+            message = "Filesystem state directory must be inside the project root."
+            raise HandoffError(message) from error
+        if self.state_rel in {"", "."}:
+            raise HandoffError("Filesystem state directory cannot be the project root.")
+        self.state_path = self.state_dir / FILESYSTEM_STATE_FILE
+
+    @property
+    def handoff_path(self) -> Path:
+        """Return the canonical master-handoff path in this project."""
+        return self.root / HANDOFF
+
+    def handoff(self) -> str:
+        """Read the canonical master handoff without using Git."""
+        try:
+            return self.handoff_path.read_text(encoding="utf-8")
+        except FileNotFoundError as error:
+            raise HandoffError(f"Filesystem mode requires {HANDOFF}.") from error
+
+    def _matches(self, path: str, pattern: str) -> bool:
+        prefix = pattern.removesuffix("/**")
+        return fnmatch.fnmatchcase(path, pattern) or (
+            pattern.endswith("/**") and (path == prefix or path.startswith(prefix + "/"))
+        )
+
+    def _tracked(self, path: str, config: dict[str, object]) -> bool:
+        if path == HANDOFF:
+            return True
+        include = config["include"]
+        exclude = config["exclude"]
+        assert isinstance(include, list) and isinstance(exclude, list)
+        return any(self._matches(path, rule) for rule in include) and not any(
+            self._matches(path, rule) for rule in exclude
+        )
+
+    def _excluded_directory(self, path: str, config: dict[str, object]) -> bool:
+        exclude = config["exclude"]
+        assert isinstance(exclude, list)
+        return any(self._matches(path, rule) for rule in exclude)
+
+    @staticmethod
+    def _file_hash(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as source:
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    @staticmethod
+    def _link_hash(path: Path) -> str:
+        target = os.readlink(path)
+        return hashlib.sha256(b"symlink\0" + os.fsencode(target)).hexdigest()
+
+    def snapshot(self, config: dict[str, object]) -> list[dict[str, str]]:
+        """Return a deterministic, configured content snapshot without following links."""
+        files: list[dict[str, str]] = []
+        for directory, directories, names in os.walk(self.root, followlinks=False):
+            base = Path(directory)
+            retained_directories: list[str] = []
+            for name in sorted(directories):
+                path = base / name
+                relative = path.relative_to(self.root).as_posix()
+                if path.is_symlink():
+                    if self._tracked(relative, config):
+                        files.append(
+                            {"path": relative, "kind": "symlink", "sha256": self._link_hash(path)}
+                        )
+                elif not self._excluded_directory(relative, config):
+                    retained_directories.append(name)
+            directories[:] = retained_directories
+            for name in sorted(names):
+                path = base / name
+                relative = path.relative_to(self.root).as_posix()
+                if not self._tracked(relative, config):
+                    continue
+                if path.is_symlink():
+                    files.append(
+                        {"path": relative, "kind": "symlink", "sha256": self._link_hash(path)}
+                    )
+                elif path.is_file():
+                    files.append(
+                        {"path": relative, "kind": "file", "sha256": self._file_hash(path)}
+                    )
+                else:
+                    raise HandoffError(f"Unsupported filesystem entry in checkpoint: {relative}")
+        return sorted(files, key=lambda item: item["path"])
+
+    @staticmethod
+    def project_digest(files: list[dict[str, str]]) -> str:
+        """Hash the configured project snapshot without the self-referential handoff."""
+        records = [
+            f"{item['kind']} {item['sha256']}\t{item['path']}\0".encode()
+            for item in files
+            if item["path"] != HANDOFF
+        ]
+        return hashlib.sha256(b"".join(records)).hexdigest()
+
+    @staticmethod
+    def changed_paths(baseline: list[dict[str, str]], current: list[dict[str, str]]) -> list[str]:
+        """Return deterministic added, changed and deleted paths."""
+        before = {item["path"]: (item["kind"], item["sha256"]) for item in baseline}
+        after = {item["path"]: (item["kind"], item["sha256"]) for item in current}
+        candidates = set(before) | set(after)
+        return sorted(path for path in candidates if before.get(path) != after.get(path))
+
+    def atomic_write(self, path: Path, value: str) -> None:
+        """Replace a generated state or context file atomically."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as destination:
+                destination.write(value)
+                destination.flush()
+                os.fsync(destination.fileno())
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def write_state(self, state: dict[str, object]) -> None:
+        """Persist the complete accepted baseline in one atomic state file."""
+        self.atomic_write(self.state_path, json.dumps(state, indent=2, ensure_ascii=True) + "\n")
+
+    def load_state(self) -> dict[str, object]:
+        """Read and validate the previously accepted local baseline."""
+        try:
+            raw = self.state_path.read_text(encoding="utf-8")
+        except FileNotFoundError as error:
+            raise HandoffError("Filesystem checkpoint baseline is missing or damaged.") from error
+        try:
+            state = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise HandoffError("Filesystem checkpoint baseline is damaged.") from error
+        if not isinstance(state, dict) or set(state) != {"version", "mode", "config", "baseline"}:
+            raise HandoffError("Filesystem checkpoint baseline has an incompatible schema.")
+        if state["version"] != FILESYSTEM_VERSION or state["mode"] != "filesystem":
+            raise HandoffError(
+                "Filesystem checkpoint baseline has an incompatible version or mode."
+            )
+        config = state["config"]
+        baseline = state["baseline"]
+        if not isinstance(config, dict) or set(config) != {"version", "include", "exclude"}:
+            raise HandoffError("Filesystem checkpoint configuration is damaged.")
+        if config["version"] != FILESYSTEM_VERSION or not all(
+            isinstance(value, list) and value and all(isinstance(item, str) for item in value)
+            for value in (config["include"], config["exclude"])
+        ):
+            raise HandoffError("Filesystem checkpoint configuration is invalid.")
+        expected_baseline = {
+            "checkpoint_id",
+            "accepted_at",
+            "project_sha256",
+            "handoff_sha256",
+            "files",
+            "handoff",
+        }
+        if not isinstance(baseline, dict) or set(baseline) != expected_baseline:
+            raise HandoffError("Filesystem checkpoint baseline is damaged.")
+        if not _valid_filesystem_id(baseline["checkpoint_id"]) or not _valid_timestamp(
+            baseline["accepted_at"]
+        ):
+            raise HandoffError("Filesystem checkpoint baseline identity is invalid.")
+        if not _valid_sha256(baseline["project_sha256"]) or not _valid_sha256(
+            baseline["handoff_sha256"]
+        ):
+            raise HandoffError("Filesystem checkpoint baseline digest is invalid.")
+        handoff = baseline["handoff"]
+        if not isinstance(handoff, str) or _sha256_text(handoff) != baseline["handoff_sha256"]:
+            raise HandoffError("Filesystem checkpoint handoff snapshot is damaged.")
+        files = baseline["files"]
+        if not isinstance(files, list) or not all(isinstance(item, dict) for item in files):
+            raise HandoffError("Filesystem checkpoint file snapshot is invalid.")
+        if files != sorted(files, key=lambda item: item.get("path", "")):
+            raise HandoffError("Filesystem checkpoint file snapshot is invalid.")
+        seen: set[str] = set()
+        for item in files:
+            if (
+                not isinstance(item, dict)
+                or set(item) != {"path", "kind", "sha256"}
+                or not isinstance(item["path"], str)
+                or not item["path"]
+                or item["path"].startswith("/")
+                or ".." in Path(item["path"]).parts
+                or item["kind"] not in {"file", "symlink"}
+                or not _valid_sha256(item["sha256"])
+                or item["path"] in seen
+            ):
+                raise HandoffError("Filesystem checkpoint file snapshot is invalid.")
+            seen.add(item["path"])
+        if self.project_digest(files) != baseline["project_sha256"]:
+            raise HandoffError("Filesystem checkpoint project digest is inconsistent.")
+        return state
+
+
+def _filesystem_patterns(values: list[str] | None, defaults: tuple[str, ...]) -> list[str]:
+    patterns = list(defaults if values is None else values)
+    if not patterns:
+        raise HandoffError("Filesystem include/exclude rules cannot be empty.")
+    normalized: list[str] = []
+    for pattern in patterns:
+        if not pattern or pattern.startswith("/") or "\\" in pattern or ".." in Path(pattern).parts:
+            raise HandoffError(f"Invalid filesystem include/exclude rule: {pattern!r}")
+        if pattern not in normalized:
+            normalized.append(pattern)
+    return normalized
+
+
+def _filesystem_config(repo: FilesystemRepository, args: argparse.Namespace) -> dict[str, object]:
+    include = _filesystem_patterns(args.filesystem_include, ("**",))
+    exclude = _filesystem_patterns(args.filesystem_exclude, FILESYSTEM_DEFAULT_EXCLUDES)
+    state_rule = repo.state_rel + "/**"
+    if state_rule not in exclude:
+        exclude.append(state_rule)
+    return {"version": FILESYSTEM_VERSION, "include": include, "exclude": exclude}
+
+
+def _filesystem_config_digest(config: dict[str, object]) -> str:
+    return hashlib.sha256(_canonical_json(config).encode("utf-8")).hexdigest()
+
+
+def _filesystem_context_block(context: dict[str, object]) -> str:
+    return (
+        f"## {FILESYSTEM_CONTEXT}\n\n"
+        "This machine-owned context records a local filesystem checkpoint. It is not "
+        "a Git commit, push or CI result. Regenerate it with --filesystem-refresh-context.\n\n"
+        + FILESYSTEM_START
+        + "\n```json\n"
+        + json.dumps(context, indent=2, ensure_ascii=True)
+        + "\n```\n"
+        + FILESYSTEM_END
+        + "\n\n"
+    )
+
+
+def _replace_context(document: str, title: str, block: str) -> str:
+    parts = sections(document)
+    if title in parts:
+        start, end, _ = parts[title]
+        return document[:start] + block + document[end:]
+    position = parts.get("Entry template", parts["Entries"])[0]
+    return document[:position] + block + document[position:]
+
+
+def _filesystem_context(document: str) -> dict[str, object]:
+    parts = sections(document)
+    body = parts.get(FILESYSTEM_CONTEXT, (0, 0, ""))[2]
+    if body.count(FILESYSTEM_START) != 1 or body.count(FILESYSTEM_END) != 1:
+        raise HandoffError("Filesystem checkpoint context is missing, removed or duplicated.")
+    match = re.fullmatch(
+        r".*?"
+        + re.escape(FILESYSTEM_START)
+        + r"\n```json\n(.*?)\n```\n"
+        + re.escape(FILESYSTEM_END)
+        + r"\s*",
+        body,
+        re.DOTALL,
+    )
+    if not match:
+        raise HandoffError("Filesystem checkpoint context must contain its generated JSON block.")
+    try:
+        context = json.loads(match[1])
+    except json.JSONDecodeError as error:
+        raise HandoffError("Filesystem checkpoint context contains invalid JSON.") from error
+    expected = {
+        "version",
+        "mode",
+        "checkpoint_id",
+        "baseline_id",
+        "generated_at",
+        "changed_paths",
+        "project_sha256",
+        "reviewed_sections_sha256",
+        "config_sha256",
+    }
+    if not isinstance(context, dict) or set(context) != expected:
+        raise HandoffError("Filesystem checkpoint context has an incomplete schema.")
+    return context
+
+
+def _validate_filesystem_context(
+    context: dict[str, object],
+    state: dict[str, object],
+    snapshot: list[dict[str, str]],
+    changes: list[str],
+    reviewed: str,
+) -> None:
+    baseline = state["baseline"]
+    config = state["config"]
+    assert isinstance(baseline, dict) and isinstance(config, dict)
+    if context["version"] != FILESYSTEM_VERSION or context["mode"] != "filesystem":
+        raise HandoffError("Filesystem checkpoint context has an incompatible version or mode.")
+    if not _valid_filesystem_id(context["checkpoint_id"]) or not _valid_filesystem_id(
+        context["baseline_id"]
+    ):
+        raise HandoffError("Filesystem checkpoint context has an invalid checkpoint identity.")
+    if (
+        context["checkpoint_id"] == baseline["checkpoint_id"]
+        or context["baseline_id"] != baseline["checkpoint_id"]
+    ):
+        raise HandoffError("Filesystem checkpoint context does not match the accepted baseline.")
+    if not _valid_timestamp(context["generated_at"]):
+        raise HandoffError("Filesystem checkpoint context has an invalid timestamp.")
+    if context["changed_paths"] != changes or not all(
+        isinstance(path, str) for path in context["changed_paths"]
+    ):
+        raise HandoffError(
+            "Filesystem checkpoint context is stale; refresh it after project changes."
+        )
+    if context["project_sha256"] != FilesystemRepository.project_digest(snapshot):
+        raise HandoffError("Filesystem project snapshot changed after context refresh.")
+    if context["reviewed_sections_sha256"] != reviewed:
+        raise HandoffError("Filesystem handoff prose changed after context refresh.")
+    if context["config_sha256"] != _filesystem_config_digest(config):
+        raise HandoffError("Filesystem checkpoint configuration changed after context refresh.")
+
+
+def _filesystem_inspect(
+    repo: FilesystemRepository,
+) -> tuple[dict[str, object], list[dict[str, str]], list[str], str, dict[str, object] | None]:
+    state = repo.load_state()
+    config = state["config"]
+    baseline = state["baseline"]
+    assert isinstance(config, dict) and isinstance(baseline, dict)
+    snapshot = repo.snapshot(config)
+    changes = repo.changed_paths(baseline["files"], snapshot)
+    handoff = repo.handoff()
+    if not changes:
+        return state, snapshot, changes, handoff, None
+    if HANDOFF not in changes:
+        raise HandoffError(
+            "Filesystem project changes require an updated docs/handoff.md checkpoint."
+        )
+    parts, newest = review(handoff, baseline["handoff"])
+    context = _filesystem_context(handoff)
+    _validate_filesystem_context(context, state, snapshot, changes, review_digest(parts, newest))
+    return state, snapshot, changes, handoff, context
+
+
+def _filesystem_state(
+    config: dict[str, object], snapshot: list[dict[str, str]], handoff: str, checkpoint_id: str
+) -> dict[str, object]:
+    return {
+        "version": FILESYSTEM_VERSION,
+        "mode": "filesystem",
+        "config": config,
+        "baseline": {
+            "checkpoint_id": checkpoint_id,
+            "accepted_at": _utc_now(),
+            "project_sha256": FilesystemRepository.project_digest(snapshot),
+            "handoff_sha256": _sha256_text(handoff),
+            "files": snapshot,
+            "handoff": handoff,
+        },
+    }
+
+
+def filesystem_init(
+    repo: FilesystemRepository, args: argparse.Namespace, *, recover: bool = False
+) -> None:
+    """Create a reviewed initial baseline, or explicitly replace damaged state."""
+    if repo.state_dir.exists() and not recover:
+        raise HandoffError(
+            "Filesystem checkpoint state already exists; use --filesystem-check or explicit "
+            "recovery."
+        )
+    handoff = repo.handoff()
+    review(handoff)
+    config = _filesystem_config(repo, args)
+    snapshot = repo.snapshot(config)
+    repo.write_state(_filesystem_state(config, snapshot, handoff, _filesystem_id()))
+    action = "recovered" if recover else "initialized"
+    print(f"Filesystem checkpoint baseline {action}; no Git references were recorded.")
+
+
+def filesystem_refresh(repo: FilesystemRepository) -> None:
+    """Refresh only the generated filesystem context for a pending checkpoint."""
+    state = repo.load_state()
+    config = state["config"]
+    baseline = state["baseline"]
+    assert isinstance(config, dict) and isinstance(baseline, dict)
+    snapshot = repo.snapshot(config)
+    changes = repo.changed_paths(baseline["files"], snapshot)
+    if not changes:
+        raise HandoffError("No filesystem project changes require a new checkpoint.")
+    if HANDOFF not in changes:
+        raise HandoffError("Update docs/handoff.md before refreshing filesystem context.")
+    handoff = repo.handoff()
+    parts, newest = review(handoff, baseline["handoff"])
+    context = {
+        "version": FILESYSTEM_VERSION,
+        "mode": "filesystem",
+        "checkpoint_id": _filesystem_id(),
+        "baseline_id": baseline["checkpoint_id"],
+        "generated_at": _utc_now(),
+        "changed_paths": changes,
+        "project_sha256": FilesystemRepository.project_digest(snapshot),
+        "reviewed_sections_sha256": review_digest(parts, newest),
+        "config_sha256": _filesystem_config_digest(config),
+    }
+    updated = _replace_context(handoff, FILESYSTEM_CONTEXT, _filesystem_context_block(context))
+    repo.atomic_write(repo.handoff_path, updated)
+    print(
+        "Refreshed filesystem context only. Run --filesystem-check, then --filesystem-checkpoint."
+    )
+
+
+def filesystem_check(repo: FilesystemRepository) -> None:
+    """Validate the current tree without changing filesystem checkpoint state."""
+    _, _, changes, _, _ = _filesystem_inspect(repo)
+    if changes:
+        print(f"Filesystem handoff check passed ({len(changes)} changed project path(s)).")
+    else:
+        print("Filesystem handoff check passed (no project changes since the accepted baseline).")
+
+
+def filesystem_checkpoint(repo: FilesystemRepository) -> None:
+    """Accept a fresh, validated filesystem checkpoint as the next baseline."""
+    state, snapshot, changes, handoff, context = _filesystem_inspect(repo)
+    if not changes or context is None:
+        raise HandoffError("No refreshed filesystem checkpoint is pending.")
+    latest_snapshot = repo.snapshot(state["config"])
+    latest_handoff = repo.handoff()
+    if latest_snapshot != snapshot or latest_handoff != handoff:
+        raise HandoffError("Project changed while checkpointing; refresh filesystem context again.")
+    repo.write_state(
+        _filesystem_state(state["config"], snapshot, handoff, context["checkpoint_id"])
+    )
+    print(f"Accepted filesystem checkpoint {context['checkpoint_id']}; no Git commit was created.")
+
+
 def main() -> int:
     """Run the repository checkpoint guard or its explicit refresh operation."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -417,8 +925,53 @@ def main() -> int:
     mode.add_argument("--range", nargs=2, metavar=("BASE", "TIP"))
     mode.add_argument("--history", metavar="TIP")
     mode.add_argument("--pre-push", action="store_true")
+    mode.add_argument("--filesystem-init", action="store_true")
+    mode.add_argument("--filesystem-check", action="store_true")
+    mode.add_argument("--filesystem-refresh-context", action="store_true")
+    mode.add_argument("--filesystem-checkpoint", action="store_true")
+    mode.add_argument("--filesystem-recover", action="store_true")
+    parser.add_argument("--filesystem-root", type=Path, default=Path.cwd())
+    parser.add_argument("--filesystem-state-dir", type=Path, default=Path(FILESYSTEM_STATE_DIR))
+    parser.add_argument("--filesystem-include", action="append")
+    parser.add_argument("--filesystem-exclude", action="append")
+    parser.add_argument("--confirm-filesystem-recovery", action="store_true")
     args = parser.parse_args()
+    filesystem_mode = any(
+        (
+            args.filesystem_init,
+            args.filesystem_check,
+            args.filesystem_refresh_context,
+            args.filesystem_checkpoint,
+            args.filesystem_recover,
+        )
+    )
     try:
+        if filesystem_mode:
+            filesystem_repo = FilesystemRepository(args.filesystem_root, args.filesystem_state_dir)
+            if (args.filesystem_include or args.filesystem_exclude) and not (
+                args.filesystem_init or args.filesystem_recover
+            ):
+                raise HandoffError(
+                    "Set filesystem include/exclude rules only during --filesystem-init or "
+                    "recovery."
+                )
+            if args.filesystem_recover:
+                if not args.confirm_filesystem_recovery:
+                    raise HandoffError(
+                        "Filesystem recovery is explicit; add --confirm-filesystem-recovery."
+                    )
+                filesystem_init(filesystem_repo, args, recover=True)
+            elif args.filesystem_init:
+                filesystem_init(filesystem_repo, args)
+            elif args.filesystem_check:
+                filesystem_check(filesystem_repo)
+            elif args.filesystem_refresh_context:
+                filesystem_refresh(filesystem_repo)
+            else:
+                filesystem_checkpoint(filesystem_repo)
+            return 0
+        if args.confirm_filesystem_recovery or args.filesystem_include or args.filesystem_exclude:
+            raise HandoffError("Filesystem options require a --filesystem-* mode.")
         repo = Repository()
         if repo.git("rev-parse", "--is-shallow-repository").strip() == b"true":
             raise HandoffError("Full Git history is required; fetch with git fetch --unshallow.")
@@ -449,7 +1002,8 @@ def main() -> int:
         subprocess.CalledProcessError,
         ValueError,
     ) as error:
-        print(f"Master handoff check failed: {error}\n{RECOVERY}", file=sys.stderr)
+        recovery = FILESYSTEM_RECOVERY if filesystem_mode else RECOVERY
+        print(f"Master handoff check failed: {error}\n{recovery}", file=sys.stderr)
         return 1
     return 0
 

@@ -4,12 +4,15 @@ import copy
 import importlib.util
 import json
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from zipfile import ZipFile
 
 import pytest
 
 pytest.importorskip("openpyxl")
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils.datetime import CALENDAR_MAC_1904
 
 from finassert import web
 from finassert.excel import policy_text_from_rows, results_sheet
@@ -26,6 +29,88 @@ def module(name):
     sys.modules[name] = result
     spec.loader.exec_module(result)
     return result
+
+
+@pytest.mark.parametrize("extension_name", ["webextension.xml", "webextension1.xml"])
+def test_ac07_recovery_preserves_sideload_parts_and_offset_date_source(tmp_path, extension_name):
+    seed = tmp_path / "sideload.xlsx"
+    parts = {
+        "xl/webextensions/taskpanes.xml": b"<taskpanes/>",
+        f"xl/webextensions/{extension_name}": b'<webextension id="existing-test-addin"/>',
+        "xl/webextensions/_rels/taskpanes.xml.rels": b"<Relationships/>",
+    }
+    with ZipFile(seed, "w") as archive:
+        archive.writestr(
+            "_rels/.rels",
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="seedPane" '
+            'Type="http://schemas.microsoft.com/office/2011/relationships/webextensiontaskpanes" '
+            'Target="/xl/webextensions/taskpanes.xml"/></Relationships>',
+        )
+        archive.writestr(
+            "[Content_Types].xml",
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Override PartName="/xl/webextensions/taskpanes.xml" '
+            'ContentType="application/vnd.ms-office.webextensiontaskpanes+xml"/>'
+            f'<Override PartName="/xl/webextensions/{extension_name}" '
+            'ContentType="application/vnd.ms-office.webextension+xml"/></Types>',
+        )
+        for name, data in parts.items():
+            archive.writestr(name, data)
+    original = seed.read_bytes()
+    output = tmp_path / "disposable"
+    identities = module("prepare_ac07_fixture").prepare(output, seed)
+    assert seed.read_bytes() == original
+    assert identities["source"] == "Sheet1!C7:H9"
+    for epoch in ("1900", "1904"):
+        path = output / f"ac07-{epoch}.xlsx"
+        with ZipFile(path) as archive:
+            assert {name: archive.read(name) for name in parts} == parts
+            relationships = ET.fromstring(archive.read("_rels/.rels"))
+            pane = [
+                item
+                for item in relationships
+                if item.get("Type", "").endswith("/webextensiontaskpanes")
+            ]
+            assert len(pane) == 1
+            assert pane[0].get("Target").lstrip("/") in parts
+            content_types = ET.fromstring(archive.read("[Content_Types].xml"))
+            assert {
+                item.get("PartName")
+                for item in content_types
+                if "webextension" in item.get("ContentType", "")
+            } == {"/xl/webextensions/taskpanes.xml", f"/xl/webextensions/{extension_name}"}
+        book = load_workbook(path)
+        assert (book.epoch == CALENDAR_MAC_1904) == (epoch == "1904")
+        assert not book["Sheet1"].tables
+        assert book["Sheet1"]["F8"].value == -400
+        assert book["Sheet1"]["H8"].value.isoformat() == "2026-01-01T00:00:00"
+        book.close()
+        source = read_workbook(path, sheet="Sheet1", header_row=7, max_row=9)
+        assert source.column("market_value")[1] == [8, 9]
+        assert source.column("date")[0][0].isoformat() == "2026-01-01"
+
+
+def test_ac07_recovery_rejects_a_workbook_without_a_sideload_pane(tmp_path):
+    seed = tmp_path / "ordinary.xlsx"
+    book = Workbook()
+    book.save(seed)
+    book.close()
+    destination = tmp_path / "disposable"
+    with pytest.raises(ValueError, match="task-pane relationship"):
+        module("prepare_ac07_fixture").prepare(destination, seed)
+    assert not destination.exists()
+
+
+def test_ac07_recovery_never_replaces_its_seed(tmp_path):
+    seed = tmp_path / "ac07-1900.xlsx"
+    book = Workbook()
+    book.save(seed)
+    book.close()
+    original = seed.read_bytes()
+    with pytest.raises(ValueError, match="must not replace its sideload seed"):
+        module("prepare_ac07_fixture").prepare(tmp_path, seed)
+    assert seed.read_bytes() == original
 
 
 @pytest.fixture(params=["1900", "1904"])

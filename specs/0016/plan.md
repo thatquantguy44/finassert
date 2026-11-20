@@ -33,11 +33,11 @@ The measurements establish neither a general latency guarantee nor full acceptan
 
 | Area | Expected change |
 | --- | --- |
-| web/excel.js, web/excel-panel.html | Source picker, host lifecycle, date choice, selection/navigation and output guards |
+| web/excel.js, web/excel-panel.html | Source picker, host lifecycle, date choice, settings route, selection/navigation and output guards |
 | web/app.js, web/index.html, web/excel-results.html | Shared result invalidation, current/stale controls, diagnostic actions and accessible feedback |
 | src/finassert/web.py, src/finassert/excel.py | Private source-context/navigation support and existing Python parsing/report reuse |
 | src/finassert/reporting/artifact.py | Optional additive input.excel context; legacy artifacts unchanged |
-| scripts/build_excel.py | Stable API requirements/capability messaging; retain CDN and bundled builds |
+| scripts/build_excel.py | Stable API requirements/capability messaging, Home-ribbon manifest resources/commands; retain CDN and bundled builds |
 | scripts/excel_stub.js, scripts/smoke_excel.py | Controllable capability/event/structural/race/write-failure scenarios |
 | tests/unit/test_excel.py, test_web_bridge.py, test_build_excel.py | Input, date, source/provenance, lifecycle and compatibility regressions |
 | docs/excel-add-in.md, docs/design/excel-spike.md | User workflow, changed defaults and real-host evidence |
@@ -69,6 +69,10 @@ six-slice delivery. See [API findings](api-matrix.md) and [baseline](artifacts/R
 - Keep prior results historical on invalidation; no new engine status or automatic
   revalidation. A Current result may still be failed/error/skipped.
 - Preserve source cells; owned output cannot overwrite a bound source.
+- Keep Home-ribbon commands additive: they may open the existing validation pane
+  or its distinct in-pane session-settings view, but cannot evaluate, modify data,
+  or bypass capture guards. Returning to validation preserves the current pane
+  session rather than recreating it.
 
 ## Verification
 
@@ -99,6 +103,10 @@ configurations, cancellation/timeouts, delayed events, stale exports and races.
 Network/runtime setup is described in the existing build scripts; secrets and
 workbook contents do not belong in logs or committed evidence.
 
+For the Home-ribbon addition, run `office-addin-manifest validate` on the generated
+manifest, then record native Home-tab visibility plus both pane launch routes.
+Schema validation cannot substitute for that host observation.
+
 Before promotion, run all CONTRIBUTING.md checks, existing web/add-in smoke flows,
 and the [real-host acceptance checklist](acceptance.md). Compare canonical report
 results, not environment timestamps or differing input locators. Document failures,
@@ -112,3 +120,10 @@ documents exact inputs and limits. Run the harness controls with
 `PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/test_excel_acceptance_tools.py`.
 Generated test exports establish harness behavior only; they cannot check off
 native rows or replace the visible host workflow and integrity observations.
+
+If the temporary native workbook is gone, `artifacts/prepare_ac07_fixture.py`
+recreates the exact small offset/date source with task-pane parts from an explicit
+Office-generated sideload seed. Its controls verify both epochs, preservation of
+the supplied pane, missing-pane rejection and seed protection. Use the same harness
+command above. The recovery tool does not establish native opening or acceptance;
+retain actual host downloads and use `verify_e06_exports.py` afterward.

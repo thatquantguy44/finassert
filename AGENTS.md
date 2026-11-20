@@ -28,6 +28,13 @@ Stage intended work and master prose, run
 or claim unperformed verification. Commit/push hooks and CI check the actual
 index/history. See [the checkpoint workflow](CONTRIBUTING.md#master-handoff-checkpoints).
 
+When Git is unavailable, use the explicit filesystem checkpoint commands in the
+same workflow: initialize one reviewed local baseline, refresh only the generated
+filesystem context after a handoff update, validate it, then explicitly accept the
+new baseline. A filesystem checkpoint is local state, never a substitute for a
+Git commit, push or CI result. Do not reset missing or damaged filesystem state;
+use the documented explicit recovery command after reviewing the project.
+
 Use the verification commands in [CONTRIBUTING.md](CONTRIBUTING.md) and the
 relevant spec plan. For documentation-only changes, verify links, anchors, and
 the strict docs build; rerun runtime checks when implementation changes.

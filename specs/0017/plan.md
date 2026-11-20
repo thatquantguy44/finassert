@@ -4,8 +4,11 @@
 
 1. Build staged/commit/history validation and explicit Git-context refresh.
 2. Test real temporary repos and failures, then wire pre-commit/pre-push/CI.
-3. Update canonical instructions and bootstrap a complete master checkpoint.
-4. Verify the real hook and push path; retain results in the local/master handoffs.
+3. Add filesystem-only baseline, context refresh, read-only check, atomic
+   checkpoint and explicit recovery without invoking Git.
+4. Update canonical instructions and bootstrap a complete master checkpoint.
+5. Verify the real hook/push path and non-Git filesystem flow; retain results in
+   the local/master handoffs.
 
 ## Dependencies and affected areas
 
@@ -22,6 +25,8 @@ Existing Python APIs, financial semantics and Excel implementation are unchanged
 .venv/bin/ruff format --check .
 .venv/bin/mkdocs build --strict
 python3 scripts/check_handoff.py --staged
+python3 scripts/check_handoff.py --filesystem-init --filesystem-root /path/to/non-git-project
+python3 scripts/check_handoff.py --filesystem-check --filesystem-root /path/to/non-git-project
 git diff --check
 ```
 

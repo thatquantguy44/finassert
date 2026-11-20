@@ -52,3 +52,12 @@ the artifact. Each export refreshes verified_at after preflight, not generated_a
 or financial results. Live HTML/sheet views use canonical retained diagnostics
 and complete cap/count summaries. Legacy artifacts and file/CLI rendering without
 input.excel retain their previous behavior. See 0016 R-05 for output failure rules.
+
+## Presentation migration — 2026-11-20
+
+HTML and add-in sheet/editor views explain configured severity using the human
+failure actions in [0011](../0011/spec.md#data-contracts). Third-column sheet text
+is now **If check fails** with action labels, while **Result** remains the actual
+outcome. Artifact/policy severity, technical CLI XLSX fields, diagnostics, counts,
+precision, blocking and source identity remain unchanged. Existing saved evidence
+is historical; it is not silently rewritten.

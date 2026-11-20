@@ -94,6 +94,24 @@ tool version, and UTC timestamp, and caps displayed rows per 0005 limits.
 Interfaces that edit policies must round-trip them: export, reload, and identical
 results.
 
+The shared browser/Excel result view names its expandable report action **Open
+Full Validation Report**. Below the Run checks result banner, **View Full Validation
+Report** opens that section, moves keyboard focus to its summary and scrolls the
+pane to the report, respecting reduced-motion preferences. This only navigates
+the displayed result, including historical results; it does not rerun checks,
+read workbook cells or change export/currentness guards.
+
+Human-facing add-in results sheets label the configured failure action **If check
+fails**: `error` displays as **Block validation**, `warning` as **Show warning**,
+and `info` as **Show information**. HTML report cards, live diagnostic explanations
+and policy editor option labels use the same wording. **Result** remains the
+actual outcome, including passed checks configured to block on failure and
+evaluation errors at any configured severity. This is a presentation migration:
+policy/JSON fields, option values, blocking mathematics, artifact schema and the
+technical CLI XLSX `severity` column keep their existing contracts. Existing saved
+reports remain snapshots; rewriting a live results sheet uses the ordinary owned
+destination and current-result guards.
+
 ## Financial and numerical edge cases
 
 UI numeric inputs are captured as strings and parsed as Decimal to preserve

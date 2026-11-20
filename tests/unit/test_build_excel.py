@@ -64,7 +64,7 @@ def test_the_manifest_names_the_task_pane_and_asks_for_the_permission_it_needs()
     assert root.tag == "{http://schemas.microsoft.com/office/appforoffice/1.1}OfficeApp"
     # The deployment version meets Office's >=1.0 constraint independently of
     # the package's prerelease version; the pane retains its real package version.
-    assert root.find("o:Version", ns).text == "1.0.0.0"  # type: ignore[union-attr]
+    assert root.find("o:Version", ns).text == "1.0.0.1"  # type: ignore[union-attr]
     assert root.find("o:Permissions", ns).text == "ReadWriteDocument"  # type: ignore[union-attr]
     assert root.find("o:Hosts/o:Host", ns).get("Name") == "Workbook"  # type: ignore[union-attr]
     requirement = root.find("o:Requirements/o:Sets/o:Set", ns)
@@ -80,6 +80,50 @@ def test_the_manifest_names_the_task_pane_and_asks_for_the_permission_it_needs()
     assert builder.manifest("https://a.example/").count(str(builder.ADD_IN_ID)) == 1
 
 
+def test_manifest_adds_home_ribbon_commands_for_validation_and_settings() -> None:
+    builder = load("build_excel")
+    root = ElementTree.fromstring(builder.manifest("https://example.com/finassert/"))
+    ns = {
+        "vo": "http://schemas.microsoft.com/office/taskpaneappversionoverrides",
+        "bt": "http://schemas.microsoft.com/office/officeappbasictypes/1.0",
+    }
+    group = root.find(
+        "vo:VersionOverrides/vo:Hosts/vo:Host/vo:DesktopFormFactor/"
+        "vo:ExtensionPoint/vo:OfficeTab/vo:Group[@id='Finassert.Ribbon.Group']",
+        ns,
+    )
+    assert group is not None
+    assert group.find("vo:Label", ns).get("resid") == "Finassert.Group.Label"  # type: ignore[union-attr]
+    controls = {control.get("id"): control for control in group.findall("vo:Control", ns)}
+    validation = controls["Finassert.OpenValidation"]
+    settings = controls["Finassert.OpenSettings"]
+    for control, pane_id, resource, title in (
+        (validation, "Finassert.Validation", "Taskpane.Url", "Finassert.Validation.Title"),
+        (settings, "Finassert.Settings", "Settings.Url", "Finassert.Settings.Title"),
+    ):
+        action = control.find("vo:Action", ns)
+        assert action is not None
+        assert action.get("{http://www.w3.org/2001/XMLSchema-instance}type") == "ShowTaskpane"
+        assert action.find("vo:TaskpaneId", ns).text == pane_id  # type: ignore[union-attr]
+        assert action.find("vo:SourceLocation", ns).get("resid") == resource  # type: ignore[union-attr]
+        assert action.find("vo:Title", ns).get("resid") == title  # type: ignore[union-attr]
+    resources = root.find("vo:VersionOverrides/vo:Resources", ns)
+    assert resources is not None
+    urls = {
+        url.get("id"): url.get("DefaultValue") for url in resources.findall("bt:Urls/bt:Url", ns)
+    }
+    assert urls == {
+        "Taskpane.Url": "https://example.com/finassert/taskpane.html",
+        "Settings.Url": "https://example.com/finassert/taskpane.html?view=settings",
+    }
+    strings = {
+        item.get("id"): item.get("DefaultValue")
+        for item in resources.findall("bt:ShortStrings/bt:String", ns)
+    }
+    assert strings["Finassert.Validation.Title"] == "finassert Validation"
+    assert strings["Finassert.Settings.Title"] == "finassert Settings"
+
+
 def test_manifest_values_are_escaped() -> None:
     builder = load("build_excel")
 
@@ -89,7 +133,7 @@ def test_manifest_values_are_escaped() -> None:
     assert "&amp;" in text
 
 
-@pytest.mark.parametrize("size", [32, 64])
+@pytest.mark.parametrize("size", [16, 32, 64, 80])
 def test_the_placeholder_icons_are_valid_pngs(size: int) -> None:
     data = load("build_excel").icon(size)
 
@@ -113,8 +157,12 @@ def test_the_build_script_requires_an_https_base_address(tmp_path: Path) -> None
         builder.main(["--base-url", "https://example.com/x/", "--output-dir", str(tmp_path)]) == 0
     )
     assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "finassert-user-guide.json",
+        "finassert-user-guide.pdf",
+        "icon-16.png",
         "icon-32.png",
         "icon-64.png",
+        "icon-80.png",
         "manifest.xml",
         "taskpane.html",
     ]

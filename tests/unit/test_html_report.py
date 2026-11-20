@@ -66,6 +66,7 @@ def test_report_embeds_artifact_and_shows_outcomes() -> None:
     assert "Portfolio weights add up to 100%" in page
     assert "One portfolio per file" in page
     assert "Could not run" in page
+    assert "If check fails: Block validation" in page
     assert "2026-01-02T03:04:05Z" in page
     artifact = embedded_artifact(page)
     assert artifact == build_artifact(

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "title": "finassert User Guide",
+  "tool": {
+    "name": "finassert",
+    "version": "0.1.0"
+  },
+  "revision": "2026-11-20",
+  "filename": "finassert-user-guide.pdf",
+  "content_type": "application/pdf",
+  "download_url": "/api/finassert/v1/user-guide.pdf",
+  "bytes": 193735,
+  "pages": 47,
+  "sha256": "2c1c3b20f42c9dbf6fcc043b325e25b3144a703bd91fdb0f784ff65a685ca63f",
+  "source_sha256": "3393ea8f0a1240662410731f8003f380b3c0d0922954dd58899a387eb3926f93",
+  "catalog_sha256": "0c6fbe938c8779fb076191989c5cdbaaaa51a1b238873f7be61735618f2ae7cb",
+  "builder_sha256": "39e257009c41b81f1eed34a97da24a91cc9c50d55061093097a73b23cb8f60c1",
+  "rule_count": 20,
+  "template_count": 10
+}

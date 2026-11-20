@@ -1,0 +1,16 @@
+INFO  environment: Excel on Mac, version 16.115.1108.0; loaded via: sideloaded
+PASS  Excel API support: ExcelApi sets supported: 1.1, 1.2, 1.3, 1.4, 1.5, 1.7, 1.8, 1.9, 1.13 (the current add-in needs 1.7 for sheet writes)
+PASS  planned workflow API baseline (5 ms): {"calculationMode":"Automatic","calculationState":"Done","worksheetEvents":{"onChanged":true,"onCalculated":true,"onFormatChanged":true},"dateSystem":"not detected; explicit user choice is required in E-02","currentDatePayload":"date1904 explicitly supplied from the required user choice"} (read-only probe; no calculation setting changed)
+PASS  engine start-up: ready 951 ms after the page started (limit 120 s). Memory is not reported here.
+PASS  security policy: no content-security-policy violations
+PASS  network use (1 ms): 10 request(s) to https://appsforoffice.microsoft.com, https://localhost:3002; none after the engine was ready
+PASS  write 50,000 test rows (241 ms): sheet "finassert spike data" created
+PASS  read the rows back (631 ms): 50,000 rows read from 'finassert spike data'!A1:E50001
+PASS  run the multi-portfolio template (692 ms): weights failed in 3 portfolio(s) (expected 3), NAV in 3 (expected 3); data checks passed
+PASS  write the results sheet (68 ms): 21 row(s) written to "finassert results"
+PASS  save and load the checks (125 ms): the checks round-tripped unchanged
+PASS  your data was not changed (193 ms): the test rows read back identical after every step
+
+All steps passed
+
+{"finassert":"0.1.0","steps":[{"name":"environment","status":"INFO","ms":0},{"name":"Excel API support","status":"PASS","ms":0},{"name":"planned workflow API baseline","status":"PASS","ms":5},{"name":"engine start-up","status":"PASS","ms":0},{"name":"security policy","status":"PASS","ms":0},{"name":"network use","status":"PASS","ms":1},{"name":"write 50,000 test rows","status":"PASS","ms":241},{"name":"read the rows back","status":"PASS","ms":631},{"name":"run the multi-portfolio template","status":"PASS","ms":692},{"name":"write the results sheet","status":"PASS","ms":68},{"name":"save and load the checks","status":"PASS","ms":125},{"name":"your data was not changed","status":"PASS","ms":193}],"environment":{"host":"Excel","platform":"Mac","version":"16.115.1108.0","contextPlatform":"Mac","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)","sets":{"1.1":true,"1.2":true,"1.3":true,"1.4":true,"1.5":true,"1.7":true,"1.8":true,"1.9":true,"1.13":true},"workflowBaseline":{"calculationMode":"Automatic","calculationState":"Done","worksheetEvents":{"onChanged":true,"onCalculated":true,"onFormatChanged":true},"dateSystem":"not detected; explicit user choice is required in E-02","currentDatePayload":"date1904 explicitly supplied from the required user choice"}},"startedAt":160808}

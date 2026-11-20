@@ -9,7 +9,38 @@ E-04/E-05 focused evidence and the E-06 Mac preflight are retained below;
 the full host gate is still open. Current pickup is in the
 [acceptance record](../acceptance.md#ac-07-immediate-pickup).
 
+## 2026-11-20 demo validation
+
+[e06-native-demo-validation.json](e06-native-demo-validation.json) records 3,724
+runtime and 110 browser passes, quality/smoke/package checks, recovery details,
+native ribbon launches and the completed 1904 correction/export/CLI loop.
+The current native [50,000-row diagnostic](e06-native-demo-diagnostics.txt) passes
+all steps. Actual 1904 [JSON](ac07-native-1904-passed-report.json),
+[HTML](ac07-native-1904-passed-report.html) and
+[policy](ac07-native-1904-policy.yml) agree with all 34 × 5 results-sheet cells
+and the real CLI. Export preserves every native source value/type/number format.
+The local demo workbook and pre-export snapshot live under ignored `dist/demo/`;
+retained hashes identify them. Full E-06 and external review remain open.
+
 ## AC-07 native progress
+
+[ac07-native-completion.json](ac07-native-completion.json) supersedes the old
+correction blocker for the 1900 fixture. Native F8 correction → Stale → reread →
+three passes → exports now succeeds. Actual [JSON](ac07-native-passed-report.json),
+[HTML](ac07-native-passed-report.html), all 34 × 5 results-sheet cells and the CLI
+match. Source and existing-sheet values/types/formats remain unchanged during
+exports; only the intended F8 -400 → 400 edit differs from the initial source.
+The AC-07 evidence's bundled runtime loads on HTTPS localhost:3002 after repairing
+conflicting port-3000 development manifests and restarting Excel. The current
+local task-pane UI is separately served there; its native Home-ribbon launches
+were observed on 2026-11-20 without altering that historical evidence.
+
+[prepare_ac07_fixture.py](prepare_ac07_fixture.py) recreates both epoch fixtures
+while retaining task-pane parts from an explicitly supplied Office-generated
+sideload seed, including numbered parts in a native resave. Fourteen harness
+checks pass; generated fixtures are setup evidence. Native 1904 is now verified;
+table/hidden/failure/race/keyboard coverage remains open. See the
+[current pickup](../acceptance.md#ac-07-immediate-pickup).
 
 [ac07-native-progress.json](ac07-native-progress.json) records native 1900 date
 formatting, C7:H9 bounds, the negative row-8 finding and F8 click navigation.
@@ -17,9 +48,8 @@ The actual [failed JSON](ac07-native-failed-report.json) equals the CLI report a
 policy, and the source's values/types/formats are unchanged across navigation.
 The initial E-06 checkpoint was pushed as `6328253` before this work.
 
-Correction/Stale/reread/pass and passing exports remain **unexecuted** after
-native capture returned `cgWindowNotFound`. Foreground the original test workbook
-and follow the [immediate pickup](../acceptance.md#ac-07-immediate-pickup).
+That historical checkpoint stopped before correction when native capture returned
+`cgWindowNotFound`; the completion record above retains the later successful loop.
 
 ## E-06 native scale and exports
 

@@ -9,6 +9,7 @@ theme:
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - User guide (PDF available): user-guide.md
   - Architecture: architecture.md
   - Rule development: rule-development.md
   - Policies and command line: command-line.md
