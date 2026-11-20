@@ -11,6 +11,7 @@
   const endpoint = "/api/quantsmith/v1/docs";
   let documents = [];
   let revision = "";
+  let sourceName = "local checkout";
   let opened = 0;
 
   async function readJson(path) {
@@ -32,7 +33,7 @@
     }
     status.textContent = `${matches.length} document(s) match. ` +
       (matches.length > 100 ? "Showing the first 100; narrow your search. " : "") +
-      `Pinned to ${revision}.`;
+      `Pinned to ${revision}. Source: ${sourceName}.`;
   }
 
   async function openDocument(doc) {
@@ -68,6 +69,7 @@
       }
       documents = catalog.documents;
       revision = catalog.commit;
+      sourceName = catalog.source === "github" ? "GitHub" : "local checkout";
       search.disabled = false;
       render();
     } catch (error) {

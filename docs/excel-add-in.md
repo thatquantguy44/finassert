@@ -51,10 +51,10 @@ exports/CLI parity and source integrity. Table/hidden/failure/race/keyboard case
 remain pending; complete Mac acceptance is not claimed. Maintainers can
 follow the [current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#current-pickup-and-retained-native-files).
 
-An optional [QuantSmith reference](quantsmith-reference.md) panel can read
-allowlisted agent guides and documentation from a pinned local checkout through
-the add-in's same-origin, read-only API. It is loaded only when requested and
-does not send workbook data. Real Excel host acceptance of this panel is pending.
+An optional [QuantSmith reference](quantsmith-reference.md) panel reads its
+configured local checkout by default, with an explicit pinned-GitHub alternative,
+through the add-in's same-origin, read-only API. It is loaded only when requested
+and does not send workbook data. Real Excel host acceptance of this panel is pending.
 
 ## What it does
 

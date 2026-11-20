@@ -2,8 +2,9 @@
 
 ## Current
 
-Local single-user reference reader and pinned, scoped API. It is optional and
-does not change workbook validation.
+Local single-user reference reader and pinned, scoped API. The supplied local
+checkout is the default; a local owner may explicitly select the pinned GitHub
+source. It is optional and does not change workbook validation.
 
 ## Next
 

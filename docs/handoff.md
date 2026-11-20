@@ -23,11 +23,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Marked generated PDFs as binary artifacts and finalized the authorized branch delivery.
+- **Last worked on:** Configured the supplied QuantSmith checkout as the default local reader, repinned the allowlist to its reviewed commit, and added a selected GitHub Git-object mode for owners who need it.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
-- **Verification:** 3,743 runtime and 111 browser tests pass; lint/format, mypy (65 modules), Microsoft manifest validation, browser/file and 50,000-row bundled Excel smoke, installed distributions, strict docs, links/anchors and diff checks pass. Native tab names/top headings, guarded replacement of the demo results sheet, saved three-pass failure labels and preserved C7:H9/1904 source are verified. All 47 PDF pages, 105 bookmarks, deterministic rebuild and live trusted HTTPS GET/HEAD downloads pass.
-- **Stopping point:** The saved demo has three passed checks with If check fails / Block validation, and both named panes are open. The verified guide API runs on HTTPS localhost:3002. This checkpoint packages all authorized branch changes; full E-06 remains open.
+- **Verification:** 3,744 runtime and 111 browser tests pass; the focused reader, guide and server slice has 38 passing checks. The local HTTPS API returns source `local`, the pinned `d090cc3e7ddd6066fdef14bdfa76262f37c5ff50` commit and 1,426 allowlisted documents. The regenerated 47-page PDF renders cleanly on its changed page, rebuilds byte-identically and matches its live HTTPS download.
+- **Stopping point:** HTTPS localhost:3002 serves the fully bundled Excel build, current guide and 1,426-document local catalog. The native developer-add-in list shows only finassert; its pane was not reopened for this reference slice. Changes remain uncommitted.
 - **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
   Delivery includes pane/report UI, native evidence, the guide/API and explicit
   filesystem checkpoint support, with tests and documentation.
@@ -50,13 +50,14 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
   [demo evidence](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/artifacts/e06-native-demo-validation.json)
   records native 50,000-row diagnostics, 1904 correction/Stale/reread/export,
   canonical CLI parity, exact source integrity and targeting interruptions.
-- **Local host:** HTTPS `https://localhost:3002` now serves the guide-enabled
-  bundled build at `/tmp/finassert-guide-build` with the existing development
+- **Local host:** HTTPS `https://localhost:3002` now serves the fully bundled
+  build at `/tmp/finassert-quantsmith-build` with the existing development
   certificate and installed manifest deployment 1.0.0.1. The verified PDF is available at
   `/api/finassert/v1/user-guide.pdf`; metadata is at `/api/finassert/v1/user-guide`.
-  The pane offers an explicit download link. Both native host tabs now have
-  distinct names and first headings. Certificate trust and add-in permissions
-  remain unchanged; the saved demo results sheet has the new failure-action labels.
+  The optional QuantSmith API now defaults to the local checkout at
+  `/Users/joshualutkemuller/Documents/Quant Sandbox/agentic_workflows/qf_workflow_sdk_public`,
+  pinned to `d090cc3e7ddd6066fdef14bdfa76262f37c5ff50`; GitHub remains an explicit
+  loopback-only mode. Certificate trust and add-in permissions remain unchanged.
 - **Fixture recovery:** The explicit seed-preserving tool now recognizes
   web-extension parts by content type, including Excel's saved numbered names.
   Fourteen harness controls pass. Synthetic 1904 opened cleanly and completed
@@ -69,7 +70,8 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 - **Scope/review:** No full Mac, Windows/web, reference-panel or external review
   claim. The user-requested UI and additive Home-ribbon commands change no financial
   semantics, core dependencies, release/tag or downstream application. Spec 0019
-  adds only the public local guide API; private QuantSmith routes stay unchanged.
+  adds only the public local guide API; Spec 0018 now keeps the private reference
+  local by default while offering an explicit loopback-only GitHub source.
   Follow the [current pickup](https://github.com/thatquantguy44/finassert/blob/main/specs/0016/acceptance.md#ac-07-immediate-pickup).
 
 ## Next up
@@ -93,8 +95,12 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "ad2a173ba913330df616b59f074a9a017b23dcad",
+  "prior_head": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
   "recent_commits": [
+    {
+      "commit": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
+      "subject": "chore: track generated PDF assets as binary"
+    },
     {
       "commit": "ad2a173ba913330df616b59f074a9a017b23dcad",
       "subject": "feat(excel): clarify validation UI and add downloadable user guide"
@@ -110,19 +116,33 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     {
       "commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
       "subject": "Merge pull request #28 from thatquantguy44/feature/quantsmith-readonly-docs"
-    },
-    {
-      "commit": "7af01ffcee0a5bccfe5c27d2740da0aea9ac593d",
-      "subject": "Merge pull request #26 from thatquantguy44/feature/excel-diagnostic-navigation"
     }
   ],
   "changed_paths": [
-    ".gitattributes",
+    "docs/assets/finassert-user-guide.json",
+    "docs/assets/finassert-user-guide.pdf",
+    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "specs/0019/handoff.md"
+    "docs/quantsmith-reference.md",
+    "docs/roadmap.md",
+    "docs/user-guide.md",
+    "integrations/quantsmith-docs.lock.json",
+    "scripts/quantsmith_docs.py",
+    "scripts/serve_excel.py",
+    "specs/0018/contracts.md",
+    "specs/0018/handoff.md",
+    "specs/0018/plan.md",
+    "specs/0018/roadmap.md",
+    "specs/0018/spec.md",
+    "specs/0018/tasks.md",
+    "specs/0019/artifacts/verification.json",
+    "tests/browser/test_excel_quantsmith_reference.py",
+    "tests/unit/test_quantsmith_docs.py",
+    "web/excel-panel.html",
+    "web/quantsmith-docs.js"
   ],
-  "project_sha256": "0e8d1c448851897886ff9599624f939b1d796f65ffa41ec526557863293bcd83",
-  "reviewed_sections_sha256": "2125b4907381d7274cee429c67bc01ee600039674742f61f1486fd1d0db65a86"
+  "project_sha256": "debb33365b13fa6ad5f031836a7c8eefd9b0be7ed2d1c629bd9c9c34b0c649c6",
+  "reviewed_sections_sha256": "ad5ff0dd106c88f6d3758b66cb9b06dd374ab65c0d389b865068cfe1fd6aab16"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -141,6 +161,28 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-20 — Local-default QuantSmith reference with explicit GitHub mode
+
+- **Worked on:** Configured the supplied QuantSmith checkout as the default local
+  reader, repinned the allowlist to its reviewed commit, and added a selected
+  GitHub Git-object mode for owners who need it.
+- **Stopping point:** HTTPS localhost:3002 serves the fully bundled Excel build,
+  current guide and 1,426-document local catalog. The native developer-add-in
+  list shows only finassert; its pane was not reopened for this reference slice.
+  Changes remain uncommitted.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** 3,744 runtime and 111 browser tests pass; the focused reader,
+  guide and server slice has 38 passing checks. The local HTTPS API returns source
+  `local`, the pinned `d090cc3e7ddd6066fdef14bdfa76262f37c5ff50` commit and 1,426
+  allowlisted documents. The regenerated 47-page PDF renders cleanly on its
+  changed page, rebuilds byte-identically and matches its live HTTPS download.
+- **Boundary decision:** Local is the default. GitHub is explicit, uses the exact
+  pinned commit and allowlisted blobs, accepts a Contents-read token only from the
+  local process environment, remains loopback-only, and receives no workbook or
+  policy data. It is not shared hosting.
 
 ### 2026-11-20 — Preserve PDF assets as binary in Git
 

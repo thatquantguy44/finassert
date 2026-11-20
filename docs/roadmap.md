@@ -20,8 +20,10 @@ in-pane settings view. Native Home visibility and both launch actions were
 observed on 2026-11-20; full E-06 remains open. The shared run summary now
 links directly to **Open Full Validation Report**, opening/focusing/scrolling
 the displayed report without new workbook reads or changes to export guards.
-Spec 0018 adds an optional local, read-only QuantSmith reference in the Excel
-pane. It does not change E-06's priority or claim shared hosting support.
+Spec 0018 adds an optional, read-only QuantSmith reference in the Excel pane.
+It defaults to the supplied local checkout and offers an explicit pinned GitHub
+source for the local owner; neither mode changes E-06's priority or claims
+shared hosting support.
 Spec 0019 now supplies the comprehensive [user guide](user-guide.md), a reviewed
 47-page PDF with all 20 built-in rules and 10 templates, and a local read-only
 download API in the existing Excel server. Its pane link and HTTPS downloads are
