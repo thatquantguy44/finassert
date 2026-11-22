@@ -57,9 +57,10 @@ Next engineering work:
 2. Continue the first [0020 performance and backtest integrity](handoff.md#next-up)
    milestone. P-02 fixtures are complete; P-03 AC-01/AC-02 and P-04 rule,
    starter policy, CLI/report parameters are implemented and pass verification.
-   Next build the worked workbook and Python/CLI example in P-05, then verify
-   native Excel parity in P-06. Point-in-time checks and optimization remain
-   proposed follow-on milestones.
+   P-05 now provides the worked workbook, visible reference formulas, source
+   mapping, seeded correction and matching Python/CLI replay. Next verify native
+   Excel correction/navigation, exports and CLI parity in P-06. Point-in-time
+   checks and optimization remain proposed follow-on milestones.
 3. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
 4. Implement debt principal and issuance proceeds under 0012 U-09; finalize the

@@ -2,18 +2,41 @@
 
 ## Current state
 
-- **Status** Proposed pending P-05 workbook/example delivery and P-06 Excel parity.
-- **Completed** P-03 AC-01/AC-02 acceptance and P-04 runtime implementation.
-- **Branch** `spec/0020-quant-model-assurance`, based on `origin/main` at `8f14c66`.
+- **Status** Proposed pending P-06 native Excel parity and package evidence.
+- **Completed** P-03 AC-01/AC-02 acceptance, P-04 runtime implementation, and
+  P-05 portable workbook/Python/CLI delivery.
+- **Branch** `spec/0020-p05-workbook-p06-excel-parity`, based on merged main at
+  `f34b310`.
 - **Design** The user confirmed one composite rule and complete policy parameter
   traceability. Specifications 0005 and 0007 now define the additive artifact
   contract; the [decisions](decisions.md) record the implemented API.
-- **Next spec task** P-05: author the worked Excel workbook and Python/CLI
-  example against the [independent fixtures](artifacts/fixtures/expected.json).
-  P-06 will qualify native Excel parity. The
+- **Next spec task** P-06: qualify the workbook in the add-in, retain actual
+  source-navigation/correction/rerun observations, and compare its normalized
+  evidence with the CLI. The
   [master handoff](../../docs/handoff.md#next-up) owns project order.
 
 ## Entries
+
+### 2026-11-21 — Build the P-05 worked performance workbook and replay
+
+- **Done** Added the synthetic
+  [workbook](../../examples/monthly-performance/monthly-performance-audit.xlsx),
+  its explicit policy/source mapping, a chronological reference calculation,
+  and the seeded June `src-2024-06` strategy cumulative discrepancy. The source
+  table retains non-chronological input order while reference formulas use only
+  periodic returns.
+- **Replay** Added the matching Python API wrapper, CLI command and correction
+  instructions under [examples/monthly-performance](../../examples/monthly-performance/README.md).
+  Correcting `Audit input!E15` from `0.071520150601` to `0.061520150601`
+  passes the Python API and CLI without changing reference results.
+- **Verified** The source workbook fails one expected tie-out across 24
+  comparisons. The corrected temporary workbook passes 24 comparisons through
+  Python and CLI. Formula inspection has no errors and rendered all four sheets.
+  The focused workbook regression tests pass.
+- **Boundary** No native Excel, add-in navigation, retained Excel export, or
+  Excel/CLI parity evidence is claimed. Those observations remain P-06.
+- **Next** Run P-06 native Excel correction/rerun and export parity using this
+  workbook. The master handoff keeps E-06 as the project priority.
 
 ### 2026-11-21 — Verify P-03 and implement P-04
 

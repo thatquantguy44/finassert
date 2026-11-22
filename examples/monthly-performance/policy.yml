@@ -1,0 +1,32 @@
+# finassert policy
+version: 1
+name: "Synthetic monthly strategy and benchmark audit"
+description: "Audit the workbook's synthetic monthly periodic and reported cumulative returns."
+assumptions:
+  - "Each row is one calendar month in one stable strategy and benchmark comparison."
+  - "Periodic values are simple total returns with no intraperiod cash-flow reconstruction."
+  - "Strategy returns are net of management and transaction costs."
+  - "Benchmark returns are gross of fees."
+  - "Both series are denominated in USD and use calendar month-end valuation."
+  - "The workbook starts with one deliberate June strategy cumulative discrepancy."
+rules:
+  - rule: monthly_performance_audit
+    period_end: "Period end"
+    strategy_return: "Strategy monthly return"
+    benchmark_return: "Benchmark monthly return"
+    reported_strategy_cumulative: "Reported strategy cumulative"
+    reported_benchmark_cumulative: "Reported benchmark cumulative"
+    window_start: "2024-01-31"
+    window_end: "2024-12-31"
+    periodic_return_unit: "fraction"
+    reported_return_unit: "fraction"
+    strategy_id: "strategy-demo"
+    benchmark_id: "benchmark-demo"
+    base_currency: "USD"
+    valuation_convention: "calendar month-end total return"
+    strategy_fee_treatment: "net of management and transaction costs"
+    benchmark_fee_treatment: "gross of fees"
+    tolerance: "0.0001"
+    row_key: "Source row ID"
+    severity: error
+    max_violations: 20

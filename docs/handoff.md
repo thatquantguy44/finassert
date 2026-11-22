@@ -23,14 +23,13 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Prepared the verified P-03 acceptance and P-04 composite audit, starter policy, policy parameter export, guide assets, tests and spec records for delivery on `spec/0020-quant-model-assurance`.
+- **Last worked on:** Built the P-05 worked monthly performance workbook, source mapping, formula trace, and Python/CLI correction replay on `spec/0020-p05-workbook-p06-excel-parity`.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
-- **Verification:** Full suite 3,785 passed and 111 Excel browser-job tests skipped. Eighteen guide/API tests pass after the final PDF rebuild. Ruff, formatting, mypy (67 source files), strict MkDocs, local anchors and diff checks pass. No native Excel acceptance or CI run is claimed.
-- **Stopping point:** P-03 AC-01/AC-02 and P-04 implementation are complete. P-05 workbook/Python/CLI example and P-06 native Excel parity remain open.
-- **Branch:** `spec/0020-quant-model-assurance`, from `origin/main` at `8f14c66`.
-- **Main baseline commits:** `8f14c66` merged QuantSmith configuration PR #30. `dcc2362`
-  merged the Excel UI, demo evidence and guide in PR #29.
+- **Verification:** P-05 workbook regression and related performance/report tests: 78 passed. Ruff, formatting, mypy (67 source files), strict MkDocs, formula-error scan, visual workbook review, and whitespace checks pass. A full-suite start reaches an MCP subprocess setup failure because its spawned interpreter cannot import `finassert.assistant`; no native Excel acceptance or CI run is claimed.
+- **Stopping point:** P-05 workbook/Python/CLI delivery is complete. P-06 native Excel navigation, correction/rerun, exports, and CLI parity evidence remain open.
+- **Branch:** `spec/0020-p05-workbook-p06-excel-parity`, from `origin/main` at `f34b310`.
+- **Main baseline commits:** `f34b310` merged the P-03/P-04 composite audit and policy traceability in PR #32. `8f14c66` merged QuantSmith configuration PR #30.
 - **Delivered:** E-01–E-05 and the pinned local reference reader are merged.
   Native scale/exports/CLI/integrity and the small 1900 correction loop are verified.
   Native ribbon visibility and both launch routes are now observed. Full E-06,
@@ -79,9 +78,9 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
    retain actual evidence and record external review.
 2. Performance and backtest integrity — 0020.
    P-02 fixtures, P-03 AC-01/AC-02 acceptance and P-04 composite rule, starter
-   policy and configured/effective parameter export are complete. P-05 workbook
-   and Python/CLI example remain, followed by P-06 Excel parity. Track P-04 at
-   [issue #31](https://github.com/thatquantguy44/finassert/issues/31).
+   policy and configured/effective parameter export are complete. P-05 now
+   supplies the worked workbook, source/formula trace and Python/CLI correction
+   replay. P-06 native Excel parity remains.
    Point-in-time checks and optimization assurance remain proposed follow-on
    milestones.
 3. Paired forecast accuracy — 0012 U-08.
@@ -98,11 +97,11 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "08bcde5aae16a05d9518d5bd3b3f48701de28046",
+  "prior_head": "f34b310d01ccb74ac98909c2e41bc1609e6a5ded",
   "recent_commits": [
     {
-      "commit": "08bcde5aae16a05d9518d5bd3b3f48701de28046",
-      "subject": "docs: scope spec 0020 for performance and backtest integrity"
+      "commit": "f34b310d01ccb74ac98909c2e41bc1609e6a5ded",
+      "subject": "Merge pull request #32 from thatquantguy44/spec/0020-quant-model-assurance"
     },
     {
       "commit": "8f14c66dc34a909a22a478607f7e0fe0ed377225",
@@ -122,60 +121,21 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
     }
   ],
   "changed_paths": [
-    "docs/assets/finassert-user-guide.json",
-    "docs/assets/finassert-user-guide.pdf",
     "docs/handoff.md",
     "docs/roadmap.md",
-    "docs/user-guide.md",
-    "specs/0005/contracts.md",
-    "specs/0005/handoff.md",
-    "specs/0005/roadmap.md",
-    "specs/0005/spec.md",
-    "specs/0005/tasks.md",
-    "specs/0007/contracts.md",
-    "specs/0007/handoff.md",
-    "specs/0007/roadmap.md",
-    "specs/0007/spec.md",
-    "specs/0007/tasks.md",
-    "specs/0013/contracts.md",
-    "specs/0013/handoff.md",
-    "specs/0013/roadmap.md",
-    "specs/0013/spec.md",
-    "specs/0013/tasks.md",
-    "specs/0020/artifacts/fixtures/expected.json",
-    "specs/0020/artifacts/fixtures/monthly_returns_13m_annualization.csv",
-    "specs/0020/artifacts/fixtures/monthly_returns_2024_seeded.csv",
-    "specs/0020/artifacts/fixtures/monthly_returns_3m_hand_case.csv",
-    "specs/0020/artifacts/fixtures/monthly_returns_3m_percent.csv",
-    "specs/0020/artifacts/fixtures/monthly_returns_zero_tracking_error.csv",
-    "specs/0020/contracts.md",
-    "specs/0020/decisions.md",
+    "examples/monthly-performance/README.md",
+    "examples/monthly-performance/monthly-performance-audit.xlsx",
+    "examples/monthly-performance/policy.yml",
+    "examples/monthly-performance/run_audit.py",
+    "scripts/build_monthly_performance_workbook.mjs",
     "specs/0020/handoff.md",
-    "specs/0020/plan.md",
     "specs/0020/roadmap.md",
     "specs/0020/spec.md",
     "specs/0020/tasks.md",
-    "src/finassert/__init__.py",
-    "src/finassert/performance.py",
-    "src/finassert/policy/catalog.py",
-    "src/finassert/policy/schema.py",
-    "src/finassert/policy/templates.py",
-    "src/finassert/reporting/html.py",
-    "src/finassert/reporting/xlsx.py",
-    "src/finassert/rules/__init__.py",
-    "src/finassert/rules/performance.py",
-    "tests/integration/test_assistant.py",
-    "tests/integration/test_cli.py",
-    "tests/integration/test_workbook_reports.py",
-    "tests/unit/test_html_report.py",
-    "tests/unit/test_performance.py",
-    "tests/unit/test_policy.py",
-    "tests/unit/test_templates.py",
-    "tests/unit/test_web_bridge.py",
-    "tests/unit/test_xlsx.py"
+    "tests/integration/test_monthly_performance_example.py"
   ],
-  "project_sha256": "2f37352ff91071170964fdce1c3e2f51e7393c99c9436fe6e625c632e1b3c5b7",
-  "reviewed_sections_sha256": "07341de71f7734474f7d14a7bece5ce1bb3a4a8b658dac546fe0b631948db093"
+  "project_sha256": "7dca4cb8a58b51b6a3b08f4c098cf3dc00ca0a2e4be6c6e5575e5019391df478",
+  "reviewed_sections_sha256": "a2d71be22f35435e038ea4d457ae5f20d889800964d19edae6a97e4b028a297b"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -194,6 +154,31 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-21 — Build the P-05 worked performance workbook
+
+- **Worked on:** Built the P-05 worked monthly performance workbook, source
+  mapping, formula trace, and Python/CLI correction replay on
+  `spec/0020-p05-workbook-p06-excel-parity`.
+- **Stopping point:** P-05 workbook/Python/CLI delivery is complete. P-06 native
+  Excel navigation, correction/rerun, exports, and CLI parity evidence remain
+  open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** P-05 workbook regression and related performance/report
+  tests: 78 passed. Ruff, formatting, mypy (67 source files), strict MkDocs,
+  formula-error scan, visual workbook review, and whitespace checks pass. A
+  full-suite start reaches an MCP subprocess setup failure because its spawned
+  interpreter cannot import `finassert.assistant`; no native Excel acceptance or
+  CI run is claimed.
+- **Branch / PR:** `spec/0020-p05-workbook-p06-excel-parity`, based on merged
+  main `f34b310`; no PR yet.
+- **Decisions / blockers:** The supplied source table intentionally keeps the
+  June row out of order. The workbook and Python replay use chronological
+  periodic-return reference values, never reported cumulative candidates. P-06
+  remains the boundary for actual add-in navigation, correction/rerun, retained
+  exports, and Excel/CLI parity evidence.
 
 ### 2026-11-21 — Prepare the P-03/P-04 delivery checkpoint
 
