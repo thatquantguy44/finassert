@@ -34,8 +34,9 @@ range APIs retain their documented error-text behavior for compatibility.
 ## Report/CLI migration note — 2026-11-13
 
 `write_report_xlsx` is available from `finassert.excel` and `finassert.reporting`.
-It writes a separate workbook atomically, with Summary, Results, and Diagnostics
-sheets. Metadata and structured observations use canonical JSON; Decimal values
+It writes a separate workbook atomically, with Summary, Results, Policy, and
+Diagnostics sheets. Metadata, policy parameters, and structured observations use
+canonical JSON; Decimal values
 and formula-like text are literal strings. Unrepresentable text (over Excel's
 32767-character cell limit or invalid control characters) errors before replacing
 an existing report, rather than silently truncating evidence.
@@ -58,3 +59,12 @@ on both file sources and recorded in additive `input.workbook` context. Existing
 worksheet row labels, explicit totals bounds, formula caches and epochs remain
 unchanged. Merged headers and uncached header formulas now fail before evaluation
 instead of accepting an ambiguous or missing name. No recalculation or skipping.
+
+## Policy parameter report amendment — 2026-11-21
+
+The additive `Policy` sheet exposes each rule's configured and effective
+parameters from the artifact policy descriptor, including exact Decimal text
+and resolved defaults. Existing Summary, Results, and Diagnostics sheet
+semantics, input policy version, artifact schema version, and atomic writes are
+unchanged. Formula-like policy strings remain literal text. Credentials must
+not be stored as policy parameters.

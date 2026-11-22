@@ -71,12 +71,60 @@ Python reference calculations and an add-in validation run for comparison.
 
 The proposed Python interface takes the mapped return series and declared
 comparison settings and returns structured reference rows and summary measures.
-The proposed registered checks cover monthly inputs and cumulative return
-reconciliation. The audit template combines the checks into a versioned-policy
-document using the existing policy format. Public factory names, parameter shapes
-and the reference result type are review items before runtime implementation.
-The existing CLI runs the audit policy on CSV or XLSX. The Python example covers
-reference calculation and export. A dedicated CLI calculator command is deferred.
+P-02 proposes `monthly_performance_reference(...)` for calculation and one
+composite `monthly_performance_audit(...)` rule for coverage, input validation,
+and reported cumulative tie-outs. The composite rule keeps the comparison
+settings in one policy entry and reports reason-coded, bounded diagnostics.
+The user confirmed that these checks remain one composite rule in one policy
+entry. The existing CLI runs the audit policy on CSV or XLSX. The factory
+identifier is `monthly_performance_audit`, its stable rule ID is
+`performance.monthly_performance_audit`, and it returns the existing
+`ValidationResult` type. Its required and optional parameter spellings are
+defined in the registered catalog factory. P-03 acceptance verified the
+reference calculator; P-04 implemented and registered the composite rule,
+starter policy, and report parameter export. Workbook and native Excel parity
+remain in P-05/P-06.
+The Python example covers reference calculation and export. A dedicated CLI
+calculator command is deferred.
+
+The P-03 reference calculator is:
+
+```python
+from finassert import monthly_performance_reference
+
+reference = monthly_performance_reference(
+    data,
+    period_end="period_end",
+    strategy_return="strategy_return",
+    benchmark_return="benchmark_return",
+    window_start="2024-01-31",
+    window_end="2024-12-31",
+    return_unit="fraction",
+    row_key="source_row_id",
+)
+```
+
+It returns a `MonthlyPerformanceReference` with the declared window and column
+mapping, chronological `MonthlyPerformancePeriod` rows, a
+`MonthlyPerformanceSummary`, and bounded reason-coded
+`MonthlyPerformanceIssue` examples with complete counts by issue code. The
+`max_violations` argument defaults to 20. When any input or coverage issue
+blocks the window, `summary` is `None`, no partial reference rows are returned,
+and the issue counts still cover the complete input scan. Result types provide
+`to_dict()` methods that preserve Decimal values as text.
+
+The version-1 policy format already stores and hashes typed rule parameters.
+Human-readable `assumptions` remain explanatory prose. The user requires full
+parameter traceability. Artifacts therefore expose `policy.rules[*].parameters`
+for values explicitly configured and `policy.rules[*].effective_parameters`
+for the complete typed set used after catalog defaults and schema normalization.
+Include mapping, window, unit, tolerance, comparison, severity, diagnostic-cap,
+and other accepted rule parameters, including when a rule skips or errors.
+Preserve Decimal values as exact text. `policy.digest` keeps its existing
+meaning as the digest of the configured version-1 policy; artifact schema 1 is
+extended additively. Specifications 0005 and 0007 own this serialization
+contract, and P-04 implements it. Credentials must not be stored in policy
+parameters.
 
 ## Data contracts
 
@@ -130,12 +178,20 @@ are unavailable for that three-month window.
 - Use exact calendar keys for period matching and the existing explicit Excel
   date-system interpretation. Never silently shift a row to another month,
   impute a missing side, or change return units based on magnitude.
-- Calculate without display rounding. Apply existing finassert tolerance
-  semantics to cumulative comparisons using an explicitly selected absolute
-  tolerance in fractional-return units. Define and document working precision,
-  annualized output rounding, and cross-runtime comparison tolerances before
-  publishing an API. Use the declared financial tolerance for reported returns
-  and a separately justified numeric bound for parity tests.
+- Convert supported finite inputs through their shortest decimal text. Normalize
+  percent inputs to decimal fractions by exact division by 100. For new
+  calculations use a local Decimal context of 50 significant digits with
+  `ROUND_HALF_EVEN`, including annualized geometric returns and tracking error.
+  Keep full calculated precision in results and exports; spreadsheet display
+  formats do not affect calculation or comparison.
+- Apply existing inclusive finassert tolerance semantics using a required
+  absolute allowance in fractional-return units and relative tolerance zero.
+  For example, `0.0001` is one basis point. Exact equality at the allowance
+  passes; any larger difference fails. Compare normalized fractions, never
+  display-rounded percentages.
+- Use a separate absolute Decimal bound of `1e-12` in return fractions for
+  Excel/Python parity evidence. This numeric parity bound does not replace or
+  alter the analyst-selected financial allowance.
 - Zero tracking error is valid for identical active returns across two or more
   periods. Insufficient history produces an unavailable metric with its reason
   and does not prevent cumulative checks on otherwise complete inputs.
@@ -178,12 +234,12 @@ are unavailable for that three-month window.
 
 ## Open questions
 
-- Which existing policy fields can carry each required declaration in a typed,
-  replayable form? Resolve any contract change through the owning policy spec.
-- Confirm rule IDs, the public calculator result type, diagnostic caps, and
-  numeric precision with a prototype and independently calculated fixtures.
-- Qualify Excel workbook formula compatibility and mapping across the supported
-  hosts. Record observed host scope at acceptance.
+- P-03 AC-01/AC-02 fixture verification and the P-04 rule/API review are complete;
+  see the [implementation handoff](handoff.md) and
+  [acceptance tests](../../tests/unit/test_performance.py).
+- Complete the P-05 worked workbook and Python/CLI example, then qualify
+  workbook formulas, mapping and native Excel parity under P-06. Record the
+  supported host scope at acceptance.
 - Solver choice, optional dependency packaging, and optimality certificate
   checks belong to the optimization milestone review.
 
@@ -201,10 +257,10 @@ are unavailable for that three-month window.
 
 Use synthetic fixtures with hand-derived values and a reference Excel workbook.
 Cover date-system handling, leap February, missing benchmark observations,
-permuted rows, short history, return units, precision boundaries, and capped
-diagnostics. Verify policy round-trip, Excel correction and export, and CLI
-equivalence. Keep verification outcomes and observed host coverage in the
-[handoff](handoff.md).
+permuted rows, short history, 12-month and 13-month annualization, return units,
+precision boundaries, and capped diagnostics. Verify policy round-trip, Excel
+correction and export, and CLI equivalence. Keep verification outcomes and
+observed host coverage in the [handoff](handoff.md).
 
 ## Dependencies on other specifications
 

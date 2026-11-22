@@ -13,7 +13,15 @@ from finassert.core import (
     check,
 )
 from finassert.numerical import Tolerance
+from finassert.performance import (
+    MonthlyPerformanceIssue,
+    MonthlyPerformancePeriod,
+    MonthlyPerformanceReference,
+    MonthlyPerformanceSummary,
+    monthly_performance_reference,
+)
 from finassert.rules import (
+    MonthlyPerformanceAuditRule,
     NullPolicy,
     cash_continuity,
     cash_reconciles,
@@ -25,6 +33,7 @@ from finassert.rules import (
     in_range,
     market_value_reconciles,
     minimum_cash_buffer,
+    monthly_performance_audit,
     nav_reconciles,
     net_within_limit,
     no_duplicates,
@@ -42,6 +51,11 @@ __all__ = [
     "DiagnosticCollection",
     "GroupAggregationError",
     "GroupedRule",
+    "MonthlyPerformanceAuditRule",
+    "MonthlyPerformanceIssue",
+    "MonthlyPerformancePeriod",
+    "MonthlyPerformanceReference",
+    "MonthlyPerformanceSummary",
     "NullPolicy",
     "Outcome",
     "Rule",
@@ -61,6 +75,8 @@ __all__ = [
     "in_range",
     "market_value_reconciles",
     "minimum_cash_buffer",
+    "monthly_performance_audit",
+    "monthly_performance_reference",
     "nav_reconciles",
     "net_within_limit",
     "no_duplicates",

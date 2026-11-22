@@ -5,12 +5,36 @@
 
 ## Current state
 
-- **Branch:** feature/excel-diagnostic-navigation for 0016 E-05 compatibility.
-- **Latest work:** Optional live artifact context/views; no CLI/file behavior change.
-- **Evidence:** Full runtime 3,697 and browser 106 pass; earlier delivery evidence is historical below.
-- **Next step:** Follow the master E-06 acceptance/CLI parity pickup.
+- **Branch:** `spec/0020-quant-model-assurance` for the local cross-spec amendment.
+- **Latest work:** Implemented configured/effective policy parameter export in
+  JSON/HTML/XLSX through the ordinary engine, CLI and report path.
+- **Evidence:** Full suite 3,785 passed; 111 Excel browser-job tests skipped.
+  See [P-04 evidence](../0020/handoff.md#2026-11-21-verify-p-03-and-implement-p-04).
+- **Next step:** Follow the master E-06 acceptance pickup; workbook/CLI/native
+  Excel parity for spec 0020 remains in P-05/P-06.
 
 ## Entries
+
+### 2026-11-21 — Implement policy parameter exports
+
+CLI artifacts now retain configured parameters and complete effective
+parameters, including catalog defaults and exact Decimal text, for every rule
+outcome. JSON/HTML/XLSX tests and the full suite pass (3,785 passed, 111 Excel
+browser-job tests skipped). Policy version 1, digest semantics, atomic writes
+and exit codes are unchanged. P-05/P-06 own the remaining workbook/native Excel
+parity; the master E-06 priority is unchanged.
+
+### 2026-11-20 — Add configured and effective policy parameter contract
+
+The user requested complete traceability for the 0020 policy. Each rule's
+artifact descriptor now has an additive contract for explicit `parameters` and
+complete `effective_parameters`, including defaults and exact Decimal text.
+These appear for pass, fail, skip, and evaluation error outcomes. Policy version
+1, its configured-policy digest, atomic CLI output, and exit codes stay unchanged.
+Credentials must not be stored in policy documents. Runtime implementation is
+pending; see [0020 decisions](../0020/decisions.md). Strict MkDocs build, 136
+local/repository links across 19 changed Markdown files, and `git diff --check`
+pass.
 
 ### 2026-11-15 — E-05 live artifact compatibility
 

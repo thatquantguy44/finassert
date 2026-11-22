@@ -1,0 +1,4 @@
+source_row_id,period_end,strategy_return,benchmark_return,reported_strategy_cumulative,reported_benchmark_cumulative
+src-3mp-03,2024-03-31,2,1,0.98,3.02
+src-3mp-01,2024-01-31,10,2,10,2
+src-3mp-02,2024-02-29,-10,0,-1,2

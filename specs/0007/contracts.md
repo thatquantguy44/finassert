@@ -20,6 +20,8 @@ and review focus; it does not introduce a second definition.
 - Configuration is versioned, unknown keys fail, and rule factories are allowlisted.
 - Evaluation artifacts use 0005 and are written atomically; no interactive prompts are
   required.
+- Artifacts preserve both explicitly configured policy parameters and the
+  complete effective values used by evaluation, including defaults.
 
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
@@ -40,3 +42,14 @@ input/configuration failures do not create a falsely passing report.
 canonical live HTML/sheet views. CLI/file artifacts do not supply this context;
 their shape, rendering, atomic writes, options and exit codes remain unchanged.
 No CLI provenance flag or public evaluation parameter was added.
+
+## Policy parameter artifact amendment — 2026-11-20
+
+Following the user's 0020 decision, each rule in an evaluation artifact exposes
+explicit `parameters` and complete `effective_parameters` after registered
+defaults and schema normalization. Decimal values remain exact strings. Export
+these fields for pass, fail, skip, and evaluation error outcomes. Artifact
+schema 1 is extended additively; input policy version 1, configured-policy
+digest semantics, atomic CLI output, and exit codes are unchanged. Because all
+policy parameters appear in reports, credentials must not be policy values.
+See [0020 decisions](../0020/decisions.md).

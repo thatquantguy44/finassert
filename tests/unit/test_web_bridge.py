@@ -20,6 +20,7 @@ def test_catalog_lists_built_in_rules() -> None:
         "in_range",
         "market_value_reconciles",
         "minimum_cash_buffer",
+        "monthly_performance_audit",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",

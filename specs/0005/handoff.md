@@ -5,15 +5,35 @@
 
 ## Current state
 
-- **Branch:** `feature/excel-diagnostic-navigation` for the 0016 compatibility work.
-- **Latest work:** E-05 adds optional input.excel context and canonical live
-  HTML/sheet output views; report/financial outcomes and artifact schema 1 stay compatible.
-- **Evidence:** 22 provenance/parity cases and 106 full browser passes; see
-  [0016 evidence](../0016/artifacts/README.md#e-05-evidence-and-safe-output).
+- **Branch:** `spec/0020-quant-model-assurance` for the local cross-spec amendment.
+- **Latest work:** Implemented the additive policy `parameters` and
+  `effective_parameters` artifact contract through JSON, HTML and XLSX reports.
+- **Evidence:** Full suite 3,785 passed and 111 bundled Excel browser-job tests
+  skipped; [P-04 tests](../0020/handoff.md#2026-11-21-verify-p-03-and-implement-p-04).
 - **Next step:** Follow the [master handoff](../../docs/handoff.md#next-up),
-  beginning with full E-06 Mac acceptance and output/CLI parity.
+  beginning with full E-06 Mac acceptance. Redaction hooks remain a separate
+  future milestone.
 
 ## Entries
+
+### 2026-11-21 — Implement policy parameter artifact export
+
+Every configured rule now records its explicit policy values and complete
+effective values after catalog defaults and schema normalization. Exact Decimal
+values remain strings, unsupported parameters fail serialization, and the
+configured policy digest is unchanged. JSON/HTML/XLSX report tests, the full
+3,785-test suite and mypy pass; 111 Excel browser-job tests were skipped. The
+additive schema-1 requirement is implemented; E-06 remains the project pickup.
+
+### 2026-11-20 — Add configured and effective policy parameter contract
+
+The user selected one composite 0020 audit check and complete parameter
+traceability. Artifact schema 1 now requires configured `parameters` and
+fully resolved `effective_parameters`, including defaults and exact Decimal
+text, for rules that pass, fail, skip, or error. The existing policy digest and
+policy input format are unchanged. Runtime implementation remains pending.
+Strict MkDocs build, 136 local/repository links across 19 changed Markdown files,
+and `git diff --check` pass.
 
 ### 2026-11-20 — Human failure-action wording preserves canonical results
 

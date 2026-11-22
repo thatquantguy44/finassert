@@ -1,17 +1,19 @@
 import io
+import json
 import zipfile
 from datetime import date, datetime, time
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 
 import finassert as fa
 from finassert._xlsx import column_letter, sheet_names
 from finassert.core.exceptions import InvalidDataError
 from finassert.loaders import load_input, parse_csv, parse_xlsx
 from finassert.policy import parse_policy
+from finassert.reporting import build_artifact, write_report_xlsx
 
 MAIN = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 
@@ -100,6 +102,36 @@ def test_excel_and_csv_exports_of_the_same_table_agree() -> None:
     )
     assert policy.check(from_excel) == policy.check(from_csv)
     assert policy.check(from_excel).results[0].observed == Decimal("1.0")
+
+
+def test_report_xlsx_includes_explicit_and_effective_policy_parameters(tmp_path: Path) -> None:
+    policy = parse_policy(
+        {
+            "version": 1,
+            "name": "Weights policy",
+            "rules": [{"rule": "weights_sum_to_one", "column": "weight", "tolerance": "0.0001"}],
+        }
+    )
+    report = policy.check({"weight": [1]})
+    artifact = build_artifact(report, policy=policy)
+    output = tmp_path / "report.xlsx"
+
+    write_report_xlsx(report, output, artifact=artifact)
+
+    workbook = load_workbook(output, read_only=True, data_only=True)
+    try:
+        assert workbook.sheetnames == ["Summary", "Results", "Policy", "Diagnostics"]
+        policy_sheet = workbook["Policy"]
+        assert policy_sheet["A8"].value == "rule_id"
+        assert policy_sheet["A9"].value == "portfolio.weights_sum_to_one"
+        configured = json.loads(policy_sheet["E9"].value)
+        effective = json.loads(policy_sheet["F9"].value)
+        assert configured == {"column": "weight", "tolerance": "0.0001"}
+        assert effective["severity"] == "error"
+        assert effective["max_violations"] == 20
+        assert effective["tolerance"] == {"absolute": "0.0001", "relative": 0}
+    finally:
+        workbook.close()
 
 
 def test_percentage_cells_keep_their_stored_fraction() -> None:

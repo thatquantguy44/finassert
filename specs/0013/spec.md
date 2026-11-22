@@ -90,6 +90,13 @@ collections defined by 0005, retaining total count, cap, and truncation. Values 
 or `@` are written as text to prevent formula injection when a reviewer opens the
 report.
 
+The `Policy` sheet records policy name, description, version, digest, assumptions,
+and one row per rule with canonical JSON text for explicitly configured
+`parameters` and complete `effective_parameters`, including defaults. Decimal
+values remain exact text. The sheet is present when a report has no policy as
+well, with empty policy context and rule rows. Policy inputs remain unchanged;
+credentials must not be stored in policy parameters.
+
 ## Financial and numerical edge cases
 
 Percent-formatted cells (`5%` stored as `0.05`), accounting-format negatives,
@@ -132,7 +139,8 @@ pass. Reports never include full rows beyond the bounded diagnostic fields.
 Core imports without openpyxl; reading never modifies the file; row labels
 passed to rules are the worksheet row numbers Excel shows; Decimal values round-trip without float drift;
 formula and error cells fail loudly; results match the same data passed through
-the pandas adapter.
+the pandas adapter. Reports retain configured and effective policy parameters
+without changing input policy schemas.
 
 ## Testing requirements
 

@@ -43,6 +43,7 @@ def test_catalog_and_templates_are_described() -> None:
         "in_range",
         "market_value_reconciles",
         "minimum_cash_buffer",
+        "monthly_performance_audit",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
@@ -60,6 +61,7 @@ def test_catalog_and_templates_are_described() -> None:
     assert sorted(by_name) == [
         "cash-reconciliation",
         "long-only-holdings",
+        "monthly-performance-audit",
         "multi-portfolio-holdings",
         "nav-reconciliation",
         "position-rollforward",

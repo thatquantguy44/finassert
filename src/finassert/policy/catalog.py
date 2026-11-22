@@ -24,6 +24,7 @@ from finassert.rules import (
     in_range,
     market_value_reconciles,
     minimum_cash_buffer,
+    monthly_performance_audit,
     nav_reconciles,
     net_within_limit,
     no_duplicates,
@@ -323,6 +324,7 @@ def default_catalog() -> RuleCatalog:
     catalog.register(_exposure_spec("net"))
     catalog.register(_position_within_limit_spec())
     catalog.register(_simple_return_reconciles_spec())
+    catalog.register(_monthly_performance_audit_spec())
     catalog.register(_in_range_spec())
     catalog.register(_weights_match_market_values_spec())
     catalog.register(_drift_within_band_spec())
@@ -912,6 +914,137 @@ def _simple_return_reconciles_spec() -> RuleFactorySpec:
             _MAX_GROUPS,
         ),
         factory=simple_return_reconciles,
+    )
+
+
+def _monthly_performance_audit_spec() -> RuleFactorySpec:
+    return RuleFactorySpec(
+        name="monthly_performance_audit",
+        rule_id="performance.monthly_performance_audit",
+        title="Monthly performance matches periodic returns",
+        summary=(
+            "Checks monthly coverage and inputs, then ties reported strategy and benchmark "
+            "cumulative returns to the periodic returns."
+        ),
+        rationale=(
+            "Missing months, mis-scaled inputs, or a cumulative figure that does not follow "
+            "from the underlying returns can make a performance report misleading."
+        ),
+        inappropriate_when=(
+            "Returns are cash-flow reconstructed, the strategy or benchmark changes during "
+            "the window, or the supplied series do not represent one declared comparison."
+        ),
+        parameters=(
+            _amount_column(
+                "period_end",
+                "Period end column",
+                "Column with each source row's ISO calendar month-end date.",
+            ),
+            _amount_column(
+                "strategy_return",
+                "Strategy periodic return column",
+                "Column with the supplied simple monthly strategy total return.",
+            ),
+            _amount_column(
+                "benchmark_return",
+                "Benchmark periodic return column",
+                "Column with the paired simple monthly benchmark total return.",
+            ),
+            _amount_column(
+                "reported_strategy_cumulative",
+                "Reported strategy cumulative return column",
+                "Column with the strategy return linked from the first month through each row.",
+            ),
+            _amount_column(
+                "reported_benchmark_cumulative",
+                "Reported benchmark cumulative return column",
+                "Column with the benchmark return linked from the first month through each row.",
+            ),
+            ParameterSpec(
+                "window_start",
+                ParameterKind.TEXT,
+                "First month end",
+                "Required inclusive ISO YYYY-MM-DD calendar month-end.",
+                required=True,
+            ),
+            ParameterSpec(
+                "window_end",
+                ParameterKind.TEXT,
+                "Last month end",
+                "Required inclusive ISO YYYY-MM-DD calendar month-end.",
+                required=True,
+            ),
+            ParameterSpec(
+                "periodic_return_unit",
+                ParameterKind.CHOICE,
+                "Periodic returns are written as",
+                "Declare fraction when 0.05 means 5%; percent when 5 means 5%.",
+                required=True,
+                choices=tuple(item.value for item in ReturnUnit),
+            ),
+            ParameterSpec(
+                "reported_return_unit",
+                ParameterKind.CHOICE,
+                "Reported cumulative returns are written as",
+                "Declare the reported cumulative columns' unit independently.",
+                required=True,
+                choices=tuple(item.value for item in ReturnUnit),
+            ),
+            ParameterSpec(
+                "strategy_id",
+                ParameterKind.TEXT,
+                "Strategy identifier",
+                "Declared identifier for the strategy series.",
+                required=True,
+            ),
+            ParameterSpec(
+                "benchmark_id",
+                ParameterKind.TEXT,
+                "Benchmark identifier",
+                "Declared identifier for the benchmark series.",
+                required=True,
+            ),
+            ParameterSpec(
+                "base_currency",
+                ParameterKind.TEXT,
+                "Base currency",
+                "Three-letter ISO 4217 code or explicit UNIT:identifier, normalized to uppercase.",
+                required=True,
+            ),
+            ParameterSpec(
+                "valuation_convention",
+                ParameterKind.TEXT,
+                "Valuation convention",
+                "Required analyst declaration; retained in the policy report.",
+                required=True,
+            ),
+            ParameterSpec(
+                "strategy_fee_treatment",
+                ParameterKind.TEXT,
+                "Strategy fee treatment",
+                "Required analyst declaration of fees included in the strategy returns.",
+                required=True,
+            ),
+            ParameterSpec(
+                "benchmark_fee_treatment",
+                ParameterKind.TEXT,
+                "Benchmark fee treatment",
+                "Required analyst declaration of fees included in the benchmark returns.",
+                required=True,
+            ),
+            ParameterSpec(
+                "tolerance",
+                ParameterKind.TOLERANCE,
+                "Allowed absolute return difference",
+                "Absolute allowance in decimal-return fractions; relative tolerance is zero.",
+                required=True,
+                allow_relative=False,
+            ),
+            _ROW_KEY,
+            _SEVERITY,
+            _MAX_GROUPS,
+        ),
+        factory=monthly_performance_audit,
     )
 
 

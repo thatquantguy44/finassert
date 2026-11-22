@@ -1,8 +1,9 @@
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
-from finassert.loaders import parse_csv
+from finassert.loaders import load_input, parse_csv
 from finassert.policy import (
     PolicyTemplate,
     default_catalog,
@@ -10,6 +11,7 @@ from finassert.policy import (
     parse_policy_text,
     policy_templates,
 )
+from finassert.reporting import build_artifact
 
 
 @pytest.mark.parametrize("template", policy_templates(), ids=lambda item: item.name)
@@ -72,6 +74,39 @@ def test_cash_template_reconciles_a_daily_cash_file() -> None:
         {"portfolio": "A", "date": "2026-01-02", "currency": "EUR"}
     ]
     assert failure[0]["rows"] == [3]
+
+
+def test_monthly_performance_template_traces_the_seeded_fixture_failure() -> None:
+    fixture = (
+        Path(__file__).resolve().parents[2]
+        / "specs"
+        / "0020"
+        / "artifacts"
+        / "fixtures"
+        / "monthly_returns_2024_seeded.csv"
+    )
+    policy = get_template("monthly-performance-audit").policy()
+    report = policy.check(load_input(fixture))
+
+    assert report.passed is False
+    (result,) = report.results
+    assert result.outcome.value == "failed"
+    tie_outs = [
+        observation
+        for diagnostic in result.diagnostics
+        for observation in diagnostic.observations
+        if diagnostic.kind == "tie_out_violations"
+    ]
+    assert len(tie_outs) == 1
+    assert tie_outs[0]["source_row"] == "src-2024-06"
+    assert tie_outs[0]["field"] == "reported_strategy_cumulative"
+    assert Decimal(tie_outs[0]["difference"]) == Decimal("0.01")
+
+    descriptor = build_artifact(report, policy=policy)["policy"]["rules"][0]
+    assert descriptor["parameters"]["strategy_id"] == "strategy-demo"
+    assert descriptor["effective_parameters"]["base_currency"] == "USD"
+    assert descriptor["effective_parameters"]["tolerance"]["absolute"] == "0.0001"
+    assert descriptor["effective_parameters"]["max_violations"] == 20
 
 
 def test_nav_template_reconciles_each_fund() -> None:

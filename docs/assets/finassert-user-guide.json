@@ -5,16 +5,16 @@
     "name": "finassert",
     "version": "0.1.0"
   },
-  "revision": "2026-11-20",
+  "revision": "2026-11-21",
   "filename": "finassert-user-guide.pdf",
   "content_type": "application/pdf",
   "download_url": "/api/finassert/v1/user-guide.pdf",
-  "bytes": 193760,
-  "pages": 47,
-  "sha256": "2cedcca4fd76217315514f71b4424e376b3a55f3e169c491be19f649c24accd7",
-  "source_sha256": "abff2411e2e0045c35acd72078129cf055f783b1002d7770e2844e42a1c89baf",
-  "catalog_sha256": "0c6fbe938c8779fb076191989c5cdbaaaa51a1b238873f7be61735618f2ae7cb",
+  "bytes": 203182,
+  "pages": 51,
+  "sha256": "dbfc9ffb5212fb47feb383880548c12df52a408b2bc7f3058b0f0bf285414f16",
+  "source_sha256": "18dc7e70119e1ec9705551e0107cc7490f5769bbcaccc49f85dc563d27e05367",
+  "catalog_sha256": "416c6d68e43c8de0ca1f338424f1bdfe9a501c3a7c8a646ca3405792dbde53cd",
   "builder_sha256": "39e257009c41b81f1eed34a97da24a91cc9c50d55061093097a73b23cb8f60c1",
-  "rule_count": 20,
-  "template_count": 10
+  "rule_count": 21,
+  "template_count": 11
 }

@@ -22,5 +22,9 @@ Current main implements the policy catalog, strict YAML/JSON configuration, CLI,
   output, and malformed inputs.
 - [x] Add Excel flags with 0013; add optional Parquet support after the initial loaders.
 - [x] Document plain-shell and CI recipes without coupling to orchestrator SDKs.
+- [x] Export configured and effective rule parameters in JSON/HTML/XLSX report
+  artifacts, including catalog defaults and exact Decimal text; preserve the
+  version-1 input schema, digest semantics, atomic writes, and exit codes; full
+  suite passes 3,785 tests with 111 Excel browser-job tests skipped (2026-11-21).
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

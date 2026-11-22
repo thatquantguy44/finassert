@@ -35,6 +35,7 @@ from finassert.rules.integrity import (
     no_duplicates,
     required_fields,
 )
+from finassert.rules.performance import MonthlyPerformanceAuditRule, monthly_performance_audit
 from finassert.rules.portfolio import WeightsSumToOneRule, weights_sum_to_one
 from finassert.rules.positions import PositionRollForwardRule, SellSign, position_rolls_forward
 from finassert.rules.returns import ReturnUnit, SimpleReturnReconcilesRule, simple_return_reconciles
@@ -63,6 +64,7 @@ __all__ = [
     "InRangeRule",
     "MarketValueReconcilesRule",
     "MinimumCashBufferRule",
+    "MonthlyPerformanceAuditRule",
     "NavReconciliationRule",
     "NoDuplicatesRule",
     "NonNegativeRule",
@@ -89,6 +91,7 @@ __all__ = [
     "in_range",
     "market_value_reconciles",
     "minimum_cash_buffer",
+    "monthly_performance_audit",
     "nav_reconciles",
     "net_within_limit",
     "no_duplicates",

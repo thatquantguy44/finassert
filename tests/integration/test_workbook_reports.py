@@ -56,7 +56,7 @@ def test_report_roundtrip_preserves_decimal_and_literal_strings(tmp_path: Path) 
         artifact=build_artifact(report, generated_at=datetime(2026, 11, 13, tzinfo=UTC)),
     )
     book = load_workbook(path, data_only=False)
-    assert book.sheetnames == ["Summary", "Results", "Diagnostics"]
+    assert book.sheetnames == ["Summary", "Results", "Policy", "Diagnostics"]
     row = list(book["Results"].values)[1]
     assert row[:5] == ("=ID", "+Name", "failed", "error", "@message")
     assert row[5:7] == (str(amount), "-0.0100")

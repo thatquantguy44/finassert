@@ -18,6 +18,8 @@ and review focus; it does not introduce a second definition.
 - Formatters are views over canonical results and do not change validation truth.
 - Decimal precision is retained as text, and output is strict-JSON compatible.
 - Diagnostic counts remain complete even when row/group details are capped.
+- Artifact policy descriptors expose all explicitly configured parameters and
+  all effective values used after defaults and schema normalization.
 
 Unresolved implementation gaps and contract decisions are tracked in
 [tasks.md](tasks.md). Changes to outcomes, IDs, tolerance mathematics, serialization, or
@@ -61,3 +63,14 @@ is now **If check fails** with action labels, while **Result** remains the actua
 outcome. Artifact/policy severity, technical CLI XLSX fields, diagnostics, counts,
 precision, blocking and source identity remain unchanged. Existing saved evidence
 is historical; it is not silently rewritten.
+
+## Policy parameter artifact amendment — 2026-11-20
+
+The user confirmed full policy traceability for the 0020 performance audit.
+Under artifact schema 1, every rule descriptor carries `parameters` exactly as
+configured and `effective_parameters` with the complete typed values used after
+registered defaults and schema normalization. Decimal values remain exact text;
+defaults are included, and the fields are present for pass, fail, skip, and
+evaluation error outcomes. The existing configured-policy digest and version-1
+policy input remain unchanged. This is additive; older artifacts remain valid.
+See [0020 decisions](../0020/decisions.md).
