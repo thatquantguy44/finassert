@@ -20,7 +20,7 @@ def write_report_xlsx(
     *,
     artifact: dict[str, Any] | None = None,
 ) -> None:
-    """Write Summary, Results, and bounded Diagnostics sheets atomically.
+    """Write Summary, Results, Policy, and bounded Diagnostics sheets atomically.
 
     Decimal values and formula-like strings are literal text. This creates a
     separate report and never modifies an input workbook. Requires the ``excel``
@@ -63,6 +63,30 @@ def write_report_xlsx(
         results,
         [headings, *[[result.to_dict()[key] for key in headings] for result in report.results]],
     )
+    policy_sheet = book.create_sheet("Policy")
+    policy = context.get("policy") or {}
+    policy_rows: list[list[Any]] = [
+        ["Policy field", "Value"],
+        ["Name", policy.get("name")],
+        ["Description", policy.get("description")],
+        ["Version", policy.get("version")],
+        ["Digest", policy.get("digest")],
+        ["Assumptions", policy.get("assumptions")],
+        [],
+        ["rule_id", "factory", "title", "summary", "parameters", "effective_parameters"],
+    ]
+    for item in policy.get("rules") or []:
+        policy_rows.append(
+            [
+                item.get("rule_id"),
+                item.get("factory"),
+                item.get("title"),
+                item.get("summary"),
+                item.get("parameters"),
+                item.get("effective_parameters"),
+            ]
+        )
+    _rows(policy_sheet, policy_rows)
     diagnostics = book.create_sheet("Diagnostics")
     details: list[list[Any]] = [["rule_id", "kind", "count", "limit", "truncated", "observation"]]
     for result in report.results:

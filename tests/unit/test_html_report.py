@@ -67,6 +67,8 @@ def test_report_embeds_artifact_and_shows_outcomes() -> None:
     assert "One portfolio per file" in page
     assert "Could not run" in page
     assert "If check fails: Block validation" in page
+    assert "Policy parameters" in page
+    assert "Effective values, including defaults" in page
     assert "2026-01-02T03:04:05Z" in page
     artifact = embedded_artifact(page)
     assert artifact == build_artifact(

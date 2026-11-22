@@ -5,13 +5,25 @@
 
 ## Current state
 
-- **Branch / PR:** `feature/six-slice-upstream-delivery`, draft PR #21.
-- **Delivered:** Explicit hidden include/reject policy, bounded visibility metadata,
-  merged/uncached header errors, cached formula and epoch coverage in both readers.
-- **Evidence:** 200 workbook/adapter/loader/CLI tests passed; Ruff and mypy passed.
-- **Next:** Slice 4, minimum available-cash buffer.
+- **Branch:** `spec/0020-quant-model-assurance` for the cross-spec report update.
+- **Delivered:** The XLSX `Policy` sheet now exports policy identity plus configured
+  and effective rule parameters, including defaults, exact Decimal text, and
+  formula-like strings as literal values.
+- **Evidence:** Full suite 3,785 passed; 111 Excel browser-job tests skipped.
+  Workbook report and policy-parameter tests pass; see [0020 handoff](../0020/handoff.md).
+- **Next:** Follow the [master handoff](../../docs/handoff.md#next-up); live Excel
+  behavior remains separate under 0011.
 
 ## Entries
+
+### 2026-11-21 — Add XLSX policy parameter sheet
+
+The report workbook includes a `Policy` sheet with name, description, version,
+digest, assumptions, and one row per configured rule. Configured and effective
+parameter maps use canonical JSON text; exact Decimal values and formula-like
+strings remain literal. The full test suite passes (3,785 passed, 111 Excel
+browser-job tests skipped), including XLSX round-trip, formula-injection and
+policy-sheet coverage. The 0013 file-reader requirements are complete.
 
 ### 2026-11-13 — Slice 3 workbook hardening
 

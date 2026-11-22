@@ -240,6 +240,7 @@ def test_rules_command_describes_catalog(capsys: pytest.CaptureFixture[str]) -> 
         "in_range",
         "market_value_reconciles",
         "minimum_cash_buffer",
+        "monthly_performance_audit",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",

@@ -344,6 +344,73 @@ _TEMPLATES += (
 
 _TEMPLATES += (
     PolicyTemplate(
+        name="monthly-performance-audit",
+        title="Monthly strategy and benchmark audit",
+        summary=(
+            "Monthly periodic and reported cumulative total returns for one declared "
+            "strategy and benchmark."
+        ),
+        adapt=(
+            "Map each column name and set the inclusive first and last month ends "
+            "to match your file.",
+            "Replace the strategy, benchmark, currency, valuation, and fee declarations with "
+            "the policy that produced your returns.",
+            "Confirm periodic and reported return units separately; both default to fractions.",
+            "Set the absolute tolerance in decimal-return fractions to match your "
+            "reporting precision.",
+            "The companion synthetic 2024 fixture intentionally fails on the June strategy "
+            "cumulative value until that source figure is corrected.",
+        ),
+        document=_freeze(
+            {
+                "version": 1,
+                "name": "Monthly strategy and benchmark audit",
+                "description": "Audit monthly periodic and reported cumulative returns.",
+                "assumptions": [
+                    "Each row is one calendar month in one stable strategy and "
+                    "benchmark comparison.",
+                    "Periodic values are simple total returns with no intraperiod "
+                    "cash-flow reconstruction.",
+                    "The synthetic example reports strategy returns net of "
+                    "management and transaction "
+                    "costs and benchmark returns gross of fees.",
+                    "Both source series are denominated in USD and use calendar "
+                    "month-end valuation.",
+                    "The synthetic 2024 example contains a deliberate June strategy cumulative "
+                    "discrepancy for the correction walkthrough.",
+                ],
+                "rules": [
+                    {
+                        "rule": "monthly_performance_audit",
+                        "period_end": "period_end",
+                        "strategy_return": "strategy_return",
+                        "benchmark_return": "benchmark_return",
+                        "reported_strategy_cumulative": "reported_strategy_cumulative",
+                        "reported_benchmark_cumulative": "reported_benchmark_cumulative",
+                        "window_start": "2024-01-31",
+                        "window_end": "2024-12-31",
+                        "periodic_return_unit": "fraction",
+                        "reported_return_unit": "fraction",
+                        "strategy_id": "strategy-demo",
+                        "benchmark_id": "benchmark-demo",
+                        "base_currency": "USD",
+                        "valuation_convention": "calendar month-end total return",
+                        "strategy_fee_treatment": "net of management and transaction costs",
+                        "benchmark_fee_treatment": "gross of fees",
+                        "tolerance": "0.0001",
+                        "row_key": "source_row_id",
+                        "severity": "error",
+                        "max_violations": 20,
+                    }
+                ],
+            }
+        ),
+    ),
+)
+
+
+_TEMPLATES += (
+    PolicyTemplate(
         name="position-rollforward",
         title="Position quantity roll-forward",
         summary="One row per portfolio and security: opening and closing quantities and trades.",

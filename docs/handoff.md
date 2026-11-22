@@ -23,18 +23,14 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
 
 ## Current state
 
-- **Last worked on:** Configured the supplied QuantSmith checkout as the default local reader, repinned the allowlist to its reviewed commit, and added a selected GitHub Git-object mode for owners who need it.
+- **Last worked on:** Prepared the verified P-03 acceptance and P-04 composite audit, starter policy, policy parameter export, guide assets, tests and spec records for delivery on `spec/0020-quant-model-assurance`.
 - **Highest priority:** E-06 — Full Mac acceptance and regressions.
 - **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
-- **Verification:** 3,744 runtime and 111 browser tests pass; the focused reader, guide and server slice has 38 passing checks. The local HTTPS API returns source `local`, the pinned `d090cc3e7ddd6066fdef14bdfa76262f37c5ff50` commit and 1,426 allowlisted documents. The regenerated 47-page PDF renders cleanly on its changed page, rebuilds byte-identically and matches its live HTTPS download.
-- **Stopping point:** HTTPS localhost:3002 serves the fully bundled Excel build, current guide and 1,426-document local catalog. The native developer-add-in list shows only finassert; its pane was not reopened for this reference slice. Changes remain uncommitted.
-- **Branch:** `feature/excel-e06-mac-acceptance`, from main `67c3c1c`.
-  Delivery includes pane/report UI, native evidence, the guide/API and explicit
-  filesystem checkpoint support, with tests and documentation.
-- **Last commits:** `ad2a173` delivers the named panes, clear failure actions,
-  downloadable guide and all earlier authorized branch work. `60ea433` retains
-  the earlier AC-07 failing/navigation checkpoint. This binary-asset follow-up
-  has its own enclosing user-authorized delivery checkpoint.
+- **Verification:** Full suite 3,785 passed and 111 Excel browser-job tests skipped. Eighteen guide/API tests pass after the final PDF rebuild. Ruff, formatting, mypy (67 source files), strict MkDocs, local anchors and diff checks pass. No native Excel acceptance or CI run is claimed.
+- **Stopping point:** P-03 AC-01/AC-02 and P-04 implementation are complete. P-05 workbook/Python/CLI example and P-06 native Excel parity remain open.
+- **Branch:** `spec/0020-quant-model-assurance`, from `origin/main` at `8f14c66`.
+- **Main baseline commits:** `8f14c66` merged QuantSmith configuration PR #30. `dcc2362`
+  merged the Excel UI, demo evidence and guide in PR #29.
 - **Delivered:** E-01–E-05 and the pinned local reference reader are merged.
   Native scale/exports/CLI/integrity and the small 1900 correction loop are verified.
   Native ribbon visibility and both launch routes are now observed. Full E-06,
@@ -62,11 +58,11 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
   web-extension parts by content type, including Excel's saved numbered names.
   Fourteen harness controls pass. Synthetic 1904 opened cleanly and completed
   the small native loop; clean table opening remains a separate pending case.
-- **Verification recovery:** The guide delivery rerun passes 3,742 runtime and
-  all 111 Python Playwright tests. The earlier demo repair updated old tests to
-  leave the focused Settings view and use its current controls. A missing installed package caused one MCP
-  subprocess failure on the earlier rerun; installing the built wheel locally
-  resolved it. All failed/interrupted attempts are disclosed in the demo record.
+- **Verification recovery:** The current full suite passes 3,785 tests; 111 Excel
+  browser-job tests are skipped because that bundled job was not run. The prior
+  guide delivery rerun passed 3,742 runtime and all 111 Python Playwright tests.
+  Installing the current checkout wheel locally resolves the MCP subprocess
+  import path. All failed/interrupted native attempts remain disclosed in the demo record.
 - **Scope/review:** No full Mac, Windows/web, reference-panel or external review
   claim. The user-requested UI and additive Home-ribbon commands change no financial
   semantics, core dependencies, release/tag or downstream application. Spec 0019
@@ -81,9 +77,16 @@ and the roadmap defer to this ordering; numbered spec.md files own requirements.
    Home-ribbon launches and the native 1904 correction/export loop also pass.
    Finish clean table/hidden/filtered and remaining failure/race/keyboard cases;
    retain actual evidence and record external review.
-2. Paired forecast accuracy — 0012 U-08.
+2. Performance and backtest integrity — 0020.
+   P-02 fixtures, P-03 AC-01/AC-02 acceptance and P-04 composite rule, starter
+   policy and configured/effective parameter export are complete. P-05 workbook
+   and Python/CLI example remain, followed by P-06 Excel parity. Track P-04 at
+   [issue #31](https://github.com/thatquantguy44/finassert/issues/31).
+   Point-in-time checks and optimization assurance remain proposed follow-on
+   milestones.
+3. Paired forecast accuracy — 0012 U-08.
    Keep matching/vintage/cutoff, zero-actual and limit-combination contracts explicit.
-3. Debt principal and issuance — 0012 U-09.
+4. Debt principal and issuance — 0012 U-09.
    Finalize conventions and extend 0002 before promoting new public rules.
 
 ## Commit context
@@ -95,54 +98,84 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```json
 {
   "version": 1,
-  "prior_head": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
+  "prior_head": "08bcde5aae16a05d9518d5bd3b3f48701de28046",
   "recent_commits": [
     {
-      "commit": "0cd44162974b5306a1eabd98bc6d3649ed27bb48",
-      "subject": "chore: track generated PDF assets as binary"
+      "commit": "08bcde5aae16a05d9518d5bd3b3f48701de28046",
+      "subject": "docs: scope spec 0020 for performance and backtest integrity"
     },
     {
-      "commit": "ad2a173ba913330df616b59f074a9a017b23dcad",
-      "subject": "feat(excel): clarify validation UI and add downloadable user guide"
+      "commit": "8f14c66dc34a909a22a478607f7e0fe0ed377225",
+      "subject": "Merge pull request #30 from thatquantguy44/feature/excel-e06-mac-acceptance"
     },
     {
-      "commit": "60ea433e161f0672193a97cce15d51c9f307130a",
-      "subject": "test(excel): record AC07 native failure and navigation evidence"
-    },
-    {
-      "commit": "632825368ab69cf39d214a3d6bc6b01279bf7b43",
-      "subject": "test(excel): retain native E06 scale and export verification"
+      "commit": "dcc2362db7c69dc12fc2212477943b99aaf92fcf",
+      "subject": "Merge pull request #29 from thatquantguy44/feature/excel-e06-mac-acceptance"
     },
     {
       "commit": "67c3c1c6ea17bf0c88f4ab62bc927a292db058b6",
       "subject": "Merge pull request #28 from thatquantguy44/feature/quantsmith-readonly-docs"
+    },
+    {
+      "commit": "7af01ffcee0a5bccfe5c27d2740da0aea9ac593d",
+      "subject": "Merge pull request #26 from thatquantguy44/feature/excel-diagnostic-navigation"
     }
   ],
   "changed_paths": [
     "docs/assets/finassert-user-guide.json",
     "docs/assets/finassert-user-guide.pdf",
-    "docs/excel-add-in.md",
     "docs/handoff.md",
-    "docs/quantsmith-reference.md",
     "docs/roadmap.md",
     "docs/user-guide.md",
-    "integrations/quantsmith-docs.lock.json",
-    "scripts/quantsmith_docs.py",
-    "scripts/serve_excel.py",
-    "specs/0018/contracts.md",
-    "specs/0018/handoff.md",
-    "specs/0018/plan.md",
-    "specs/0018/roadmap.md",
-    "specs/0018/spec.md",
-    "specs/0018/tasks.md",
-    "specs/0019/artifacts/verification.json",
-    "tests/browser/test_excel_quantsmith_reference.py",
-    "tests/unit/test_quantsmith_docs.py",
-    "web/excel-panel.html",
-    "web/quantsmith-docs.js"
+    "specs/0005/contracts.md",
+    "specs/0005/handoff.md",
+    "specs/0005/roadmap.md",
+    "specs/0005/spec.md",
+    "specs/0005/tasks.md",
+    "specs/0007/contracts.md",
+    "specs/0007/handoff.md",
+    "specs/0007/roadmap.md",
+    "specs/0007/spec.md",
+    "specs/0007/tasks.md",
+    "specs/0013/contracts.md",
+    "specs/0013/handoff.md",
+    "specs/0013/roadmap.md",
+    "specs/0013/spec.md",
+    "specs/0013/tasks.md",
+    "specs/0020/artifacts/fixtures/expected.json",
+    "specs/0020/artifacts/fixtures/monthly_returns_13m_annualization.csv",
+    "specs/0020/artifacts/fixtures/monthly_returns_2024_seeded.csv",
+    "specs/0020/artifacts/fixtures/monthly_returns_3m_hand_case.csv",
+    "specs/0020/artifacts/fixtures/monthly_returns_3m_percent.csv",
+    "specs/0020/artifacts/fixtures/monthly_returns_zero_tracking_error.csv",
+    "specs/0020/contracts.md",
+    "specs/0020/decisions.md",
+    "specs/0020/handoff.md",
+    "specs/0020/plan.md",
+    "specs/0020/roadmap.md",
+    "specs/0020/spec.md",
+    "specs/0020/tasks.md",
+    "src/finassert/__init__.py",
+    "src/finassert/performance.py",
+    "src/finassert/policy/catalog.py",
+    "src/finassert/policy/schema.py",
+    "src/finassert/policy/templates.py",
+    "src/finassert/reporting/html.py",
+    "src/finassert/reporting/xlsx.py",
+    "src/finassert/rules/__init__.py",
+    "src/finassert/rules/performance.py",
+    "tests/integration/test_assistant.py",
+    "tests/integration/test_cli.py",
+    "tests/integration/test_workbook_reports.py",
+    "tests/unit/test_html_report.py",
+    "tests/unit/test_performance.py",
+    "tests/unit/test_policy.py",
+    "tests/unit/test_templates.py",
+    "tests/unit/test_web_bridge.py",
+    "tests/unit/test_xlsx.py"
   ],
-  "project_sha256": "debb33365b13fa6ad5f031836a7c8eefd9b0be7ed2d1c629bd9c9c34b0c649c6",
-  "reviewed_sections_sha256": "ad5ff0dd106c88f6d3758b66cb9b06dd374ab65c0d389b865068cfe1fd6aab16"
+  "project_sha256": "2f37352ff91071170964fdce1c3e2f51e7393c99c9436fe6e625c632e1b3c5b7",
+  "reviewed_sections_sha256": "07341de71f7734474f7d14a7bece5ce1bb3a4a8b658dac546fe0b631948db093"
 }
 ```
 <!-- /finassert-handoff-checkpoint -->
@@ -161,6 +194,112 @@ use `git log -5 --oneline` for the live tip. Regenerate with --refresh.
 ```
 
 ## Entries
+
+### 2026-11-21 — Prepare the P-03/P-04 delivery checkpoint
+
+- **Worked on:** Prepared the verified P-03 acceptance and P-04 composite audit,
+  starter policy, policy parameter export, guide assets, tests and spec records
+  for delivery on `spec/0020-quant-model-assurance`.
+- **Stopping point:** P-03 AC-01/AC-02 and P-04 implementation are complete.
+  P-05 workbook/Python/CLI example and P-06 native Excel parity remain open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** Full suite 3,785 passed and 111 Excel browser-job tests
+  skipped. Eighteen guide/API tests pass after the final PDF rebuild. Ruff,
+  formatting, mypy (67 source files), strict MkDocs, local anchors and diff checks
+  pass. No native Excel acceptance or CI run is claimed.
+
+### 2026-11-21 — Verify P-03 and implement P-04
+
+- **Worked on:** Verified the monthly performance reference calculator against
+  AC-01/AC-02 and implemented the composite audit, fixture-matched starter
+  policy, and configured/effective policy parameter exports.
+- **Stopping point:** P-03 acceptance and P-04 implementation are complete.
+  P-05 workbook/Python/CLI example and P-06 native Excel parity remain open.
+- **Priorities:** E-06 — Full Mac acceptance and regressions remains first;
+  0020 P-05/P-06 follow.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** Full suite 3,785 passed, 111 Excel browser-job tests skipped;
+  Ruff, formatting, mypy (67 files), strict MkDocs, guide asset/API tests, and
+  all 51 rendered PDF pages pass review. No commit, push, CI, or native Excel
+  acceptance was performed for this P-04 work.
+
+### 2026-11-20 — Record composite audit and policy traceability decisions
+
+- **Worked on:** Recorded the user's choices for specification 0020: keep the
+  audit as one composite check, and export all explicitly configured parameters
+  plus the complete effective values used after defaults and schema
+  normalization. Amended owner contracts 0005 and 0007 accordingly.
+- **Stopping point:** Contract decisions are recorded. P-03 AC-01/AC-02 runtime
+  verification and P-04 implementation remain pending; no P-04 runtime changes
+  were made.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** Strict MkDocs build, 136 local/repository links across 19
+  changed Markdown files, and `git diff --check` pass. Runtime checks were not
+  run.
+- **Branch / PR:** spec/0020-quant-model-assurance, local only.
+- **Decisions / blockers:** Policy artifacts expose explicit parameters and
+  complete effective_parameters; schema-1 artifact extension is additive,
+  Decimal text is exact, and the configured-policy digest and version-1 policy
+  input remain unchanged. Credentials do not belong in policy documents.
+
+### 2026-11-20 — Implement P-03 monthly reference and preflight
+
+- **Worked on:** Implemented the proposed reference calculator and shared monthly
+  coverage preflight for spec 0020 P-03.
+- **Stopping point:** Code and public API prototype are in place. AC-01/AC-02
+  runtime verification remains pending.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** Full Ruff lint, Ruff format check, and mypy pass. P-02 fixture
+  arithmetic, strict docs build, 58 local links/anchors, and `git diff --check`
+  pass. Runtime acceptance checks were not run.
+- **Branch / PR:** `spec/0020-quant-model-assurance`, local only.
+- **Decisions / blockers:** The public calculator and result shape are prototyped.
+  P-04 still needs the additive 0005/0007 artifact parameter-export amendments.
+  E-06 remains the first project priority.
+
+### 2026-11-20 — Complete P-02 performance audit design and fixtures
+
+- **Worked on:** Reviewed policy metadata, rule shape, row identity, numeric
+  precision, and prepared independent synthetic fixtures for 0020 P-02.
+- **Stopping point:** P-02 decisions, expected values, and mutation cases are
+  recorded. The monthly calculator and audit remain unimplemented.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining
+  failure/race/keyboard cases, then record external review separately.
+- **Verification:** The 12-month and 13-month strategy and benchmark expected
+  series match independent Decimal compounding; the seeded June difference is
+  `0.01`. Thirteen-month annualization agrees with hand expectations within
+  `1e-12`; the percent fixture normalizes exactly to the fraction case.
+  Short-history tracking error matches `sqrt(247/2500)`, and identical active
+  returns produce zero tracking error. Fixture JSON/CSV structure, 58 local
+  links/anchors, strict docs build, and whitespace checks pass. Runtime checks
+  were not run because no runtime code changed.
+- **Branch / PR:** `spec/0020-quant-model-assurance`, local only.
+- **Decisions / blockers:** P-04 depends on additive policy/report contract
+  amendments in 0005 and 0007 so configured parameters appear in exported
+  evidence. Overall order remains E-06 first; the user selected P-02 as this
+  session's work.
+
+### 2026-11-20 — Scope performance and backtest integrity
+
+- **Worked on:** Scoped proposed spec 0020 for performance and backtest integrity.
+- **Stopping point:** Spec 0020 defines the first performance workbook and audit. Runtime implementation remains proposed.
+- **Priorities:** E-06 — Full Mac acceptance and regressions.
+- **Next pickup:** Complete clean native table/hidden/filtered and remaining failure/race/keyboard cases, then record external review separately.
+- **Verification:** Seven spec files, 46 local links and anchors, exact decimal arithmetic for the worked example, the strict docs build, and whitespace checks pass.
+- **Branch:** `spec/0020-quant-model-assurance`, from `origin/main` at `8f14c66`.
+- **Priority decision:** Keep E-06 first. Spec 0020 is the next proposed product
+  extension, ahead of the two existing treasury follow-ups. Its first milestone
+  uses supplied monthly returns, one benchmark, and the existing single-source
+  Excel workflow. Backtest decision evidence and minimum-variance optimization
+  have separate proposed milestones. The proposal lives at `specs/0020/spec.md`.
 
 ### 2026-11-20 — Local-default QuantSmith reference with explicit GitHub mode
 

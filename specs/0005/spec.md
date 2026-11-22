@@ -61,6 +61,19 @@ tokens or null. The version-1 artifact envelope already carries tool identity,
 UTC generation time, caller-supplied input context, and policy digest. Explicit
 generation timestamps must be timezone-aware. New diagnostic fields are additive.
 
+The policy descriptor in artifact schema 1 includes `parameters` and
+`effective_parameters` for each configured rule. `parameters` preserves the
+typed values explicitly present in the policy document. `effective_parameters`
+contains the complete typed values used by evaluation after applying the
+registered rule defaults and schema normalization. Export all accepted rule
+parameters, including when a rule passes, fails, skips, or errors. Both objects
+are recursively JSON-safe; Decimal values remain exact strings. Do not omit
+defaults from `effective_parameters` or stringify valid parameter objects.
+`policy.digest` retains its existing meaning: the canonical configured policy
+digest. The tool identity/version in the artifact identifies the implementation
+that resolved defaults. This is additive under artifact schema 1 and does not
+change existing policy documents.
+
 0016 E-05 adds optional `input.excel` source schema 1 under artifact schema 1,
 supplied through its private verified-live bridge. Its scalar allowlist and exact
 field meanings are canonical in [0016 data contracts](../0016/spec.md#data-contracts).
@@ -94,12 +107,14 @@ the unmet precondition.
 ## Acceptance criteria
 
 Output is deterministic and strict-JSON compatible; all outcomes are distinct;
-diagnostics are bounded; Decimal precision is not represented as binary float.
+diagnostics are bounded; Decimal precision is not represented as binary float;
+policy artifacts preserve configured and effective rule parameters.
 
 ## Testing requirements
 
 Golden-test text and JSON, all outcomes, Decimal, composite labels, truncation,
-unusual metadata, serialization determinism, and exception sanitization.
+unusual metadata, serialization determinism, exception sanitization, and
+configured/effective rule parameter export including defaults.
 
 ## Dependencies on other specifications
 

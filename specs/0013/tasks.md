@@ -28,5 +28,8 @@ acceptance certification.
   selected region.
 - [x] Add CLI workbook flags after 0007; add a Diagnostics sheet after 0005 defines
   structured observations.
+- [x] Add a Policy sheet with configured/effective parameter export under the 0005
+  artifact contract; verify exact Decimal text and formula-like strings stay literal
+  in XLSX unit/integration tests and the full 3,785-test suite (2026-11-21).
 
 Record evidence in [handoff.md](handoff.md) before checking off work.

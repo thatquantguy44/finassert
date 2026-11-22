@@ -1,10 +1,10 @@
 # finassert User Guide
 
-<!-- finassert-guide-revision: 2026-11-20 -->
+<!-- finassert-guide-revision: 2026-11-21 -->
 
 Financial data validation in Excel, in a browser, and in reproducible pipelines.
 
-**Product version:** 0.1.0. **Guide revision:** 2026-11-20.
+**Product version:** 0.1.0. **Guide revision:** 2026-11-21.
 
 [Download this guide as a PDF](assets/finassert-user-guide.pdf).
 The local add-in API also provides the PDF at
@@ -795,6 +795,43 @@ Simple return requires `return_unit="fraction"` or `"percent"`. It is a
 simple period identity, not a time-weighted return, IRR or general performance
 attribution model. A zero beginning value and flow-timing assumptions matter.
 
+### Monthly strategy and benchmark audit
+
+`monthly_performance_audit` checks one declared strategy/benchmark comparison
+in a single composite rule. It verifies every month in the inclusive window,
+normalizes periodic and reported return units independently, links the periodic
+returns, and compares each reported cumulative value with its reference value.
+The policy must name the strategy, benchmark, base currency, month-end valuation
+convention, fee treatment for both series, absolute return tolerance, and source
+columns. Use it only when both series describe the same stable comparison and
+do not require cash-flow reconstruction.
+
+Create its documented starter policy with:
+
+```bash
+finassert init --template monthly-performance-audit --output performance.yml
+```
+
+Review and update every column mapping, date, unit, identifier and methodology
+declaration before using it for another file. The starter settings match the
+synthetic, out-of-order 2024 fixture and intentionally find its seeded June
+strategy cumulative discrepancy. Run the fixture with:
+
+```bash
+finassert check --config performance.yml \
+  --input specs/0020/artifacts/fixtures/monthly_returns_2024_seeded.csv \
+  --format csv --output performance-report.json --html performance-report.html \
+  --xlsx performance-report.xlsx
+```
+
+The expected June strategy cumulative return is `0.061520150601`; the supplied
+value is `0.071520150601`. Correct the reported candidate value, rerun the same
+policy, and retain both the original and corrected reports. JSON, HTML and XLSX
+show configured parameters separately from effective parameters, including
+defaults and normalized dates, units, currency and exact decimal tolerance.
+The report preserves the configured policy digest and bounded source-row
+diagnostics. It never uses a reported cumulative value to seed a later reference.
+
 ### Common mistakes to prevent
 
 - Treating a 40% display as numeric 40 instead of stored 0.4.
@@ -1171,7 +1208,7 @@ they do not expose private evaluators as additional public rules.
 
 ## Appendix A. Complete built-in rule reference
 
-This reference covers all 20 registered built-in policy factories.
+This reference covers all 21 registered built-in policy factories.
 Required means the policy must supply the parameter. None means an optional
 setting is unused by default. Defaults below are the catalog's declared values;
 review the applicability and each field's units before changing them.
@@ -1402,7 +1439,39 @@ Closing cash less restricted cash must meet each row's explicit minimum.
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A10. nav_reconciles
+### A10. monthly_performance_audit
+
+**Monthly performance matches periodic returns**. Stable rule ID: `performance.monthly_performance_audit`.
+
+Checks monthly coverage and inputs, then ties reported strategy and benchmark cumulative returns to the periodic returns.
+
+**Why use it:** Missing months, mis-scaled inputs, or a cumulative figure that does not follow from the underlying returns can make a performance report misleading.
+
+**Do not use when:** Returns are cash-flow reconstructed, the strategy or benchmark changes during the window, or the supplied series do not represent one declared comparison.
+
+| Parameter | Required / default | Meaning and allowed values |
+| --- | --- | --- |
+| `period_end` | Required | Column with each source row's ISO calendar month-end date. Type: column. |
+| `strategy_return` | Required | Column with the supplied simple monthly strategy total return. Type: column. |
+| `benchmark_return` | Required | Column with the paired simple monthly benchmark total return. Type: column. |
+| `reported_strategy_cumulative` | Required | Column with the strategy return linked from the first month through each row. Type: column. |
+| `reported_benchmark_cumulative` | Required | Column with the benchmark return linked from the first month through each row. Type: column. |
+| `window_start` | Required | Required inclusive ISO YYYY-MM-DD calendar month-end. Type: text. |
+| `window_end` | Required | Required inclusive ISO YYYY-MM-DD calendar month-end. Type: text. |
+| `periodic_return_unit` | Required | Declare fraction when 0.05 means 5%; percent when 5 means 5%. Type: choice. Choices: fraction, percent. |
+| `reported_return_unit` | Required | Declare the reported cumulative columns' unit independently. Type: choice. Choices: fraction, percent. |
+| `strategy_id` | Required | Declared identifier for the strategy series. Type: text. |
+| `benchmark_id` | Required | Declared identifier for the benchmark series. Type: text. |
+| `base_currency` | Required | Three-letter ISO 4217 code or explicit UNIT:identifier, normalized to uppercase. Type: text. |
+| `valuation_convention` | Required | Required analyst declaration; retained in the policy report. Type: text. |
+| `strategy_fee_treatment` | Required | Required analyst declaration of fees included in the strategy returns. Type: text. |
+| `benchmark_fee_treatment` | Required | Required analyst declaration of fees included in the benchmark returns. Type: text. |
+| `tolerance` | Required | Absolute allowance in decimal-return fractions; relative tolerance is zero. Type: tolerance. Absolute allowance only; relative must be zero. |
+| `row_key` | None | Optional column, such as a ticker, used to name rows in the report. Without it rows are named by their position in the file. Type: column. |
+| `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
+| `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
+
+### A11. nav_reconciles
 
 **Market values add up to the NAV**. Stable rule ID: `accounting.nav_reconciles`.
 
@@ -1423,7 +1492,7 @@ Checks that the market values of every line in a portfolio add up to its reporte
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A11. net_within_limit
+### A12. net_within_limit
 
 **Net exposure is within its limit**. Stable rule ID: `exposure.net_within_limit`.
 
@@ -1445,7 +1514,7 @@ Checks that the total of the signed values (shorts offset longs) of each portfol
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A12. no_duplicates
+### A13. no_duplicates
 
 **Each item appears only once**. Stable rule ID: `data.no_duplicates`.
 
@@ -1462,7 +1531,7 @@ Checks that no value, or combination of values, appears on more than one row.
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of repeated values listed in the report. Type: integer. Minimum: 0. |
 
-### A13. non_negative
+### A14. non_negative
 
 **No negative values**. Stable rule ID: `arithmetic.non_negative`.
 
@@ -1480,7 +1549,7 @@ Checks that no value in a column is below zero.
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of offending rows listed in the report. Type: integer. Minimum: 0. |
 
-### A14. position_rolls_forward
+### A15. position_rolls_forward
 
 **Position quantities roll forward**. Stable rule ID: `accounting.position_rolls_forward`.
 
@@ -1505,7 +1574,7 @@ Checks that each position's opening quantity plus buys, less sells, plus any oth
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A15. position_within_limit
+### A16. position_within_limit
 
 **No single position is too large**. Stable rule ID: `exposure.position_within_limit`.
 
@@ -1527,7 +1596,7 @@ Checks that no position, long or short, is larger than the limit you set, as a f
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A16. required_fields
+### A17. required_fields
 
 **Required fields are filled in**. Stable rule ID: `data.required_fields`.
 
@@ -1543,7 +1612,7 @@ Checks that none of the chosen columns has a blank cell.
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of blank rows listed for each column. Type: integer. Minimum: 0. |
 
-### A17. simple_return_reconciles
+### A18. simple_return_reconciles
 
 **Reported returns follow from the values**. Stable rule ID: `returns.simple_return_reconciles`.
 
@@ -1566,7 +1635,7 @@ Checks, on every row, that the reported return equals (ending value - beginning 
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A18. turnover_within_limit
+### A19. turnover_within_limit
 
 **Turnover stays within a limit**. Stable rule ID: `portfolio.turnover_within_limit`.
 
@@ -1588,7 +1657,7 @@ Checks that the change from the previous weights, summed over every position, st
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A19. weights_match_market_values
+### A20. weights_match_market_values
 
 **Weights match market values**. Stable rule ID: `portfolio.weights_match_market_values`.
 
@@ -1610,7 +1679,7 @@ Checks that each weight equals its market value divided by the portfolio's NAV (
 | `severity` | error | 'error' (the default) fails the run. 'warning' and 'info' are listed in the report but do not fail the run. A check that could not run always fails it. Type: choice. Choices: error, warning, info. |
 | `max_violations` | 20 | Maximum number of failing groups or rows listed in the report. Type: integer. Minimum: 0. |
 
-### A20. weights_sum_to_one
+### A21. weights_sum_to_one
 
 **Portfolio weights add up to 100%**. Stable rule ID: `portfolio.weights_sum_to_one`.
 
@@ -1631,7 +1700,7 @@ Checks that the values in a weight column add up to exactly 1, for the whole fil
 
 ## Appendix B. Complete starter-template reference
 
-All 10 current templates are ordinary policies.
+All 11 current templates are ordinary policies.
 Use finassert init to emit the full YAML. Replace sample schema/scope/date
 settings, confirm proposed matches, and review every assumption. Templates
 do not supply a mandate limit or establish required-control completeness.
@@ -1676,7 +1745,31 @@ Included checks: `weights_sum_to_one`, `non_negative`, `non_negative`.
 - Cash is a position in the file, so weights include it.
 - The portfolio holds no short positions and no instruments that can have a negative market value, such as swaps or futures.
 
-### B3. multi-portfolio-holdings
+### B3. monthly-performance-audit
+
+**Monthly strategy and benchmark audit**. Monthly periodic and reported cumulative total returns for one declared strategy and benchmark.
+
+Create with `finassert init --template monthly-performance-audit --output policy.yml`.
+
+Included checks: `monthly_performance_audit`.
+
+**Adapt before use:**
+
+- Map each column name and set the inclusive first and last month ends to match your file.
+- Replace the strategy, benchmark, currency, valuation, and fee declarations with the policy that produced your returns.
+- Confirm periodic and reported return units separately; both default to fractions.
+- Set the absolute tolerance in decimal-return fractions to match your reporting precision.
+- The companion synthetic 2024 fixture intentionally fails on the June strategy cumulative value until that source figure is corrected.
+
+**Assumptions:**
+
+- Each row is one calendar month in one stable strategy and benchmark comparison.
+- Periodic values are simple total returns with no intraperiod cash-flow reconstruction.
+- The synthetic example reports strategy returns net of management and transaction costs and benchmark returns gross of fees.
+- Both source series are denominated in USD and use calendar month-end valuation.
+- The synthetic 2024 example contains a deliberate June strategy cumulative discrepancy for the correction walkthrough.
+
+### B4. multi-portfolio-holdings
 
 **Holdings of several portfolios**. One file of positions for many portfolios, with weights, market values, and NAV.
 
@@ -1698,7 +1791,7 @@ Included checks: `required_fields`, `no_duplicates`, `weights_sum_to_one`, `nav_
 - Market values and NAV are in each portfolio's base currency, and liabilities and short positions have negative market values.
 - The NAV is given on every row, or on at least one row, of each portfolio.
 
-### B4. nav-reconciliation
+### B5. nav-reconciliation
 
 **Holdings add up to the NAV**. Holdings of several funds, each line with a market value and the fund's NAV.
 
@@ -1718,7 +1811,7 @@ Included checks: `nav_reconciles`.
 - Market values and the NAV are in each fund's base currency.
 - The NAV is given on every line, or on at least one line, of each fund.
 
-### B5. position-rollforward
+### B6. position-rollforward
 
 **Position quantity roll-forward**. One row per portfolio and security: opening and closing quantities and trades.
 
@@ -1740,7 +1833,7 @@ Included checks: `required_fields`, `no_duplicates`, `position_rolls_forward`.
 - Splits, transfers, and corporate actions are in the adjustments column, or the file has none.
 - Quantities are in units of the security, not market value.
 
-### B6. position-valuation
+### B7. position-valuation
 
 **Position market values**. One row per position with quantity, price, and market value.
 
@@ -1761,7 +1854,7 @@ Included checks: `required_fields`, `market_value_reconciles`.
 - Price and market value are in the same currency.
 - The market value excludes accrued interest, or the price includes it.
 
-### B7. return-reconciliation
+### B8. return-reconciliation
 
 **Reported returns**. One row per portfolio and period with beginning and ending values and a return.
 
@@ -1783,7 +1876,7 @@ Included checks: `simple_return_reconciles`.
 - The return is gross of any fees the values do not already reflect.
 - Values are in one currency per row.
 
-### B8. target-allocation
+### B9. target-allocation
 
 **Target (model) allocation**. A model portfolio or strategic asset allocation, before it is traded.
 
@@ -1802,7 +1895,7 @@ Included checks: `weights_sum_to_one`, `non_negative`.
 - Targets are fractions of the whole (0.25, not 25).
 - The model is long-only: no target is negative.
 
-### B9. treasury-cash-forecast
+### B10. treasury-cash-forecast
 
 **Weekly cash forecast**. Treasury cash/funding pack v1: coverage, identity, continuity and available cash.
 
@@ -1828,7 +1921,7 @@ Included checks: `required_fields`, `no_duplicates`, `no_duplicates`, `forecast_
 - Minimum buffers and effective commitment/reductions are caller supplied, not recommendations.
 - Facility checks cover period ends; legal eligibility and intraperiod peaks are outside scope.
 
-### B10. treasury-facility-schedule
+### B11. treasury-facility-schedule
 
 **Weekly facility schedule**. Treasury cash/funding pack v1: principal, capacity and maturity.
 

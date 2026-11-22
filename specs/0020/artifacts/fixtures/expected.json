@@ -1,0 +1,135 @@
+{
+  "fixture_version": 1,
+  "unit": "decimal fraction",
+  "precision": {
+    "significant_digits": 50,
+    "rounding": "ROUND_HALF_EVEN",
+    "excel_python_absolute_parity_tolerance": "1e-12"
+  },
+  "annual_2024": {
+    "source": "monthly_returns_2024_seeded.csv",
+    "window_start": "2024-01-31",
+    "window_end": "2024-12-31",
+    "source_order_is_chronological": false,
+    "strategy_id": "strategy-demo",
+    "benchmark_id": "benchmark-demo",
+    "base_currency": "USD",
+    "valuation_convention": "calendar month-end total return",
+    "strategy_fee_treatment": "net of management and transaction costs",
+    "benchmark_fee_treatment": "gross of fees",
+    "periodic_return_unit": "fraction",
+    "reported_return_unit": "fraction",
+    "absolute_financial_tolerance": "0.0001",
+    "expected_by_period": [
+      {"source_row_id": "src-2024-01", "period_end": "2024-01-31", "active_return": "0.005", "strategy_cumulative": "0.01", "benchmark_cumulative": "0.005"},
+      {"source_row_id": "src-2024-02", "period_end": "2024-02-29", "active_return": "0.005", "strategy_cumulative": "0.0201", "benchmark_cumulative": "0.010025"},
+      {"source_row_id": "src-2024-03", "period_end": "2024-03-31", "active_return": "0.005", "strategy_cumulative": "0.030301", "benchmark_cumulative": "0.015075125"},
+      {"source_row_id": "src-2024-04", "period_end": "2024-04-30", "active_return": "0.005", "strategy_cumulative": "0.04060401", "benchmark_cumulative": "0.020150500625"},
+      {"source_row_id": "src-2024-05", "period_end": "2024-05-31", "active_return": "0.005", "strategy_cumulative": "0.0510100501", "benchmark_cumulative": "0.025251253128125"},
+      {"source_row_id": "src-2024-06", "period_end": "2024-06-30", "active_return": "0.005", "strategy_cumulative": "0.061520150601", "benchmark_cumulative": "0.030377509393765625"},
+      {"source_row_id": "src-2024-07", "period_end": "2024-07-31", "active_return": "0.005", "strategy_cumulative": "0.07213535210701", "benchmark_cumulative": "0.035529396940734453125"},
+      {"source_row_id": "src-2024-08", "period_end": "2024-08-31", "active_return": "0.005", "strategy_cumulative": "0.0828567056280801", "benchmark_cumulative": "0.040707043925438125390625"},
+      {"source_row_id": "src-2024-09", "period_end": "2024-09-30", "active_return": "0.005", "strategy_cumulative": "0.093685272684360901", "benchmark_cumulative": "0.045910579145065316017578125"},
+      {"source_row_id": "src-2024-10", "period_end": "2024-10-31", "active_return": "0.005", "strategy_cumulative": "0.10462212541120451001", "benchmark_cumulative": "0.051140132040790642597666015625"},
+      {"source_row_id": "src-2024-11", "period_end": "2024-11-30", "active_return": "0.005", "strategy_cumulative": "0.1156683466653165551101", "benchmark_cumulative": "0.056395832700994595810654345703125"},
+      {"source_row_id": "src-2024-12", "period_end": "2024-12-31", "active_return": "0.005", "strategy_cumulative": "0.126825030131969720661201", "benchmark_cumulative": "0.061677811864499568789707617431640625"}
+    ],
+    "summary": {
+      "complete_months": 12,
+      "strategy_cumulative_return": "0.126825030131969720661201",
+      "benchmark_cumulative_return": "0.061677811864499568789707617431640625",
+      "cumulative_return_difference": "0.065147218267470151871493382568359375",
+      "strategy_annualized_geometric_return": "0.126825030131969720661201",
+      "benchmark_annualized_geometric_return": "0.061677811864499568789707617431640625",
+      "annualized_tracking_error": "0"
+    },
+    "seeded_failure": {
+      "source_row_id": "src-2024-06",
+      "period_end": "2024-06-30",
+      "field": "reported_strategy_cumulative",
+      "expected": "0.061520150601",
+      "observed": "0.071520150601",
+      "difference": "0.01",
+      "absolute_tolerance": "0.0001",
+      "outcome": "failed",
+      "later_reference_values_use_reported_values": false
+    }
+  },
+  "three_month_hand_case": {
+    "source": "monthly_returns_3m_hand_case.csv",
+    "strategy_periodic_returns": ["0.10", "-0.10", "0.02"],
+    "benchmark_periodic_returns": ["0.02", "0", "0.01"],
+    "active_returns": ["0.08", "-0.10", "0.01"],
+    "strategy_cumulative_by_period": ["0.10", "-0.01", "0.0098"],
+    "benchmark_cumulative_by_period": ["0.02", "0.02", "0.0302"],
+    "cumulative_difference_by_period": ["0.08", "-0.03", "-0.0204"],
+    "summary": {
+      "strategy_cumulative_return": "0.0098",
+      "benchmark_cumulative_return": "0.0302",
+      "cumulative_return_difference": "-0.0204",
+      "annualized_geometric_returns": null,
+      "annualized_geometric_unavailable_reason": "fewer_than_12_complete_months",
+      "active_return_sample_variance": "247/30000",
+      "annualized_tracking_error_exact": "sqrt(247/2500)",
+      "annualized_tracking_error_decimal_50dp": "0.31432467291003421960436773978256054699884360444590"
+    }
+  },
+  "three_month_percent_equivalent": {
+    "source": "monthly_returns_3m_percent.csv",
+    "periodic_return_unit": "percent",
+    "reported_return_unit": "percent",
+    "normalized_strategy_periodic_returns": ["0.10", "-0.10", "0.02"],
+    "normalized_benchmark_periodic_returns": ["0.02", "0", "0.01"],
+    "normalized_strategy_cumulative": "0.0098",
+    "normalized_benchmark_cumulative": "0.0302",
+    "normalized_cumulative_difference": "-0.0204",
+    "parity_absolute_tolerance": "1e-12"
+  },
+  "thirteen_month_annualization": {
+    "source": "monthly_returns_13m_annualization.csv",
+    "window_start": "2024-01-31",
+    "window_end": "2025-01-31",
+    "complete_months": 13,
+    "periodic_strategy_return": "0.01",
+    "periodic_benchmark_return": "0.005",
+    "strategy_cumulative_return": "0.13809328043328941786781301",
+    "benchmark_cumulative_return": "0.066986200923822066633656155518798828125",
+    "strategy_annualized_geometric_expected": "0.126825030131969720661201",
+    "benchmark_annualized_geometric_expected": "0.061677811864499568789707617431640625",
+    "annualized_tracking_error": "0",
+    "formula_exponent": "12/13",
+    "parity_absolute_tolerance": "1e-12"
+  },
+  "zero_tracking_error_case": {
+    "source": "monthly_returns_zero_tracking_error.csv",
+    "active_returns": ["0.01", "0.01"],
+    "summary": {
+      "strategy_cumulative_return": "0.0302",
+      "benchmark_cumulative_return": "0.01",
+      "cumulative_return_difference": "0.0202",
+      "annualized_tracking_error": "0",
+      "annualized_geometric_returns": null,
+      "annualized_geometric_unavailable_reason": "fewer_than_12_complete_months"
+    }
+  },
+  "coverage_mutations": [
+    {"case": "missing_first_month", "remove_period_end": "2024-01-31", "expected": "blocking_missing_period; full_window_metrics_unavailable"},
+    {"case": "missing_interior_month", "remove_period_end": "2024-06-30", "expected": "blocking_missing_period; full_window_metrics_unavailable"},
+    {"case": "missing_last_month", "remove_period_end": "2024-12-31", "expected": "blocking_missing_period; full_window_metrics_unavailable"},
+    {"case": "duplicate_period", "duplicate_period_end": "2024-06-30", "expected": "blocking_duplicate_period; no_row_is_selected"},
+    {"case": "outside_window", "add_period_end": "2023-12-31", "expected": "blocking_unexpected_period"},
+    {"case": "blank_strategy_return", "blank_field_at": "2024-06-30:strategy_return", "expected": "blocking_invalid_input; full_window_metrics_unavailable"},
+    {"case": "blank_benchmark_return", "blank_field_at": "2024-06-30:benchmark_return", "expected": "blocking_invalid_input; full_window_metrics_unavailable"},
+    {"case": "non_month_end", "replace_period_end": {"from": "2024-03-31", "to": "2024-03-30"}, "expected": "blocking_invalid_period"},
+    {"case": "invalid_total_loss_boundary", "set_field_at": {"period_end": "2024-06-30", "field": "strategy_return", "value": "-1"}, "expected": "blocking_return_at_or_below_minus_100_percent"},
+    {"case": "zero_is_observation", "set_field_at": {"period_end": "2024-05-31", "field": "strategy_return", "value": "0"}, "expected": "valid_observation; recompute_reference_values"},
+    {"case": "non_finite_text", "set_field_at": {"period_end": "2024-06-30", "field": "benchmark_return", "value": "NaN"}, "expected": "blocking_invalid_input"}
+  ],
+  "numeric_cases": [
+    {"case": "three_month_percent_equivalent", "source": "monthly_returns_3m_percent.csv", "expected_normalized_values_equal_fraction_case_within": "1e-12"},
+    {"case": "non_integer_annualization_exponent", "source": "monthly_returns_13m_annualization.csv", "complete_months": 13, "expected_exponent": "12/13", "expected_strategy_geometric_return": "0.126825030131969720661201", "expected_benchmark_geometric_return": "0.061677811864499568789707617431640625", "absolute_numeric_bound": "1e-12"},
+    {"case": "inclusive_tolerance_boundary", "expected": "0.0302", "observed": "0.0303", "absolute_tolerance": "0.0001", "expected_outcome": "passed"},
+    {"case": "one_decimal_step_beyond_tolerance", "expected": "0.0302", "observed": "0.0303000000000000000000000001", "absolute_tolerance": "0.0001", "expected_outcome": "failed"},
+    {"case": "seeded_error_does_not_propagate", "altered_report_period": "2024-06-30", "later_periods_expected_from": "periodic_returns_only"}
+  ]
+}

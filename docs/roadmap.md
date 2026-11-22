@@ -25,7 +25,7 @@ It defaults to the supplied local checkout and offers an explicit pinned GitHub
 source for the local owner; neither mode changes E-06's priority or claims
 shared hosting support.
 Spec 0019 now supplies the comprehensive [user guide](user-guide.md), a reviewed
-47-page PDF with all 20 built-in rules and 10 templates, and a local read-only
+51-page PDF with all 21 built-in rules and 11 templates, and a local read-only
 download API in the existing Excel server. Its pane link and HTTPS downloads are
 verified; this delivery leaves the E-06 host-acceptance gate and priority unchanged.
 
@@ -54,11 +54,17 @@ Next engineering work:
    1904 repeat. Next are clean table/hidden/filtered and remaining
    failure/race/keyboard cases.
    Range mode requires stable ExcelApi 1.13; table mode keeps the 1.7 floor.
-2. Implement paired forecast accuracy under specification 0012 U-08, with explicit
+2. Continue the first [0020 performance and backtest integrity](handoff.md#next-up)
+   milestone. P-02 fixtures are complete; P-03 AC-01/AC-02 and P-04 rule,
+   starter policy, CLI/report parameters are implemented and pass verification.
+   Next build the worked workbook and Python/CLI example in P-05, then verify
+   native Excel parity in P-06. Point-in-time checks and optimization remain
+   proposed follow-on milestones.
+3. Implement paired forecast accuracy under specification 0012 U-08, with explicit
    matching/vintage/cutoff, zero-actual and limit-combination contracts.
-3. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
+4. Implement debt principal and issuance proceeds under 0012 U-09; finalize the
    conventions and extend 0002 before promoting new public financial rules.
-4. Extend platform pilots and remaining adapter/grouped-rule requests based on
+5. Extend platform pilots and remaining adapter/grouped-rule requests based on
    demonstrated inputs. Local QuantSmith installation/orchestration belongs in its
    own repository and consumes the verified finassert bundle.
 

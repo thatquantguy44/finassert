@@ -27,3 +27,8 @@ Record evidence in [handoff.md](handoff.md) before checking off work.
 - [x] Clarify human failure-action labels without changing canonical severity or
   outcome/blocking semantics; full 3,743 runtime/111 browser cases, escaping/parity,
   native saved-sheet and installed distribution checks pass (2026-11-20).
+- [x] Implement artifact `parameters` and `effective_parameters` for every rule,
+  including defaults and exact Decimal text, as specified in the
+  [policy parameter amendment](contracts.md#policy-parameter-artifact-amendment-2026-11-20);
+  verified across pass/fail/error/skipped outcomes and report views in the full 3,785-test suite
+  (2026-11-21; 111 Excel browser-job tests skipped).

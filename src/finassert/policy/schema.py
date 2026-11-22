@@ -8,7 +8,9 @@ import math
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
+from enum import Enum
 from types import MappingProxyType
 from typing import Any
 
@@ -39,11 +41,13 @@ class PolicyRule:
     Args:
         factory: Canonical factory name.
         parameters: Parameters exactly as supplied, after type validation.
+        effective_parameters: Complete typed parameter set including defaults.
         rule: Configured rule instance.
     """
 
     factory: str
     parameters: Mapping[str, Any]
+    effective_parameters: Mapping[str, Any]
     rule: Rule
 
     def to_document(self) -> dict[str, Any]:
@@ -109,13 +113,7 @@ class Policy:
             "version": self.version,
             "digest": self.digest,
             "rules": [
-                {
-                    "rule_id": entry.rule.rule_id,
-                    "factory": entry.factory,
-                    "title": self.catalog.resolve(entry.factory).title,
-                    "summary": self.catalog.resolve(entry.factory).summary,
-                }
-                for entry in self.entries
+                _describe_rule(entry, self.catalog.resolve(entry.factory)) for entry in self.entries
             ],
         }
 
@@ -285,16 +283,85 @@ def _entry(
             )
     if len(issues.items) != count_before:
         return None
+
+    effective_parameters = dict(parameters)
+    argument_parameters = dict(parameters)
+    for parameter in spec.parameters:
+        if parameter.name in parameters:
+            continue
+        if parameter.default is None:
+            effective_parameters[parameter.name] = None
+            continue
+        default = _parameter_value(parameter, parameter.default, (*path, parameter.name), issues)
+        if default is not _INVALID:
+            effective_parameters[parameter.name] = default
+            argument_parameters[parameter.name] = default
+    if len(issues.items) != count_before:
+        return None
+
     try:
-        rule = spec.factory(**_factory_arguments(parameters))
+        rule = spec.factory(**_factory_arguments(argument_parameters))
     except (TypeError, ValueError) as exc:
         issues.add(path, f"Rule {spec.name!r} could not be configured: {exc}")
         return None
-    return _resolved(spec, parameters, rule)
+    return _resolved(spec, parameters, effective_parameters, rule)
 
 
-def _resolved(spec: RuleFactorySpec, parameters: dict[str, Any], rule: Rule) -> PolicyRule:
-    return PolicyRule(factory=spec.name, parameters=MappingProxyType(parameters), rule=rule)
+def _resolved(
+    spec: RuleFactorySpec,
+    parameters: dict[str, Any],
+    effective_parameters: dict[str, Any],
+    rule: Rule,
+) -> PolicyRule:
+    return PolicyRule(
+        factory=spec.name,
+        parameters=MappingProxyType(parameters),
+        effective_parameters=MappingProxyType(effective_parameters),
+        rule=rule,
+    )
+
+
+def _describe_rule(entry: PolicyRule, spec: RuleFactorySpec) -> dict[str, Any]:
+    effective: dict[str, Any] = {}
+    for parameter in spec.parameters:
+        value = entry.effective_parameters[parameter.name]
+        if hasattr(entry.rule, parameter.name):
+            value = getattr(entry.rule, parameter.name)
+        effective[parameter.name] = _artifact_parameter_value(value)
+    return {
+        "rule_id": entry.rule.rule_id,
+        "factory": entry.factory,
+        "title": spec.title,
+        "summary": spec.summary,
+        "parameters": {
+            name: _artifact_parameter_value(value) for name, value in entry.parameters.items()
+        },
+        "effective_parameters": effective,
+    }
+
+
+def _artifact_parameter_value(value: Any) -> Any:
+    """Serialize a policy value without dropping its exact typed representation."""
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, Tolerance):
+        return _artifact_parameter_value(value.to_dict())
+    if isinstance(value, Mapping):
+        return {str(key): _artifact_parameter_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_artifact_parameter_value(item) for item in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("policy parameters must be finite")
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    serializer = getattr(value, "to_dict", None)
+    if callable(serializer):
+        return _artifact_parameter_value(serializer())
+    raise TypeError(f"policy parameter {type(value).__name__} is not JSON-compatible")
 
 
 _INVALID = object()

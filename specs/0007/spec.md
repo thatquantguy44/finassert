@@ -49,7 +49,14 @@ errors coexist, `2` wins.
 
 Config version is required. Each rule entry includes ID/factory and parameters;
 unknown keys fail. Artifacts use specification 0005 and include config digest,
-input locator supplied by user, timestamps in UTC, and tool version.
+input locator supplied by user, timestamps in UTC, and tool version. Each rule
+descriptor exports `parameters` exactly as explicitly configured and
+`effective_parameters` with the complete typed values used after registered
+defaults and schema normalization. Both are JSON-safe and retain exact Decimal
+values as text. Defaults are included in the effective set, and fields remain
+present when a configured rule passes, fails, skips, or errors. This additive
+artifact schema 1 extension does not change version-1 input policy semantics or
+the configured-policy digest.
 
 ## Financial and numerical edge cases
 
@@ -59,7 +66,9 @@ quoted strings and declared numeric type. Currency and as-of context are explici
 ## Failure semantics
 
 Malformed configuration never becomes a skipped rule. Partial reports are written
-atomically when evaluation began. Secrets and full records are not printed.
+atomically when evaluation began. Policy parameters are intentionally visible in
+the report artifact; credentials must not be stored in policy documents. Full
+source records and tracebacks are not printed.
 
 ## Implementation milestones
 

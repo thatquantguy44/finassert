@@ -17,6 +17,7 @@ from finassert.policy import (
     parse_policy,
     parse_policy_text,
 )
+from finassert.reporting import build_artifact
 from finassert.rules import WeightsSumToOneRule
 
 VALID = """\
@@ -311,6 +312,7 @@ def test_every_built_in_rule_is_fully_documented() -> None:
         "in_range",
         "market_value_reconciles",
         "minimum_cash_buffer",
+        "monthly_performance_audit",
         "nav_reconciles",
         "net_within_limit",
         "no_duplicates",
@@ -343,6 +345,24 @@ def test_every_built_in_rule_is_fully_documented() -> None:
 def test_parameter_spec_serializes_defaults_as_text() -> None:
     spec = ParameterSpec("n", ParameterKind.INTEGER, "N", "d", default=20, minimum=0)
     assert spec.to_dict()["default"] == "20"
+
+
+def test_skipped_policy_result_retains_configured_and_effective_parameters() -> None:
+    policy = parse_policy(
+        {
+            "version": 1,
+            "rules": [{"rule": "weights_sum_to_one", "column": "weight", "null_policy": "skip"}],
+        }
+    )
+    report = policy.check({"weight": [None]})
+
+    assert report.results[0].outcome is Outcome.SKIPPED
+    descriptor = build_artifact(report, policy=policy)["policy"]["rules"][0]
+    assert descriptor["parameters"] == {"column": "weight", "null_policy": "skip"}
+    assert descriptor["effective_parameters"]["column"] == "weight"
+    assert descriptor["effective_parameters"]["null_policy"] == "skip"
+    assert descriptor["effective_parameters"]["severity"] == "error"
+    assert descriptor["effective_parameters"]["max_violations"] == 20
 
 
 @pytest.mark.parametrize(

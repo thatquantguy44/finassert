@@ -347,6 +347,7 @@ def _result_card(
     ]
     if summary:
         parts.append(f"<p>{_text(summary)}</p>")
+    parts.append(_policy_parameters(description))
     parts.append(f'<p class="message">{_text(result["message"])}</p>')
     parts.append(_measurements(result))
     parts.append(
@@ -356,6 +357,29 @@ def _result_card(
     )
     parts.append("</article>")
     return "".join(part for part in parts if part)
+
+
+def _policy_parameters(description: Mapping[str, Any]) -> str:
+    configured = description.get("parameters") or {}
+    effective = description.get("effective_parameters") or {}
+    if not configured and not effective:
+        return ""
+    sections = ['<details class="policy-parameters"><summary>Policy parameters</summary>']
+    for title, values in (
+        ("Configured values", configured),
+        ("Effective values, including defaults", effective),
+    ):
+        if not isinstance(values, Mapping) or not values:
+            continue
+        rows = "".join(
+            f'<tr><th scope="row">{_text(name)}</th><td>{_value(value)}</td></tr>'
+            for name, value in values.items()
+        )
+        sections.extend(
+            (f"<h4>{_text(title)}</h4>", f'<div class="table-wrap"><table>{rows}</table></div>')
+        )
+    sections.append("</details>")
+    return "".join(sections)
 
 
 def _canonical_diagnostics(result: Mapping[str, Any]) -> str:
