@@ -237,9 +237,9 @@ are unavailable for that three-month window.
 - P-03 AC-01/AC-02 fixture verification and the P-04 rule/API review are complete;
   see the [implementation handoff](handoff.md) and
   [acceptance tests](../../tests/unit/test_performance.py).
-- Complete the P-05 worked workbook and Python/CLI example, then qualify
-  workbook formulas, mapping and native Excel parity under P-06. Record the
-  supported host scope at acceptance.
+- P-05 provides the worked workbook, visible formulas, source mapping and
+  Python/CLI replay. Qualify workbook formulas, mapping and native Excel parity
+  under P-06, then record the supported host scope at acceptance.
 - Solver choice, optional dependency packaging, and optimality certificate
   checks belong to the optimization milestone review.
 
